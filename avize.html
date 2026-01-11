@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <title>Aviz de Însoțire a Mărfii PNRAS</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        /* Configurație Strictă A4 */
+        @page { 
+            size: A4; 
+            margin: 0; /* Marginile sunt gestionate de .sheet pentru consistență ecran/print */
+        }
+        
+        body { 
+            margin: 0; 
+            padding: 0; 
+            background: #555; /* Fundal gri pentru a scoate în evidență foaia */
+            font-family: "Times New Roman", Times, serif; 
+            font-size: 12pt;
+            line-height: 1.15;
+            color: #000;
+        }
+
+        /* Containerul Paginii - Simulează foaia A4 în browser */
+        .sheet {
+            background: white;
+            width: 210mm;
+            height: 297mm;
+            margin: 20px auto; /* Centrare pe ecran */
+            position: relative;
+            box-sizing: border-box;
+            padding: 1.5cm; /* Marginea de 1.5 cm solicitată */
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+        }
+
+        .antet-img { 
+            width: 100%; 
+            height: auto; 
+            margin-bottom: 10px; 
+        }
+
+        .table-header-info { width: 100%; border-collapse: collapse; margin-bottom: 15px; }
+        .table-header-info td { width: 50%; vertical-align: top; border: 1px solid #000; padding: 10px; font-size: 11pt; }
+
+        .titlu-central { text-align: center; font-weight: bold; font-size: 14pt; margin-top: 5px; text-transform: uppercase; }
+        .serie-data-container { text-align: center; font-size: 14pt; font-weight: normal; margin: 15px 0 20px 0; line-height: 1.3; }
+        .input-caseta { border: none; outline: none; font-family: "Times New Roman", Times, serif; font-size: 14pt; width: 45px; text-align: center; background: transparent; }
+
+        .tabel-produse { width: 100%; border-collapse: collapse; margin-bottom: 25px; }
+        .tabel-produse th, .tabel-produse td { border: 1px solid #000; padding: 8px; text-align: center; font-size: 10pt; vertical-align: middle; }
+        .tabel-produse th { background: #f2f2f2; font-weight: bold; }
+        .col-spec { text-align: center !important; line-height: 1.2; }
+
+        .sectiune-text { font-size: 11pt; margin-bottom: 15px; }
+        .sectiune-text strong { display: block; margin-bottom: 5px; text-decoration: underline; }
+        .sectiune-text p { margin: 2px 0; padding-left: 15px; }
+
+        .semnaturi { display: flex; justify-content: space-between; margin-top: 40px; font-size: 11pt; }
+        .semnatura-box { width: 45%; text-align: center; }
+
+        /* Footer fixat la 1.5cm de marginea de jos a foii */
+        .footer { 
+            position: absolute;
+            bottom: 1.5cm;
+            left: 1.5cm;
+            right: 1.5cm;
+            border-top: 1px solid #ccc;
+            padding-top: 5px;
+            text-align: center;
+            font-size: 9pt;
+            color: #333;
+        }
+        .footer a { color: #333; text-decoration: none; }
+        
+        .no-print { position: fixed; top: 20px; left: 20px; z-index: 1000; }
+        button { padding: 10px 20px; cursor: pointer; background: #10b981; border: none; color: white; border-radius: 4px; font-weight: bold; box-shadow: 0 2px 5px rgba(0,0,0,0.3); }
+
+        @media print { 
+            body { background: none; } 
+            .sheet { margin: 0; box-shadow: none; width: 210mm; height: 297mm; } 
+            .no-print { display: none; } 
+        }
+    </style>
+</head>
+<body>
+
+    <div class="no-print">
+        <button onclick="window.print()">🖨️ PRINTEAZĂ DOCUMENT</button>
+        <button onclick="history.back()" style="background:#333; margin-left:10px;">ÎNAPOI</button>
+    </div>
+
+    <div class="sheet">
+        <img src="antet_pnras.jpeg" alt="Antet PNRAS" class="antet-img">
+
+        <table class="table-header-info">
+            <tr>
+                <td>
+                    <strong>Furnizor: SC PROCONS IAȘI SRL</strong><br>
+                    Nr. ord. reg. com.: J22/294/23.02.2015<br>
+                    C.U.I.: 34138254<br>
+                    Sat Belcești, Nr. 370, Județul Iași
+                </td>
+                <td>
+                    <strong>Beneficiar: Liceul Tehnologic ”Victor Mihăilescu Craiu” Belcești</strong><br>
+                    C.U.I.: 17130374<br>
+                    Comuna Belcești, Str. Principală, Nr. 1, Județul Iași
+                </td>
+            </tr>
+        </table>
+
+        <div class="titlu-central">AVIZ DE ÎNSOȚIRE A MĂRFII</div>
+        
+        <div class="serie-data-container">
+            <div>Nr. <input type="text" class="input-caseta" maxlength="3" placeholder="___"></div>
+            <div>Data: <span id="data-automata"></span></div>
+        </div>
+        
+        <table class="tabel-produse">
+            <thead>
+                <tr>
+                    <th style="width: 5%;">Nr. crt.</th>
+                    <th style="width: 50%;">Specificația</th>
+                    <th style="width: 8%;">U.M.</th>
+                    <th style="width: 10%;">Cantitate</th>
+                    <th style="width: 12%;">Preț unitar<br>(fără T.V.A.)</th>
+                    <th style="width: 15%;">Valoare (lei)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>1</td>
+                    <td class="col-spec" id="spec-meniu">Se încarcă...</td>
+                    <td>buc.</td>
+                    <td id="cantitate-celula">0</td>
+                    <td>13,8</td>
+                    <td id="valoare-totala">0</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="sectiune-text">
+            <strong>Mențiuni:</strong>
+            <p>1. Produsele sunt livrate conform contractului de prestări servicii de catering Nr. 143/06.12.2024;</p>
+            <p>2. Produsele sunt conforme din punct de vedere sanitar-veterinar;</p>
+            <p>3. Avizul însoțește marfa pe durata transportului;</p>
+        </div>
+
+        <div class="sectiune-text">
+            <strong>Date privind expediția:</strong>
+            <p>1. Numele delegatului: Murariu Mirela; C.I. Seria MZ, Nr. 710839</p>
+            <p>2. Expedierea s-a efectuat în prezența noastră la data de <span id="data-expeditie"></span>, ora 13.30.</p>
+        </div>
+
+        <div class="semnaturi">
+            <div class="semnatura-box">
+                Semnătura și ștampila furnizorului,<br><br><br>
+                _______________________
+            </div>
+            <div class="semnatura-box">
+                Semnătura de primire,<br>
+                <strong>Liceul Tehnologic ”Victor Mihăilescu Craiu”</strong><br>
+                <strong>Belcești</strong><br><br>
+                <strong>Pavel Ioan</strong><br>
+                _______________________
+            </div>
+        </div>
+
+        <div class="footer">
+            „PNRR. Finanțat de Uniunea Europeană – UrmătoareaGenerațieUE”<br>
+            <a href="https://mfe.gov.ro/pnrr/">https://mfe.gov.ro/pnrr/</a> | <a href="https://www.facebook.com/PNRROficial/">https://www.facebook.com/PNRROficial/</a>
+        </div>
+    </div>
+
+    <script>
+        const URL_S = 'https://aexjrbdgajurxzngfkpx.supabase.co';
+        const KEY_S = 'sb_publishable_KPV__0BA9z4EvRl5eqC0FQ_hmBLOLYv';
+        const supabaseClient = supabase.createClient(URL_S, KEY_S);
+
+        const params = new URLSearchParams(window.location.search);
+        const zi = params.get('zi'), lunaText = params.get('luna'), an = params.get('an');
+
+        const meniuriConfig = {
+            1: "<strong>Meniu 1: Șnițel de pui cu garnitură, salată și pâine</strong><br>Carne: șnițel de pui (>130 g) | Garnitură: cartofi la cuptor/piure (>150 g)<br>Salată: salată de varză | Pâine: 3 felii | Ambalaj și tacâmuri",
+            2: "<strong>Meniu 2: Pulpă de pui cu garnitură, salată și pâine</strong><br>Carne: pulpă de pui la cuptor (>130 g) | Garnitură: orez legume/cartofi (>150 g)<br>Salată: salată varză/asortată | Pâine: 3 felii | Ambalaj și tacâmuri",
+            3: "<strong>Meniu 3: Hamburger de pui</strong><br>Carne: burger de pui (>130 g) | Garnitură: cartofi pai (>150 g)<br>Salată: legume | Pâine: chiflă | Ambalaj și tacâmuri",
+            4: "<strong>Meniu 4: Piept de pui cu garnitură, salată și pâine</strong><br>Carne: piept pui (>130 g) | Garnitură: natur/piure (>150 g)<br>Salată: varză/asortată | Pâine: 3 felii | Ambalaj și tacâmuri",
+            5: "<strong>Meniu 5: Mâncare cartofi cu carne porc, murături și pâine</strong><br>Carne: porc (>130 g) | Garnitură: mâncărică cartofi (>150 g)<br>Salată: murături asortate | Pâine: 3 felii | Ambalaj și tacâmuri"
+        };
+
+        const luniMapping = { "Ianuarie":"01","Februarie":"02","Martie":"03","Aprilie":"04","Mai":"05","Iunie":"06","Iulie":"07","August":"08","Septembrie":"09","Octombrie":"10","Noiembrie":"11","Decembrie":"12" };
+
+        async function loadData() {
+            const dataF = `${zi.padStart(2,'0')}.${luniMapping[lunaText]}.${an}`;
+            document.getElementById('data-automata').innerText = dataF;
+            document.getElementById('data-expeditie').innerText = dataF;
+
+            const { data } = await supabaseClient.from('setari_pontaj').select('*').match({ zi, luna: lunaText, an }).single();
+
+            if (data) {
+                const cantitate = parseInt(data.valoare_aviz) || 0;
+                const totalVal = (cantitate * 13.8).toFixed(2);
+                document.getElementById('spec-meniu').innerHTML = meniuriConfig[data.tip_meniu] || "Meniu nespecificat";
+                document.getElementById('cantitate-celula').innerText = cantitate;
+                document.getElementById('valoare-totala').innerText = totalVal;
+            }
+        }
+        loadData();
+    </script>
+</body>
+</html>

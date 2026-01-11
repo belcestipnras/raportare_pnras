@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <title>Arhivă Avize - Listă Zilnică</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root { --bg: #0b0f14; --panel: #1a1f26; --accent: #10b981; --text: #e6edf3; --border: #30363d; }
+        body { background: var(--bg); color: var(--text); font-family: 'Roboto Condensed', sans-serif; padding: 40px; margin: 0; }
+        .container { max-width: 800px; margin: auto; }
+        .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--accent); padding-bottom: 15px; margin-bottom: 30px; }
+        .file-link { 
+            display: flex; align-items: center; background: var(--panel); 
+            padding: 15px 20px; margin-bottom: 12px; border-radius: 6px; 
+            text-decoration: none; color: white; border: 1px solid var(--border);
+            transition: 0.2s;
+        }
+        .file-link:hover { border-color: var(--accent); background: #21262d; transform: translateX(5px); }
+        .file-icon { font-size: 24px; margin-right: 15px; color: #fbbf24; }
+        .file-info { flex-grow: 1; }
+        .file-date { font-weight: bold; font-size: 16px; display: block; }
+        .btn-back { background: #444; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; font-weight: bold; }
+        #debug-console { background: #000; color: #0f0; font-family: monospace; font-size: 11px; padding: 10px; margin-top: 30px; border: 1px solid #333; display: block; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <div>
+            <h1 id="titlu-luna" style="margin:0">Arhivă Avize</h1>
+            <span id="subtitlu" style="color: var(--accent); font-weight: bold;"></span>
+        </div>
+        <button class="btn-back" onclick="history.back()">⬅ ÎNAPOI</button>
+    </div>
+
+    <div id="lista-fisiere">
+        <p style="text-align:center">Se caută avize în baza de date...</p>
+    </div>
+
+    <div id="debug-console">Initalizare...</div>
+</div>
+
+<script>
+    async function genereazaFisiereDinamice() {
+        const container = document.getElementById('lista-fisiere');
+        const params = new URLSearchParams(window.location.search);
+        const lunaUrl = params.get('luna');
+        const anUrl = params.get('an');
+
+        const { data: records, error } = await supabaseClient
+            .from('setari_pontaj')
+            .select('*')
+            .match({ luna: lunaUrl, an: anUrl });
+
+        if (!records || records.length === 0) {
+            container.innerHTML = "<h3>NU SUNT AVIZE ÎNREGISTRATE</h3>";
+            return;
+        }
+
+        container.innerHTML = ""; // Curățăm mesajul de "încărcare"
+
+        // Filtrăm: Orice rând care are o cifră/valoare în coloana valoare_aviz
+        records.filter(r => r.valoare_aviz && r.valoare_aviz != "-" && r.valoare_aviz != "0")
+               .sort((a, b) => a.zi - b.zi)
+               .forEach(item => {
+                    const ziF = item.zi < 10 ? '0' + item.zi : item.zi;
+                    const lunaNr = getMonthNumber(lunaUrl); // O funcție simplă care returnează 01, 02 etc.
+
+                    container.innerHTML += `
+                        <a href="avize.html?zi=${item.zi}&luna=${lunaUrl}&an=${anUrl}" class="file-link">
+                            <span class="file-icon">📄</span>
+                            <div class="file-info">
+                                <span class="file-date">Aviz_Masa_Calda_${ziF}.${lunaNr}.${anUrl}.html</span>
+                                <span style="font-size:12px; color:#8b949e">Livrare confirmată: ${item.valoare_aviz} porții</span>
+                            </div>
+                            <span style="color:#10b981">DESCHIDE ➜</span>
+                        </a>`;
+               });
+        
+        if (container.innerHTML === "") {
+            container.innerHTML = "<h3>NU SUNT AVIZE ÎNREGISTRATE (Toate valorile sunt goale)</h3>";
+        }
+    }
+    
+    // Apelează funcția la încărcare
+    genereazaFisiereDinamice();
+</script>
+</body>
+</html>
