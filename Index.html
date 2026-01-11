@@ -3,20 +3,41 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Proiectul Meu Live</title>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <title>Portal PNRAS</title>
     <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
 </head>
 <body>
 
-    <div class="header">
-        <h1>Versiunea 0</h1>
+    <div class="antet-container">
+        <img src="antet_pnras.jpeg" alt="Antet PNRAS" class="imagine-antet">
     </div>
 
-    <div id="lista-proiecte" class="grid-container">
-        <p class="loading">Se încarcă datele...</p>
-    </div>
+    <section class="hero-section">
+        <h1>Platformă de raportare a activităților PNRAS</h1>
+        <p class="motto">
+            Fii unul dintre <span class="crai-acronim">C.R.A.I.</span>! 
+            <br>
+            <span class="crai-detaliu">(Creativitate, Reziliență, Adaptabilitate, Incluziune)</span>
+        </p>
+    </section>
 
-    <script src="app.js"></script>
+    <main class="menu-container">
+        <button class="menu-card" onclick="location.href='activitati.html'">
+            <div class="icon">📝</div>
+            <span>Activități</span>
+        </button>
+
+        <button class="menu-card" onclick="location.href='pontaj.html'">
+            <div class="icon">⏱️</div>
+            <span>Pontaj</span>
+        </button>
+
+        <button class="menu-card" onclick="location.href='masa-calda.html'">
+            <div class="icon">🍲</div>
+            <span>Masă caldă</span>
+        </button>
+    </main>
+
 </body>
 </html>

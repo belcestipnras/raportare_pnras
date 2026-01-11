@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <title>Sistem Integrat PNRAS - Pontaj & Masă Caldă</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root { --bg: #0b0f14; --panel: #1a1f26; --accent: #10b981; --error: #ef4444; --text: #e6edf3; --border: #30363d; }
+        * { box-sizing: border-box; }
+        body, html { margin: 0; padding: 0; height: 100vh; background: var(--bg); color: var(--text); font-family: 'Roboto Condensed', sans-serif; overflow: hidden; }
+
+        .app-wrapper { display: flex; flex-direction: column; height: 100vh; }
+
+        /* HEADER FIXAT */
+        .header { height: 65px; background: var(--panel); border-bottom: 2px solid var(--accent); display: flex; align-items: center; padding: 0 15px; gap: 10px; flex-shrink: 0; z-index: 100; }
+        .nav-group { display: flex; align-items: center; gap: 8px; }
+        .stats-group { display: flex; align-items: center; gap: 6px; flex-grow: 1; justify-content: center; }
+
+        .box { background: #000; border: 1px solid var(--border); padding: 4px 10px; border-radius: 4px; font-size: 11px; font-weight: bold; text-align: center; min-width: 105px; }
+        .box-label { font-size: 9px; color: #8b949e; margin-bottom: 2px; text-transform: uppercase; display: block; }
+
+        .input-inline { background: #000; border: 1px solid var(--accent); color: var(--accent); width: 75px; text-align: center; font-weight: bold; font-size: 13px; outline: none; }
+        
+        /* TABEL ZONA SCROLL */
+        .table-area { flex: 1; overflow: auto; background: #0d1117; scrollbar-width: thin; scrollbar-color: var(--border) transparent; }
+        table { border-collapse: collapse; table-layout: fixed; width: 1480px; }
+        
+        th, td { border: 1px solid var(--border); text-align: center; padding: 0; height: 40px; font-size: 11px; }
+        th { background: #161b22; color: var(--accent); position: sticky; top: 0; z-index: 10; }
+        
+        .col-expert { width: 160px; text-align: left; padding-left: 10px; font-weight: bold; position: sticky; left: 0; background: #161b22; z-index: 11; }
+        .col-p, .col-e { width: 45px; background: #000; font-weight: bold; }
+        .col-zi { width: 40px; }
+
+        .cell { cursor: pointer; background: #1c2128; }
+        .filled { background: var(--accent) !important; color: #000 !important; font-weight: 800; }
+        .sun { background: #000 !important; opacity: 0.4; pointer-events: none; }
+        .h-big { font-size: 16px; display: block; line-height: 1; }
+        .c-small { font-size: 8px; display: block; font-weight: bold; }
+
+        /* FOOTER FIXAT - ALINIERE PERFECTA */
+        .footer-fixed { background: var(--panel); border-top: 2px solid var(--accent); flex-shrink: 0; overflow: hidden; }
+        .row-total { background: #0d1117; color: #fbbf24; font-weight: bold; }
+        
+        /* INPUT FĂRĂ SĂGEȚI */
+        input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+        input[type=number] { -moz-appearance: textfield; }
+
+        .aviz-input { width: 100%; height: 100%; background: transparent; border: none; color: #fff; text-align: center; font-weight: bold; font-size: 14px; outline: none; }
+
+        .btn { padding: 8px 12px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 11px; color: white; }
+        .btn-excel { background: #1d6f42; }
+        .btn-back { background: #444; }
+
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 2000; justify-content: center; align-items: center; }
+        .modal-box { background: var(--panel); border: 2px solid var(--accent); padding: 20px; border-radius: 8px; width: 280px; }
+    </style>
+</head>
+<body>
+
+<div class="app-wrapper">
+    <header class="header">
+        <div class="nav-group">
+            <button class="btn btn-back" onclick="window.location.href='index.html'">ÎNAPOI</button>
+            <select id="sel-luna" onchange="changeLuna(this.value)" style="background:#000; color:#fff; border:1px solid var(--accent); padding:5px; border-radius:4px;">
+                <option value="Ianuarie">Ianuarie</option>
+                <option value="Februarie">Februarie</option>
+                <option value="Martie">Martie</option>
+                <option value="Aprilie">Aprilie</option>
+                <option value="Mai">Mai</option>
+                <option value="Iunie">Iunie</option>
+            </select>
+        </div>
+
+        <div class="stats-group">
+            <div class="box" id="box-masa"><span class="box-label">Total Masă</span><span id="txt-masa">0</span></div>
+            <div class="box" id="box-aviz"><span class="box-label">Aviz Cumulat</span><span id="txt-aviz">0</span></div>
+            <div class="box">
+                <span class="box-label">Valoare Factură</span>
+                <input type="number" id="f-val" class="input-inline" step="0.01" onchange="saveFactura(this.value)">
+            </div>
+            <div class="box" id="box-v-fact"><span class="box-label">Verificare Factură</span><span id="txt-v-fact">0</span></div>
+        </div>
+
+        <button class="btn btn-excel" onclick="exportExcel()">EXPORT EXCEL</button>
+    </header>
+
+    <div class="table-area" id="scroll-area">
+        <table id="main-table">
+            <thead><tr id="h-row"></tr></thead>
+            <tbody id="b-row"></tbody>
+        </table>
+    </div>
+
+    <div class="footer-fixed" id="footer-scroll-container">
+        <table style="table-layout: fixed; width: 1480px; border-collapse: collapse;">
+            <tr id="row-total" class="row-total"></tr>
+            <tr id="row-aviz" class="row-total"></tr>
+        </table>
+    </div>
+</div>
+
+<div id="pop-ore" class="modal">
+    <div class="modal-box">
+        <h3>Nr. Ore Zi</h3>
+        <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:8px;">
+            <script>for(let i=1;i<=6;i++) document.write(`<button class="btn" style="background:#333; font-size:16px; padding:12px;" onclick="pickH(${i})">${i}</button>`);</script>
+        </div>
+        <button class="btn" style="background:var(--error); width:100%; margin-top:12px;" onclick="deleteData()">ȘTERGE DATELE</button>
+        <button onclick="closeModals()" style="width:100%; margin-top:10px; background:none; border:none; color:#777; cursor:pointer;">Închide</button>
+    </div>
+</div>
+
+<div id="pop-clase" class="modal">
+    <div class="modal-box">
+        <h3>Clase & Opțiuni</h3>
+        <div id="clase-list"></div>
+        <div style="margin-top:15px; background:#000; padding:10px; border-radius:4px; display:flex; align-items:center; gap:10px;">
+            <input type="checkbox" id="fm-check"> <label style="color:#fbbf24; font-weight:bold; font-size:12px;">FĂRĂ MASĂ CALDĂ</label>
+        </div>
+        <button class="btn" style="background:var(--accent); color:#000; width:100%; margin-top:15px;" onclick="finalSave()">SALVEAZĂ CLOUD</button>
+    </div>
+</div>
+
+<script>
+    const URL_S = 'https://aexjrbdgajurxzngfkpx.supabase.co';
+    const KEY_S = 'sb_publishable_KPV__0BA9z4EvRl5eqC0FQ_hmBLOLYv';
+    const supabaseClient = supabase.createClient(URL_S, KEY_S);
+
+    const experti = { "Angheluș Raluca": ["5A","5B","6B","8B"], "Baziluc Ana Maria": ["6A","7A","7B","8A"], "Ghemeș Anca": ["5C","6C","7C","8C"], "Arotăriței Dănuț": ["5A","6B","7B","8B"], "Boldan Ovidiu": ["6C","8C"], "Popovici Estera": ["5B","6A","7A","8A"], "Albu Ștefan": ["SG1","SG2"], "Marele Daniela": ["PG1","PG2"], "Tanasă Liliana": ["MG1","MG2"], "Popa Gabriela": ["DG1"], "Nohai Iuliana": ["StG1","StG3"], "Nohai Vili": ["StG2","StG4"], "Aparascăi Vasile": ["5A","5B","5C","6A","6B","6C","7C","7A","7B","8A","8B","8C"], "Iftene Ana Maria": ["MaG1","MaG2","MaG3","MaG4"] };
+    const ratii = { "5A":10,"5B":7,"6A":11,"6B":12,"6C":12,"7A":10,"7B":8,"8A":10,"8B":8,"8C":12,"SG1":8,"SG2":8,"PG1":12,"PG2":12,"MG1":11,"MG2":11,"DG1":11,"StG1":16,"StG2":14 };
+
+    let state = { exp: "", zi: 0, luna: "Ianuarie", an: "2026", ore: 0, tMasa: 0, tAviz: 0 };
+
+    async function refresh() {
+        const { data: p } = await supabaseClient.from('pontaj_detaliat').select('*').match({ luna: state.luna });
+        const { data: s } = await supabaseClient.from('setari_pontaj').select('*').match({ luna: state.luna });
+
+        document.getElementById('h-row').innerHTML = `<th class="col-expert">EXPERT</th><th class="col-p">P</th><th class="col-e">E</th>${Array.from({length:31},(_,i)=>`<th class="col-zi">${i+1}</th>`).join('')}`;
+
+        const b = document.getElementById('b-row'); b.innerHTML = "";
+        Object.keys(experti).forEach(name => {
+            const dataExp = p?.filter(x => x.expert === name) || [];
+            const sumE = dataExp.reduce((a,b)=>a+b.nr_ore, 0);
+            const valP = s?.find(x => x.expert === name)?.valoare_p || 0;
+            const tr = document.createElement('tr');
+            tr.innerHTML = `<td class="col-expert">${name}</td><td class="col-p" style="color:${valP!==sumE&&valP!==0?'var(--error)':'white'}" contenteditable="true" onblur="saveP('${name}',this.innerText)">${valP}</td><td class="col-e">${sumE}</td>`;
+            for(let i=1; i<=31; i++) {
+                const date = new Date(`${state.luna} ${i}, ${state.an}`);
+                const isSun = date.getDay() === 0;
+                const d = dataExp.find(x => x.zi === i);
+                tr.innerHTML += `<td class="col-zi cell ${isSun?'sun':''} ${d?'filled':''}" onclick="openO('${name}',${i})">${d?`<span class="h-big">${d.nr_ore}</span><span class="c-small">${d.clase_grupe}</span>`:''}</td>`;
+            }
+            b.appendChild(tr);
+        });
+        renderTotals(p, s);
+    }
+
+    function renderTotals(pontaj, setari) {
+        state.tMasa = 0; state.tAviz = 0;
+        const rowT = document.getElementById('row-total');
+        const rowA = document.getElementById('row-aviz');
+        rowT.innerHTML = `<td class="col-expert">TOTAL MASĂ CALDĂ</td><td class="col-p"></td><td class="col-e"></td>`;
+        rowA.innerHTML = `<td class="col-expert">AVIZ MASĂ CALDĂ</td><td class="col-p"></td><td class="col-e"></td>`;
+
+        for(let i=1; i<=31; i++) {
+            const claseZi = new Set();
+            pontaj?.filter(p => p.zi === i && !p.fara_masa).forEach(p => p.clase_grupe.split(',').forEach(c => claseZi.add(c.trim())));
+            let mZi = 0; claseZi.forEach(c => mZi += (ratii[c] || 0));
+            state.tMasa += mZi;
+            rowT.innerHTML += `<td class="col-zi">${mZi || ""}</td>`;
+
+            const vA = setari?.find(x => x.zi === i && x.valoare_aviz)?.valoare_aviz || 0;
+            state.tAviz += vA;
+            const isMatch = (vA === mZi && mZi > 0);
+            rowA.innerHTML += `<td class="col-zi" style="background:${isMatch?'var(--accent)':''}"><input type="number" class="aviz-input" value="${vA||''}" onchange="saveA(${i},this.value)"></td>`;
+        }
+
+        document.getElementById('txt-masa').innerText = state.tMasa;
+        document.getElementById('txt-aviz').innerText = state.tAviz;
+        document.getElementById('box-masa').style.borderColor = (state.tMasa === state.tAviz && state.tMasa > 0) ? "var(--accent)" : "var(--error)";
+
+        const fVal = setari?.find(x => x.valoare_factura > 0 && x.expert === "FACTURA_GENERALA")?.valoare_factura || 0;
+        document.getElementById('f-val').value = fVal;
+        const vFact = (state.tMasa * 13.8).toFixed(2);
+        document.getElementById('txt-v-fact').innerText = vFact;
+        document.getElementById('box-v-fact').style.borderColor = (parseFloat(vFact) === parseFloat(fVal)) ? "var(--accent)" : "var(--error)";
+    }
+
+    async function saveP(e,v) { await supabaseClient.from('setari_pontaj').upsert({ expert:e, luna:state.luna, an:state.an, valoare_p:parseInt(v)||0 }, { onConflict:'expert,luna,an' }); refresh(); }
+    async function saveA(z,v) { await supabaseClient.from('setari_pontaj').upsert({ zi:parseInt(z), luna:state.luna, an:state.an, valoare_aviz:parseInt(v)||0 }, { onConflict:'zi,luna,an' }); refresh(); }
+    
+    async function saveFactura(v) { 
+        await supabaseClient.from('setari_pontaj').upsert({ 
+            expert: "FACTURA_GENERALA", luna: state.luna, an: state.an, valoare_factura: parseFloat(v)||0 
+        }, { onConflict:'expert,luna,an' }); 
+        refresh(); 
+    }
+
+    function openO(e,z) { state.exp=e; state.zi=z; document.getElementById('pop-ore').style.display='flex'; }
+    function pickH(n) { state.ore=n; document.getElementById('pop-ore').style.display='none'; openC(); }
+    function openC() {
+        const l = document.getElementById('clase-list'); l.innerHTML = "";
+        for(let i=1;i<=state.ore;i++) l.innerHTML += `<select id="sl-${i}" style="width:100%; margin-top:5px; background:#000; color:#fff; border:1px solid var(--accent); padding:5px;">${experti[state.exp].map(c=>`<option value="${c}">${c}</option>`).join('')}</select>`;
+        document.getElementById('pop-clase').style.display='flex';
+    }
+    async function finalSave() {
+        let cls = []; for(let i=1;i<=state.ore;i++) cls.push(document.getElementById(`sl-${i}`).value);
+        const fm = document.getElementById('fm-check').checked;
+        await supabaseClient.from('pontaj_detaliat').upsert({ expert:state.exp, zi:state.zi, luna:state.luna, an:state.an, nr_ore:state.ore, clase_grupe:cls.join(','), fara_masa:fm }, { onConflict:'expert,zi,luna,an' });
+        closeModals(); refresh();
+    }
+    async function deleteData() { if(confirm("Ștergi?")) { await supabaseClient.from('pontaj_detaliat').delete().match({ expert:state.exp, zi:state.zi, luna:state.luna }); closeModals(); refresh(); } }
+    function closeModals() { document.getElementById('pop-ore').style.display='none'; document.getElementById('pop-clase').style.display='none'; }
+    function changeLuna(l) { state.luna = l; refresh(); }
+    function exportExcel() { XLSX.writeFile(XLSX.utils.table_to_book(document.getElementById("main-table")), `Pontaj_${state.luna}.xlsx`); }
+
+    const scrollArea = document.getElementById('scroll-area');
+    const footerScroll = document.getElementById('footer-scroll-container');
+    scrollArea.addEventListener('scroll', () => { footerScroll.scrollLeft = scrollArea.scrollLeft; });
+
+    refresh();
+</script>
+</body>
+</html>

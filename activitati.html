@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistem Management Documente PNRAS</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root { --primary: #3ecf8e; --folder: #ffd43b; --bg: #f4f7f9; }
+        body { margin: 0; font-family: 'Inter', sans-serif; background: var(--bg); display: flex; flex-direction: column; align-items: center; min-height: 100vh; padding-bottom: 50px; }
+        
+        .antet-container { width: 95%; max-width: 1100px; margin-top: 20px; background: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+        .imagine-antet { width: 100%; display: block; height: auto; }
+
+        /* GRID FOLDERE PRINCIPALE */
+        .experts-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 30px; width: 95%; max-width: 1100px; margin-top: 50px; }
+        .expert-folder { display: flex; flex-direction: column; align-items: center; cursor: pointer; transition: 0.2s; }
+        .expert-folder:hover { transform: translateY(-5px); }
+        .folder-icon { font-size: 80px; color: var(--folder); filter: drop-shadow(0 4px 4px rgba(0,0,0,0.1)); line-height: 1; }
+        .folder-name { margin-top: 10px; font-weight: 600; text-align: center; color: #4a5568; font-size: 14px; }
+
+        /* SECȚIUNI ASCUNSE INIȚIAL */
+        #folder-interior, #documente-luna, #zona-lucru { display: none; width: 95%; max-width: 1100px; background: white; border-radius: 16px; padding: 30px; margin-top: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); position: relative; }
+        .btn-back { position: absolute; top: 20px; right: 20px; cursor: pointer; font-size: 20px; color: #cbd5e0; font-weight: bold; border: none; background: none; }
+
+        .an-section { margin-bottom: 30px; }
+        .an-titlu { font-size: 20px; font-weight: 800; border-bottom: 2px solid #eee; padding-bottom: 5px; margin-bottom: 15px; color: #2d3748; }
+        .luni-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px; }
+        .luna-item { background: #f8fafc; padding: 12px; border-radius: 8px; text-align: center; cursor: pointer; border: 1px solid #e2e8f0; font-weight: 600; transition: 0.2s; }
+        .luna-item:hover { background: var(--primary); color: white; }
+
+        /* ZONA DE LUCRU */
+        .work-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-top: 20px; }
+        .box { border: 1px solid #edf2f7; padding: 20px; border-radius: 12px; }
+        textarea { width: 100%; height: 120px; border: 1px solid #ddd; border-radius: 8px; padding: 10px; font-family: inherit; margin-bottom: 10px; resize: none; box-sizing: border-box; }
+        
+        .btn-ok { background: var(--primary); color: white; border: none; padding: 12px; border-radius: 8px; font-weight: 700; cursor: pointer; width: 100%; transition: 0.2s; margin-top: 5px; }
+        .btn-ok:hover { opacity: 0.9; transform: scale(1.01); }
+
+        /* MODAL PAROLĂ */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 1000; justify-content: center; align-items: center; }
+        .modal-box { background: white; padding: 30px; border-radius: 16px; width: 320px; text-align: center; box-shadow: 0 15px 35px rgba(0,0,0,0.2); }
+        input[type="password"] { width: 100%; padding: 12px; margin: 15px 0; border: 1px solid #ddd; border-radius: 8px; text-align: center; font-size: 18px; box-sizing: border-box; }
+    </style>
+</head>
+<body>
+
+    <div class="antet-container">
+        <img src="antet_pnras.jpeg" alt="Antet PNRAS" class="imagine-antet">
+    </div>
+
+    <div class="experts-grid" id="main-grid"></div>
+
+    <div class="modal" id="pass-modal">
+        <div class="modal-box">
+            <h3 id="modal-title" style="margin:0">Acces Folder</h3>
+            <input type="password" id="pass-input" placeholder="Parola">
+            <button class="btn-ok" onclick="verificaAcces()">Accesează</button>
+            <p onclick="inchideModal()" style="cursor:pointer; font-size:12px; color:#999; margin-top:15px;">Anulează</p>
+        </div>
+    </div>
+
+    <div id="folder-interior">
+        <button class="btn-back" onclick="reviLaGrid()">✖</button>
+        <h2 id="expert-header">📁 Folder</h2>
+        <div class="an-section">
+            <div class="an-titlu">2025</div>
+            <div class="luni-grid" id="g2025"></div>
+        </div>
+        <div class="an-section">
+            <div class="an-titlu">2026</div>
+            <div class="luni-grid" id="g2026"></div>
+        </div>
+    </div>
+
+    <div id="documente-luna">
+        <button class="btn-back" onclick="reviLaLuni()">←</button>
+        <h2 id="luna-header">Documente</h2>
+        <div id="grid-tipuri" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;"></div>
+    </div>
+
+    <div id="zona-lucru">
+        <button class="btn-back" onclick="reviLaTip()">←</button>
+        <h2 id="doc-header">Editare</h2>
+        <div class="work-grid">
+            <div class="box">
+                <h3 style="margin-top:0">Raportare Date</h3>
+                <textarea id="text-date" placeholder="Scrie raportul aici..."></textarea>
+                <button class="btn-ok" onclick="salveazaText()">Salvează Text</button>
+                <hr style="margin:25px 0; border:0; border-top:1px solid #eee;">
+                <h3>Upload Fișier</h3>
+                <input type="file" id="file-input" style="margin-bottom:10px; width:100%;">
+                <button class="btn-ok" style="background:#4299e1" onclick="uploadFisier()">Încarcă Fișier</button>
+            </div>
+            <div class="box">
+                <h3 style="margin-top:0">Istoric Documente</h3>
+                <div id="istoric-lista" style="font-size:13px; color:#4a5568; line-height:1.6;">Alege un document pentru a vedea istoricul.</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // CONFIGURARE SUPABASE
+        const URL_S = 'https://aexjrbdgajurxzngfkpx.supabase.co';
+        const KEY_S = 'sb_publishable_KPV__0BA9z4EvRl5eqC0FQ_hmBLOLYv';
+        const supabaseClient = supabase.createClient(URL_S, KEY_S);
+
+        const experti = ["Angheluș Raluca", "Baziluc Ana Maria", "Ghemeș Anca", "Arotăriței Dănuț", "Boldan Ovidiu", "Popovici Estera", "Albu Ștefan", "Marele Daniela", "Tanasă Liliana", "Popa Gabriela", "Nohai Iuliana", "Nohai Vili", "Aparascăi Vasile", "Iftene Ana Maria"];
+        const luniArr = ["Ianuarie", "Februarie", "Martie", "Aprilie", "Mai", "Iunie", "Iulie", "August", "Septembrie", "Octombrie", "Noiembrie", "Decembrie"];
+        const tipuriArr = ["Pontaj individual", "Planificare lunară", "Fișe de activitate", "Liste de prezență", "Liste masă caldă", "Raport de activitate"];
+        
+        let state = { expert: "", an: "", luna: "", tip: "" };
+
+        // GENERARE GRID FOLDERE
+        function initializareGrid() {
+            const grid = document.getElementById('main-grid');
+            grid.innerHTML = "";
+            experti.forEach(e => {
+                const div = document.createElement('div');
+                div.className = 'expert-folder';
+                div.innerHTML = `<div class="folder-icon">📂</div><div class="folder-name">${e}</div>`;
+                div.onclick = () => { 
+                    state.expert = e; 
+                    document.getElementById('pass-modal').style.display='flex';
+                    document.getElementById('modal-title').innerText = "Acces: " + e;
+                    document.getElementById('pass-input').value = "";
+                };
+                grid.appendChild(div);
+            });
+        }
+
+        function verificaAcces() {
+            let passCorecta = state.expert.substring(0,2).toUpperCase() + "123";
+            let passIntrodusa = document.getElementById('pass-input').value.toUpperCase();
+            
+            if(passIntrodusa === passCorecta) {
+                document.getElementById('pass-modal').style.display='none';
+                document.getElementById('main-grid').style.display='none';
+                document.getElementById('folder-interior').style.display='block';
+                document.getElementById('expert-header').innerText = "📁 Folder: " + state.expert;
+                renderLuni();
+            } else {
+                alert("Parolă incorectă! Folosește Inițialele numelui tău + 123.");
+            }
+        }
+
+        function renderLuni() {
+            const g25 = document.getElementById('g2025'); g25.innerHTML = "";
+            const g26 = document.getElementById('g2026'); g26.innerHTML = "";
+            
+            luniArr.forEach(l => {
+                const d = document.createElement('div'); d.className='luna-item'; d.innerText=l;
+                d.onclick = () => { state.luna = l; state.an = "2025"; deschideDocumente(); };
+                g25.appendChild(d);
+            });
+            luniArr.slice(0,6).forEach(l => {
+                const d = document.createElement('div'); d.className='luna-item'; d.innerText=l;
+                d.onclick = () => { state.luna = l; state.an = "2026"; deschideDocumente(); };
+                g26.appendChild(d);
+            });
+        }
+
+        function deschideDocumente() {
+            document.getElementById('folder-interior').style.display='none';
+            document.getElementById('documente-luna').style.display='block';
+            document.getElementById('luna-header').innerText = `📅 ${state.luna} ${state.an}`;
+            const grid = document.getElementById('grid-tipuri'); grid.innerHTML = "";
+            tipuriArr.forEach(t => {
+                const b = document.createElement('button'); b.className='btn-ok'; b.innerText=t;
+                b.style.marginBottom = "5px";
+                b.onclick = () => { state.tip = t; deschideZonaLucru(); };
+                grid.appendChild(b);
+            });
+        }
+
+        function deschideZonaLucru() {
+            document.getElementById('documente-luna').style.display='none';
+            document.getElementById('zona-lucru').style.display='block';
+            document.getElementById('doc-header').innerText = state.tip;
+            document.getElementById('text-date').value = "";
+            getIstoric();
+        }
+
+        // SUPABASE: SALVARE TEXT
+        async function salveazaText() {
+            const txt = document.getElementById('text-date').value;
+            if(!txt) return alert("Introdu text mai întâi!");
+
+            const { error } = await supabaseClient.from('documente_date').insert([
+                { expert: state.expert, an: state.an, luna: state.luna, tip_document: state.tip, continut_text: txt }
+            ]);
+
+            if(error) alert("Eroare: " + error.message);
+            else { alert("✅ Date salvate!"); getIstoric(); }
+        }
+
+        // SUPABASE: UPLOAD FIȘIER
+        async function uploadFisier() {
+            const fileInput = document.getElementById('file-input');
+            const file = fileInput.files[0];
+            if(!file) return alert("Selectează un fișier!");
+
+            const calea = `${state.expert}/${state.an}/${state.luna}/${state.tip}/${file.name}`;
+            const { data, error } = await supabaseClient.storage.from('arhiva_pnras').upload(calea, file);
+
+            if(error) alert("Eroare la upload: " + error.message);
+            else { alert("✅ Fișier încărcat cu succes!"); fileInput.value = ""; getIstoric(); }
+        }
+
+        // SUPABASE: AFIȘARE ISTORIC
+        async function getIstoric() {
+            const lista = document.getElementById('istoric-lista');
+            lista.innerHTML = "Se încarcă...";
+            
+            // Luăm textele
+            const { data: texte, error: err1 } = await supabaseClient.from('documente_date')
+                .select('*').match({ expert: state.expert, an: state.an, luna: state.luna, tip_document: state.tip });
+            
+            // Luăm fișierele din Storage
+            const caleaStorage = `${state.expert}/${state.an}/${state.luna}/${state.tip}`;
+            const { data: fisiere, error: err2 } = await supabaseClient.storage.from('arhiva_pnras').list(caleaStorage);
+
+            let html = "<strong>Însemnări:</strong><br>";
+            if(texte && texte.length > 0) {
+                texte.forEach(t => { html += `• ${t.continut_text.substring(0,40)}...<br>`; });
+            } else { html += "Fără însemnări.<br>"; }
+
+            html += "<br><strong>Fișiere:</strong><br>";
+            if(fisiere && fisiere.length > 0) {
+                fisiere.forEach(f => { html += `📄 ${f.name}<br>`; });
+            } else { html += "Fără fișiere încărcate."; }
+
+            lista.innerHTML = html;
+        }
+
+        // NAVIGARE
+        function inchideModal() { document.getElementById('pass-modal').style.display='none'; }
+        function reviLaGrid() { document.getElementById('folder-interior').style.display='none'; document.getElementById('main-grid').style.display='grid'; }
+        function reviLaLuni() { document.getElementById('documente-luna').style.display='none'; document.getElementById('folder-interior').style.display='block'; }
+        function reviLaTip() { document.getElementById('zona-lucru').style.display='none'; document.getElementById('documente-luna').style.display='block'; }
+
+        // Start
+        initializareGrid();
+    </script>
+</body>
+</html>
