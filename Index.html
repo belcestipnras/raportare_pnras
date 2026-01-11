@@ -28,7 +28,7 @@
             <span>Activități</span>
         </button>
 
-        <button class="menu-card" onclick="location.href='pontaj.html'">
+        <button class="menu-card" onclick="verificaParola()">
             <div class="icon">⏱️</div>
             <span>Pontaj</span>
         </button>
@@ -38,6 +38,21 @@
             <span>Masă caldă</span>
         </button>
     </main>
+
+    <script>
+        function verificaParola() {
+            // Afișează o fereastră pentru introducerea parolei
+            const parolaIntrodusa = prompt("Introduceți parola pentru acces la secțiunea Pontaj:");
+            
+            // Verifică dacă parola este corectă
+            if (parolaIntrodusa === "Pontaj123") {
+                window.location.href = 'pontaj.html';
+            } else if (parolaIntrodusa !== null) {
+                // Dacă parola este greșită și utilizatorul nu a apăsat "Cancel"
+                alert("Parolă incorectă! Accesul a fost refuzat.");
+            }
+        }
+    </script>
 
 </body>
 </html>
