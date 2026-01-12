@@ -24,10 +24,9 @@
         .modal-content input { width: 100%; padding: 12px; margin: 15px 0; border: 2px solid #e2e8f0; border-radius: 8px; box-sizing: border-box; font-size: 16px; text-align: center; }
         .btn-acces { background: var(--primary); color: white; border: none; padding: 12px 25px; border-radius: 8px; font-weight: bold; cursor: pointer; width: 100%; }
 
-        /* BUTON BACK */
-        .btn-back {
+        /* BUTOANE NAVIGARE */
+        .btn-back, .btn-home {
             position: fixed;
-            top: 20px;
             left: 20px;
             z-index: 9999;
             padding: 10px 18px;
@@ -43,14 +42,22 @@
             gap: 8px;
             transition: 0.2s;
             font-family: inherit;
+            text-decoration: none;
+            width: 120px; /* Lățime fixă pentru aliniere frumoasă */
+            justify-content: center;
         }
-        .btn-back:hover {
+
+        .btn-home { top: 20px; } /* Sus */
+        .btn-back { top: 75px; } /* Sub butonul Home */
+
+        .btn-back:hover, .btn-home:hover {
             background-color: var(--primary);
             color: white;
         }
     </style>
 </head>
 <body>
+    <a href="index.html" class="btn-home">🏠 Acasă</a>
     <button class="btn-back" onclick="window.history.back()">⬅️ Înapoi</button>
 
     <div class="antet-container">
