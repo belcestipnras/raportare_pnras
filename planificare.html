@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <title>Planificare PNRAS - Final Complet</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        /* SETĂRI PRINTARE */
+        @page { 
+            size: A4; 
+            margin: 1.5cm 1.5cm 2.0cm 1.5cm; 
+        }
+        
+        body { 
+            background: #f1f5f9; 
+            margin: 0; 
+            padding: 60px 0 40px 0; 
+            font-family: "Times New Roman", serif; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+        }
+
+        .page { 
+            background: white; 
+            width: 210mm; 
+            min-height: 297mm; 
+            padding: 1.5cm 1.5cm 1.5cm 1.5cm; 
+            box-sizing: border-box; 
+            box-shadow: 0 0 20px rgba(0,0,0,0.1); 
+            display: flex; 
+            flex-direction: column; 
+            position: relative;
+        }
+
+        #save-status { 
+            position: fixed; top: 70px; left: 20px; padding: 5px 10px; 
+            border-radius: 10px; font-family: sans-serif; font-size: 11px; 
+            font-weight: bold; z-index: 2000; box-shadow: 0 2px 5px rgba(0,0,0,0.1); 
+        }
+        .status-loading { background: #fef3c7; color: #92400e; }
+        .status-saved { background: #dcfce7; color: #166534; }
+        .status-error { background: #fee2e2; color: #991b1b; }
+
+        .antet-img { width: 100%; height: auto; margin-bottom: 15px; }
+        
+        .nr-inregistrare { display: flex; justify-content: center; align-items: center; gap: 5px; margin-bottom: 20px; font-size: 12pt; }
+        #nr-reg { width: 40px; text-align: right; border: 1px solid #ccc; padding: 2px; font-family: inherit; font-size: 12pt; }
+        #data-reg { width: 85px; text-align: left; border: 1px solid #ccc; padding: 2px; font-family: inherit; font-size: 12pt; }
+
+        /* TABEL */
+        .main-table { width: 100%; border-collapse: collapse; table-layout: fixed; margin-top: 20px; margin-bottom: 20px; }
+        .main-table th, .main-table td { border: 1px solid black; padding: 4px; font-size: 10pt; vertical-align: middle; word-wrap: break-word; }
+        .main-table th { background: #f8fafc; font-weight: bold; text-align: center; }
+        .col-center { text-align: center !important; }
+
+        .edit-cell { outline: none; min-height: 1.5em; line-height: 1.4; border: 1px dashed #ccc; padding: 4px; text-align: left; white-space: pre-wrap; background: #fff; }
+        .readonly-cell { background: #f3f4f6; color: #000; font-weight: bold; cursor: default; border: none; padding: 6px; text-align: center; }
+        .manual-date-cell { background: #fff; border: 1px dashed #ccc; font-weight: bold; cursor: text; padding: 4px; outline: none; text-align: center; }
+
+        /* OBIECTIVE - SPATIU MICȘORAT */
+        #lista-obiective { 
+            border: 1px dashed #ccc; 
+            padding: 2px; /* Micsorat de la 8px la 2px */
+            margin-top: 5px; 
+            min-height: 1.5em; 
+            outline: none;
+        }
+        #lista-obiective ul { 
+            margin: 0; 
+            padding-left: 20px; /* Aliniere bullet-uri */
+        }
+
+        .no-print { position: fixed; top: 0; left: 0; width: 100%; background: #1e293b; padding: 15px 20px; display: flex; align-items: center; justify-content: flex-end; gap: 10px; z-index: 1000; box-shadow: 0 2px 10px rgba(0,0,0,0.2); box-sizing: border-box; }
+        .btn { padding: 8px 16px; border: none; cursor: pointer; font-weight: bold; border-radius: 6px; font-family: sans-serif; font-size: 14px; transition: 0.2s; }
+        .btn-green { background: #22c55e; color: white; margin-right: 5px; } .btn-green:hover { background: #16a34a; }
+        .btn-red { background: #ef4444; color: white; margin-right: 20px; } .btn-red:hover { background: #dc2626; }
+        .btn-back { background: #64748b; color: white; } .btn-back:hover { background: #475569; }
+        .btn-print { background: #ffffff; color: #1e293b; } .btn-print:hover { background: #f1f5f9; }
+
+        .signature-section { width: 100%; display: flex; justify-content: space-between; font-size: 11pt; line-height: 1.4; margin-top: auto; padding-bottom: 20px; page-break-inside: avoid; }
+        .sig-box { width: 30%; text-align: left; }
+        .sig-center { text-align: center; }
+        .sig-right { text-align: right; }
+
+        .footer-pnrr { width: 100%; text-align: center; font-size: 10pt; font-family: sans-serif; color: black; border-top: 1px solid #ccc; padding-top: 10px; margin-top: 40px; }
+        .footer-pnrr a { color: black; text-decoration: none; font-weight: bold; }
+
+        @media print {
+            body { background: white; padding: 0; margin: 0; }
+            .page { width: 100%; margin: 0; box-shadow: none; padding: 0; border: none; min-height: auto; }
+            .no-print, #save-status { display: none !important; }
+            .edit-cell, input, #lista-obiective, .manual-date-cell { border: none !important; padding: 0 !important; }
+            .readonly-cell { background: transparent !important; }
+            .footer-pnrr { position: fixed; bottom: 0; left: 0; right: 0; background: white; padding-bottom: 5px; border-top: 1px solid #000; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="no-print">
+        <button class="btn btn-green" onclick="addNewRow()">➕ Adaugă Rând</button>
+        <button class="btn btn-red" onclick="deleteLastRow()">➖ Șterge Ultimul</button>
+        <button class="btn btn-back" id="btn-back">⬅️ Înapoi</button>
+        <button class="btn btn-print" onclick="window.print()">🖨️ PDF</button>
+    </div>
+
+    <div id="save-status" class="status-loading">⏳ Se inițializează...</div>
+
+    <div class="page">
+        <div>
+            <img src="antet_pnras.jpeg" class="antet-img">
+            <div class="nr-inregistrare">
+                Nr. înregistrare: <input type="text" id="nr-reg" maxlength="4"> / <input type="text" id="data-reg" maxlength="10">
+            </div>
+            <div style="text-align: center; font-size: 14pt; font-weight: bold; margin-bottom: 10px;">Planificare lunară a activităților</div>
+            <div style="text-align: center; font-size: 12pt; line-height: 1.3; margin-bottom: 20px;">
+                <div id="label-activitate-tip" style="font-weight: bold;"></div>
+                <div id="label-disciplina"></div>
+                <div style="font-weight: bold; margin-top: 10px;">Expert: <span id="label-nume"></span></div>
+                <div style="font-weight: bold;">Luna: <span id="label-luna"></span></div>
+                <div style="font-weight: bold;">Clasa: <span id="label-clasa"></span></div>
+            </div>
+            <strong>Obiective:</strong>
+            <div id="lista-obiective" contenteditable="true"><ul><li></li></ul></div>
+        </div>
+
+        <table class="main-table">
+            <thead>
+                <tr>
+                    <th style="width: 50px;">Nr.</th>
+                    <th style="width: 90px;">Data</th>
+                    <th>Conținuturi</th>
+                    <th>Activități</th>
+                    <th>Resurse</th>
+                    <th style="width: 12%;">Eval.</th>
+                </tr>
+            </thead>
+            <tbody id="tabel-body"></tbody>
+        </table>
+
+        <div class="signature-section">
+            <div class="sig-box"><strong>Întocmit,</strong><br>Expert:<br><span id="sig-expert-nume"></span></div>
+            <div class="sig-box sig-center"><strong>Avizat,</strong><br>Manager proiect,<br>prof. dr. Ciprian MIHAI</div>
+            <div class="sig-box sig-right"><strong>Aprobat,</strong><br>Director,<br>prof. Cătălin Ionuț BAZILUC</div>
+        </div>
+
+        <div class="footer-pnrr">
+            „PNRR. Finanțat de Uniunea Europeană – UrmătoareaGenerațieUE”<br>
+            <a href="https://mfe.gov.ro/pnrr/" target="_blank">https://mfe.gov.ro/pnrr/</a> &nbsp;&nbsp; 
+            <a href="https://www.facebook.com/PNRROficial/" target="_blank">https://www.facebook.com/PNRROficial/</a>
+        </div>
+    </div>
+
+<script>
+    const URL_S = 'https://aexjrbdgajurxzngfkpx.supabase.co';
+    const KEY_S = 'sb_publishable_KPV__0BA9z4EvRl5eqC0FQ_hmBLOLYv';
+    const supabaseClient = supabase.createClient(URL_S, KEY_S);
+
+    const params = new URLSearchParams(window.location.search);
+    const config = {
+        expert: params.get('expert'),
+        luna: params.get('luna'),
+        an: params.get('an'),
+        clasa: params.get('clasa'),
+        idDoc: `PLAN_${params.get('expert')}_${params.get('clasa')}_${params.get('luna')}_${params.get('an')}`
+    };
+
+    function transformClasa(cod) {
+        const mape = {
+            "5A": "Clasa a V-a A", "5B": "Clasa a V-a B",
+            "6A": "Clasa a VI-a A", "6B": "Clasa a VI-a B", "6C": "Clasa a VI-a C",
+            "7A": "Clasa a VII-a A", "7B": "Clasa a VII-a B",
+            "8A": "Clasa a VIII-a A", "8B": "Clasa a VIII-a B", "8C": "Clasa a VIII-a C",
+            "SG1": "Sport Grupa 1", "SG2": "Sport Grupa 2",
+            "PG1": "Pictură Grupa 1", "PG2": "Pictură Grupa 2",
+            "MG1": "Muzică Grupa 1", "MG2": "Muzică Grupa 2",
+            "DG1": "Dansuri Grupa 1", "StG1": "Științe Grupa 1", "StG2": "Științe Grupa 2"
+        };
+        return mape[cod] || cod;
+    }
+
+    const dbExperti = {
+        "Angheluș Raluca": { act: "A II.4. Activități remediale și diverse activități pedagogice și de sprijin", disc: "Activități remediale la limba și literatura română" },
+        "Baziluc Ana Maria": { act: "A II.4. Activități remediale și diverse activități pedagogice și de sprijin", disc: "Activități remediale la limba și literatura română" },
+        "Ghemeș Anca": { act: "A II.4. Activități remediale și diverse activități pedagogice și de sprijin", disc: "Activități remediale la limba și literatura română" },
+        "Arotăriței Dănuț": { act: "A II.4. Activități remediale și diverse activități pedagogice și de sprijin", disc: "Activități remediale la matematică" },
+        "Boldan Ovidiu": { act: "A II.4. Activități remediale și diverse activități pedagogice și de sprijin", disc: "Activități remediale la matematică" },
+        "Popovici Estera": { act: "A II.4. Activități remediale și diverse activități pedagogice și de sprijin", disc: "Activități remediale la matematică" },
+        "Iftene Ana Maria": { act: "A II.4. Activități remediale și diverse activități pedagogice și de sprijin", disc: "Activități remediale la matematică" },
+        "Albu Ștefan": { act: "A II.5. Activități extracurriculare și de educație non-formală", disc: "Clubul de activități sportive și outdoor" },
+        "Marele Daniela": { act: "A II.5. Activități extracurriculare și de educație non-formală", disc: "Clubul de pictură" },
+        "Tanasă Liliana": { act: "A II.5. Activități extracurriculare și de educație non-formală", disc: "Clubul de muzică" },
+        "Popa Gabriela": { act: "A II.5. Activități extracurriculare și de educație non-formală", disc: "Clubul de dansuri" },
+        "Nohai Iuliana": { act: "A II.5. Activități extracurriculare și de educație non-formală", disc: "Clubul de științe" },
+        "Nohai Vili": { act: "A II.5. Activități extracurriculare și de educație non-formală", disc: "Clubul de științe" },
+        "Aparascăi Vasile": { act: "A II.6. Activități de dezvoltare a abilităților de literație", disc: "Clubul de lectură și literație" }
+    };
+
+    let localRows = [];
+    let isReady = false;
+
+    function safeHtml(text) { if (!text) return ""; return text.replace(/\n/g, '<br>'); }
+    
+    function formatDate(zi, lunaNume, an) {
+        const luni = { "Ianuarie": "01", "Februarie": "02", "Martie": "03", "Aprilie": "04", "Mai": "05", "Iunie": "06", "Iulie": "07", "August": "08", "Septembrie": "09", "Octombrie": "10", "Noiembrie": "11", "Decembrie": "12" };
+        const l = luni[lunaNume] || "01";
+        const z = zi.toString().padStart(2, '0');
+        return `${z}.${l}.${an}`;
+    }
+
+    document.getElementById('btn-back').onclick = () => {
+        if(config.expert) window.location.href = `dosar-expert.html?expert=${encodeURIComponent(config.expert)}`;
+        else window.history.back();
+    };
+
+    async function init() {
+        setStatus('loading', '⏳ Se încarcă...');
+        const info = dbExperti[config.expert] || { act: "Activitate PNRAS", disc: "" };
+        document.getElementById('label-activitate-tip').innerText = info.act;
+        document.getElementById('label-disciplina').innerText = info.disc;
+        document.getElementById('label-nume').innerText = config.expert;
+        document.getElementById('sig-expert-nume').innerText = config.expert;
+        document.getElementById('label-luna').innerText = `${config.luna} ${config.an}`;
+        document.getElementById('label-clasa').innerText = transformClasa(config.clasa);
+
+        const { data } = await supabaseClient.from('planificari_documente').select('continut_json').eq('tip_document', config.idDoc).maybeSingle();
+
+        if (data && data.continut_json) {
+            const d = data.continut_json;
+            localRows = d.tableRows || [];
+            document.getElementById('lista-obiective').innerHTML = d.obiective || "<ul><li></li></ul>";
+            document.getElementById('nr-reg').value = d.nr || "";
+            document.getElementById('data-reg').value = d.dataReg || "";
+        } else {
+            const { data: pnt } = await supabaseClient.from('pontaj_detaliat').select('zi').match({ expert: config.expert, luna: config.luna, an: config.an }).ilike('clase_grupe', `%${config.clasa}%`).order('zi', { ascending: true });
+            if (pnt && pnt.length > 0) {
+                localRows = pnt.map(z => ({ data: formatDate(z.zi, config.luna, config.an), cont: "", actv: "", res: "", eval: "", manual: false }));
+            } else {
+                localRows = [{ data: "", cont: "", actv: "", res: "", eval: "", manual: true }];
+            }
+        }
+        renderTable();
+        isReady = true;
+        setStatus('saved', '✅ Pregătit');
+    }
+
+    function renderTable() {
+        const tb = document.getElementById('tabel-body'); tb.innerHTML = "";
+        localRows.forEach((r, i) => {
+            const tr = document.createElement('tr');
+            let dateCell = r.manual ? `<div class="manual-date-cell" contenteditable="true" oninput="upd(${i},'data',this)">${r.data}</div>` : `<div class="readonly-cell">${r.data}</div>`;
+            tr.innerHTML = `<td class="col-center">${i+1}</td><td class="col-center">${dateCell}</td><td><div class="edit-cell" contenteditable="true" onblur="bul(${i},'cont',this)">${safeHtml(r.cont)}</div></td><td><div class="edit-cell" contenteditable="true" onblur="bul(${i},'actv',this)">${safeHtml(r.actv)}</div></td><td><div class="edit-cell" contenteditable="true" onblur="bul(${i},'res',this)">${safeHtml(r.res)}</div></td><td><div class="edit-cell" contenteditable="true" oninput="upd(${i},'eval',this)">${safeHtml(r.eval)}</div></td>`;
+            tb.appendChild(tr);
+        });
+    }
+
+    window.upd = function(idx, k, el) { localRows[idx][k] = el.innerText; triggerSave(); }
+    window.addNewRow = function() { localRows.push({ data: "", cont: "", actv: "", res: "", eval: "", manual: true }); renderTable(); triggerSave(); }
+    window.deleteLastRow = function() { if(localRows.length > 1 && confirm("Ștergi ultimul rând?")) { localRows.pop(); renderTable(); triggerSave(); } }
+    
+    window.bul = function(idx, k, el) {
+        let text = el.innerText;
+        let lines = text.split('\n').filter(l => l.trim() !== "");
+        if(lines.length > 0) {
+             text = lines.map((l, i) => `• ${l.replace(/^• /, '').trim()}${i === lines.length - 1 ? '.' : ';'}`).join('\n');
+        }
+        localRows[idx][k] = text;
+        renderTable(); triggerSave();
+    }
+
+    let t;
+    function triggerSave() {
+        if (!isReady) return;
+        setStatus('unsaved', '💾 Se salvează...');
+        clearTimeout(t);
+        t = setTimeout(async () => {
+            const obj = { nr: document.getElementById('nr-reg').value, dataReg: document.getElementById('data-reg').value, obiective: document.getElementById('lista-obiective').innerHTML, tableRows: localRows };
+            const { error } = await supabaseClient.from('planificari_documente').upsert({ expert: config.expert, tip_document: config.idDoc, luna: config.luna, an: config.an, continut_json: obj }, { onConflict: 'tip_document' });
+            setStatus(error ? 'error' : 'saved', error ? '❌ Eroare' : '✅ Salvat în Cloud');
+        }, 1000);
+    }
+
+    function setStatus(cl, txt) { const s = document.getElementById('save-status'); s.className = `status-${cl}`; s.innerText = txt; }
+    document.getElementById('nr-reg').oninput = triggerSave; document.getElementById('data-reg').oninput = triggerSave; document.getElementById('lista-obiective').oninput = triggerSave;
+    init();
+</script>
+</body>
+</html>

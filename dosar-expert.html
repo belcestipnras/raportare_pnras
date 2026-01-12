@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <title>Sistem Management Documente PNRAS</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #10b981; 
+            --dark-deep: #020617; /* Fundal foarte închis */
+            --sidebar-bg: #0f172a; 
+            --card-bg: #ffffff;
+            --text-main: #f8fafc;
+            --border-dark: #1e293b;
+        }
+
+        body { 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            background: var(--dark-deep); /* Contrast puternic */
+            margin: 0; display: flex; height: 100vh; overflow: hidden; color: var(--text-main);
+        }
+
+        /* SIDEBAR - VIZIBIL PERMANENT */
+        .sidebar {
+            width: 280px; background: var(--sidebar-bg); color: white;
+            display: flex; flex-direction: column; border-right: 1px solid var(--border-dark); flex-shrink: 0;
+        }
+
+        .profile-box { padding: 20px; background: #000; border-bottom: 1px solid var(--border-dark); }
+        .profile-box h3 { color: var(--primary); margin: 0; font-size: 10px; text-transform: uppercase; letter-spacing: 2px; }
+        .profile-box h1 { margin: 5px 0 0; font-size: 16px; font-weight: 800; color: #fff; }
+
+        .nav-scroll { flex: 1; overflow-y: auto; padding: 15px; }
+        .an-label { display: block; font-size: 16px; font-weight: 800; color: var(--primary); margin: 15px 0 10px 5px; border-bottom: 1px solid var(--border-dark); padding-bottom: 5px; }
+
+        .luni-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+        .luna-btn { 
+            padding: 8px 4px; background: rgba(255,255,255,0.05); border: 1px solid var(--border-dark); 
+            border-radius: 8px; color: #94a3b8; font-size: 11px; font-weight: 600; 
+            cursor: pointer; transition: 0.2s;
+        }
+        .luna-btn:hover { background: var(--primary); color: white; border-color: var(--primary); }
+        .luna-btn.active { background: #fff; color: #000; border-color: #fff; font-weight: 800; }
+
+        /* ZONA PRINCIPALA - CONTRAST PUTERNIC */
+        .main-panel { 
+            flex: 1; padding: 20px; display: flex; flex-direction: column; height: 100vh; 
+            box-sizing: border-box; background-image: radial-gradient(circle at 50% 50%, #0f172a 0%, #020617 100%);
+        }
+
+        #content-area { 
+            display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; 
+            gap: 20px; flex: 1; height: 100%;
+        }
+
+        .clasa-card { 
+            background: var(--card-bg); border-radius: 20px; padding: 20px; 
+            border: none; box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            display: flex; flex-direction: column; justify-content: space-between;
+            color: #0f172a; /* Text închis pe card alb */
+        }
+
+        .clasa-title { font-size: 18px; font-weight: 800; color: #0f172a; margin-bottom: 15px; display: flex; align-items: center; gap: 10px; }
+
+        /* DOCS GRID */
+        .docs-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; flex: 1; }
+
+        .doc-btn {
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            background: #f1f5f9; border: 1px solid #e2e8f0; border-radius: 14px; 
+            cursor: pointer; transition: 0.2s; padding: 12px 5px;
+        }
+        .doc-btn:hover { border-color: var(--primary); background: #fff; transform: scale(1.05); box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        .doc-btn i { font-size: 28px; font-style: normal; margin-bottom: 8px; }
+        .doc-btn label { font-size: 10px; font-weight: 700; color: #475569; text-align: center; cursor: pointer; line-height: 1.2; }
+
+        .btn-exit { margin: 15px; padding: 12px; background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid #7f1d1d; border-radius: 10px; font-weight: 800; cursor: pointer; text-decoration: none; text-align: center; font-size: 12px; transition: 0.3s; }
+        .btn-exit:hover { background: #ef4444; color: white; }
+
+        .empty-hint { grid-column: span 2; grid-row: span 2; display: flex; align-items: center; justify-content: center; color: #475569; font-size: 15px; text-align: center; font-weight: 500; }
+    </style>
+</head>
+<body>
+
+    <aside class="sidebar">
+        <div class="profile-box">
+            <h3>PNRAS DOSAR DIGITAL</h3>
+            <h1 id="nume-expert-side">...</h1>
+        </div>
+
+        <div class="nav-scroll" id="sidebar-nav"></div>
+
+        <a href="activitati.html" class="btn-exit">IEȘIRE SISTEM</a>
+    </aside>
+
+    <main class="main-panel">
+        <div id="content-area">
+            <div class="empty-hint">Vă rugăm selectați o lună pentru a vizualiza documentele celor 4 clase.</div>
+        </div>
+    </main>
+
+<script>
+    const URL_S = 'https://aexjrbdgajurxzngfkpx.supabase.co';
+    const KEY_S = 'sb_publishable_KPV__0BA9z4EvRl5eqC0FQ_hmBLOLYv';
+    const supabaseClient = supabase.createClient(URL_S, KEY_S);
+
+    const params = new URLSearchParams(window.location.search);
+    const expert = params.get('expert');
+    document.getElementById('nume-expert-side').innerText = expert;
+
+    const arhivaConfig = [
+        { an: 2025, luni: ["Ianuarie", "Februarie", "Martie", "Aprilie", "Mai", "Iunie", "Iulie", "August", "Septembrie", "Octombrie", "Noiembrie", "Decembrie"] },
+        { an: 2026, luni: ["Ianuarie", "Februarie", "Martie", "Aprilie", "Mai", "Iunie"] }
+    ];
+
+    function buildSidebar() {
+        const nav = document.getElementById('sidebar-nav');
+        arhivaConfig.forEach(perioada => {
+            const label = document.createElement('span');
+            label.className = 'an-label';
+            label.innerText = `Anul ${perioada.an}`;
+            nav.appendChild(label);
+            const grid = document.createElement('div');
+            grid.className = 'luni-grid';
+            perioada.luni.forEach(luna => {
+                const btn = document.createElement('button');
+                btn.className = 'luna-btn';
+                btn.innerText = luna;
+                btn.onclick = () => loadClase(luna, perioada.an, btn);
+                grid.appendChild(btn);
+            });
+            nav.appendChild(grid);
+        });
+    }
+
+    async function loadClase(luna, an, btnEl) {
+        document.querySelectorAll('.luna-btn').forEach(b => b.classList.remove('active'));
+        btnEl.classList.add('active');
+
+        const display = document.getElementById('content-area');
+        display.innerHTML = "<div class='empty-hint' style='color:white;'>Se încarcă datele...</div>";
+
+        const { data } = await supabaseClient.from('pontaj_detaliat')
+            .select('clase_grupe')
+            .match({ expert: expert, luna: luna, an: an.toString() });
+
+        if (!data || data.length === 0) {
+            display.innerHTML = `<div class="empty-hint" style="color:white;">Nu există activități pontate pentru ${luna} ${an}.</div>`;
+            return;
+        }
+
+        let claseUnice = new Set();
+        data.forEach(p => p.clase_grupe.split(',').forEach(c => claseUnice.add(c.trim())));
+
+        display.innerHTML = "";
+        claseUnice.forEach(clasa => {
+            display.innerHTML += `
+                <div class="clasa-card">
+                    <div class="clasa-title">🏫 CLASA ${clasa}</div>
+                    <div class="docs-grid">
+                        ${docItem('Planificare', '📅', 'planificare.html', luna, an, clasa)}
+                        ${docItem('Fișe', '📄', 'fise.html', luna, an, clasa)}
+                        ${docItem('Prezență', '👥', 'liste_prezenta.html', luna, an, clasa)}
+                        ${docItem('Masă', '🍱', 'liste_masa.html', luna, an, clasa)}
+                        ${docItem('Raport', '📊', 'raport.html', luna, an, clasa)}
+                        ${docItem('Pontaj', '⏱️', 'pontaj_individual.html', luna, an, clasa)}
+                        ${docItem('Orar', '🕒', 'orar_individual.html', luna, an, clasa)}
+                    </div>
+                </div>
+            `;
+        });
+    }
+
+    function docItem(label, icon, link, luna, an, clasa) {
+        return `
+            <div class="doc-btn" onclick="window.open('${link}?expert=${encodeURIComponent(expert)}&luna=${luna}&an=${an}&clasa=${clasa}', '_blank')">
+                <i>${icon}</i>
+                <label>${label}</label>
+            </div>
+        `;
+    }
+
+    buildSidebar();
+</script>
+</body>
+</html>
