@@ -23,9 +23,35 @@
         .modal-content h3 { margin-top: 0; color: #1e293b; }
         .modal-content input { width: 100%; padding: 12px; margin: 15px 0; border: 2px solid #e2e8f0; border-radius: 8px; box-sizing: border-box; font-size: 16px; text-align: center; }
         .btn-acces { background: var(--primary); color: white; border: none; padding: 12px 25px; border-radius: 8px; font-weight: bold; cursor: pointer; width: 100%; }
+
+        /* BUTON BACK */
+        .btn-back {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 9999;
+            padding: 10px 18px;
+            background-color: white;
+            color: #333;
+            border: 2px solid var(--primary);
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: 0.2s;
+            font-family: inherit;
+        }
+        .btn-back:hover {
+            background-color: var(--primary);
+            color: white;
+        }
     </style>
 </head>
 <body>
+    <button class="btn-back" onclick="window.history.back()">⬅️ Înapoi</button>
 
     <div class="antet-container">
         <img src="antet_pnras.jpeg" alt="Antet PNRAS" class="imagine-antet">
@@ -92,7 +118,6 @@
 
             if (parolaInput.value === state.expertObj.parola) {
                 document.getElementById('pass-modal').style.display = 'none';
-                // REDIRECTIONARE DIRECTA
                 window.location.href = `dosar-expert.html?expert=${encodeURIComponent(state.expertObj.nume)}`;
             } else {
                 alert("Parolă incorectă!");
@@ -105,7 +130,6 @@
             state.expertObj = null;
         }
 
-        // Permite apăsarea tastei Enter pentru logare
         document.getElementById('pass-input')?.addEventListener('keypress', function (e) {
             if (e.key === 'Enter') valideazaParola();
         });

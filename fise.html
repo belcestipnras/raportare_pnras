@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <title>Management Fișe PNRAS</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        @page { size: A4; margin: 1.5cm; }
+        
+        body { background: #f0f2f5; margin: 0; padding: 80px 0; font-family: "Times New Roman", serif; }
+        
+        /* BARA DE CONTROL ACTUALIZATĂ */
+        .no-print { 
+            position: fixed; top: 0; left: 0; width: 100%; 
+            background: #1e293b; padding: 10px 40px; 
+            display: grid; 
+            grid-template-columns: 1fr auto 1fr; /* Trei coloane pentru centrare */
+            align-items: center;
+            z-index: 1000; box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            box-sizing: border-box;
+        }
+
+        .nav-left { display: flex; gap: 10px; align-items: center; }
+        .nav-center { display: flex; justify-content: center; }
+        .nav-right { display: flex; justify-content: flex-end; gap: 10px; align-items: center; }
+
+        .page { 
+            background: white; width: 210mm; min-height: 297mm; 
+            padding: 1.5cm; margin: 0 auto 30px auto;
+            box-sizing: border-box; box-shadow: 0 4px 20px rgba(0,0,0,0.08); 
+            display: flex; flex-direction: column;
+            page-break-after: always;
+        }
+
+        .antet-img { width: 100%; height: auto; margin-bottom: 10px; }
+        .titlu-fisa { text-align: center; font-size: 16pt; font-weight: bold; margin: 15px 0; text-transform: uppercase; color: #1e293b; }
+        
+        /* CARD INFO */
+        .info-card { 
+            background: #ffffff; padding: 25px; border-radius: 12px; 
+            border: 1px solid #e2e8f0; border-left: 6px solid #2563eb;
+            margin-bottom: 30px; box-shadow: 0 2px 15px rgba(37, 99, 235, 0.05);
+            display: flex; flex-direction: column; gap: 12px;
+        }
+        .info-row { display: flex; align-items: flex-start; border-bottom: 1px solid #f1f5f9; padding-bottom: 8px; }
+        .info-row:last-child { border-bottom: none; padding-bottom: 0; }
+        .info-label { min-width: 110px; font-family: sans-serif; font-size: 9pt; font-weight: 700; color: #64748b; text-transform: uppercase; }
+        .info-value { font-size: 11.5pt; color: #1e293b; font-weight: 500; }
+
+        /* SECȚIUNI */
+        .sectiune { margin-top: 15px; display: flex; flex-direction: column; position: relative; padding-left: 18px; width: 100%; box-sizing: border-box; }
+        .sectiune-titlu { font-weight: bold; font-size: 10pt; color: #2563eb; text-transform: uppercase; margin-bottom: 6px; display: flex; align-items: center; gap: 8px; font-family: sans-serif; }
+        .sectiune::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 5px; background: #2563eb; border-radius: 3px; }
+        
+        .caseta { border: 1px solid #cbd5e1; padding: 12px; border-radius: 0 8px 8px 8px; min-height: 1.4em; font-size: 11.5pt; outline: none; white-space: pre-wrap; width: 100%; box-sizing: border-box; background: #fff; color: #000; }
+
+        .signature-block { margin-top: 40px; padding: 20px; border: 1px dashed #cbd5e1; border-radius: 12px; background: #fcfcfc; }
+
+        /* BUTOANE */
+        .btn { padding: 10px 20px; border: none; cursor: pointer; font-weight: bold; border-radius: 8px; font-family: sans-serif; transition: 0.2s; font-size: 13px; }
+        .btn-print { background: #3b82f6; color: white; font-size: 15px; padding: 12px 40px; box-shadow: 0 4px 14px rgba(59, 130, 246, 0.4); }
+        .btn-back { background: #475569; color: white; }
+        .btn-reset { background: #ef4444; color: white; }
+        .btn:hover { opacity: 0.9; transform: translateY(-1px); }
+
+        #save-status { color: #10b981; font-family: sans-serif; font-size: 13px; font-weight: 600; }
+
+        @media print {
+            body { background: white; padding: 0; }
+            .no-print { display: none; }
+            .page { margin: 0; box-shadow: none; width: 100%; }
+            .caseta { border: 1px solid #94a3b8 !important; }
+            .info-card { border: 1px solid #cbd5e1 !important; border-left: 6px solid #2563eb !important; background: #fff !important; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="no-print">
+        <div class="nav-left">
+            <button class="btn btn-back" onclick="window.location.href='activitati.html'">⬅️ Înapoi</button>
+            <div id="save-status">✓ Sincronizat</div>
+        </div>
+        
+        <div class="nav-center">
+            <button class="btn btn-print" onclick="window.print()">🖨️ PRINTEAZĂ FIȘA</button>
+        </div>
+
+        <div class="nav-right">
+            <button class="btn btn-reset" onclick="reseteazaLaPlanificare()">🧹 Reset (Planificare)</button>
+        </div>
+    </div>
+
+    <div id="container-fise"></div>
+
+<script>
+    const URL_S = 'https://aexjrbdgajurxzngfkpx.supabase.co';
+    const KEY_S = 'sb_publishable_KPV__0BA9z4EvRl5eqC0FQ_hmBLOLYv';
+    const supabaseClient = supabase.createClient(URL_S, KEY_S);
+
+    const params = new URLSearchParams(window.location.search);
+    const config = {
+        expert: params.get('expert'), luna: params.get('luna'), an: params.get('an'), clasa: params.get('clasa'),
+        idDoc: `PLAN_${params.get('expert')}_${params.get('clasa')}_${params.get('luna')}_${params.get('an')}`,
+        idData: `DATA_${params.get('expert')}_${params.get('clasa')}_${params.get('luna')}_${params.get('an')}`
+    };
+
+    const dbExperti = {
+        "Angheluș Raluca": { act: "A II.4. Activități remediale și diverse activități pedagogice și de sprijin", disc: "Activități remediale la limba și literatura română" },
+        "Baziluc Ana Maria": { act: "A II.4. Activități remediale și diverse activități pedagogice și de sprijin", disc: "Activități remediale la limba și literatura română" },
+        "Ghemeș Anca": { act: "A II.4. Activități remediale și diverse activități pedagogice și de sprijin", disc: "Activități remediale la limba și literatura română" },
+        "Arotăriței Dănuț": { act: "A II.4. Activități remediale și diverse activități pedagogice și de sprijin", disc: "Activități remediale la matematică" },
+        "Boldan Ovidiu": { act: "A II.4. Activități remediale și diverse activități pedagogice și de sprijin", disc: "Activități remediale la matematică" },
+        "Popovici Estera": { act: "A II.4. Activități remediale și diverse activități pedagogice și de sprijin", disc: "Activități remediale la matematică" },
+        "Iftene Ana Maria": { act: "A II.4. Activități remediale și diverse activități pedagogice și de sprijin", disc: "Activități remediale la matematică" },
+        "Albu Ștefan": { act: "A II.5. Activități extracurriculare și de educație non-formală", disc: "Clubul de activități sportive și outdoor" },
+        "Marele Daniela": { act: "A II.5. Activități extracurriculare și de educație non-formală", disc: "Clubul de pictură" },
+        "Tanasă Liliana": { act: "A II.5. Activități extracurriculare și de educație non-formală", disc: "Clubul de muzică" },
+        "Popa Gabriela": { act: "A II.5. Activități extracurriculare și de educație non-formală", disc: "Clubul de dansuri" },
+        "Nohai Iuliana": { act: "A II.5. Activități extracurriculare și de educație non-formală", disc: "Clubul de științe" },
+        "Nohai Vili": { act: "A II.5. Activități extracurriculare și de educație non-formală", disc: "Clubul de științe" },
+        "Aparascăi Vasile": { act: "A II.6. Activități de dezvoltare a abilităților de literație", disc: "Clubul de lectură și literație" }
+    };
+
+    function applySmartBullets(text) {
+        if (!text) return "";
+        let lines = text.split('\n').map(l => l.replace(/^•\s*/, '').trim()).filter(l => l !== "");
+        return lines.map((line, index) => {
+            let cleanLine = line.replace(/[.;]$/, '');
+            return index === lines.length - 1 ? `• ${cleanLine}.` : `• ${cleanLine};`;
+        }).join('\n');
+    }
+
+    async function salveaza() {
+        const pagini = document.querySelectorAll('.page');
+        const fise = [];
+        pagini.forEach(p => {
+            const casete = p.querySelectorAll('.caseta');
+            fise.push({
+                data: p.querySelector('.data-val').innerText,
+                titlu: casete[0].innerText, obiective: casete[1].innerText, activitati: casete[2].innerText,
+                metode: casete[3].innerText, mijloace: casete[4].innerText, organizare: casete[5].innerText, concluzii: casete[6].innerText
+            });
+        });
+        await supabaseClient.from('planificari_documente').upsert({ tip_document: config.idData, expert: config.expert, continut_json: { fise } }, { onConflict: 'tip_document' });
+        document.getElementById('save-status').style.display = 'block';
+        setTimeout(() => document.getElementById('save-status').style.display = 'none', 2000);
+    }
+
+    // FUNCȚIA DE RESET
+    async function reseteazaLaPlanificare() {
+        if (confirm("Ești sigur că vrei să ștergi tot ce ai scris și să revii la datele inițiale din planificare? Această acțiune nu poate fi anulată.")) {
+            const { error } = await supabaseClient
+                .from('planificari_documente')
+                .delete()
+                .eq('tip_document', config.idData);
+            
+            if (!error) {
+                window.location.reload();
+            } else {
+                alert("Eroare la resetare: " + error.message);
+            }
+        }
+    }
+
+    async function init() {
+        let { data: saved } = await supabaseClient.from('planificari_documente').select('continut_json').eq('tip_document', config.idData).maybeSingle();
+        let rows = [];
+        if (saved && saved.continut_json.fise) {
+            rows = saved.continut_json.fise;
+        } else {
+            let { data: plan } = await supabaseClient.from('planificari_documente').select('continut_json').eq('tip_document', config.idDoc).maybeSingle();
+            if (plan) {
+                rows = plan.continut_json.tableRows.map(r => ({ 
+                    data: r.data, titlu: r.cont, obiective: "", 
+                    activitati: r.actv || r.cont,
+                    metode: "", mijloace: r.res, organizare: "", concluzii: "" 
+                }));
+            }
+        }
+
+        const container = document.getElementById('container-fise');
+        const info = dbExperti[config.expert] || { act: "---", disc: "---" };
+
+        rows.forEach(row => {
+            const page = document.createElement('div');
+            page.className = 'page';
+            page.innerHTML = `
+                <img src="antet_pnras.jpeg" class="antet-img">
+                <div class="titlu-fisa">Fișă de activitate</div>
+                
+                <div class="info-card">
+                    <div class="info-row"><span class="info-label">Activitatea:</span><span class="info-value">${info.act}</span></div>
+                    <div class="info-row"><span class="info-label">Disciplina:</span><span class="info-value">${info.disc}</span></div>
+                    <div class="info-row"><span class="info-label">Expert:</span><span class="info-value">${config.expert}</span></div>
+                    <div class="info-row"><span class="info-label">Data:</span><span class="info-value data-val">${row.data}</span></div>
+                    <div class="info-row"><span class="info-label">Clasa:</span><span class="info-value">${config.clasa}</span></div>
+                </div>
+
+                <div class="sectiune"><div class="sectiune-titlu">📌 Titlul activității:</div><div class="caseta" contenteditable="true" onblur="this.innerText=applySmartBullets(this.innerText); salveaza();">${applySmartBullets(row.titlu)}</div></div>
+                <div class="sectiune"><div class="sectiune-titlu">🎯 Obiective urmărite:</div><div class="caseta" contenteditable="true" onblur="this.innerText=applySmartBullets(this.innerText); salveaza();">${applySmartBullets(row.obiective)}</div></div>
+                <div class="sectiune"><div class="sectiune-titlu">📝 Activități de învățare:</div><div class="caseta" contenteditable="true" onblur="this.innerText=applySmartBullets(this.innerText); salveaza();">${applySmartBullets(row.activitati)}</div></div>
+                <div class="sectiune"><div class="sectiune-titlu">⚙️ Metode și procedee:</div><div class="caseta" contenteditable="true" onblur="this.innerText=applySmartBullets(this.innerText); salveaza();">${applySmartBullets(row.metode)}</div></div>
+                <div class="sectiune"><div class="sectiune-titlu">🛠️ Mijloace de învățământ:</div><div class="caseta" contenteditable="true" onblur="this.innerText=applySmartBullets(this.innerText); salveaza();">${applySmartBullets(row.mijloace)}</div></div>
+                <div class="sectiune"><div class="sectiune-titlu">👥 Forme de organizare:</div><div class="caseta" contenteditable="true" onblur="this.innerText=applySmartBullets(this.innerText); salveaza();">${applySmartBullets(row.organizare)}</div></div>
+                <div class="sectiune"><div class="sectiune-titlu">💡 Concluzii și recomandări:</div><div class="caseta" contenteditable="true" onblur="this.innerText=applySmartBullets(this.innerText); salveaza();">${applySmartBullets(row.concluzii)}</div></div>
+
+                <div class="signature-block">
+                    <div style="font-weight: bold; color: #2563eb; margin-bottom: 5px; font-family: sans-serif; font-size: 10pt;">LIVRABILE:</div>
+                    <div style="font-size: 11pt; color: #475569;">
+                        • Anexa 1: Fișe de lucru/Materiale suport;<br>
+                        • Anexa 2: Fotografii.
+                    </div>
+                    <div style="margin-top: 30px; font-weight: bold; font-size: 11pt; border-top: 1px solid #eee; padding-top: 15px;">Expert, ${config.expert}</div>
+                </div>
+            `;
+            container.appendChild(page);
+        });
+    }
+    init();
+</script>
+</body>
+</html>
