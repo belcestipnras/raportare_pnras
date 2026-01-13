@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Listă Prezență PNRAS</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Montserrat:wght@700&family=Roboto+Mono:wght@500&display=swap" rel="stylesheet">
+    <style>
+        :root { --primary: #1e40af; --accent: #10b981; --text: #1f2937; }
+        @page { size: A4; margin: 1cm; }
+        body { background: #f3f4f6; font-family: 'Inter', sans-serif; color: var(--text); margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; }
+        .page { background: white; width: 210mm; min-height: 297mm; padding: 10mm 15mm; box-sizing: border-box; box-shadow: 0 10px 25px rgba(0,0,0,0.1); border-radius: 8px; }
+        .antet-img { width: 100%; margin-bottom: 5px; border-bottom: 1px solid #eee; }
+        h2 { font-family: 'Montserrat', sans-serif; color: black; text-align: center; text-transform: uppercase; margin: 10px 0; font-size: 20px; }
+        
+        .grid-info { 
+            display: grid; 
+            grid-template-columns: 1.2fr 0.8fr; 
+            gap: 10px 40px; 
+            margin-bottom: 20px; 
+            background: #f9fafb; 
+            padding: 15px; 
+            border-radius: 8px; 
+            border: 1px solid #e2e8f0; 
+            border-left: 5px solid var(--primary); 
+        }
+        
+        .info-item { font-size: 12px; }
+        .info-label { font-weight: 700; color: #4b5563; text-transform: uppercase; font-size: 10px; display: block; }
+        .info-value { font-size: 14px; color: var(--text); font-weight: 600; }
+        table { width: 100%; border-collapse: collapse; margin-top: 5px; font-family: 'Roboto Mono', monospace; }
+        th { background: #f8fafc; color: black; font-weight: 700; text-transform: uppercase; font-size: 11px; padding: 10px 5px; border: 1px solid black; text-align: center; }
+        td { border: 1px solid black; padding: 8px 5px; font-size: 13px; color: black; text-align: center; vertical-align: middle; }
+        .signature-area { margin-top: 50px; text-align: center; width: 100%; font-size: 14px; }
+        
+        .no-print { margin-bottom: 20px; display: flex; gap: 8px; justify-content: center; }
+        .main-btn { padding: 10px 16px; cursor: pointer; color: white; border: none; border-radius: 6px; font-weight: bold; font-size: 12px; display: flex; align-items: center; gap: 5px; transition: 0.2s; }
+        
+        .btn-back-bold { 
+            background: #000000 !important; 
+            color: #ffffff !important; 
+            border: 2px solid #ffffff !important;
+            font-size: 14px !important;
+        }
+        .btn-back-bold span { color: #10b981 !important; font-size: 18px; font-weight: 900; }
+        .btn-back-bold:hover { background: #1a1a1a !important; transform: scale(1.05); }
+
+        .btn-secondary { background: #4b5563; }
+        .btn-danger { background: #dc2626; }
+        .btn-success { background: #059669; }
+        input.edit-name { border: none; width: 100%; font-family: inherit; font-size: inherit; background: transparent; outline: none; text-align: center; font-weight: 600; }
+        @media print { .no-print, #status-msg { display: none !important; } body { padding: 0; background: none; } .page { box-shadow: none; border-radius: 0; padding: 5mm; width: 100%; } }
+    </style>
+</head>
+<body>
+    <div id="status-msg" style="padding: 10px; background: #dcfce7; border-radius: 5px; margin-bottom: 10px;">⌛ Se generează lista...</div>
+    <div class="no-print">
+        <button id="btn-back" class="main-btn btn-back-bold"><span>⬅</span> ÎNAPOI</button>
+        <button class="main-btn btn-success" onclick="addRow()">➕ ADAUGĂ RÂND</button>
+        <button class="main-btn btn-danger" onclick="removeLastRow()">➖ ȘTERGE RÂND</button>
+        <button class="main-btn btn-secondary" style="background:#1e40af;" onclick="window.print()">🖨️ PRINTEAZĂ</button>
+        <button class="main-btn btn-secondary" style="background:#1f2937;" onclick="location.reload()">🔄 REFRESH</button>
+    </div>
+    <div class="page" id="document-page" style="display:none;">
+        <img src="antet_pnras.jpeg" class="antet-img">
+        <h2>Listă de prezență</h2>
+        <div class="grid-info">
+            <div class="info-item" style="grid-column: span 2;"><span class="info-label">Activitate:</span><span id="out-activitate" class="info-value"></span></div>
+            <div class="info-item"><span class="info-label">Disciplina / Tip Activitate:</span><span id="out-disciplina" class="info-value"></span></div>
+            <div class="info-item"><span class="info-label">Expert:</span><span id="out-expert" class="info-value"></span></div>
+            <div class="info-item"><span class="info-label">Data:</span><span id="out-data" class="info-value"></span></div>
+            <div class="info-item"><span class="info-label">Clasa / Grupa:</span><span id="out-clasa" class="info-value"></span></div>
+        </div>
+        <table>
+            <thead><tr><th width="5%">Nr.</th><th width="55%">Nume și prenume elev</th><th width="10%">P</th><th width="10%">A</th><th width="20%">Semnătura</th></tr></thead>
+            <tbody id="tabel-body"></tbody>
+        </table>
+        <div class="signature-area"><p style="margin-bottom: 50px;">Întocmit,</p><p>Expert: <span id="sig-expert" style="font-weight: bold; text-decoration: underline;"></span></p></div>
+    </div>
+<script>
+    const URL_S = 'https://aexjrbdgajurxzngfkpx.supabase.co';
+    const KEY_S = 'sb_publishable_KPV__0BA9z4EvRl5eqC0FQ_hmBLOLYv';
+    const _supabase = supabase.createClient(URL_S, KEY_S);
+
+    const MAP_ACTIVITATI = { 'A II.4.': ['Angheluș Raluca', 'Baziluc Ana Maria', 'Ghemeș Anca', 'Arotăriței Dănuț', 'Boldan Ovidiu', 'Popovici Estera', 'Iftene Ana Maria'], 'A II.5.': ['Albu Ștefan', 'Marele Daniela', 'Tanasă Liliana', 'Popa Gabriela', 'Nohai Iuliana', 'Nohai Vili'], 'A II.6.': ['Aparascăi Vasile'] };
+    const DESC_ACTIVITATI = { 'A II.4.': 'A II. 4. Activități remediale și diverse activități pedagogice și de sprijin', 'A II.5.': 'A II.5. Activități extracurriculare și/sau extrașcolare', 'A II.6.': 'A II.6. Activități pentru dezvoltarea literației. Club de lectură' };
+    const MAP_DISCIPLINE = { 'Angheluș Raluca': 'Activități remediale la limba și literatura română', 'Baziluc Ana Maria': 'Activități remediale la limba și literatura română', 'Ghemeș Anca': 'Activități remediale la limba și literatura română', 'Arotăriței Dănuț': 'Activități remediale la matematică', 'Boldan Ovidiu': 'Activități remediale la matematică', 'Popovici Estera': 'Activități remediale la matematică', 'Albu Ștefan': 'Activități extracurriculare la Clubul de activități sportive și outdoor', 'Marele Daniela': 'Activități extracurriculare la Clubul de pictură', 'Tanasă Liliana': 'Activități extracurriculare la Clubul de muzică', 'Popa Gabriela': 'Activități extracurriculare la Clubul de dansuri', 'Nohai Iuliana': 'Activități extracurriculare la Clubul de științe', 'Nohai Vili': 'Activități extracurriculare la Clubul de științe', 'Aparascăi Vasile': 'Activități extracurriculare la Clubul de lectură și literație', 'Iftene Ana Maria': 'Activități remediale la matematică' };
+    const MAP_CLASE = { 
+        '5A': 'Clasa a V-a A', '5B': 'Clasa a V-a B', '5C': 'Clasa a V-a C', '6A': 'Clasa a VI-a A', '6B': 'Clasa a VI-a B', '6C': 'Clasa a VI-a C', '7A': 'Clasa a VII-a A', '7B': 'Clasa a VII-a B', '7C': 'Clasa a VII-a C', '8A': 'Clasa a VIII-a A', '8B': 'Clasa a VIII-a B', '8C': 'Clasa a VIII-a C', 
+        'SG1': 'Grupa 1, Sport', 'SG2': 'Grupa 2, Sport', 'PG1': 'Grupa 1, Pictură', 'PG2': 'Grupa 2, Pictură', 'MG1': 'Grupa 1, Muzică', 'MG2': 'Grupa 2, Muzică', 'DG1': 'Grupa 1, Dansuri', 'StG1': 'Grupa 1, Științe', 'StG2': 'Grupa 1, Științe', 
+        'SG1A': 'Grupa 1A, Sport', 'SG1B': 'Grupa 1B, Sport', 'PG1A': 'Grupa 1A, Pictură', 'PG1B': 'Grupa 1B, Pictură', 'StG1A': 'Grupa 1A, Științe', 'StG1B': 'Grupa 1B, Științe', 
+        'AV5A': 'Clasa a V-a A', 'AV5B': 'Clasa a V-a B', 'AV6A': 'Clasa a VI-a A', 'AV6B': 'Clasa a VI-a B', 'AV7A': 'Clasa a VII-a A', 'AV7B': 'Clasa a VII-a B', 
+        'AV8A1': 'Clasa a VIII-a A, Grupa 1', 'AV8A2': 'Clasa a VIII-a A, Grupa 2', 'AV8B1': 'Clasa a VIII-a B, Grupa 1', 'AV8B2': 'Clasa a VIII-a B, Grupa 2', 
+        'AR5AB': 'Clasele a V-a A, B', 'AR5A': 'Clasa a V-a A', 'AR5B': 'Clasa a V-a B', 'AR6A': 'Clasa a VI-a A', 'AR6B': 'Clasa a VI-a B', 'AR7B': 'Clasa a VII-a B', 
+        'BA6B': 'Clasa a VI-a B', 'BA7A': 'Clasa a VII-a A', 'BA8A1': 'Clasa a VIII-a A, Grupa 1', 'BA8A2': 'Clasa a VIII-a A, Grupa 2', 'BA8B': 'Clasa a VIII-a B',
+        'AD8B1': 'Clasa a VIII-a B, Grupa 1', 'AD8B2': 'Clasa a VIII-a B, Grupa 2', 'AD8B3': 'Clasa a VIII-a B, Grupa 3',
+        'PE8A1': 'Clasa a VIII-a A, Grupa 1', 'PE8A2': 'Clasa a VIII-a A, Grupa 2', 'PE6B': 'Clasa a VI-a B', 'PE7A': 'Clasa a VII-a A',
+        'IA5AB1': 'Clasele a V-a A, B', 'IA5AB2': 'Clasele a V-a A, B', 'IA6A': 'Clasa a VI-a A', 'IA7B': 'Clasa a VII-a B'
+    };
+
+    function toggleCheck(el, type) {
+        const row = el.closest('tr');
+        const p = row.querySelector('.p-check'), a = row.querySelector('.a-check');
+        if (type === 'p' && p.checked) a.checked = false;
+        if (type === 'a' && a.checked) p.checked = false;
+    }
+    function addRow() {
+        const tbody = document.getElementById('tabel-body');
+        const row = document.createElement('tr');
+        row.innerHTML = `<td class=\"nr-cell\"></td><td><input type=\"text\" class=\"edit-name\" placeholder=\"Nume Prenume\"></td><td><input type=\"checkbox\" class=\"p-check\" checked onclick=\"toggleCheck(this, 'p')\"></td><td><input type=\"checkbox\" class=\"a-check\" onclick=\"toggleCheck(this, 'a')\"></td><td></td>`;
+        tbody.appendChild(row); reindex();
+    }
+    function removeLastRow() { const tbody = document.getElementById('tabel-body'); if (tbody.lastElementChild) { tbody.removeChild(tbody.lastElementChild); reindex(); } }
+    function reindex() { document.querySelectorAll('.nr-cell').forEach((td, i) => td.textContent = i + 1); }
+
+    async function incarcaDate() {
+        try {
+            const params = new URLSearchParams(window.location.search);
+            const expert = params.get('expert'), clasaCod = params.get('clasa'), luna = params.get('luna') || "", an = params.get('an') || "";
+            let zi = params.get('zi');
+            document.getElementById('btn-back').onclick = () => { window.location.href = `dosar-expert.html?expert=${encodeURIComponent(expert)}`; };
+            if (!zi && expert && luna && an) {
+                const { data: p } = await _supabase.from('pontaj_detaliat').select('zi').eq('expert', expert).eq('luna', luna).eq('an', an).limit(1).maybeSingle();
+                if (p) zi = p.zi;
+            }
+            let actCod = "";
+            for (let k in MAP_ACTIVITATI) if (MAP_ACTIVITATI[k].includes(expert)) actCod = k;
+            document.getElementById('out-activitate').textContent = DESC_ACTIVITATI[actCod] || "---";
+            document.getElementById('out-disciplina').textContent = MAP_DISCIPLINE[expert] || "---";
+            document.getElementById('out-expert').textContent = expert;
+            document.getElementById('sig-expert').textContent = expert;
+            document.getElementById('out-clasa').textContent = MAP_CLASE[clasaCod] || clasaCod;
+            document.getElementById('out-data').textContent = `${zi || ""} ${luna} ${an}`.trim();
+            const { data: elevi } = await _supabase.from('elevi').select('nume_complet').eq('clasa_grupa', clasaCod).order('nume_complet', { ascending: true });
+            const tbody = document.getElementById('tabel-body');
+            if (elevi) {
+                elevi.forEach(e => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `<td class=\"nr-cell\"></td><td><input type=\"text\" class=\"edit-name\" value=\"${e.nume_complet}\"></td><td><input type=\"checkbox\" class=\"p-check\" checked onclick=\"toggleCheck(this, 'p')\"></td><td><input type=\"checkbox\" class=\"a-check\" onclick=\"toggleCheck(this, 'a')\"></td><td></td>`;
+                    tbody.appendChild(row);
+                });
+            }
+            reindex();
+            document.getElementById('document-page').style.display = 'block';
+            document.getElementById('status-msg').style.display = 'none';
+        } catch (err) { console.error(err); }
+    }
+    document.addEventListener('DOMContentLoaded', incarcaDate);
+</script>
+</body>
+</html>

@@ -78,7 +78,7 @@
 
     <div class="no-print">
         <div class="nav-left">
-            <button class="btn btn-back" onclick="window.location.href='activitati.html'">⬅️ Înapoi</button>
+            <button id="btn-back-dinamic" class="btn btn-back">⬅️ Înapoi</button>
             <div id="save-status">✓ Sincronizat</div>
         </div>
         
@@ -103,6 +103,11 @@
         expert: params.get('expert'), luna: params.get('luna'), an: params.get('an'), clasa: params.get('clasa'),
         idDoc: `PLAN_${params.get('expert')}_${params.get('clasa')}_${params.get('luna')}_${params.get('an')}`,
         idData: `DATA_${params.get('expert')}_${params.get('clasa')}_${params.get('luna')}_${params.get('an')}`
+    };
+
+    // LOGICA BUTON BACK DINAMIC
+    document.getElementById('btn-back-dinamic').onclick = () => {
+        window.location.href = `dosar-expert.html?expert=${encodeURIComponent(config.expert)}`;
     };
 
     const dbExperti = {
@@ -147,7 +152,6 @@
         setTimeout(() => document.getElementById('save-status').style.display = 'none', 2000);
     }
 
-    // FUNCȚIA DE RESET
     async function reseteazaLaPlanificare() {
         if (confirm("Ești sigur că vrei să ștergi tot ce ai scris și să revii la datele inițiale din planificare? Această acțiune nu poate fi anulată.")) {
             const { error } = await supabaseClient

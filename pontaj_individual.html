@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fișă Individuală de Pontaj PNRAS</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root { 
+            --deep-blue: #1e3a8a; 
+            --electric-blue: #2563eb;
+            --soft-blue: #eff6ff;
+            --border-blue: #bfdbfe;
+        }
+        @page { size: A4; margin: 0.8cm; }
+        
+        body { 
+            background: #f1f5f9; 
+            font-family: 'Inter', sans-serif; 
+            color: #000; 
+            margin: 0; 
+            padding: 20px; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center;
+            /* Forțează browserul să printeze culorile de fundal */
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+        }
+        
+        .no-print { 
+            position: sticky; top: 10px;
+            margin-bottom: 20px; 
+            display: flex; gap: 12px; 
+            justify-content: center; 
+            z-index: 1000;
+        }
+
+        .main-btn { 
+            padding: 10px 22px; cursor: pointer; color: white; border: none; 
+            border-radius: 50px; font-weight: 600; font-size: 13px; 
+            display: flex; align-items: center; gap: 8px; transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .btn-back { background: #000; border: 2px solid #10b981; }
+        .btn-add { background: #10b981; }
+        .btn-del { background: #ef4444; }
+        .btn-print { background: var(--electric-blue); }
+
+        .page { 
+            background: white; 
+            width: 210mm; 
+            min-height: 297mm; 
+            padding: 12mm 15mm; 
+            box-sizing: border-box; 
+            box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+            border-top: 8px solid var(--deep-blue);
+        }
+        
+        .antet-img { width: 100%; margin-bottom: 5px; }
+        
+        /* NR INREGISTRARE - FARA CHENAR, BOLD MODERAT */
+        .nr-inreg { text-align: left; margin: 10px 0; font-size: 13px; font-weight: 500; }
+        .nr-inreg input { 
+            border: none; 
+            background: transparent; 
+            font-weight: 600; 
+            width: 180px; 
+            outline: none; 
+            color: #000; 
+            font-size: 14px; 
+        }
+
+        h2 { 
+            text-align: center; text-transform: uppercase; font-size: 19px; 
+            margin: 15px 0; font-weight: 800; color: var(--deep-blue);
+        }
+
+        /* CARTONAȘ INFO - ALINIAT STANGA, COLOANA 2 SPRE DREAPTA */
+        .info-card { 
+            background: var(--soft-blue) !important;
+            padding: 15px 20px; 
+            border-radius: 12px; 
+            border: 1.5px solid var(--border-blue); 
+            margin: 15px 0;
+            display: grid;
+            grid-template-columns: 1fr 1.1fr; 
+            gap: 8px 40px; 
+            line-height: 1.3;
+        }
+        
+        .info-line { font-size: 13px; display: flex; flex-direction: column; text-align: left; }
+        .info-label { font-weight: 800; text-transform: uppercase; font-size: 9px; color: #444; margin-bottom: 2px; }
+        .info-value { font-weight: 700; color: #000; font-size: 13.5px; }
+
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; border: 2px solid #000; }
+        th { 
+            background: var(--soft-blue) !important; color: var(--deep-blue); 
+            padding: 10px 5px; font-size: 10.5px; font-weight: 800;
+            text-transform: uppercase; border: 1.5px solid #000; 
+        }
+        td { border: 1.5px solid #000; padding: 7px 5px; font-size: 12px; text-align: center; outline: none; color: #000; }
+        
+        .total-row { font-weight: 800; background: var(--soft-blue) !important; color: var(--deep-blue); }
+        .total-label { text-align: right; padding-right: 25px; text-transform: uppercase; font-size: 11px; border: 1.5px solid #000; }
+
+        .signature-row { 
+            margin-top: 40px; 
+            display: grid; 
+            grid-template-columns: 1fr 1fr 1fr; 
+            gap: 20px; 
+            text-align: center; 
+        }
+        .sig-item { color: #000; font-weight: 600; font-size: 12px; }
+        .sig-title { display: block; margin-bottom: 35px; font-weight: 700; }
+        .sig-name { display: block; font-weight: 800; border-top: 1px solid #000; padding-top: 8px; font-size: 12px; }
+
+        @media print { 
+            .no-print { display: none; } 
+            body { padding: 0; background: none; } 
+            .page { box-shadow: none; width: 100%; margin: 0; padding: 5mm; border-top: 8px solid var(--deep-blue); } 
+            /* Forțăm culorile să apară la imprimantă */
+            .info-card { background-color: var(--soft-blue) !important; border-color: var(--border-blue) !important; }
+            th { background-color: var(--soft-blue) !important; color: var(--deep-blue) !important; }
+            .total-row { background-color: var(--soft-blue) !important; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="no-print">
+        <button id="btn-back" class="main-btn btn-back"><span>⬅</span> ÎNAPOI</button>
+        <button class="main-btn btn-add" onclick="addRow()">📂 ADAUGĂ RÂND</button>
+        <button class="main-btn btn-del" onclick="removeLastRow()">🗑️ ȘTERGE</button>
+        <button class="main-btn btn-print" onclick="window.print()">🖨️ PRINTEAZĂ</button>
+    </div>
+
+    <div class="page">
+        <img src="antet_pnras.jpeg" class="antet-img">
+        
+        <div class="nr-inreg">
+            <span>📝 Nr. înreg:</span>
+            <input type="text" placeholder="............... / ...............">
+        </div>
+
+        <h2>Fișă individuală de pontaj</h2>
+
+        <div class="info-card">
+            <div class="info-line" style="grid-column: span 2;">
+                <span class="info-label">Activitatea desfășurată:</span> 
+                <span id="out-activitate" class="info-value"></span>
+            </div>
+            <div class="info-line">
+                <span class="info-label">Luna raportată:</span> 
+                <span id="out-luna-an" class="info-value"></span>
+            </div>
+            <div class="info-line">
+                <span class="info-label">Expert Proiect:</span> 
+                <span id="out-expert" class="info-value"></span>
+            </div>
+            <div class="info-line">
+                <span class="info-label">Nr. contract:</span> 
+                <span id="out-contract" class="info-value"></span>
+            </div>
+            <div class="info-line">
+                <span class="info-label">Disciplina:</span> 
+                <span id="out-disciplina" class="info-value"></span>
+            </div>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th width="7%">Nr.crt</th>
+                    <th width="15%">Data</th>
+                    <th width="63%">Clasa / Grupa Beneficiari</th>
+                    <th width="15%">Ore/Zi</th>
+                </tr>
+            </thead>
+            <tbody id="tabel-pontaj" oninput="recalculareTotal()"></tbody>
+            <tfoot>
+                <tr class="total-row">
+                    <td colspan="3" class="total-label">Total ore realizate în lună:</td>
+                    <td id="total-final">0</td>
+                </tr>
+            </tfoot>
+        </table>
+
+        <div class="signature-row">
+            <div class="sig-item">
+                <span class="sig-title">Întocmit,<br>Expert,</span>
+                <strong id="sig-expert" class="sig-name"></strong>
+            </div>
+
+            <div class="sig-item">
+                <span class="sig-title">Aprobat,<br>Director,</span>
+                <strong class="sig-name">prof. Cătălin Ionuț BAZILUC</strong>
+            </div>
+
+            <div class="sig-item">
+                <span class="sig-title">Avizat,<br>Manager proiect,</span>
+                <strong class="sig-name">prof. dr. Ciprian MIHAI</strong>
+            </div>
+        </div>
+    </div>
+
+<script>
+    // [Scriptul rămâne neschimbat, cu excepția funcțiilor necesare]
+    const URL_S = 'https://aexjrbdgajurxzngfkpx.supabase.co';
+    const KEY_S = 'sb_publishable_KPV__0BA9z4EvRl5eqC0FQ_hmBLOLYv';
+    const _supabase = supabase.createClient(URL_S, KEY_S);
+
+    const CONTRACTE = { "Angheluș Raluca": "49/PNRAS/31.10.2024", "Baziluc Ana Maria": "51/PNRAS/31.10.2024", "Ghemeș Anca": "63/PNRAS/31.10.2024", "Arotăriței Dănuț": "50/PNRAS/31.10.2024", "Boldan Ovidiu": "67/PNRAS/31.10.2024", "Popovici Estera": "59/PNRAS/31.10.2024", "Albu Ștefan": "47/PNRAS/31.10.2024", "Marele Daniela": "53/PNRAS/31.10.2024", "Tanasă Liliana": "60/PNRAS/31.10.2024", "Popa Gabriela": "58/PNRAS/31.10.2024", "Nohai Iuliana": "56/PNRAS/31.10.2024", "Nohai Vili": "57/PNRAS/31.10.2024", "Aparascăi Vasile": "48/PNRAS/31.10.2024", "Iftene Ana Maria": "52/PNRAS/31.10.2024" };
+    const MAP_DISCIPLINE = { 'Angheluș Raluca': 'Activități remediale la limba și literatura română', 'Baziluc Ana Maria': 'Activități remediale la limba și literatura română', 'Ghemeș Anca': 'Activități remediale la limba și literatura română', 'Arotăriței Dănuț': 'Activități remediale la matematică', 'Boldan Ovidiu': 'Activități remediale la matematică', 'Popovici Estera': 'Activități remediale la matematică', 'Albu Ștefan': 'Activități extracurriculare la Clubul de activități sportive și outdoor', 'Marele Daniela': 'Activități extracurriculare la Clubul de pictură', 'Tanasă Liliana': 'Activități extracurriculare la Clubul de muzică', 'Popa Gabriela': 'Activități extracurriculare la Clubul de dansuri', 'Nohai Iuliana': 'Activități extracurriculare la Clubul de științe', 'Nohai Vili': 'Activități extracurriculare la Clubul de științe', 'Aparascăi Vasile': 'Activități extracurriculare la Clubul de lectură și literație', 'Iftene Ana Maria': 'Activități remediale la matematică' };
+    const MAP_CLASE = { '5A': 'Clasa a V-a A', '5B': 'Clasa a V-a B', '5C': 'Clasa a V-a C', '6A': 'Clasa a VI-a A', '6B': 'Clasa a VI-a B', '6C': 'Clasa a VI-a C', '7A': 'Clasa a VII-a A', '7B': 'Clasa a VII-a B', '7C': 'Clasa a VII-a C', '8A': 'Clasa a VIII-a A', '8B': 'Clasa a VIII-a B', '8C': 'Clasa a VIII-a C', 'SG1': 'Grupa 1, Sport', 'SG2': 'Grupa 2, Sport', 'PG1': 'Grupa 1, Pictură', 'PG2': 'Grupa 2, Pictură', 'MG1': 'Grupa 1, Muzică', 'MG2': 'Grupa 2, Muzică', 'DG1': 'Grupa 1, Dansuri', 'StG1': 'Grupa 1, Științe', 'StG2': 'Grupa 2, Științe', 'SG1A': 'Grupa 1A, Sport', 'SG1B': 'Grupa 1B, Sport', 'PG1A': 'Grupa 1A, Pictură', 'PG1B': 'Grupa 1B, Pictură', 'StG1A': 'Grupa 1A, Științe', 'StG1B': 'Grupa 1B, Științe', 'AV5A': 'Clasa a V-a A', 'AV5B': 'Clasa a V-a B', 'AV6A': 'Clasa a VI-a A', 'AV6B': 'Clasa a VI-a B', 'AV7A': 'Clasa a VII-a A', 'AV7B': 'Clasa a VII-a B', 'AV8A1': 'Clasa a VIII-a A, Gr. 1', 'AV8A2': 'Clasa a VIII-a A, Gr. 2', 'AV8B1': 'Clasa a VIII-a B, Gr. 1', 'AV8B2': 'Clasa a VIII-a B, Gr. 2', 'AR5AB': 'Clasele a V-a A, B', 'AR5A': 'Clasa a V-a A', 'AR5B': 'Clasa a V-a B', 'AR6A': 'Clasa a VI-a A', 'AR6B': 'Clasa a VI-a B', 'AR7B': 'Clasa a VII-a B', 'BA6B': 'Clasa a VI-a B', 'BA7A': 'Clasa a VII-a A', 'BA8A1': 'Clasa a VIII-a A, Gr. 1', 'BA8A2': 'Clasa a VIII-a A, Gr. 2', 'BA8B': 'Clasa a VIII-a B', 'AD8B1': 'Clasa a VIII-a B, Gr. 1', 'AD8B2': 'Clasa a VIII-a B, Gr. 2', 'AD8B3': 'Clasa a VIII-a B, Gr. 3', 'PE8A1': 'Clasa a VIII-a A, Gr. 1', 'PE8A2': 'Clasa a VIII-a A, Gr. 2', 'PE6B': 'Clasa a VI-a B', 'PE7A': 'Clasa a VII-a A', 'IA5AB1': 'Clasele a V-a A, B', 'IA5AB2': 'Clasele a V-a A, B', 'IA6A': 'Clasa a VI-a A', 'IA7B': 'Clasa a VII-a B' };
+    const DESC_ACT = { 'A II.4.': 'A II. 4. Activități remediale și diverse activități pedagogice și de sprijin', 'A II.5.': 'A II.5. Activități extracurriculare și/sau extrașcolare', 'A II.6.': 'A II.6. Activități pentru dezvoltarea literației. Club de lectură' };
+    const MAP_ACT = { 'A II.4.': ['Angheluș Raluca', 'Baziluc Ana Maria', 'Ghemeș Anca', 'Arotăriței Dănuț', 'Boldan Ovidiu', 'Popovici Estera', 'Iftene Ana Maria'], 'A II.5.': ['Albu Ștefan', 'Marele Daniela', 'Tanasă Liliana', 'Popa Gabriela', 'Nohai Iuliana', 'Nohai Vili'], 'A II.6.': ['Aparascăi Vasile'] };
+
+    function recalculareTotal() {
+        let suma = 0;
+        document.querySelectorAll('#tabel-pontaj tr').forEach(row => {
+            suma += parseFloat(row.cells[3].innerText) || 0;
+        });
+        document.getElementById('total-final').innerText = suma;
+    }
+
+    function reindex() {
+        document.querySelectorAll('#tabel-pontaj tr').forEach((row, i) => { row.cells[0].innerText = i + 1; });
+    }
+
+    function addRow() {
+        const tbody = document.getElementById('tabel-pontaj');
+        const row = document.createElement('tr');
+        row.innerHTML = `<td></td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true">0</td>`;
+        tbody.appendChild(row); reindex(); recalculareTotal();
+    }
+
+    function removeLastRow() {
+        const tbody = document.getElementById('tabel-pontaj');
+        if (tbody.lastElementChild) { tbody.removeChild(tbody.lastElementChild); recalculareTotal(); }
+    }
+
+    function formatData(zi, lunaText, an) {
+        const luni = {"Ianuarie":"01","Februarie":"02","Martie":"03","Aprilie":"04","Mai":"05","Iunie":"06","Iulie":"07","August":"08","Septembrie":"09","Octombrie":"10","Noiembrie":"11","Decembrie":"12"};
+        return `${zi.toString().padStart(2, '0')}.${luni[lunaText] || "01"}.${an}`;
+    }
+
+    async function incarca() {
+        const params = new URLSearchParams(window.location.search);
+        const expert = params.get('expert'), luna = params.get('luna'), an = params.get('an');
+        document.getElementById('btn-back').onclick = () => { window.location.href = `dosar-expert.html?expert=${encodeURIComponent(expert)}`; };
+        document.getElementById('out-expert').textContent = expert;
+        document.getElementById('sig-expert').textContent = expert;
+        document.getElementById('out-luna-an').textContent = `${luna} ${an}`;
+        document.getElementById('out-contract').textContent = CONTRACTE[expert] || "---";
+        document.getElementById('out-disciplina').textContent = MAP_DISCIPLINE[expert] || "---";
+        let actCod = "";
+        for (let k in MAP_ACT) if (MAP_ACT[k].includes(expert)) actCod = k;
+        document.getElementById('out-activitate').textContent = DESC_ACT[actCod] || "---";
+
+        try {
+            const { data } = await _supabase.from('pontaj_detaliat').select('*').eq('expert', expert).eq('luna', luna).eq('an', an).order('zi', { ascending: true });
+            const tbody = document.getElementById('tabel-pontaj');
+            if (data && data.length > 0) {
+                const zile = {};
+                data.forEach(r => {
+                    if (!zile[r.zi]) zile[r.zi] = { clase: [], ore: 0 };
+                    zile[r.zi].clase.push(MAP_CLASE[r.clase_grupe] || r.clase_grupe);
+                    zile[r.zi].ore += parseFloat(r.nr_ore);
+                });
+                let html = "", idx = 1;
+                for (let zi in zile) {
+                    html += `<tr><td>${idx++}</td><td contenteditable="true">${formatData(zi, luna, an)}</td><td contenteditable="true">${[...new Set(zile[zi].clase)].join(', ')}</td><td contenteditable="true">${zile[zi].ore}</td></tr>`;
+                }
+                tbody.innerHTML = html;
+                recalculareTotal();
+            }
+        } catch (err) { console.error(err); }
+    }
+    document.addEventListener('DOMContentLoaded', incarca);
+</script>
+</body>
+</html>
