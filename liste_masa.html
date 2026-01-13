@@ -7,147 +7,88 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Montserrat:wght@700&family=Roboto+Mono:wght@500&display=swap" rel="stylesheet">
     <style>
-        :root { --primary: #1e40af; --accent: #10b981; --text: #1f2937; }
+        :root { --primary: #1e40af; --accent: #10b981; --text: #1f2937; --warning: #f59e0b; }
         @page { size: A4; margin: 1cm; }
         body { background: #f3f4f6; font-family: 'Inter', sans-serif; color: var(--text); margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; }
-        .page { background: white; width: 210mm; min-height: 297mm; padding: 10mm 15mm; box-sizing: border-box; box-shadow: 0 10px 25px rgba(0,0,0,0.1); border-radius: 8px; }
+        .page { background: white; width: 210mm; min-height: 297mm; padding: 10mm 15mm; box-sizing: border-box; box-shadow: 0 10px 25px rgba(0,0,0,0.1); border-radius: 8px; margin-bottom: 30px; page-break-after: always; position: relative; }
         .antet-img { width: 100%; margin-bottom: 5px; border-bottom: 1px solid #eee; }
         h2 { font-family: 'Montserrat', sans-serif; color: black; text-align: center; text-transform: uppercase; margin: 10px 0; font-size: 17px; line-height: 1.3; }
-        
-        .grid-info { 
-            display: grid; 
-            grid-template-columns: 1.2fr 0.8fr; 
-            gap: 10px 40px; 
-            margin-bottom: 20px; 
-            background: #f9fafb; 
-            padding: 15px; 
-            border-radius: 8px; 
-            border: 1px solid #e2e8f0; 
-            border-left: 5px solid var(--primary); 
-        }
-        
+        .grid-info { display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 10px 40px; margin-bottom: 20px; background: #f9fafb; padding: 15px; border-radius: 8px; border: 1px solid #e2e8f0; border-left: 5px solid var(--primary); }
         .info-item { font-size: 12px; }
         .info-label { font-weight: 700; color: #4b5563; text-transform: uppercase; font-size: 10px; display: block; }
         .info-value { font-size: 14px; color: var(--text); font-weight: 600; }
-        
         table { width: 100%; border-collapse: collapse; margin-top: 5px; font-family: 'Roboto Mono', monospace; }
         th { background: #f8fafc; color: black; font-weight: 700; text-transform: uppercase; font-size: 11px; padding: 10px 5px; border: 1px solid black; text-align: center; }
         td { border: 1px solid black; padding: 8px 5px; font-size: 13px; color: black; text-align: center; vertical-align: middle; }
         .signature-area { margin-top: 50px; text-align: center; width: 100%; font-size: 14px; }
-        
-        .no-print { margin-bottom: 20px; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
-        .main-btn { padding: 12px 20px; cursor: pointer; color: white; border: none; border-radius: 8px; font-weight: bold; font-size: 13px; display: flex; align-items: center; gap: 8px; transition: 0.3s; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        
-        .btn-back-bold { 
-            background: #000000 !important; 
-            color: #ffffff !important; 
-            border: 2px solid #ffffff !important;
-            font-size: 16px !important;
-            padding: 12px 25px !important;
-        }
-        .btn-back-bold span { color: #10b981 !important; font-size: 20px; font-weight: 900; }
-        .btn-back-bold:hover { background: #1a1a1a !important; transform: scale(1.05); }
-        
-        .btn-print { background: var(--primary); }
-        .btn-unlock { background: #f59e0b; color: #000; }
+        .no-print { margin-bottom: 20px; display: flex; gap: 10px; justify-content: center; position: sticky; top: 10px; z-index: 1000; background: #f3f4f6eb; padding: 10px; border-radius: 10px; }
+        .main-btn { padding: 12px 20px; cursor: pointer; color: white; border: none; border-radius: 8px; font-weight: bold; font-size: 13px; display: flex; align-items: center; gap: 8px; transition: 0.3s; }
+        .btn-back-bold { background: #000; color: #fff; border: 2px solid #fff; font-size: 16px; padding: 12px 25px; }
+        .btn-back-bold span { color: #10b981; font-weight: 900; }
         .btn-success { background: #059669; }
         .btn-danger { background: #dc2626; }
         
-        .msg-distribuit { padding: 40px; border: 2px dashed #dc2626; border-radius: 12px; text-align: center; font-weight: bold; color: #b91c1c; margin-top: 20px; font-size: 16px; background: #fef2f2; line-height: 1.6; }
-        input.edit-name { border: none; width: 100%; font-family: inherit; font-size: inherit; background: transparent; outline: none; text-align: center; font-weight: 600; }
-        @media print { .no-print, #status-msg { display: none !important; } body { padding: 0; background: none; } .page { box-shadow: none; border-radius: 0; padding: 5mm; width: 100%; } }
+        .day-lock-bar { background: #fffbeb; border: 2px solid var(--warning); padding: 12px; border-radius: 8px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; }
+        .btn-lock-day { background: var(--warning); color: #000; font-weight: 800; border: 1px solid #b45309; }
+        .btn-unlock-day { background: #ef4444; color: #fff; }
+
+        .msg-special { padding: 30px; border: 2px dashed #dc2626; color: #b91c1c; font-weight: bold; text-align: center; background: #fef2f2; margin-top: 20px; border-radius: 10px; line-height: 1.5; }
+        input.edit-name { border: none !important; outline: none !important; width: 100%; font-family: inherit; font-size: inherit; background: transparent; text-align: center; font-weight: 600; }
+        
+        /* Stil special pentru izolarea paginii la printare individuală */
+        .hide-for-print { display: none !important; }
+
+        @media print { .no-print, #status-msg, .day-lock-bar { display: none !important; } body { padding: 0; background: none; } .page { box-shadow: none; border-radius: 0; padding: 5mm; width: 100%; margin: 0; } }
     </style>
 </head>
 <body>
-
-    <div id="status-msg" style="padding: 10px; background: #dcfce7; border-radius: 5px; margin-bottom: 10px;">⌛ Se verifică condițiile pentru masa caldă...</div>
-    
+    <div id="status-msg" style="padding: 10px; background: #dcfce7; border-radius: 5px; margin-bottom: 10px;">⌛ Se generează listele de masă...</div>
     <div class="no-print">
         <button id="btn-back" class="main-btn btn-back-bold"><span>⬅</span> ÎNAPOI</button>
-        <button class="main-btn btn-success" id="btn-add-row" onclick="addRow()">➕ ADAUGĂ RÂND</button>
-        <button class="main-btn btn-danger" id="btn-del-row" onclick="removeLastRow()">➖ ȘTERGE RÂND</button>
-        <button class="main-btn btn-print" id="btn-print-main" onclick="printeazaSiBlocheaza()">🖨️ PRINTEAZĂ ȘI BLOCHEAZĂ</button>
-        <button class="main-btn btn-unlock" id="btn-unlock-main" onclick="deblocheazaPrintarea()" style="display:none;">🔓 DEBLOCHEAZĂ LISTA</button>
+        <button class="main-btn btn-success" onclick="addRow()">➕ ADAUGĂ RÂND</button>
+        <button class="main-btn btn-danger" onclick="removeLastRow()">➖ ȘTERGE RÂND</button>
     </div>
-
-    <div class="page" id="document-page" style="display:none;">
-        <img src="antet_pnras.jpeg" class="antet-img">
-        <h2>LISTĂ DE PRIMIRE A PACHETULUI ALIMENTAR DE TIP MASĂ CALDĂ</h2>
-
-        <div class="grid-info">
-            <div class="info-item" style="grid-column: span 2;">
-                <span class="info-label">Activitate:</span>
-                <span id="out-activitate" class="info-value"></span>
+    <div id="master-container"></div>
+    <template id="page-template">
+        <div class="page">
+            <img src="antet_pnras.jpeg" class="antet-img">
+            <h2>LISTĂ DE PRIMIRE A PACHETULUI ALIMENTAR DE TIP MASĂ CALDĂ</h2>
+            <div class="grid-info">
+                <div class="info-item" style="grid-column: span 2;"><span class="info-label">Activitate:</span><span class="out-activitate info-value"></span></div>
+                <div class="info-item"><span class="info-label">Disciplina:</span><span class="out-disciplina info-value"></span></div>
+                <div class="info-item"><span class="info-label">Expert:</span><span class="out-expert info-value"></span></div>
+                <div class="info-item"><span class="info-label">Data:</span><span class="out-data info-value"></span></div>
+                <div class="info-item"><span class="info-label">Clasa / Grupa:</span><span class="out-clasa info-value"></span></div>
             </div>
-            <div class="info-item">
-                <span class="info-label">Disciplina / Tip Activitate:</span>
-                <span id="out-disciplina" class="info-value"></span>
+            <div class="day-lock-bar no-print">
+                <span class="lock-status-text">ℹ️ Această zi este liberă pentru distribuire.</span>
+                <div class="lock-actions">
+                    <button class="main-btn btn-lock-day" onclick="printeazaSiBlocheazaZiua(this)">🔒 PRINTEAZĂ ȘI BLOCHEAZĂ ZIUA</button>
+                    <button class="main-btn btn-unlock-day" onclick="deblocheazaZiua(this)" style="display:none;">🔓 DEBLOCHEAZĂ</button>
+                </div>
             </div>
-            <div class="info-item">
-                <span class="info-label">Expert:</span>
-                <span id="out-expert" class="info-value"></span>
+            <div class="container-tabel">
+                <table>
+                    <thead><tr><th width="5%">Nr.</th><th width="55%">Nume elev</th><th width="10%">Da</th><th width="10%">Nu</th><th width="20%">Semnătura</th></tr></thead>
+                    <tbody class="tabel-body"></tbody>
+                </table>
             </div>
-            <div class="info-item">
-                <span class="info-label">Data:</span>
-                <span id="out-data" class="info-value"></span>
-            </div>
-            <div class="info-item">
-                <span class="info-label">Clasa / Grupa:</span>
-                <span id="out-clasa" class="info-value"></span>
-            </div>
+            <div class="msg-special" style="display: none;"></div>
+            <div class="signature-area"><p style="margin-bottom: 50px;">Întocmit,</p><p>Expert: <span class="sig-expert" style="font-weight: bold; text-decoration: underline;"></span></p></div>
         </div>
-
-        <div id="container-tabel">
-            <table>
-                <thead>
-                    <tr><th width="5%">Nr.</th><th width="55%">Nume și prenume elev</th><th width="10%">Da</th><th width="10%">Nu</th><th width="20%">Semnătura</th></tr>
-                </thead>
-                <tbody id="tabel-body"></tbody>
-            </table>
-        </div>
-        <div id="msg-special" class="msg-distribuit" style="display: none;"></div>
-
-        <div class="signature-area">
-            <p style="margin-bottom: 50px;">Întocmit,</p>
-            <p>Expert: <span id="sig-expert" style="font-weight: bold; text-decoration: underline;"></span></p>
-        </div>
-    </div>
+    </template>
 
 <script>
     const URL_S = 'https://aexjrbdgajurxzngfkpx.supabase.co';
     const KEY_S = 'sb_publishable_KPV__0BA9z4EvRl5eqC0FQ_hmBLOLYv';
     const _supabase = supabase.createClient(URL_S, KEY_S);
 
+    const MAP_CLASE = { '5A': 'Clasa a V-a A', '5B': 'Clasa a V-a B', '5C': 'Clasa a V-a C', '6A': 'Clasa a VI-a A', '6B': 'Clasa a VI-a B', '6C': 'Clasa a VI-a C', '7A': 'Clasa a VII-a A', '7B': 'Clasa a VII-a B', '7C': 'Clasa a VII-a C', '8A': 'Clasa a VIII-a A', '8B': 'Clasa a VIII-a B', '8C': 'Clasa a VIII-a C', 'SG1': 'Grupa 1, Sport', 'SG2': 'Grupa 2, Sport', 'PG1': 'Grupa 1, Pictură', 'PG2': 'Grupa 2, Pictură', 'MG1': 'Grupa 1, Muzică', 'MG2': 'Grupa 2, Muzică', 'DG1': 'Grupa 1, Dansuri', 'StG1': 'Grupa 1, Științe', 'StG2': 'Grupa 1, Științe', 'SG1A': 'Grupa 1A, Sport', 'SG1B': 'Grupa 1B, Sport', 'PG1A': 'Grupa 1A, Pictură', 'PG1B': 'Grupa 1B, Pictură', 'StG1A': 'Grupa 1A, Științe', 'StG1B': 'Grupa 1B, Științe', 'AV5A': 'Clasa a V-a A', 'AV5B': 'Clasa a V-a B', 'AV6A': 'Clasa a VI-a A', 'AV6B': 'Clasa a VI-a B', 'AV7A': 'Clasa a VII-a A', 'AV7B': 'Clasa a VII-a B', 'AV8A1': 'Clasa a VIII-a A, Grupa 1', 'AV8A2': 'Clasa a VIII-a A, Grupa 2', 'AV8B1': 'Clasa a VIII-a B, Grupa 1', 'AV8B2': 'Clasa a VIII-a B, Grupa 2', 'AR5AB': 'Clasele a V-a A, B', 'AR5A': 'Clasa a V-a A', 'AR5B': 'Clasa a V-a B', 'AR6A': 'Clasa a VI-a A', 'AR6B': 'Clasa a VI-a B', 'AR7B': 'Clasa a VII-a B', 'BA6B': 'Clasa a VI-a B', 'BA7A': 'Clasa a VII-a A', 'BA8A1': 'Clasa a VIII-a A, Grupa 1', 'BA8A2': 'Clasa a VIII-a A, Grupa 2', 'BA8B': 'Clasa a VIII-a B', 'AD8B1': 'Clasa a VIII-a B, Grupa 1', 'AD8B2': 'Clasa a VIII-a B, Grupa 2', 'AD8B3': 'Clasa a VIII-a B, Grupa 3', 'PE8A1': 'Clasa a VIII-a A, Grupa 1', 'PE8A2': 'Clasa a VIII-a A, Grupa 2', 'PE6B': 'Clasa a VI-a B', 'PE7A': 'Clasa a VII-a A', 'IA5AB1': 'Clasele a V-a A, B', 'IA5AB2': 'Clasele a V-a A, B', 'IA6A': 'Clasa a VI-a A', 'IA7B': 'Clasa a VII-a B' };
     const MAP_ACTIVITATI = { 'A II.4.': ['Angheluș Raluca', 'Baziluc Ana Maria', 'Ghemeș Anca', 'Arotăriței Dănuț', 'Boldan Ovidiu', 'Popovici Estera', 'Iftene Ana Maria'], 'A II.5.': ['Albu Ștefan', 'Marele Daniela', 'Tanasă Liliana', 'Popa Gabriela', 'Nohai Iuliana', 'Nohai Vili'], 'A II.6.': ['Aparascăi Vasile'] };
     const DESC_ACTIVITATI = { 'A II.4.': 'A II. 4. Activități remediale și diverse activități pedagogice și de sprijin', 'A II.5.': 'A II.5. Activități extracurriculare și/sau extrașcolare', 'A II.6.': 'A II.6. Activități pentru dezvoltarea literației. Club de lectură' };
     const MAP_DISCIPLINE = { 'Angheluș Raluca': 'Activități remediale la limba și literatura română', 'Baziluc Ana Maria': 'Activități remediale la limba și literatura română', 'Ghemeș Anca': 'Activități remediale la limba și literatura română', 'Arotăriței Dănuț': 'Activități remediale la matematică', 'Boldan Ovidiu': 'Activități remediale la matematică', 'Popovici Estera': 'Activități remediale la matematică', 'Albu Ștefan': 'Activități extracurriculare la Clubul de activități sportive și outdoor', 'Marele Daniela': 'Activități extracurriculare la Clubul de pictură', 'Tanasă Liliana': 'Activități extracurriculare la Clubul de muzică', 'Popa Gabriela': 'Activități extracurriculare la Clubul de dansuri', 'Nohai Iuliana': 'Activități extracurriculare la Clubul de științe', 'Nohai Vili': 'Activități extracurriculare la Clubul de științe', 'Aparascăi Vasile': 'Activități extracurriculare la Clubul de lectură și literație', 'Iftene Ana Maria': 'Activități remediale la matematică' };
-    const MAP_CLASE = { 
-        '5A': 'Clasa a V-a A', '5B': 'Clasa a V-a B', '5C': 'Clasa a V-a C', '6A': 'Clasa a VI-a A', '6B': 'Clasa a VI-a B', '6C': 'Clasa a VI-a C', '7A': 'Clasa a VII-a A', '7B': 'Clasa a VII-a B', '7C': 'Clasa a VII-a C', '8A': 'Clasa a VIII-a A', '8B': 'Clasa a VIII-a B', '8C': 'Clasa a VIII-a C', 
-        'SG1': 'Grupa 1, Sport', 'SG2': 'Grupa 2, Sport', 'PG1': 'Grupa 1, Pictură', 'PG2': 'Grupa 2, Pictură', 'MG1': 'Grupa 1, Muzică', 'MG2': 'Grupa 2, Muzică', 'DG1': 'Grupa 1, Dansuri', 'StG1': 'Grupa 1, Științe', 'StG2': 'Grupa 1, Științe', 
-        'SG1A': 'Grupa 1A, Sport', 'SG1B': 'Grupa 1B, Sport', 'PG1A': 'Grupa 1A, Pictură', 'PG1B': 'Grupa 1B, Pictură', 'StG1A': 'Grupa 1A, Științe', 'StG1B': 'Grupa 1B, Științe', 
-        'AV5A': 'Clasa a V-a A', 'AV5B': 'Clasa a V-a B', 'AV6A': 'Clasa a VI-a A', 'AV6B': 'Clasa a VI-a B', 'AV7A': 'Clasa a VII-a A', 'AV7B': 'Clasa a VII-a B', 
-        'AV8A1': 'Clasa a VIII-a A, Grupa 1', 'AV8A2': 'Clasa a VIII-a A, Grupa 2', 'AV8B1': 'Clasa a VIII-a B, Grupa 1', 'AV8B2': 'Clasa a VIII-a B, Grupa 2', 
-        'AR5AB': 'Clasele a V-a A, B', 'AR5A': 'Clasa a V-a A', 'AR5B': 'Clasa a V-a B', 'AR6A': 'Clasa a VI-a A', 'AR6B': 'Clasa a VI-a B', 'AR7B': 'Clasa a VII-a B', 
-        'BA6B': 'Clasa a VI-a B', 'BA7A': 'Clasa a VII-a A', 'BA8A1': 'Clasa a VIII-a A, Grupa 1', 'BA8A2': 'Clasa a VIII-a A, Grupa 2', 'BA8B': 'Clasa a VIII-a B',
-        'AD8B1': 'Clasa a VIII-a B, Grupa 1', 'AD8B2': 'Clasa a VIII-a B, Grupa 2', 'AD8B3': 'Clasa a VIII-a B, Grupa 3',
-        'PE8A1': 'Clasa a VIII-a A, Grupa 1', 'PE8A2': 'Clasa a VIII-a A, Grupa 2', 'PE6B': 'Clasa a VI-a B', 'PE7A': 'Clasa a VII-a A',
-        'IA5AB1': 'Clasele a V-a A, B', 'IA5AB2': 'Clasele a V-a A, B', 'IA6A': 'Clasa a VI-a A', 'IA7B': 'Clasa a VII-a B'
-    };
 
-    let currentConfig = {};
-
-    async function printeazaSiBlocheaza() {
-        const idBlocare = `MASA_${currentConfig.zi}_${currentConfig.luna}_${currentConfig.an}_${currentConfig.clasa}`;
-        const { error } = await _supabase.from('planificari_documente').upsert({ tip_document: idBlocare, expert: currentConfig.expert, continut_json: { status: "printat", timestamp: new Date().toISOString() } }, { onConflict: 'tip_document' });
-        if (!error) { window.print(); location.reload(); }
-    }
-
-    async function deblocheazaPrintarea() {
-        if (!confirm("Ești sigur că vrei să deblochezi lista?")) return;
-        const idBlocare = `MASA_${currentConfig.zi}_${currentConfig.luna}_${currentConfig.an}_${currentConfig.clasa}`;
-        const { error } = await _supabase.from('planificari_documente').delete().eq('tip_document', idBlocare);
-        if (!error) { alert("Lista a fost deblocată!"); location.reload(); }
-    }
+    let globalConfig = {};
 
     function toggleCheck(el, type) {
         const row = el.closest('tr');
@@ -156,84 +97,130 @@
         if (type === 'a' && n.checked) d.checked = false;
     }
 
-    function reindex() { document.querySelectorAll('.nr-cell').forEach((td, i) => td.textContent = i + 1); }
-    function addRow() {
-        const tbody = document.getElementById('tabel-body');
-        const row = document.createElement('tr');
-        row.innerHTML = `<td class="nr-cell"></td><td><input type="text" class="edit-name" placeholder="Nume Prenume"></td><td><input type="checkbox" class="p-check" checked onclick="toggleCheck(this, 'p')"></td><td><input type="checkbox" class="a-check" onclick="toggleCheck(this, 'a')"></td><td></td>`;
-        tbody.appendChild(row); reindex();
+    async function printeazaSiBlocheazaZiua(btn) {
+        const page = btn.closest('.page');
+        const zi = page.getAttribute('data-zi');
+        
+        // 1. Ascundem toate celelalte pagini pentru a printa doar una
+        const allPages = document.querySelectorAll('.page');
+        allPages.forEach(p => { if (p !== page) p.classList.add('hide-for-print'); });
+
+        const idBlocare = `MASA_${zi}_${globalConfig.luna}_${globalConfig.an}_${globalConfig.clasa}`;
+        const { error } = await _supabase.from('planificari_documente').upsert({ 
+            tip_document: idBlocare, 
+            expert: globalConfig.expert, 
+            continut_json: { status: "printat", timestamp: new Date().toISOString() } 
+        });
+
+        if (!error) { 
+            window.print(); 
+            // 2. Afișăm înapoi toate paginile după print și reîncărcăm pentru refresh status
+            allPages.forEach(p => p.classList.remove('hide-for-print'));
+            location.reload(); 
+        } else {
+            allPages.forEach(p => p.classList.remove('hide-for-print'));
+            alert("Eroare la blocare!");
+        }
     }
-    function removeLastRow() { const tbody = document.getElementById('tabel-body'); if (tbody.lastElementChild) { tbody.removeChild(tbody.lastElementChild); reindex(); } }
+
+    async function deblocheazaZiua(btn) {
+        if (!confirm("Deblochezi lista pentru această zi?")) return;
+        const page = btn.closest('.page');
+        const zi = page.getAttribute('data-zi');
+        const idBlocare = `MASA_${zi}_${globalConfig.luna}_${globalConfig.an}_${globalConfig.clasa}`;
+        const { error } = await _supabase.from('planificari_documente').delete().eq('tip_document', idBlocare);
+        if (!error) location.reload();
+    }
+
+    function addRow() {
+        document.querySelectorAll('.tabel-body').forEach(tbody => {
+            if (tbody.closest('.container-tabel').style.display !== 'none') {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `<td class="nr-cell"></td><td><input type="text" class="edit-name" placeholder="Nume Prenume"></td><td><input type="checkbox" class="p-check" checked onclick="toggleCheck(this, 'p')"></td><td><input type="checkbox" class="a-check" onclick="toggleCheck(this, 'a')"></td><td></td>`;
+                tbody.appendChild(tr);
+            }
+        });
+        reindexAll();
+    }
+
+    function removeLastRow() {
+        document.querySelectorAll('.tabel-body').forEach(tbody => { if (tbody.lastElementChild) tbody.removeChild(tbody.lastElementChild); });
+        reindexAll();
+    }
+
+    function reindexAll() {
+        document.querySelectorAll('.tabel-body').forEach(tbody => {
+            tbody.querySelectorAll('.nr-cell').forEach((td, i) => td.textContent = i + 1);
+        });
+    }
 
     async function incarcaDate() {
         try {
             const params = new URLSearchParams(window.location.search);
-            currentConfig = { expert: params.get('expert'), clasa: params.get('clasa'), luna: params.get('luna'), an: params.get('an'), zi: params.get('zi') };
-            document.getElementById('btn-back').onclick = () => { window.location.href = `dosar-expert.html?expert=${encodeURIComponent(currentConfig.expert)}`; };
+            globalConfig = { expert: params.get('expert'), clasa: params.get('clasa'), luna: params.get('luna'), an: params.get('an') };
+            document.getElementById('btn-back').onclick = () => { window.location.href = `dosar-expert.html?expert=${encodeURIComponent(globalConfig.expert)}`; };
+            
+            const { data: pontaje } = await _supabase.from('pontaj_detaliat').select('zi, fara_masa').eq('expert', globalConfig.expert).eq('clase_grupe', globalConfig.clasa).eq('luna', globalConfig.luna).eq('an', globalConfig.an).order('zi', { ascending: true });
+            if (!pontaje || pontaje.length === 0) { document.getElementById('status-msg').textContent = "⚠️ Nu s-au găsit activități."; return; }
 
-            if (!currentConfig.zi) {
-                const { data: p } = await _supabase.from('pontaj_detaliat').select('zi').eq('expert', currentConfig.expert).eq('luna', currentConfig.luna).eq('an', currentConfig.an).limit(1).maybeSingle();
-                if (p) currentConfig.zi = p.zi;
-            }
+            const { data: elevi } = await _supabase.from('elevi').select('nume_complet').eq('clasa_grupa', globalConfig.clasa).order('nume_complet', { ascending: true });
+            const master = document.getElementById('master-container');
+            const template = document.getElementById('page-template').content;
 
-            const { data: infoZi } = await _supabase.from('pontaj_detaliat').select('fara_masa').eq('expert', currentConfig.expert).eq('zi', currentConfig.zi).eq('luna', currentConfig.luna).eq('an', currentConfig.an).eq('clase_grupe', currentConfig.clasa).maybeSingle();
+            for (let p of pontaje) {
+                const clone = document.importNode(template, true);
+                const pageDiv = clone.querySelector('.page');
+                pageDiv.setAttribute('data-zi', p.zi);
 
-            if (infoZi && infoZi.fara_masa === true) {
-                document.getElementById('container-tabel').style.display = 'none';
-                document.getElementById('btn-add-row').style.display = 'none';
-                document.getElementById('btn-del-row').style.display = 'none';
-                document.getElementById('btn-print-main').style.display = 'none';
-                const msg = document.getElementById('msg-special');
-                msg.style.display = 'block';
-                msg.innerHTML = `⚠️ ATENȚIE: Conform pontajului, în data de <strong>${currentConfig.zi} ${currentConfig.luna} ${currentConfig.an}</strong> elevii <strong>NU AU AVUT MASĂ CALDĂ</strong>.<br>Nu se poate genera lista de primire.`;
-                actualizeazaAntet();
-                document.getElementById('document-page').style.display = 'block';
-                document.getElementById('status-msg').style.display = 'none';
-                return;
-            }
+                let actCod = "";
+                for (let k in MAP_ACTIVITATI) if (MAP_ACTIVITATI[k].includes(globalConfig.expert)) actCod = k;
+                clone.querySelector('.out-activitate').textContent = DESC_ACTIVITATI[actCod] || "---";
+                clone.querySelector('.out-disciplina').textContent = MAP_DISCIPLINE[globalConfig.expert] || "---";
+                clone.querySelector('.out-expert').textContent = globalConfig.expert;
+                clone.querySelector('.sig-expert').textContent = globalConfig.expert;
+                clone.querySelector('.out-clasa').textContent = MAP_CLASE[globalConfig.clasa] || globalConfig.clasa;
+                clone.querySelector('.out-data').textContent = `${p.zi} ${globalConfig.luna} ${globalConfig.an}`.trim();
 
-            const idVerificare = `MASA_${currentConfig.zi}_${currentConfig.luna}_${currentConfig.an}_${currentConfig.clasa}`;
-            const { data: blocaj } = await _supabase.from('planificari_documente').select('expert').eq('tip_document', idVerificare).maybeSingle();
+                const idVerificare = `MASA_${p.zi}_${globalConfig.luna}_${globalConfig.an}_${globalConfig.clasa}`;
+                const { data: blocaj } = await _supabase.from('planificari_documente').select('expert').eq('tip_document', idVerificare).maybeSingle();
 
-            if (blocaj) {
-                document.getElementById('btn-unlock-main').style.display = 'flex';
-                if (blocaj.expert !== currentConfig.expert) {
-                    document.getElementById('container-tabel').style.display = 'none';
-                    document.getElementById('btn-add-row').style.display = 'none';
-                    document.getElementById('btn-del-row').style.display = 'none';
-                    document.getElementById('btn-print-main').style.display = 'none';
-                    const msg = document.getElementById('msg-special');
-                    msg.style.display = 'block';
-                    msg.innerHTML = `⚠️ ATENȚIE: PACHETUL ALIMENTAR A FOST DEJA DISTRIBUIT DE CĂTRE <strong>${blocaj.expert.toUpperCase()}</strong>.`;
+                const msgBox = pageDiv.querySelector('.msg-special');
+                const tableCont = pageDiv.querySelector('.container-tabel');
+                const lockBar = pageDiv.querySelector('.day-lock-bar');
+                const statusText = pageDiv.querySelector('.lock-status-text');
+
+                if (p.fara_masa) {
+                    tableCont.style.display = 'none';
+                    lockBar.style.display = 'none';
+                    msgBox.style.display = 'block';
+                    msgBox.innerHTML = `⚠️ ATENȚIE: Conform pontajului, în data de <strong>${p.zi} ${globalConfig.luna} ${globalConfig.an}</strong> elevii <strong>NU AU AVUT MASĂ CALDĂ</strong>.`;
+                } else if (blocaj) {
+                    if (blocaj.expert !== globalConfig.expert) {
+                        tableCont.style.display = 'none';
+                        lockBar.style.display = 'none';
+                        msgBox.style.display = 'block';
+                        msgBox.innerHTML = `⚠️ ATENȚIE: Pachetul alimentar a fost deja distribuit de către <strong>${blocaj.expert.toUpperCase()}</strong> în această zi.`;
+                    } else {
+                        statusText.innerHTML = `✅ Ziua ${p.zi} este BLOCATĂ de tine.`;
+                        pageDiv.querySelector('.btn-lock-day').style.display = 'none';
+                        pageDiv.querySelector('.btn-unlock-day').style.display = 'inline-block';
+                        const tbody = pageDiv.querySelector('.tabel-body');
+                        if (elevi) elevi.forEach((e, i) => adaugaRandElev(tbody, e.nume_complet, i));
+                    }
+                } else {
+                    const tbody = pageDiv.querySelector('.tabel-body');
+                    if (elevi) elevi.forEach((e, i) => adaugaRandElev(tbody, e.nume_complet, i));
                 }
+                master.appendChild(clone);
             }
-
-            actualizeazaAntet();
-
-            const { data: elevi } = await _supabase.from('elevi').select('nume_complet').eq('clasa_grupa', currentConfig.clasa).order('nume_complet', { ascending: true });
-            const tbody = document.getElementById('tabel-body');
-            if (elevi) {
-                elevi.forEach(e => {
-                    const row = document.createElement('tr');
-                    row.innerHTML = `<td class="nr-cell"></td><td><input type="text" class="edit-name" value="${e.nume_complet}"></td><td><input type="checkbox" class="p-check" checked onclick="toggleCheck(this, 'p')"></td><td><input type="checkbox" class="a-check" onclick="toggleCheck(this, 'a')"></td><td></td>`;
-                    tbody.appendChild(row);
-                });
-            }
-            reindex();
-            document.getElementById('document-page').style.display = 'block';
             document.getElementById('status-msg').style.display = 'none';
         } catch (err) { console.error(err); }
     }
 
-    function actualizeazaAntet() {
-        let actCod = "";
-        for (let k in MAP_ACTIVITATI) if (MAP_ACTIVITATI[k].includes(currentConfig.expert)) actCod = k;
-        document.getElementById('out-activitate').textContent = DESC_ACTIVITATI[actCod] || "---";
-        document.getElementById('out-disciplina').textContent = MAP_DISCIPLINE[currentConfig.expert] || "---";
-        document.getElementById('out-expert').textContent = currentConfig.expert;
-        document.getElementById('sig-expert').textContent = currentConfig.expert;
-        document.getElementById('out-clasa').textContent = MAP_CLASE[currentConfig.clasa] || currentConfig.clasa;
-        document.getElementById('out-data').textContent = `${currentConfig.zi || ""} ${currentConfig.luna} ${currentConfig.an}`.trim();
+    function adaugaRandElev(tbody, nume, i) {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td class="nr-cell">${i+1}</td><td><input type="text" class="edit-name" value="${nume}"></td><td><input type="checkbox" class="p-check" checked onclick="toggleCheck(this, 'p')"></td><td><input type="checkbox" class="a-check" onclick="toggleCheck(this, 'a')"></td><td></td>`;
+        tbody.appendChild(tr);
     }
 
     document.addEventListener('DOMContentLoaded', incarcaDate);
