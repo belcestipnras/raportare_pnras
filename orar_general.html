@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistem Integrat Orar PNRAS</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@700;800&family=Roboto+Mono:wght@500&display=swap" rel="stylesheet">
+    <style>
+        :root { --primary: #1e40af; --text: #1e293b; }
+        @page { size: A4 portrait; margin: 1cm; }
+        body { font-family: 'Inter', sans-serif; background: #f8fafc; color: var(--text); margin: 0; padding: 20px; }
+        .page { background: white; width: 210mm; min-height: 297mm; padding: 12mm 15mm; margin: 20px auto; box-shadow: 0 4px 12px rgba(0,0,0,0.1); page-break-after: always; box-sizing: border-box; display: flex; flex-direction: column; }
+        .antet-img { width: 100%; margin-bottom: 5px; }
+        .nr-inregistrare { text-align: left; font-size: 13px; margin-bottom: 10px; font-weight: 500; white-space: nowrap; }
+        .box-cifre { display: inline-block; min-width: 30px; outline: none; border: none; background: transparent; text-align: right; }
+        .box-data { display: inline-block; min-width: 90px; outline: none; border: none; background: transparent; text-align: left; }
+        .slash { margin: 0 1px; font-weight: bold; }
+        h2 { font-family: 'Montserrat', sans-serif; text-align: center; text-transform: uppercase; font-size: 14px; margin: 10px 0; color: #000; line-height: 1.3; }
+        .info-box { margin: 10px 0; font-size: 12px; line-height: 1.5; border-left: 3px solid var(--primary); padding-left: 10px; background: #f1f5f9; padding-top: 5px; padding-bottom: 5px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th { background: #f1f5f9; border: 1.5pt solid black; padding: 8px; font-size: 10px; text-transform: uppercase; }
+        td { border: 1.5pt solid black; padding: 6px; text-align: center; font-size: 12px; font-family: 'Roboto Mono', monospace; color: #000; }
+        .tabel-total { background: #f8fafc; font-weight: bold; text-align: right; }
+        .row-data-header { background: #e0e7ff !important; font-weight: bold; text-align: center; }
+        .no-activity { font-style: italic; color: #64748b; font-size: 10px; padding: 8px; text-align: center; border: 1.5pt solid black; }
+        .summary-box { margin: 10px 0; padding: 10px; border: 1.5pt solid #000; font-size: 11px; background: #fff; }
+        .signatures-grid { margin-top: 15px; display: grid; grid-template-columns: 1fr 1fr; gap: 20px; font-size: 12px; page-break-inside: avoid; }
+        .sig-block { break-inside: avoid; }
+        .sig-role { font-weight: bold; margin-bottom: 30px; }
+        .sig-name { font-weight: 600; }
+        .centered-sig { grid-column: span 2; text-align: center; margin-top: 5px; break-inside: avoid; }
+        .no-print { background: white; padding: 20px; border-radius: 8px; max-width: 900px; margin: 0 auto 30px auto; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        .controls { display: flex; gap: 10px; justify-content: center; margin-top: 15px; align-items: center; }
+        button { padding: 10px 15px; border-radius: 5px; border: none; cursor: pointer; font-weight: bold; }
+        @media print { .no-print { display: none !important; } body { padding: 0; background: none; } .page { margin: 0; box-shadow: none; width: 100%; } }
+    </style>
+</head>
+<body>
+
+    <div class="no-print">
+        <h1 style="font-family: 'Montserrat'; color: var(--primary); margin:0; font-size: 18px;">Generator Registru Orar PNRAS</h1>
+        <div class="controls">
+            <button onclick="location.href='index.html'" style="background: #f1f5f9; color: #1e293b; border: 1px solid #cbd5e1;">⬅️ Înapoi</button>
+            <select id="select-luna">
+                <option value="01">Ianuarie</option><option value="02">Februarie</option>
+                <option value="03">Martie</option><option value="04">Aprilie</option>
+                <option value="05">Mai</option><option value="06">Iunie</option>
+                <option value="07">Iulie</option><option value="08">August</option>
+                <option value="09">Septembrie</option><option value="10">Octombrie</option>
+                <option value="11">Noiembrie</option><option value="12">Decembrie</option>
+            </select>
+            <select id="select-an"><option value="2025">2025</option><option value="2026">2026</option></select>
+            <button onclick="genereazaRegistruComplet()" style="background: var(--primary); color: white;">🚀 GENEREAZĂ REGISTRU</button>
+            <button onclick="window.print()" style="background: #64748b; color: white; margin-left: 10px;">🖨️ PRINTEAZĂ</button>
+        </div>
+    </div>
+
+    <div id="master-container"></div>
+
+<script>
+    const URL_S = 'https://aexjrbdgajurxzngfkpx.supabase.co';
+    const KEY_S = 'sb_publishable_KPV__0BA9z4EvRl5eqC0FQ_hmBLOLYv';
+    const _supabase = supabase.createClient(URL_S, KEY_S);
+
+    const MAP_LUNI = { "01": "Ianuarie", "02": "Februarie", "03": "Martie", "04": "Aprilie", "05": "Mai", "06": "Iunie", "07": "Iulie", "08": "August", "09": "Septembrie", "10": "Octombrie", "11": "Noiembrie", "12": "Decembrie" };
+    const MAP_CLASE = { '5A': 'Clasa a V-a A', '5B': 'Clasa a V-a B', '5C': 'Clasa a V-a C', '6A': 'Clasa a VI-a A', '6B': 'Clasa a VI-a B', '6C': 'Clasa a VI-a C', '7A': 'Clasa a VII-a A', '7B': 'Clasa a VII-a B', '7C': 'Clasa a VII-a C', '8A': 'Clasa a VIII-a A', '8B': 'Clasa a VIII-a B', '8C': 'Clasa a VIII-a C', 'SG1': 'Grupa 1, Sport', 'SG2': 'Grupa 2, Sport', 'PG1': 'Grupa 1, Pictură', 'PG2': 'Grupa 2, Pictură', 'MG1': 'Grupa 1, Muzică', 'MG2': 'Grupa 2, Muzică', 'DG1': 'Grupa 1, Dansuri', 'StG1': 'Grupa 1, Științe', 'StG2': 'Grupa 1, Științe', 'SG1A': 'Grupa 1A, Sport', 'SG1B': 'Grupa 1B, Sport', 'PG1A': 'Grupa 1A, Pictură', 'PG1B': 'Grupa 1B, Pictură', 'StG1A': 'Grupa 1A, Științe', 'StG1B': 'Grupa 1B, Științe', 'AV5A': 'Clasa a V-a A', 'AV5B': 'Clasa a V-a B', 'AV6A': 'Clasa a VI-a A', 'AV6B': 'Clasa a VI-a B', 'AV7A': 'Clasa a VII-a A', 'AV7B': 'Clasa a VII-a B', 'AV8A1': 'Clasa a VIII-a A, Grupa 1', 'AV8A2': 'Clasa a VIII-a A, Grupa 2', 'AV8B1': 'Clasa a VIII-a B, Grupa 1', 'AV8B2': 'Clasa a VIII-a B, Grupa 2', 'AR5AB': 'Clasele a V-a A, B', 'AR5A': 'Clasa a V-a A', 'AR5B': 'Clasa a V-a B', 'AR6A': 'Clasa a VI-a A', 'AR6B': 'Clasa a VI-a B', 'AR7B': 'Clasa a VII-a B', 'BA6B': 'Clasa a VI-a B', 'BA7A': 'Clasa a VII-a A', 'BA8A1': 'Clasa a VIII-a A, Grupa 1', 'BA8A2': 'Clasa a VIII-a A, Grupa 2', 'BA8B': 'Clasa a VIII-a B', 'AD8B1': 'Clasa a VIII-a B, Grupa 1', 'AD8B2': 'Clasa a VIII-a B, Grupa 2', 'AD8B3': 'Clasa a VIII-a B, Grupa 3', 'PE8A1': 'Clasa a VIII-a A, Grupa 1', 'PE8A2': 'Clasa a VIII-a A, Grupa 2', 'PE6B': 'Clasa a VI-a B', 'PE7A': 'Clasa a VII-a A', 'IA5AB1': 'Clasele a V-a A, B', 'IA5AB2': 'Clasele a V-a A, B', 'IA6A': 'Clasa a VI-a A', 'IA7B': 'Clasa a VII-a B' };
+    const MAP_EXPERT_DETALII = { "Angheluș Raluca": { act: "A II.4.", desc: "Activități remediale la limba și literatura română" }, "Baziluc Ana Maria": { act: "A II.4.", desc: "Activități remediale la limba și literatura română" }, "Ghemeș Anca": { act: "A II.4.", desc: "Activități remediale la limba și literatura română" }, "Arotăriței Dănuț": { act: "A II.4.", desc: "Activități remediale la matematică" }, "Boldan Ovidiu": { act: "A II.4.", desc: "Activități remediale la matematică" }, "Popovici Estera": { act: "A II.4.", desc: "Activități remediale la matematică" }, "Iftene Ana Maria": { act: "A II.4.", desc: "Activități remediale la matematică" }, "Albu Ștefan": { act: "A II.5.", desc: "Activități extracurriculare la Clubul de activități sportive și outdoor" }, "Marele Daniela": { act: "A II.5.", desc: "Activități extracurriculare la Clubul de pictură" }, "Tanasă Liliana": { act: "A II.5.", desc: "Activități extracurriculare la Clubul de muzică" }, "Popa Gabriela": { act: "A II.5.", desc: "Activități extracurriculare la Clubul de dansuri" }, "Nohai Iuliana": { act: "A II.5.", desc: "Activități extracurriculare la Clubul de științe" }, "Nohai Vili": { act: "A II.5.", desc: "Activități extracurriculare la Clubul de științe" }, "Aparascăi Vasile": { act: "A II.6.", desc: "Activități extracurriculare la Clubul de lectură și literație" } };
+    const DESC_ACTIVITATI_FULL = { "A II.4.": "A II.4. Activități remediale și diverse activități pedagogice și de sprijin", "A II.5.": "A II.5. Activități extracurriculare și/sau extrașcolare", "A II.6.": "A II.6. Activități pentru dezvoltarea literației. Club de lectură" };
+    const ORA_START = (cl) => cl.includes('5') ? "13:00" : "14:00";
+    function adunaTimp(start, ore) { let [h, m] = start.split(':').map(Number); let total = h * 60 + m + (ore * 60); return `${Math.floor(total / 60).toString().padStart(2, '0')}:${(total % 60).toString().padStart(2, '0')}`; }
+    function salveazaText(id, val) { localStorage.setItem('PNRAS_ORAR_V2_' + id, val); }
+    function incarcaText(id) { return localStorage.getItem('PNRAS_ORAR_V2_' + id) || ""; }
+
+    async function genereazaRegistruComplet() {
+        const lunaCod = document.getElementById('select-luna').value;
+        const lunaNume = MAP_LUNI[lunaCod];
+        const an = document.getElementById('select-an').value;
+        const container = document.getElementById('master-container');
+        container.innerHTML = "<div style='text-align:center;'>⌛ Se procesează datele...</div>"; 
+
+        const { data: pontaje } = await _supabase.from('pontaj_detaliat').select('*').eq('luna', lunaNume).eq('an', an).order('zi', { ascending: true });
+        
+        if (!pontaje || pontaje.length === 0) {
+            container.innerHTML = `<div style="margin:50px auto; max-width:600px; padding:30px; border:2px solid #dc2626; background:#fef2f2; color:#991b1b; border-radius:12px; text-align:center;"><h3>⚠️ Atenție!</h3><p>Nu au fost găsite ore înregistrate pentru luna <strong>${lunaNume} ${an}</strong>.</p></div>`;
+            return;
+        }
+
+        container.innerHTML = ""; 
+
+        // 1. ORAR GENERAL
+        const genId = `GEN_${lunaCod}_${an}`;
+        let totGen = 0; let totActiv = {"A II.4.": 0, "A II.5.": 0, "A II.6.": 0};
+        pontaje.forEach(p => { let act = MAP_EXPERT_DETALII[p.expert]?.act; if(act) totActiv[act] += parseFloat(p.nr_ore); totGen += parseFloat(p.nr_ore); });
+
+        let htmlGen = `<div class="page"><img src="antet_pnras.jpeg" class="antet-img">`;
+        htmlGen += `<div class="nr-inregistrare">Nr. înregistrare: <span class="box-cifre" contenteditable="true" onblur="salveazaText('${genId}_C', this.innerText)">${incarcaText(genId+'_C')}</span><span class="slash">/</span><span class="box-data" contenteditable="true" onblur="salveazaText('${genId}_D', this.innerText)">${incarcaText(genId+'_D')}</span></div>`;
+        htmlGen += `<h2>Orar general activități remediale și extracurriculare</h2><div class="info-box"><b>Activități:</b><br>${DESC_ACTIVITATI_FULL["A II.4."]}<br>${DESC_ACTIVITATI_FULL["A II.5."]}<br>${DESC_ACTIVITATI_FULL["A II.6."]}<br><b>Luna:</b> ${lunaNume} ${an}</div>`;
+        htmlGen += `<div class="summary-box">A II.4.: <b>${totActiv["A II.4."]} ore</b> | A II.5.: <b>${totActiv["A II.5."]} ore</b> | A II.6.: <b>${totActiv["A II.6."]} ore</b></div>`;
+        htmlGen += `<table><thead><tr><th>Expert / Profesor</th><th>Clasa</th><th>Interval Orar</th><th>Ore</th></tr></thead><tbody>`;
+        
+        let nrZ = new Date(an, lunaCod, 0).getDate();
+        let i = 1;
+        while (i <= nrZ) {
+            let actsZi = pontaje.filter(p => parseInt(p.zi) === i);
+            if(actsZi.length > 0) {
+                htmlGen += `<tr class="row-data-header"><td colspan="4">${i.toString().padStart(2,'0')}.${lunaCod}.${an}</td></tr>`;
+                let clasaNext = {}; actsZi.sort((a,b) => ORA_START(a.clase_grupe).localeCompare(ORA_START(b.clase_grupe)));
+                actsZi.forEach(a => {
+                    let sReal = clasaNext[a.clase_grupe] || ORA_START(a.clase_grupe);
+                    let isConf = clasaNext[a.clase_grupe] ? "style='background:#fee2e2; color:#b91c1c;'" : "";
+                    let f = adunaTimp(sReal, a.nr_ore); clasaNext[a.clase_grupe] = f;
+                    htmlGen += `<tr ${isConf}><td style="text-align:left">${a.expert}</td><td>${MAP_CLASE[a.clase_grupe] || a.clase_grupe}</td><td>${sReal} - ${f}</td><td>${a.nr_ore}</td></tr>`;
+                });
+                i++;
+            } else {
+                let sP = i; while(i <= nrZ && pontaje.filter(p=>parseInt(p.zi)===i).length===0) i++;
+                let fP = i - 1; let tI = (sP === fP) ? `${sP.toString().padStart(2, '0')}.${lunaCod}.${an}` : `${sP.toString().padStart(2, '0')}.${lunaCod}.${an} - ${fP.toString().padStart(2, '0')}.${lunaCod}.${an}`;
+                htmlGen += `<tr><td colspan="4" class="no-activity">FĂRĂ ACTIVITĂȚI: ${tI}</td></tr>`;
+            }
+        }
+        htmlGen += `<tr><td colspan="3" class="tabel-total">TOTAL ORE LUNĂ:</td><td><b>${totGen}</b></td></tr></tbody></table>`;
+        htmlGen += `<div class="signatures-grid"><div class="sig-block"><div class="sig-role">Întocmit,<br>Manager proiect,</div><div class="sig-name">prof. dr. Ciprian MIHAI</div></div><div class="sig-block" style="text-align:right;"><div class="sig-role">Aprobat,<br>Director,</div><div class="sig-name">prof. Cătălin Ionuț BAZILUC</div></div></div></div>`;
+        container.innerHTML += htmlGen;
+
+        // 2. ORARE INDIVIDUALE
+        let profi = [...new Set(pontaje.map(p => p.expert))].sort();
+        profi.forEach(async (prof) => {
+            let pgs = pontaje.filter(p => p.expert === prof); let det = MAP_EXPERT_DETALII[prof]; let profId = `${prof.replace(/\s+/g, '')}_${lunaCod}_${an}`;
+            let totProf = 0; pgs.forEach(p => totProf += parseFloat(p.nr_ore));
+            let htmlP = `<div class="page"><img src="antet_pnras.jpeg" class="antet-img">`;
+            htmlP += `<div class="nr-inregistrare">Nr. înregistrare: <span class="box-cifre" contenteditable="true" onblur="salveazaText('${profId}_C', this.innerText)">${incarcaText(profId+'_C')}</span><span class="slash">/</span><span class="box-data" contenteditable="true" onblur="salveazaText('${profId}_D', this.innerText)">${incarcaText(profId+'_D')}</span></div>`;
+            htmlP += `<h2>Orar individual activități PNRAS</h2><div class="info-box"><b>Activitatea:</b> ${DESC_ACTIVITATI_FULL[det.act]}<br><b>Disciplina:</b> ${det.desc}<br><b>Expert:</b> ${prof} | <b>Luna:</b> ${lunaNume} ${an}</div>`;
+            htmlP += `<table><thead><tr><th>Data</th><th>Clasa / Grupa</th><th>Interval Orar</th><th>Ore</th></tr></thead><tbody>`;
+            let zileP = {}; pgs.forEach(p => { if(!zileP[p.zi]) zileP[p.zi]=[]; zileP[p.zi].push(p); });
+            Object.keys(zileP).sort((a,b)=>a-b).forEach(z => {
+                let currS = ""; zileP[z].sort((a,b) => ORA_START(a.clase_grupe).localeCompare(ORA_START(b.clase_grupe))).forEach((act, idx) => {
+                    if(idx === 0) currS = ORA_START(act.clase_grupe); let f = adunaTimp(currS, act.nr_ore);
+                    htmlP += `<tr><td>${z.toString().padStart(2,'0')}.${lunaCod}.${an}</td><td>${MAP_CLASE[act.clase_grupe] || act.clase_grupe}</td><td>${currS}-${f}</td><td>${act.nr_ore}</td></tr>`; currS = f;
+                });
+            });
+            htmlP += `<tr><td colspan="3" class="tabel-total">TOTAL ORE EXPERT:</td><td><b>${totProf}</b></td></tr></tbody></table>`;
+            htmlP += `<div class="signatures-grid"><div class="sig-block"><div class="sig-role">Întocmit,<br>Expert,</div><div class="sig-name">${prof}</div></div><div class="sig-block" style="text-align:right;"><div class="sig-role">Avizat,<br>Manager proiect,</div><div class="sig-name">prof. dr. Ciprian MIHAI</div></div><div class="centered-sig"><div class="sig-role">Aprobat,<br>Director,</div><div class="sig-name">prof. Cătălin Ionuț BAZILUC</div></div></div></div>`;
+            
+            // APEL SALVARE ONLINE
+            await salveazaOrarInBazaDeDate(prof, lunaNume, an, htmlP);
+            
+            container.innerHTML += htmlP;
+        });
+    }
+
+async function salveazaOrarInBazaDeDate(expert, luna, an, html) {
+    const luna_an = `${luna}_${an}`;
+    const { error } = await _supabase.from('orare_salvate').upsert({ expert: expert, luna_an: luna_an, continut_html: html, ultima_actualizare: new Date() }, { onConflict: 'expert,luna_an' });
+    if (error) console.error("Eroare salvare orar expert:", expert, error);
+}
+</script>
+</body>
+</html>

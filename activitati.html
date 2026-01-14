@@ -43,12 +43,12 @@
             transition: 0.2s;
             font-family: inherit;
             text-decoration: none;
-            width: 120px; /* Lățime fixă pentru aliniere frumoasă */
+            width: 120px;
             justify-content: center;
         }
 
-        .btn-home { top: 20px; } /* Sus */
-        .btn-back { top: 75px; } /* Sub butonul Home */
+        .btn-home { top: 20px; }
+        .btn-back { top: 75px; }
 
         .btn-back:hover, .btn-home:hover {
             background-color: var(--primary);
@@ -124,6 +124,9 @@
             if (!state.expertObj) return;
 
             if (parolaInput.value === state.expertObj.parola) {
+                // LINIA INTRODUSĂ: Salvăm numele pentru recunoaștere automată în orar
+                localStorage.setItem('expertPNRAS', state.expertObj.nume);
+
                 document.getElementById('pass-modal').style.display = 'none';
                 window.location.href = `dosar-expert.html?expert=${encodeURIComponent(state.expertObj.nume)}`;
             } else {

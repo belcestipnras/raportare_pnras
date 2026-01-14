@@ -37,6 +37,11 @@
         <div class="icon">🍲</div>
         <span>Masă caldă</span>
     </button>
+
+    <button class="menu-card" onclick="verificaParolaOrar()">
+        <div class="icon">📅</div>
+        <span>Orar</span>
+    </button>
 </main>
 
     <script>
@@ -54,6 +59,15 @@
         if (parolaIntrodusaMasa === "Masa123") {
             window.location.href = 'masa-calda.html';
         } else if (parolaIntrodusaMasa !== null) {
+            alert("Parolă incorectă! Accesul a fost refuzat.");
+        }
+    }
+
+    function verificaParolaOrar() {
+        const parolaIntrodusaOrar = prompt("Introduceți parola pentru acces la secțiunea Orar:");
+        if (parolaIntrodusaOrar === "Orar123") {
+            window.location.href = 'orar_general.html';
+        } else if (parolaIntrodusaOrar !== null) {
             alert("Parolă incorectă! Accesul a fost refuzat.");
         }
     }
