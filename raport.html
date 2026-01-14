@@ -34,7 +34,6 @@
         .expert-footer { margin-top: auto; padding: 15px 0; border-top: 1px solid #e2e8f0; text-align: center; }
         .expert-nume-mare { font-family: 'Montserrat'; font-weight: 800; font-size: 16pt; margin: 3px 0; }
 
-        /* Pagina 2 */
         .sectiune-titlu { font-weight: 800; font-size: 11.5pt; color: var(--primary); margin-top: 22px; border-bottom: 1.5px solid #f1f5f9; padding-bottom: 4px; text-transform: uppercase; }
         .sub-sectiune { font-weight: 400; font-size: 11pt; margin-top: 10px; color: #000; outline: none; }
         
@@ -42,30 +41,29 @@
         .lista-activitati { font-size: 10.5pt; line-height: 1.5; margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px dashed #eee; }
         .lista-activitati:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
         
-        /* Zonă editabilă suplimentară */
         .extra-activities-zone { font-weight: 400; font-size: 11pt; color: #000; outline: none; min-height: 0; margin-bottom: 0; }
         .extra-activities-zone:empty::before { content: "Completează, dacă ați desfășurat activități suplimentare..."; color: #94a3b8; font-style: italic; font-size: 10pt; }
 
-        /* Caseta Responsabilități */
         .caseta-text { border: 1px solid #e2e8f0; padding: 15px; background: #fff; font-size: 10pt; text-align: justify; border-radius: 6px; margin-top: 8px; outline: none; }
         .caseta-text p { text-indent: 35px; margin-bottom: 15px; margin-top: 0; line-height: 1.6; }
         .caseta-text p:last-child { margin-bottom: 0; }
         
         .grid-info-finale { display: grid; grid-template-columns: 1fr 1fr; gap: 25px; margin-top: 15px; }
+        .col-editabila { outline: none; padding: 5px; border: 1px transparent dashed; transition: border 0.2s; }
+        .col-editabila:hover { border-color: #cbd5e1; }
         .lista-oficiala { margin: 5px 0 0 15px; padding: 0; font-size: 10pt; line-height: 1.5; list-style-type: disc; }
         .total-ore-badge { border: 1.5px solid var(--primary); color: var(--primary); padding: 5px 15px; border-radius: 8px; font-weight: 800; display: inline-block; margin-top: 15px; font-size: 10pt; }
 
         .grid-semnaturi { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-top: 40px; font-size: 10.5pt; }
         .sem-block { text-align: center; }
-        .sem-linia { margin-top: 30px; border-top: 1px solid #000; width: 160px; margin: 25px auto 10px auto; }
+        .sem-linia { border-top: 1px solid #000; width: 160px; margin: 25px auto 10px auto; }
 
-        /* Reguli pentru PRINT */
         @media print { 
             .no-print { display: none !important; } 
             body { padding: 0; background: none; } 
             .page { margin: 0; box-shadow: none; width: 100%; border: none; }
-            .extra-activities-zone:empty { display: none; } /* Ascunde placeholder la print */
-            .extra-activities-zone:empty + .sectiune-titlu { margin-top: 5px !important; } /* Apropie secțiunea următoare */
+            .extra-activities-zone:empty { display: none; } 
+            .extra-activities-zone:empty + .sectiune-titlu { margin-top: 5px !important; }
         }
     </style>
 </head>
@@ -118,14 +116,8 @@
         window.location.href = expert ? `dosar-expert.html?expert=${encodeURIComponent(expert)}` : 'index.html';
     }
 
-    // Sistem de salvare robust
-    function salveaza(id, val) {
-        localStorage.setItem('PNRAS_SAVED_FINAL_' + id, val);
-    }
-    function incarca(id, implicit) {
-        const salvat = localStorage.getItem('PNRAS_SAVED_FINAL_' + id);
-        return (salvat !== null) ? salvat : implicit;
-    }
+    function salveaza(id, val) { localStorage.setItem('PNRAS_FINAL_v8_' + id, val); }
+    function incarca(id, implicit) { const s = localStorage.getItem('PNRAS_FINAL_v8_' + id); return (s !== null) ? s : implicit; }
 
     function init() {
         const c = document.getElementById('luna-buttons');
@@ -150,14 +142,13 @@
         const lunaCod = MAP_LUNI_COD[selectatLuna];
         const profId = `${expert.replace(/\s+/g, '')}_${lunaCod}_${selectatAn}`;
 
-        container.innerHTML = "<div style='text-align:center; padding:50px;'>⌛ Colectăm datele...</div>";
+        container.innerHTML = "<div style='text-align:center; padding:50px;'>⌛ Actualizăm datele...</div>";
 
         const { data: pontaje } = await _supabase.from('pontaj_detaliat').select('*').eq('expert', expert).eq('luna', selectatLuna).eq('an', selectatAn).order('zi', { ascending: true });
         const { data: documente } = await _supabase.from('planificari_documente').select('*').eq('expert', expert).ilike('tip_document', `%${selectatLuna}_${selectatAn}%`);
         const { data: totiElevii } = await _supabase.from('elevi').select('*');
 
-        let totalOre = 0;
-        let claseSet = new Set();
+        let totalOre = 0; let claseSet = new Set();
         if(pontaje) pontaje.forEach(p => { totalOre += parseFloat(p.nr_ore || 0); claseSet.add(p.clase_grupe); });
 
         let nrActivitate = pontaje ? pontaje.length : 0;
@@ -181,6 +172,10 @@
 
         const textRespImplicit = `<p>Realizarea sesiunilor de sprijin educațional cu elevii din grupul țintă selectați în cadrul proiectului;</p><p>Punerea în aplicare a planului de servicii educaționale personalizat conform nevoilor fiecărui elev beneficiar;</p><p>Realizarea instrumentelor și fișelor de lucru necesare desfășurării activităților, asigurând o mai bună fixare a cunoștințelor prin metode inovative de lucru;</p><p>Participarea la implementarea activităților organizate în cadrul proiectului;</p><p>Asigurarea îmbunătățirii rezultatelor școlare ale elevilor beneficiari, astfel încât aceștia să aibă șanse reale de promovare a clasei;</p><p>Colaborarea cu membrii și echipa de management a proiectului în vederea optimizării activităților desfășurate;</p><p>Colaborarea și sprijinirea părinților elevilor beneficiari pentru a asigura/încuraja valorizarea educației de către aceștia;</p><p>Monitorizarea frecvenței, participării și progresului educațional al elevilor beneficiari care participă la activitățile proiectului;</p><p>Realizarea și transmiterea documentelor de raportare lunară și a livrabilelor aferente, conform cerințelor proiectului și procedurii de raportare.</p>`;
 
+        const rezultateImplicite = `<ul class="lista-oficiala"><li>Planificarea activităților ${selectatLuna} ${selectatAn};</li><li><b>${nrActivitate}</b> liste de prezență;</li><li><b>${nrActivitate}</b> documente proiectare;</li><li><b>${nrMasaCalda}</b> liste ”masă caldă”;</li><li>Materiale educaționale.</li></ul>`;
+        
+        const livrabileImplicite = `<ul class="lista-oficiala"><li>Planificări: ${Array.from(claseSet).map(c => c).join(', ')};</li><li><b>${nrActivitate}</b> Fișe & Liste prezență;</li><li><b>${nrMasaCalda}</b> Liste ”masă caldă”;</li><li>Pontaj ${selectatLuna};</li><li>Orar ${selectatLuna}.</li></ul>`;
+
         container.innerHTML = `
         <div class="page">
             <img src="antet_pnras.jpeg" class="antet-img">
@@ -202,7 +197,6 @@
             <div class="sub-sectiune">1. Planificarea activităților pentru luna ${selectatLuna} ${selectatAn};</div>
             <div class="sub-sectiune">2. Proiectarea, organizarea și susținerea a ${nrActivitate} activități:</div>
             <div class="lista-activitati-container">${htmlActivitati || 'Nicio activitate înregistrată.'}</div>
-            
             <div class="extra-activities-zone" contenteditable="true" onblur="salveaza('${profId}_extra', this.innerHTML)">${incarca(profId+'_extra', '')}</div>
 
             <div class="sectiune-titlu">Responsabilități și sarcini conform contractului</div>
@@ -211,22 +205,15 @@
             <div class="grid-info-finale">
                 <div>
                     <div class="sectiune-titlu">Rezultate obținute</div>
-                    <ul class="lista-oficiala">
-                        <li>Planificarea activităților ${selectatLuna} ${selectatAn};</li>
-                        <li><b>${nrActivitate}</b> liste de prezență;</li>
-                        <li><b>${nrActivitate}</b> documente proiectare;</li>
-                        <li><b>${nrMasaCalda}</b> liste ”masă caldă”;</li>
-                        <li>Materiale educaționale.</li>
-                    </ul>
+                    <div class="col-editabila" contenteditable="true" onblur="salveaza('${profId}_rez', this.innerHTML)">
+                        ${incarca(profId+'_rez', rezultateImplicite)}
+                    </div>
                 </div>
                 <div>
                     <div class="sectiune-titlu">Livrabile</div>
-                    <ul class="lista-oficiala">
-                        <li>Planificări: ${Array.from(claseSet).map(c => c).join(', ')};</li>
-                        <li><b>${nrActivitate}</b> Fișe & Liste prezență;</li>
-                        <li><b>${nrMasaCalda}</b> Liste ”masă caldă”;</li>
-                        <li>Pontaj & Orar ${selectatLuna}.</li>
-                    </ul>
+                    <div class="col-editabila" contenteditable="true" onblur="salveaza('${profId}_livr', this.innerHTML)">
+                        ${incarca(profId+'_livr', livrabileImplicite)}
+                    </div>
                 </div>
             </div>
 
