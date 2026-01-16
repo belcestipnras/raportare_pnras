@@ -7,13 +7,19 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        :root { --primary: #3ecf8e; --folder: #ffd43b; --bg: #f4f7f9; }
+        :root { --primary: #3ecf8e; --folder: #ffd43b; --bg: #f4f7f9; --admin: #3b82f6; }
         body { margin: 0; font-family: 'Inter', sans-serif; background: var(--bg); display: flex; flex-direction: column; align-items: center; min-height: 100vh; padding-bottom: 50px; }
         .antet-container { width: 95%; max-width: 1100px; margin-top: 20px; background: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
         .imagine-antet { width: 100%; display: block; height: auto; }
+        
         .experts-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 20px; width: 95%; max-width: 1100px; margin-top: 40px; }
+        
         .expert-card { background: white; padding: 20px; border-radius: 15px; text-align: center; cursor: pointer; transition: all 0.3s ease; border: 1px solid #eef2f6; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
         .expert-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.1); border-color: var(--primary); }
+        
+        /* Stil special pentru folderul de admin la hover */
+        .expert-card.admin-card:hover { border-color: var(--admin); }
+        
         .folder-icon { font-size: 50px; color: var(--folder); margin-bottom: 10px; }
         .expert-name { font-weight: 600; color: #1e293b; font-size: 14px; }
         
@@ -24,36 +30,14 @@
         .modal-content input { width: 100%; padding: 12px; margin: 15px 0; border: 2px solid #e2e8f0; border-radius: 8px; box-sizing: border-box; font-size: 16px; text-align: center; }
         .btn-acces { background: var(--primary); color: white; border: none; padding: 12px 25px; border-radius: 8px; font-weight: bold; cursor: pointer; width: 100%; }
 
-        /* BUTOANE NAVIGARE */
         .btn-back, .btn-home {
-            position: fixed;
-            left: 20px;
-            z-index: 9999;
-            padding: 10px 18px;
-            background-color: white;
-            color: #333;
-            border: 2px solid var(--primary);
-            border-radius: 8px;
-            font-weight: bold;
-            cursor: pointer;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            transition: 0.2s;
-            font-family: inherit;
-            text-decoration: none;
-            width: 120px;
-            justify-content: center;
+            position: fixed; left: 20px; z-index: 9999; padding: 10px 18px; background-color: white; color: #333;
+            border: 2px solid var(--primary); border-radius: 8px; font-weight: bold; cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15); display: flex; align-items: center; gap: 8px; transition: 0.2s;
+            text-decoration: none; width: 120px; justify-content: center;
         }
-
         .btn-home { top: 20px; }
         .btn-back { top: 75px; }
-
-        .btn-back:hover, .btn-home:hover {
-            background-color: var(--primary);
-            color: white;
-        }
     </style>
 </head>
 <body>
@@ -64,7 +48,8 @@
         <img src="antet_pnras.jpeg" alt="Antet PNRAS" class="imagine-antet">
     </div>
 
-    <div class="experts-grid" id="main-grid"></div>
+    <div class="experts-grid" id="main-grid">
+        </div>
 
     <div id="pass-modal" class="modal">
         <div class="modal-content">
@@ -94,18 +79,28 @@
             { nume: "Iftene Ana Maria", parola: "IF123" }
         ];
 
-        let state = {
-            expertObj: null
-        };
+        let state = { expertObj: null };
 
         function renderExperts() {
             const grid = document.getElementById('main-grid');
-            grid.innerHTML = experti.map(e => `
+            
+            // 1. Generăm folderele experților
+            let html = experti.map(e => `
                 <div class="expert-card" onclick="deschideModal('${e.nume}')">
                     <div class="folder-icon">📂</div>
                     <div class="expert-name">${e.nume}</div>
                 </div>
             `).join('');
+
+            // 2. Adăugăm la final folderul administrativ (Notă Comandă)
+            html += `
+                <div class="expert-card admin-card" onclick="window.location.href='nota_comanda_masa.html'">
+                    <div class="folder-icon" style="color: #3b82f6;">📊</div>
+                    <div class="expert-name">Notă Comandă<br>Masă Caldă</div>
+                </div>
+            `;
+
+            grid.innerHTML = html;
         }
 
         function deschideModal(nume) {
@@ -122,11 +117,8 @@
         function valideazaParola() {
             const parolaInput = document.getElementById('pass-input');
             if (!state.expertObj) return;
-
             if (parolaInput.value === state.expertObj.parola) {
-                // LINIA INTRODUSĂ: Salvăm numele pentru recunoaștere automată în orar
                 localStorage.setItem('expertPNRAS', state.expertObj.nume);
-
                 document.getElementById('pass-modal').style.display = 'none';
                 window.location.href = `dosar-expert.html?expert=${encodeURIComponent(state.expertObj.nume)}`;
             } else {
@@ -139,10 +131,6 @@
             document.getElementById('pass-modal').style.display = 'none';
             state.expertObj = null;
         }
-
-        document.getElementById('pass-input')?.addEventListener('keypress', function (e) {
-            if (e.key === 'Enter') valideazaParola();
-        });
 
         renderExperts();
     </script>

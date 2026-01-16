@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pontaj Masă 2026 - Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        :root { --primary: #3b82f6; --bg: #f8fafc; --text: #1e293b; --weekend: #fee2e2; --weekend-text: #ef4444; --success: #22c55e; }
+        body, html { margin: 0; padding: 0; height: 100vh; overflow: hidden; font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); }
+        
+        .main-container { display: flex; flex-direction: column; height: 100vh; padding: 10px; box-sizing: border-box; align-items: center; gap: 10px; }
+        
+        .top-bar { display: flex; width: 100%; max-width: 900px; justify-content: space-between; align-items: center; margin-bottom: 5px; }
+        .back-btn { padding: 6px 12px; border-radius: 6px; border: 1px solid #e2e8f0; background: white; cursor: pointer; font-weight: 600; font-size: 0.75rem; text-decoration: none; color: inherit; }
+        
+        .months-nav { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; width: 100%; max-width: 900px; flex-shrink: 0; }
+        .month-btn { background: white; padding: 10px; border-radius: 8px; text-align: center; cursor: pointer; border: 1px solid #e2e8f0; font-weight: 600; font-size: 0.85rem; }
+        .month-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+        
+        .dashboard-grid { display: grid; grid-template-columns: 350px 1fr; gap: 15px; width: 100%; max-width: 1400px; flex-grow: 1; min-height: 0; }
+        .card { background: white; border-radius: 12px; padding: 15px; border: 1px solid #e2e8f0; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.03); }
+        
+        .header-title { font-size: 0.85rem; font-weight: 700; margin-bottom: 10px; border-bottom: 2px solid #f1f5f9; padding-bottom: 5px; display: flex; justify-content: space-between; align-items: center; }
+        .calendar-mini, .centralizator-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+        .centralizator-grid { gap: 8px; flex-grow: 1; overflow-y: auto; }
+        .day-header { text-align: center; font-size: 0.65rem; font-weight: 800; color: #94a3b8; padding-bottom: 5px; text-transform: uppercase; }
+        .day-cell { aspect-ratio: 1.2; border: 1px solid #f1f5f9; border-radius: 6px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.8rem; font-weight: 600; }
+        .day-cell.weekend { background: var(--weekend); color: var(--weekend-text); }
+        .day-cell.selected { background: var(--primary) !important; color: white !important; }
+        
+        .clasa-item { display: flex; justify-content: space-between; align-items: center; padding: 10px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 5px; cursor: pointer; font-size: 0.85rem; }
+        .clasa-item.active { background: #dcfce7 !important; border-color: var(--success) !important; color: #166534 !important; font-weight: bold; }
+        
+        .stat-box { border: 1px solid #eef2f6; border-radius: 10px; background: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; min-height: 85px; cursor: pointer; }
+        .stat-box.has-data { border-color: var(--primary); background: #f0f7ff; }
+        .stat-box .count { font-size: 1.4rem; font-weight: 800; color: #cbd5e1; }
+        .stat-box.has-data .count { color: var(--primary); }
+        .stat-box .day-num { position: absolute; top: 5px; left: 8px; font-size: 0.7rem; font-weight: 700; color: #94a3b8; }
+
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: center; z-index: 10000; backdrop-filter: blur(2px); }
+        .modal-card { background: white; padding: 20px; border-radius: 15px; width: 450px; max-height: 80vh; overflow-y: auto; position: relative; }
+        
+        @media print {
+            body * { visibility: hidden; }
+            #modalDetalii, #modalDetalii *, #printableArea, #printableArea * { visibility: visible; }
+            #modalDetalii { position: absolute; left: 0; top: 0; width: 100%; background: white; display: flex !important; }
+            .modal-card { border: none; box-shadow: none; width: 100%; max-height: none; }
+            .no-print { display: none !important; }
+        }
+
+        #syncLabel { position: fixed; top: 10px; right: 10px; background: #333; color: #fff; padding: 5px 15px; border-radius: 20px; font-size: 0.7rem; display: none; }
+    </style>
+</head>
+<body>
+
+<div id="syncLabel">Sincronizare...</div>
+
+<div id="modalDetalii" class="modal-overlay" onclick="this.style.display='none'">
+    <div class="modal-card" onclick="event.stopPropagation()">
+        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #eee; padding-bottom: 10px; margin-bottom: 15px;">
+            <h3 id="modalTitle" style="margin:0;">Detalii Porții</h3>
+            <button onclick="window.print()" style="background: #10b981; color: white; border: none; padding: 5px 12px; border-radius: 6px; cursor: pointer; font-size: 0.75rem; font-weight: bold;">🖨️ PRINTEAZĂ LISTA</button>
+        </div>
+        <div id="printableArea">
+            <div id="modalContent"></div>
+        </div>
+        <button onclick="document.getElementById('modalDetalii').style.display='none'" style="width:100%; margin-top:20px; padding:10px; background:#64748b; color:white; border:none; border-radius:8px; cursor:pointer;" class="no-print">Închide</button>
+    </div>
+</div>
+
+<div class="main-container">
+    <div class="top-bar">
+        <a href="index.html" class="back-btn">⬅️ Înapoi la Meniu</a>
+        <div style="font-size: 0.75rem; font-weight: 700; color: #64748b;">PROGRAM PNRAS 2026</div>
+    </div>
+    
+    <div class="months-nav" id="mNav"></div>
+    
+    <div class="dashboard-grid">
+        <div class="card">
+            <div class="header-title"><span>📍 PLANIFICARE</span> <span id="labelData" style="color:var(--primary)">--</span></div>
+            <div id="mGrid" class="calendar-mini"></div>
+            <div style="margin-top:15px;">
+                <label style="font-size: 0.7rem; font-weight: 800;">EXPERT:</label>
+                <select id="eSelect" style="width:100%; padding:8px; margin-top:5px; border-radius:6px; border:1px solid #ddd;"></select>
+            </div>
+            <div id="cContainer" style="margin-top:15px; flex-grow: 1; overflow-y: auto;"></div>
+        </div>
+        
+        <div class="card">
+            <div class="header-title">
+                <span>📊 CENTRALIZATOR LUNAR</span>
+                <div style="display:flex; gap:10px; align-items:center;">
+                    <button onclick="window.open('nota_comanda_lunara.html?luna='+luniArr[curL]+'&an=2026', '_blank')" style="background:#10b981; color:white; border:none; padding:4px 10px; border-radius:5px; font-size:0.7rem; cursor:pointer;">🖨️ Print Lună</button>
+                    <span id="totL" style="font-weight:bold; color:var(--primary)">Total: 0</span>
+                </div>
+            </div>
+            <div id="sGrid" class="centralizator-grid"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // VERIFICARE PAROLA
+    const pass = prompt("Introdu parola pentru acces:");
+    if (pass !== "Masa2026") {
+        alert("Parolă incorectă!");
+        window.location.reload();
+    }
+
+    const sb = supabase.createClient('https://aexjrbdgajurxzngfkpx.supabase.co', 'sb_publishable_KPV__0BA9z4EvRl5eqC0FQ_hmBLOLYv');
+    const dElevi = { "SG1A": 8, "SG1B": 8, "PG1A": 10, "PG1B": 10, "StG1A": 13, "StG1B": 10, "AV5A": 8, "AV5B": 8, "AV6A": 13, "AV6B": 8, "AV7A": 12, "AV7B": 9, "AV8A1": 10, "AV8A2": 10, "AV8B1": 8, "AV8B2": 6, "AR5AB": 11, "AR5A": 8, "AR5B": 8, "AR6A": 12, "AR6B": 8, "AR7B": 9, "BA6B": 8, "BA7A": 12, "BA8A1": 10, "BA8A2": 10, "BA8B": 8, "5C": 14, "7C": 8, "AD8B1": 7, "AD8B2": 6, "AD8B3": 8, "PE8A1": 10, "PE8A2": 10, "PE6B": 8, "PE7A": 12, "IA5AB1": 11, "IA5AB2": 12, "IA6A": 13, "IA7B": 10 };
+    const mProf = { "Angheluș Raluca": ["AR5AB", "AR5A", "AR5B", "AR6A", "AR6B", "AR7B"], "Baziluc Ana Maria": ["BA6B", "BA7A", "BA8A1", "BA8A2", "BA8B"], "Ghemeș Anca": ["5C", "7C"], "Arotăriței Dănuț": ["AD8B1", "AD8B2", "AD8B3", "7C"], "Popovici Estera": ["PE8A1", "PE8A2", "PE6B", "PE7A"], "Albu Ștefan": ["SG1A", "SG1B"], "Marele Daniela": ["PG1A", "PG1B"], "Nohai Iuliana": ["StG1A"], "Nohai Vili": ["StG1B"], "Aparascăi Vasile": ["AV5A", "AV5B", "5C", "AV6A", "AV6B", "AV7A", "AV7B", "7C", "AV8A1", "AV8A2", "AV8B1", "AV8B2"], "Iftene Ana Maria": ["IA5AB1", "IA5AB2", "IA6A", "IA7B", "5C"] };
+    const luniArr = ["Ianuarie", "Februarie", "Martie", "Aprilie", "Mai", "Iunie"];
+    const zileSapt = ["L", "M", "M", "J", "V", "S", "D"];
+
+    let curL = 0, curZ = new Date().getDate(), rawData = [];
+
+    window.onload = function() {
+        const mNav = document.getElementById('mNav');
+        luniArr.forEach((l, i) => {
+            const b = document.createElement('div');
+            b.className = 'month-btn'; b.innerText = l;
+            b.onclick = () => loadLuna(i);
+            mNav.appendChild(b);
+        });
+        const eSel = document.getElementById('eSelect');
+        eSel.innerHTML = '<option value="">-- Alege Expert --</option>';
+        Object.keys(mProf).sort().forEach(p => { eSel.innerHTML += `<option value="${p}">${p}</option>`; });
+        eSel.onchange = renderUI;
+        loadLuna(new Date().getMonth() > 5 ? 0 : new Date().getMonth());
+    };
+
+    async function loadLuna(idx) {
+        curL = idx;
+        document.querySelectorAll('.month-btn').forEach((b, i) => b.classList.toggle('active', i === idx));
+        document.getElementById('syncLabel').style.display = 'block';
+        const { data } = await sb.from('nota_comanda').select('*').match({ an: 2026, luna: luniArr[idx] });
+        rawData = data || [];
+        document.getElementById('syncLabel').style.display = 'none';
+        renderUI();
+    }
+
+    function renderUI() {
+        const gridM = document.getElementById('mGrid'); gridM.innerHTML = '';
+        zileSapt.forEach(z => { gridM.innerHTML += `<div class="day-header">${z}</div>`; });
+        const zile = new Date(2026, curL + 1, 0).getDate();
+        const start = (new Date(2026, curL, 1).getDay() + 6) % 7;
+        for (let i = 0; i < start; i++) gridM.innerHTML += `<div></div>`;
+        for (let d = 1; d <= zile; d++) {
+            const dateC = new Date(2026, curL, d);
+            const isWE = (dateC.getDay() === 0 || dateC.getDay() === 6);
+            const c = document.createElement('div');
+            c.className = `day-cell ${isWE ? 'weekend' : ''} ${d === curZ ? 'selected' : ''}`;
+            c.innerText = d;
+            c.onclick = () => { curZ = d; renderUI(); };
+            gridM.appendChild(c);
+        }
+
+        const gridS = document.getElementById('sGrid'); gridS.innerHTML = '';
+        zileSapt.forEach(z => { gridS.innerHTML += `<div class="day-header">${z}</div>`; });
+        for (let i = 0; i < start; i++) gridS.innerHTML += `<div></div>`;
+        let totalLuna = 0;
+        for (let d = 1; d <= zile; d++) {
+            const dateC = new Date(2026, curL, d);
+            const isWE = (dateC.getDay() === 0 || dateC.getDay() === 6);
+            const dayData = rawData.filter(x => x.zi == d);
+            const claseUnice = [...new Set(dayData.map(x => x.clasa))];
+            let p = 0; claseUnice.forEach(cl => p += (dElevi[cl] || 0));
+            totalLuna += p;
+            
+            const box = document.createElement('div');
+            box.className = `stat-box ${isWE ? 'weekend-bg' : ''} ${p > 0 ? 'has-data' : ''}`;
+            box.innerHTML = `<span class="day-num">${d}</span><span class="count">${p}</span><span style="font-size:0.5rem;color:#94a3b8">PORTII</span>`;
+            box.onclick = () => showDetails(d);
+            gridS.appendChild(box);
+        }
+        document.getElementById('totL').innerText = `Total: ${totalLuna}`;
+        document.getElementById('labelData').innerText = `${curZ} ${luniArr[curL]} 2026`;
+
+        const exp = document.getElementById('eSelect').value;
+        const cCont = document.getElementById('cContainer');
+        cCont.innerHTML = exp ? '' : '<p style="text-align:center;color:#94a3b8;font-size:0.8rem;margin-top:20px;">Alege un expert</p>';
+        if (exp && mProf[exp]) {
+            mProf[exp].forEach(cl => {
+                const act = rawData.some(x => x.zi == curZ && x.clasa == cl && x.expert == exp);
+                const div = document.createElement('div');
+                div.className = `clasa-item ${act ? 'active' : ''}`;
+                div.innerHTML = `<span>${cl}</span> <span>${dElevi[cl]} elevi</span>`;
+                div.onclick = () => updateDB(cl, exp);
+                cCont.appendChild(div);
+            });
+        }
+    }
+
+    async function updateDB(clasa, expert) {
+        document.getElementById('syncLabel').style.display = 'block';
+        const index = rawData.findIndex(x => x.zi == curZ && x.clasa == clasa && x.expert == expert);
+        if (index > -1) {
+            await sb.from('nota_comanda').delete().match({ an: 2026, luna: luniArr[curL], zi: curZ, clasa: clasa, expert: expert });
+        } else {
+            await sb.from('nota_comanda').insert([{ an: 2026, luna: luniArr[curL], zi: curZ, clasa: clasa, expert: expert, nr_elevi: dElevi[clasa] }]);
+        }
+        await loadLuna(curL);
+    }
+
+    function showDetails(zi) {
+        const dayData = rawData.filter(x => x.zi == zi);
+        if (dayData.length === 0) return;
+        
+        const grupate = {};
+        dayData.forEach(x => {
+            if(!grupate[x.clasa]) grupate[x.clasa] = { profs: [], nr: dElevi[x.clasa] || 0 };
+            if(!grupate[x.clasa].profs.includes(x.expert)) grupate[x.clasa].profs.push(x.expert);
+        });
+
+        const modal = document.getElementById('modalDetalii');
+        const content = document.getElementById('modalContent');
+        document.getElementById('modalTitle').innerText = `Nota Comanda: ${zi} ${luniArr[curL]} 2026`;
+        content.innerHTML = '';
+        
+        let sumaTotala = 0;
+        for (const [cl, info] of Object.entries(grupate)) {
+            sumaTotala += info.nr;
+            content.innerHTML += `<div style="display:flex; justify-content:space-between; padding:10px; border-bottom:1px solid #eee; font-size:0.9rem;">
+                <div style="display:flex; flex-direction:column;">
+                    <span style="font-weight:700;">Grupă: ${cl}</span>
+                    <span style="font-size:0.75rem; color:#64748b;">Expert: ${info.profs.join(", ")}</span>
+                </div>
+                <span style="font-weight:700; color:var(--primary);">${info.nr} porții</span>
+            </div>`;
+        }
+        content.innerHTML += `<div style="display:flex; justify-content:space-between; padding:12px; font-weight:bold; border-top:2px solid #3b82f6; margin-top:10px; background:#eff6ff;"><span>TOTAL GENERAL</span><span>${sumaTotala} PORȚII</span></div>`;
+        modal.style.display = 'flex';
+    }
+</script>
+</body>
+</html>

@@ -118,13 +118,6 @@
                 <option value="Iunie-2026">Iunie 2026</option>
             </select>
         </div>
-<div class="actions">
-    </button>
-    <button onclick="resetarePontajLuna()" style="background: #ef4444; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-weight: bold;">
-    Resetare Date
-</button>
-
-    </div>
 
         <div class="stats-group">
             <div class="box" id="box-masa"><span class="box-label">Total Masă</span><span id="txt-masa">0</span></div>
@@ -309,48 +302,6 @@
     scrollArea.addEventListener('scroll', () => { footerScroll.scrollLeft = scrollArea.scrollLeft; });
 
     refresh();
-async function autoCompleteazaMecanism() {
-    // 1. Preluăm toate avizele introduse de tine în rândul de avize
-    const inputsAviz = document.querySelectorAll('.aviz-input'); // presupunând că au această clasă
-    
-    // 2. Preluăm lista experților și targetul lor (coloana P)
-    // Aici AI-ul va simula completarea:
-    for (let zi = 1; zi <= 31; zi++) {
-        let portiiNecesare = parseInt(document.querySelector(`input[data-zi="${zi}"]`)?.value || 0);
-        if (portiiNecesare <= 0) continue; // Sărim peste zilele fără aviz
-
-        console.log(`Procesăm ziua ${zi} cu ținta de ${portiiNecesare} porții...`);
-        
-        // Logica de alegere a profesorilor pentru a atinge portiiNecesare
-        // Se vor alege profesori până când suma elevilor lor = portiiNecesare
-        // Și se va face upsert în Supabase:
-        // await supabaseClient.from('pontaj_detaliat').upsert({ ... });
-    }
-    
-    alert("Procesul de echilibrare a fost finalizat! Verifică totalurile.");
-    refresh(); // Reîncărcăm tabelul să vedem culorile VERZI
-}
-async function resetarePontajLuna() {
-    const confirmare = confirm(`Ești sigur că vrei să ȘTERGI toate datele de pontaj pentru ${state.luna} ${state.an}? Această acțiune nu poate fi anulată!`);
-    
-    if (!confirmare) return;
-
-    console.log("🧹 Se curăță datele de pontaj...");
-
-    const { error } = await supabaseClient
-        .from('pontaj_detaliat')
-        .delete()
-        .eq('luna', state.luna)
-        .eq('an', state.an);
-
-    if (error) {
-        alert("Eroare la ștergere: " + error.message);
-    } else {
-        alert("Tabelul a fost resetat. Poți genera din nou.");
-        // Reîncărcăm tabelul vizual (va fi gol acum)
-        if (typeof refresh === "function") refresh();
-    }
-}	
 </script>
 </body>
 </html>

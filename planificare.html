@@ -216,7 +216,9 @@
     };
 
     async function init() {
-        setStatus('loading', '⏳ Se încarcă...');
+        setStatus('loading', '⏳ Se sincronizează datele...');
+        
+        // 1. Setări etichete antet (Rămân neschimbate)
         const info = dbExperti[config.expert] || { act: "Activitate PNRAS", disc: "" };
         document.getElementById('label-activitate-tip').innerText = info.act;
         document.getElementById('label-disciplina').innerText = info.disc;
@@ -225,25 +227,66 @@
         document.getElementById('label-luna').innerText = `${config.luna} ${config.an}`;
         document.getElementById('label-clasa').innerText = transformClasa(config.clasa);
 
-        const { data } = await supabaseClient.from('planificari_documente').select('continut_json').eq('tip_document', config.idDoc).maybeSingle();
+        // 2. Extragem datele actuale din PONTEL (Master List)
+        const { data: pnt } = await supabaseClient
+            .from('pontaj_detaliat')
+            .select('zi')
+            .match({ expert: config.expert, luna: config.luna, an: config.an })
+            .ilike('clase_grupe', `%${config.clasa}%`)
+            .order('zi', { ascending: true });
 
-        if (data && data.continut_json) {
-            const d = data.continut_json;
-            localRows = d.tableRows || [];
-            document.getElementById('lista-obiective').innerHTML = d.obiective || "<ul><li></li></ul>";
-            document.getElementById('nr-reg').value = d.nr || "";
-            document.getElementById('data-reg').value = d.dataReg || "";
-        } else {
-            const { data: pnt } = await supabaseClient.from('pontaj_detaliat').select('zi').match({ expert: config.expert, luna: config.luna, an: config.an }).ilike('clase_grupe', `%${config.clasa}%`).order('zi', { ascending: true });
-            if (pnt && pnt.length > 0) {
-                localRows = pnt.map(z => ({ data: formatDate(z.zi, config.luna, config.an), cont: "", actv: "", res: "", eval: "", manual: false }));
-            } else {
-                localRows = [{ data: "", cont: "", actv: "", res: "", eval: "", manual: true }];
-            }
+        // 3. Extragem ce avem salvat în PLANIFICARE (Saved Data)
+        const { data: planDoc } = await supabaseClient
+            .from('planificari_documente')
+            .select('continut_json')
+            .eq('tip_document', config.idDoc)
+            .maybeSingle();
+
+        let savedRows = [];
+        if (planDoc && planDoc.continut_json) {
+            savedRows = planDoc.continut_json.tableRows || [];
+            document.getElementById('lista-obiective').innerHTML = planDoc.continut_json.obiective || "<ul><li></li></ul>";
+            document.getElementById('nr-reg').value = planDoc.continut_json.nr || "";
+            document.getElementById('data-reg').value = planDoc.continut_json.dataReg || "";
         }
+
+        // 4. LOGICA DE MERGE (Sincronizare rânduri)
+        if (pnt && pnt.length > 0) {
+            const tempRows = [];
+            
+            pnt.forEach(z => {
+                const dataCalendaristica = formatDate(z.zi, config.luna, config.an);
+                
+                // Căutăm dacă avem deja această dată salvată în planificare
+                const existingRow = savedRows.find(r => r.data === dataCalendaristica);
+                
+                if (existingRow) {
+                    // Dacă există, îl păstrăm exact așa cum e (cu textele completate)
+                    tempRows.push(existingRow);
+                } else {
+                    // Dacă e o zi nouă din pontaj, creăm rândul gol
+                    tempRows.push({ 
+                        data: dataCalendaristica, 
+                        cont: "", 
+                        actv: "", 
+                        res: "", 
+                        eval: "", 
+                        manual: false 
+                    });
+                }
+            });
+
+            // Adăugăm și eventualele rânduri manuale care nu sunt în pontaj, dar au fost adăugate de utilizator
+            const manualRows = savedRows.filter(r => r.manual === true);
+            localRows = [...tempRows, ...manualRows];
+        } else {
+            // Dacă nu e nimic în pontaj, păstrăm ce era salvat sau un rând gol default
+            localRows = savedRows.length > 0 ? savedRows : [{ data: "", cont: "", actv: "", res: "", eval: "", manual: true }];
+        }
+
         renderTable();
         isReady = true;
-        setStatus('saved', '✅ Pregătit');
+        setStatus('saved', '✅ Date sincronizate');
     }
 
     function renderTable() {

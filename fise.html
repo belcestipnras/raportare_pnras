@@ -10,19 +10,26 @@
         body { background: #f0f2f5; margin: 0; padding: 80px 0; font-family: "Times New Roman", serif; }
         
         /* BARA DE CONTROL ACTUALIZATĂ */
+        /* BARA DE CONTROL PE UN SINGUR RÂND */
+        /* BARA DE CONTROL COMPACTĂ - UN SINGUR RÂND */
         .no-print { 
             position: fixed; top: 0; left: 0; width: 100%; 
-            background: #1e293b; padding: 10px 40px; 
+            background: #1e293b; padding: 10px 20px; 
             display: grid; 
-            grid-template-columns: 1fr auto 1fr; /* Trei coloane pentru centrare */
+            grid-template-columns: auto 1fr auto; 
             align-items: center;
             z-index: 1000; box-shadow: 0 4px 12px rgba(0,0,0,0.3);
             box-sizing: border-box;
+            gap: 15px;
         }
 
-        .nav-left { display: flex; gap: 10px; align-items: center; }
-        .nav-center { display: flex; justify-content: center; }
-        .nav-right { display: flex; justify-content: flex-end; gap: 10px; align-items: center; }
+        .nav-left { display: flex; gap: 15px; align-items: center; white-space: nowrap; }
+        .nav-center { display: flex; justify-content: center; gap: 10px; }
+        .nav-right { display: flex; justify-content: flex-end; align-items: center; }
+
+        /* Ajustare dimensiune butoane pentru a garanta spațiul pe un rând */
+        .btn { padding: 8px 16px; border: none; cursor: pointer; font-weight: bold; border-radius: 8px; font-family: sans-serif; transition: 0.2s; font-size: 13px; }
+        .btn-print { background: #3b82f6; color: white; box-shadow: 0 4px 14px rgba(59, 130, 246, 0.4); }
 
         .page { 
             background: white; width: 210mm; min-height: 297mm; 
@@ -79,18 +86,30 @@
     <div class="no-print">
         <div class="nav-left">
             <button id="btn-back-dinamic" class="btn btn-back">⬅️ Înapoi</button>
-            <div id="save-status">✓ Sincronizat</div>
+            <div id="save-status"></div>
         </div>
         
         <div class="nav-center">
-            <button class="btn btn-print" onclick="window.print()">🖨️ PRINTEAZĂ FIȘA</button>
+            <button class="btn btn-print" onclick="window.print()">🖨️ PRINTEAZĂ TOT</button>
+            <button class="btn" style="background: #8b5cf6; color: white;" onclick="completeazaToateFiseleAI()">✨ Completează tot cu AI</button>
         </div>
 
         <div class="nav-right">
             <button class="btn btn-reset" onclick="reseteazaLaPlanificare()">🧹 Reset (Planificare)</button>
         </div>
     </div>
-
+<div class="nav-right">
+    <button class="btn" style="background: #059669; color: white; margin-right: 8px;" 
+            onclick="document.getElementById('input-fise').click()">📄 Încarcă Fișă</button>
+    
+    <button class="btn" style="background: #d97706; color: white; margin-right: 15px;" 
+            onclick="document.getElementById('input-foto').click()">📸 Fotografii</button>
+      
+    <input type="file" id="input-fise" style="display: none;" accept="application/pdf" 
+           onchange="incarcaInCloud(this, 'FISA')">
+    <input type="file" id="input-foto" style="display: none;" accept="image/*" 
+           onchange="incarcaInCloud(this, 'FOTO')">
+</div>
     <div id="container-fise"></div>
 
 <script>
@@ -222,6 +241,181 @@
         });
     }
     init();
+// --- LOGICA AI PENTRU FIȘE ---
+
+// Această funcție va folosi elementul tău <div id="save-status">
+function setStatus(tip, mesaj) {
+    const el = document.getElementById('save-status');
+    if (!el) return;
+    el.innerText = mesaj;
+    el.style.color = tip === 'error' ? '#ef4444' : (tip === 'loading' ? '#fbbf24' : '#10b981');
+}
+
+async function completeazaToateFiseleAI() {
+    const pagini = document.querySelectorAll('.page');
+    if (!confirm(`Vrei să completezi automat ${pagini.length} fișe?`)) return;
+
+    for (let i = 0; i < pagini.length; i++) {
+        const p = pagini[i];
+        const casete = p.querySelectorAll('.caseta');
+        
+        const tema = casete[0].innerText.trim(); 
+        const activitateSursa = casete[2].innerText.trim(); 
+
+        if (tema.length < 2) continue;
+
+        setStatus('loading', `🤖 Generare fișa ${i+1}/${pagini.length}...`);
+
+        // 1. MODIFICARE PROMPT: Am cerut explicit rânduri noi pentru fiecare punct
+        const promptStrict = `
+            Ești expert educațional PNRAS.
+            TEMA: "${tema}"
+            ACTIVITATE: "${activitateSursa}"
+            CERINȚA: Completează fișa respectând structura de mai jos.
+            
+            REGULI DE FORMATARE:
+            - Fiecare punct din Obiective, Metode și Mijloace trebuie să fie pe rând nou.
+            - NU folosi buline (le adaug eu).
+            - NU scrie titlurile secțiunilor.
+            - Folosește caracterul "|" doar pentru a separa secțiunile mari.
+
+            STRUCTURA RĂSPUNSULUI (Exemplu de format):
+            Obiectiv 1
+            Obiectiv 2
+            Obiectiv 3 | Metoda 1
+            Metoda 2 | Mijloc 1
+            Mijloc 2 | Organizare | Concluzie
+        `;
+
+        try {
+            const response = await fetch(`${URL_S}/functions/v1/chatgpt-pnras`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${KEY_S}` },
+                body: JSON.stringify({ prompt: promptStrict })
+            });
+
+            const data = await response.json();
+            let textAI = data.choices ? data.choices[0].message.content : (data.text || "");
+            
+            // Curățare cuvinte reziduale
+            const deSters = ["Obiective:", "Metode:", "Mijloace:", "Organizare:", "Concluzii:"];
+            deSters.forEach(cuvant => {
+                const regex = new RegExp(cuvant, "gi");
+                textAI = textAI.replace(regex, "");
+            });
+
+            // 2. SPLIT & CLEAN: Împărțim pe secțiuni (Obiective | Metode | etc.)
+            const parti = textAI.split('|').map(p => p.trim());
+
+            if (parti.length >= 5) {
+                // 3. SEPARARE PE RÂNDURI: applySmartBullets va prelua textul cu \n și va pune buline pe fiecare rând
+                casete[1].innerText = applySmartBullets(parti[0]); // Obiective
+                casete[3].innerText = applySmartBullets(parti[1]); // Metode
+                casete[4].innerText = applySmartBullets(parti[2]); // Mijloace
+                casete[5].innerText = applySmartBullets(parti[3]); // Organizare
+                casete[6].innerText = applySmartBullets(parti[4]); // Concluzii
+                
+                if (typeof salveaza === 'function') await salveaza();
+            }
+            await new Promise(r => setTimeout(r, 1000));
+        } catch (e) {
+            console.error("Eroare:", e);
+            setStatus('error', "Eroare la fișa " + (i+1));
+        }
+    }
+    setStatus('saved', '✅ Fișe completate pe rânduri separate!');
+}
+let tipIncarcare = ''; 
+
+function selecteazaFisier(tip) {
+    tipIncarcare = tip;
+    const input = document.getElementById('upload-input-invizibil');
+    if (input) input.click();
+}
+
+// ACEASTĂ FUNCȚIE LIPSEA DIN CODUL TĂU
+// --- FUNCȚIA DE UPLOAD (STREAMING) ---
+async function incarcaInCloud(inputElement, tip) {
+    const fisier = inputElement.files[0];
+    if (!fisier) return;
+
+    // 1. Preluăm datele de context din URL (Expert și Clasă)
+    const params = new URLSearchParams(window.location.search);
+    const expertName = params.get('expert') || "Expert_Necunoscut";
+    const clasa = params.get('clasa') || "5A";
+
+    // 2. Identificăm pagina pentru care se face încărcarea
+    const pagini = document.querySelectorAll('.page');
+    const raspuns = prompt(`Încarci ${tip}. Pentru ce pagină (1-${pagini.length})?`);
+    if (raspuns === null) { inputElement.value = ''; return; }
+    
+    const nr = parseInt(raspuns);
+    if (isNaN(nr) || nr < 1 || nr > pagini.length) {
+        alert("Pagină invalidă!");
+        inputElement.value = '';
+        return;
+    }
+
+    // 3. DEFINIM dataFisa (Aici era eroarea!)
+    // Căutăm data scrisă în pagina selectată (în elementul cu clasa .data-val)
+    const paginaSelectata = pagini[nr - 1];
+    let dataFisa = "01-01-2025"; // O dată de rezervă
+    const dataElement = paginaSelectata.querySelector('.data-val');
+    
+    if (dataElement && dataElement.innerText.trim() !== "") {
+        // Înlocuim punctele cu cratime pentru a fi acceptat ca nume de folder (ex: 31.01.2025 -> 31-01-2025)
+        dataFisa = dataElement.innerText.trim().replace(/\./g, '-');
+    }
+
+    const numeFinal = `${tip}_${nr}_${expertName.replace(/\s+/g, '_')}_${clasa}.${tip === 'FOTO' ? 'jpg' : 'pdf'}`;
+    
+    setStatus('loading', `🚀 Se pregătește ${numeFinal}...`);
+
+    const reader = new FileReader();
+    reader.readAsDataURL(fisier);
+    reader.onloadend = async () => {
+        const base64data = reader.result.split(',')[1];
+        
+        // FOLOSEȘTE ULTIMUL URL GENERAT LA PASUL 2 (cel cu /exec)
+        const googleScriptUrl = "https://script.google.com/macros/s/AKfycbwt8PX04jDM4a4vCbenf66TCixs47DwX8Ab8Ij6z580NxgsoNqqusdCKNjklzJ36qHUtA/exec";
+
+        try {
+            // Trimitem datele către Google Script
+            await fetch(googleScriptUrl, {
+                method: "POST",
+                mode: "no-cors", // <--- ACEASTA ESTE LINIA CRUCIALĂ
+                cache: "no-cache",
+                headers: {
+                    "Content-Type": "text/plain", // Folosim text/plain ca să nu declanșăm verificări de securitate
+                },
+                body: JSON.stringify({
+                    fileName: numeFinal,
+                    fileType: fisier.type,
+                    fileBase64: base64data,
+                    rootFolderId: '173Qq7JNoOEHL2ZnG4At2zH1MxzUiACvn',
+                    expertName: expertName, 
+                    clasa: clasa,           
+                    dataFisa: dataFisa      
+                })
+            });
+
+            // Deoarece folosim no-cors, browserul nu ne lasă să citim răspunsul,
+            // așa că afișăm succesul după o scurtă așteptare.
+            setTimeout(() => {
+                alert(`✅ CERERE TRIMISĂ!\nDocumentul a plecat spre: ${expertName} > Clasa ${clasa}`);
+                setStatus('saved', "✅ Finalizat");
+            }, 1000);
+            
+        } catch (err) {
+            console.error("Eroare fetch:", err);
+            alert("Eroare la trimitere: " + err.message);
+            setStatus('error', "❌ Eroare");
+            } finally {
+            inputElement.value = '';
+        }
+    };
+}
+
 </script>
 </body>
 </html>

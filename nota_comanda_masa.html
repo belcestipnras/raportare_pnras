@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arhivă Note Comandă - PNRAS</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root { --primary: #3b82f6; --folder: #ffd43b; --bg: #f4f7f9; }
+        body { margin: 0; font-family: 'Inter', sans-serif; background: var(--bg); display: flex; flex-direction: column; align-items: center; min-height: 100vh; padding: 20px; }
+        
+        .header { width: 95%; max-width: 1100px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+        .btn-back { padding: 10px 18px; background: white; color: #333; border: 2px solid var(--primary); border-radius: 8px; font-weight: bold; cursor: pointer; text-decoration: none; }
+
+        .title { width: 95%; max-width: 1100px; font-size: 22px; font-weight: 700; color: #1e293b; margin-bottom: 20px; text-align: left; }
+
+        .folder-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 20px; width: 95%; max-width: 1100px; }
+        
+        .folder-card { background: white; padding: 30px; border-radius: 15px; text-align: center; cursor: pointer; transition: all 0.3s ease; border: 1px solid #eef2f6; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
+        .folder-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.1); border-color: var(--primary); }
+        
+        .folder-icon { font-size: 60px; color: var(--folder); margin-bottom: 15px; }
+        .folder-name { font-weight: 600; color: #1e293b; font-size: 16px; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <a href="activitati.html" class="btn-back">⬅️ Înapoi la Activități</a>
+    </div>
+
+    <div class="title">Arhivă Note de Comandă Masă Caldă</div>
+
+    <div class="folder-grid">
+        <div class="folder-card" onclick="protejeazaAcces('nota_comanda_2025.html')">
+            <div class="folder-icon">📂</div>
+            <div class="folder-name">Anul 2025 (Protejat)</div>
+        </div>
+
+        <div class="folder-card" onclick="window.location.href='nota_comanda_2026.html'">
+            <div class="folder-icon">📂</div>
+            <div class="folder-name">Anul 2026</div>
+        </div>
+    </div>
+
+    <script>
+        function protejeazaAcces(urlDestinatie) {
+            const parolaCorecta = "Masa123";
+            
+            // Verificăm dacă a fost deja introdusă parola în această sesiune
+            if (sessionStorage.getItem('acces_2025') === 'permis') {
+                window.location.href = urlDestinatie;
+                return;
+            }
+
+            const parolaIntrodusa = prompt("Introduceți parola pentru a accesa arhiva 2025:");
+
+            if (parolaIntrodusa === parolaCorecta) {
+                sessionStorage.setItem('acces_2025', 'permis');
+                window.location.href = urlDestinatie;
+            } else if (parolaIntrodusa !== null) {
+                alert("Parolă incorectă! Acces refuzat.");
+            }
+        }
+
+        function deschideAn(an) {
+            window.location.href = `nota_comanda_anual.html?an=${an}`;
+        }
+    </script>
+
+</body>
+</html>

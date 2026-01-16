@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "proiect-pnras-stocare",
+  "private_key_id": "e8531896781ca34b6f413c355f0e6fb23ee346ed",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQCdgagEcfnUq6TX\nZoxwwejFmdu68FOMF4S7z+D85NmDw3yE/qzypGmVM0XWLg/gZuV9hyOVcB+7dp7I\n1FwWBPRQsj2GAkgjIikygdTHMi7c5ygCRD6mmcHIE7tdjURoQiRLRVHjH/siBFlS\nIb71fi3HajYLfBx5AgfyVX6qyGQEc0sQ/5RXGYaJgYKwssn6tdstMqBw+zvEQvXI\nZM2ezQMPwfENHIxdnfI1LNUMoTiPlZnF15YF/qVrq+d2s9v3mbk04ytR8ukBSY4j\nZKn1YOdZiZWlmcqeV9P0wpUWQlSAZcXV2QKJLhSXvZOGAJ39KkYc5gx7s0ySmG0+\nP59gwAJDAgMBAAECggEACSJCNJPJeaBEjGs5fLZ6Aa+E8wfJyId6nouVEAVTadU1\nzN6Z9+454zmYdK2yJQDCkS97jEh2xp+/4ISUHIDIDD/x2moaddMe0Xt+89hAqHXN\nN6hue6nR94DRbkDpdSRUx3qrH4E0xom7BkzHrqPVEsnhfXQCkK/h9xcnI89AIZPY\nvdYEyASDmSZYL8cjGqTxmZpQ1cxU1dNVeoiPLggChkph2TWd+hSAuOfk0n4eDaIf\ndITaf4fYdAO2al/7tE1FPM3RFh7NvN6W3l3dE8gXzzhwYly0l6RdHw4ote42Pn/i\nVLEpV+atMvvDrlhq8U2QkN7HKUO2x7fB1emfcgdgeQKBgQDKFm07c6UbZsfJrMtD\ni5xtaKIYjL4e0IqaTGW86mGNEj8aPILZzY9APTVCrBA6gmaYncAzipJOimollzuN\nozJviIVAR86o7/Uth+xG96aFOHph8Ge2D8ItX0RCgcWBNICenInqSLc+Yrv6RH0q\n0Y0aUZePvvyg5LYZZXSdpe+u+wKBgQDHho+cezrI2v3M8ghFE4VShIuER7ey0QTB\nnEJPNVVLvFA1hCZMTDGrCWfHBr8Yz16N7bQYdjafCAt4YLTBfs7Zt3pADTbAAWkk\nSi9wp8QLFFhqLm/RgsQT0BxuZLwhsFHQy+JF4joSWS5H2DCt5J3R36BCd+FoQcT9\nJMcCKEj3WQKBgAZ0/Px/T3E2sX+CI+R+m3rrcvJx3MlDRIp1knKc0o0dXiLKeCvZ\nY5Bb5E3DDamw7PJHaBK9hLs5tPaKhH6cDkp+BDPvl2zSbfUMeMIzu4BaM57ZfZbV\nnhCxEI9HcjYUpV9sBQQVWrWFlhgDBDTQCUAkB0GyioPhiuf40+cNnEDtAoGBALHX\nx8Pztwb240g855AigTB3AiBrCFrzoaitDhGp+Rgjht7cpoJVW+QW4xBsfAKyO5aI\nLIGtRKxlsEug7xyVWeyHdQkIfieQWlZFZZmlf8FcZh5mu7ZkNz9tvRnM4j+o+JQC\nVvJxXc+i+/R/x4wH/X/nMuJsFlcmYF4+3L+YhskpAoGBALvipoI9aw2VVDqUjke7\nNQfbJJ1cUYPLa/9XdOB2stzn5Qr1wXpwf/nGm1QiLuQTw8C/qBOToVHKn9NuJUkJ\nwe6Q7WWMv36ep/GbOXxdHlBJl2JE+mi4lz7EFBS/jT2AElVgabDkbwMyoFuynX5o\nY3PMrGZvfFj/t+weoagvBSLI\n-----END PRIVATE KEY-----\n",
+  "client_email": "pnras-drive-manager@proiect-pnras-stocare.iam.gserviceaccount.com",
+  "client_id": "103333612040460844815",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/pnras-drive-manager%40proiect-pnras-stocare.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}
