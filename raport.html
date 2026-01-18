@@ -151,30 +151,102 @@
         let totalOre = 0; let claseSet = new Set();
         if(pontaje) pontaje.forEach(p => { totalOre += parseFloat(p.nr_ore || 0); claseSet.add(p.clase_grupe); });
 
-        let nrActivitate = pontaje ? pontaje.length : 0;
+        let nrActivitate = 0; // O lăsăm momentan pe 0
         let nrMasaCalda = documente ? documente.filter(d => d.tip_document.startsWith('MASA_') && d.continut_json && d.continut_json.status === 'printat').length : 0;
 
+        // --- START COD PENTRU RECUNOASTERE MULTIPLA (5A, 6B etc) ---
+        // --- COD CORECTAT CONFORM TABELELOR TALE ---
         let htmlActivitati = "";
-        if(pontaje) {
-            pontaje.forEach((p, idx) => {
-                const idPlan = `PLAN_${expert}_${p.clase_grupe}_${selectatLuna}_${selectatAn}`;
-                const docPlan = documente ? documente.find(d => d.tip_document === idPlan) : null;
-                let temaZi = "---";
-                if (docPlan && docPlan.continut_json) {
-                    const dataCautata = `${p.zi.toString().padStart(2, '0')}.${lunaCod}.${selectatAn}`;
-                    const randZi = docPlan.continut_json.tableRows?.find(r => r.data === dataCautata);
-                    if (randZi) temaZi = randZi.cont || "Activitate remedială conform planificării";
-                }
-                const nrEleviClasa = totiElevii ? totiElevii.filter(e => e.clasa_grupa === p.clase_grupe).length : 0;
-                htmlActivitati += `<div class="lista-activitati"><b>${idx+1}.</b> <b>${MAP_CLASE[p.clase_grupe] || p.clase_grupe}</b> | Data: <b>${p.zi.toString().padStart(2, '0')}.${lunaCod}.${selectatAn}</b> | Nr. elevi: <b>${nrEleviClasa}</b><br><i>Conținut: ${temaZi}</i></div>`;
+        let indexAfisat = 1; 
+
+        if (pontaje && pontaje.length > 0) {
+            pontaje.forEach((p) => {
+                // 1. Spargem textul (ex: "6A,6A" sau "6B,7A")
+                let claseBucati = p.clase_grupe ? p.clase_grupe.split(',').map(c => c.trim()) : [];
+                
+                // 2. Calculăm orele (Total ore zi / Număr de clase unice)
+                const claseUnice = [...new Set(claseBucati)];
+                const nrOreTotal = parseFloat(p.nr_ore || 0);
+                const orePerActivitate = nrOreTotal / claseUnice.length;
+
+                // 3. Generăm rânduri doar pentru clasele unice
+                claseUnice.forEach(clasaSimpla => {
+                    if (!clasaSimpla) return;
+nrActivitate++;
+
+                    // A. Căutăm tema activității
+                    const idPlan = `PLAN_${expert}_${clasaSimpla}_${selectatLuna}_${selectatAn}`;
+                    const docPlan = documente ? documente.find(d => d.tip_document === idPlan) : null;
+                    let temaZi = "---";
+                    
+                    if (docPlan && docPlan.continut_json) {
+                        const dataCautata = `${p.zi.toString().padStart(2, '0')}.${lunaCod}.${selectatAn}`;
+                        const randZi = docPlan.continut_json.tableRows?.find(r => r.data === dataCautata);
+                        if (randZi) temaZi = randZi.cont || "Activitate remedială conform planificării";
+                    }
+
+                    // B. Calculăm elevii (folosind clasa_grupa din tabelul elevi)
+                    let nrEleviClasa = 0;
+                    if (totiElevii) {
+                        const clasaTinta = clasaSimpla.toUpperCase();
+                        nrEleviClasa = totiElevii.filter(e => {
+                            const clasaElev = (e.clasa_grupa || e.clasa || "").toString().trim().toUpperCase();
+                            return clasaElev === clasaTinta;
+                        }).length;
+                    }
+
+                    // C. Formatăm textul pentru ore (1 oră vs 2 ore)
+                    const textOre = orePerActivitate === 1 ? "1 oră" : `${orePerActivitate} ore`;
+
+                    // D. Adăugăm rândul în raport
+                    htmlActivitati += `<div class="lista-activitati">
+                        <b>${indexAfisat}.</b> <b>${MAP_CLASE[clasaSimpla] || clasaSimpla}</b> | 
+                        Data: <b>${p.zi.toString().padStart(2, '0')}.${lunaCod}.${selectatAn}</b> | 
+                        Nr. elevi: <b>${nrEleviClasa}</b> | 
+                        Timp: <b>${textOre}</b><br>
+                        <i>Conținut: ${temaZi}</i>
+                    </div>`;
+                    
+                    indexAfisat++;
+                });
             });
         }
+        // --- FINAL COD NOU ---
 
         const textRespImplicit = `<p>Realizarea sesiunilor de sprijin educațional cu elevii din grupul țintă selectați în cadrul proiectului;</p><p>Punerea în aplicare a planului de servicii educaționale personalizat conform nevoilor fiecărui elev beneficiar;</p><p>Realizarea instrumentelor și fișelor de lucru necesare desfășurării activităților, asigurând o mai bună fixare a cunoștințelor prin metode inovative de lucru;</p><p>Participarea la implementarea activităților organizate în cadrul proiectului;</p><p>Asigurarea îmbunătățirii rezultatelor școlare ale elevilor beneficiari, astfel încât aceștia să aibă șanse reale de promovare a clasei;</p><p>Colaborarea cu membrii și echipa de management a proiectului în vederea optimizării activităților desfășurate;</p><p>Colaborarea și sprijinirea părinților elevilor beneficiari pentru a asigura/încuraja valorizarea educației de către aceștia;</p><p>Monitorizarea frecvenței, participării și progresului educațional al elevilor beneficiari care participă la activitățile proiectului;</p><p>Realizarea și transmiterea documentelor de raportare lunară și a livrabilelor aferente, conform cerințelor proiectului și procedurii de raportare.</p>`;
 
-        const rezultateImplicite = `<ul class="lista-oficiala"><li>Planificarea activităților ${selectatLuna} ${selectatAn};</li><li><b>${nrActivitate}</b> liste de prezență;</li><li><b>${nrActivitate}</b> documente proiectare;</li><li><b>${nrMasaCalda}</b> liste ”masă caldă”;</li><li>Materiale educaționale.</li></ul>`;
+        // --- LOGICĂ NOUĂ PENTRU LIVRABILE ȘI REZULTATE ---
         
-        const livrabileImplicite = `<ul class="lista-oficiala"><li>Planificări: ${Array.from(claseSet).map(c => c).join(', ')};</li><li><b>${nrActivitate}</b> Fișe & Liste prezență;</li><li><b>${nrMasaCalda}</b> Liste ”masă caldă”;</li><li>Pontaj ${selectatLuna};</li><li>Orar ${selectatLuna}.</li></ul>`;
+        // Extragem toate clasele individuale (fără duplicate)
+        let listaClaseLivrabile = [];
+        claseSet.forEach(grup => {
+            if (grup) {
+                // Spargem "8A,8A" în "8A", "8A" și verificăm dacă există deja
+                grup.split(',').forEach(c => {
+                    let numeClasa = c.trim();
+                    if (numeClasa && !listaClaseLivrabile.includes(numeClasa)) {
+                        listaClaseLivrabile.push(numeClasa);
+                    }
+                });
+            }
+        });
+        listaClaseLivrabile.sort(); // Le punem în ordine: 5A, 6A...
+
+        const rezultateImplicite = `<ul class="lista-oficiala">
+            <li><b>${nrActivitate}</b> ore de activități remediale susținute;</li>
+            <li><b>${nrActivitate}</b> liste de prezență;</li>
+            <li>Consilierea și sprijinirea elevilor în procesul de învățare.</li>
+        </ul>`;
+
+        const livrabileImplicite = `<ul class="lista-oficiala">
+            <li>Planificări: ${listaClaseLivrabile.join(', ')};</li>
+            <li><b>${nrActivitate}</b> Fișe & Liste prezență;</li>
+            <li><b>${nrMasaCalda}</b> Liste ”masă caldă”;</li>
+            <li>Pontaj ${selectatLuna};</li>
+            <li>Orar ${selectatLuna}.</li>
+        </ul>`;
+        
+        // --- SFÂRȘIT LOGICĂ NOUĂ ---
 
         container.innerHTML = `
         <div class="page">
