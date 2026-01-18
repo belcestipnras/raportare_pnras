@@ -150,56 +150,134 @@
     }
 
     async function incarcaOrar() {
-        const expert = localStorage.getItem('expertPNRAS');
-        const display = document.getElementById('display-area');
-        if (!expert) return;
-        document.getElementById('nume-expert-display').innerText = expert;
+    const expert = localStorage.getItem('expertPNRAS');
+    const display = document.getElementById('display-area');
+    if (!expert) return;
+    document.getElementById('nume-expert-display').innerText = expert;
 
-        const lunaCod = MAP_LUNI_COD[selectatLuna];
-        const profId = `${expert.replace(/\s+/g, '')}_${lunaCod}_${selectatAn}`;
-        const nrC = localStorage.getItem('PNRAS_ORAR_V2_' + profId + '_C') || "...";
-        const nrD = localStorage.getItem('PNRAS_ORAR_V2_' + profId + '_D') || "...";
+    const lunaCod = MAP_LUNI_COD[selectatLuna];
+    
+    // 1. Definim cheia unică pentru numărul de înregistrare în Tabelul 4
+    const tipDocCheie = `INFO_ORAR_${expert.replace(/\s+/g, '')}_${lunaCod}_${selectatAn}`;
 
-        display.innerHTML = "<div style='text-align:center; padding:50px;'>⌛ Se actualizează datele...</div>";
+    // 2. Inițializăm valorile implicite (pentru a asigura afișarea tabelului chiar dacă baza e goală)
+    let nrC = "...";
+    let nrD = "...";
 
-        const { data: pontaje } = await _supabase.from('pontaj_detaliat')
-            .select('*').eq('expert', expert).eq('luna', selectatLuna).eq('an', selectatAn).order('zi', { ascending: true });
+    display.innerHTML = "<div style='text-align:center; padding:50px;'>⌛ Se actualizează datele...</div>";
 
-        if (!pontaje || pontaje.length === 0) {
-            display.innerHTML = `<div class="page" style="justify-content:center; text-align:center; color:#64748b;">
-                <h3>Nu am găsit ore înregistrate</h3>
-                <p>Pentru ${selectatLuna} ${selectatAn}</p>
-            </div>`;
-            return;
+    try {
+        // 3. Încercăm să preluăm datele salvate anterior în Supabase
+        const { data: infoExistenta, error: errorFetch } = await _supabase
+            .from('planificari_documente')
+            .select('continut_json')
+            .eq('tip_document', tipDocCheie)
+            .maybeSingle(); // Folosim maybeSingle pentru a evita erorile dacă nu există rândul
+
+        if (infoExistenta && infoExistenta.continut_json) {
+            nrC = infoExistenta.continut_json.nr_inreg || "...";
+            nrD = infoExistenta.continut_json.data_inreg || "...";
         }
-
-        let det = MAP_EXPERT_DETALII[expert];
-        let totProf = 0; pontaje.forEach(p => totProf += parseFloat(p.nr_ore));
-
-        let html = `<div class="page"><img src="antet_pnras.jpeg" class="antet-img">
-            <div class="nr-inregistrare">Nr. înregistrare: <b>${nrC}</b> / <b>${nrD}</b></div>
-            <h2>Orar individual activități PNRAS</h2>
-            <div class="info-box"><b>Activitatea:</b> ${DESC_ACTIVITATI_FULL[det.act]}<br><b>Disciplina:</b> ${det.desc}<br><b>Expert:</b> ${expert} | <b>Luna:</b> ${selectatLuna} ${selectatAn}</div>
-            <table><thead><tr><th>Data</th><th>Clasa / Grupa</th><th>Interval Orar</th><th>Ore</th></tr></thead><tbody>`;
-
-        let zileP = {}; pontaje.forEach(p => { if(!zileP[p.zi]) zileP[p.zi]=[]; zileP[p.zi].push(p); });
-        Object.keys(zileP).sort((a,b)=>a-b).forEach(z => {
-            let currS = ""; zileP[z].sort((a,b) => ORA_START(a.clase_grupe).localeCompare(ORA_START(b.clase_grupe))).forEach((act, idx) => {
-                if(idx === 0) currS = ORA_START(act.clase_grupe); 
-                let f = adunaTimp(currS, act.nr_ore);
-                html += `<tr><td>${z.toString().padStart(2,'0')}.${lunaCod}.${selectatAn}</td><td>${MAP_CLASE[act.clase_grupe] || act.clase_grupe}</td><td>${currS}-${f}</td><td>${act.nr_ore}</td></tr>`; 
-                currS = f;
-            });
-        });
-        html += `<tr><td colspan="3" class="tabel-total">TOTAL ORE EXPERT:</td><td><b>${totProf}</b></td></tr></tbody></table>
-            <div class="signatures-grid">
-                <div class="sig-block"><div class="sig-role">Întocmit,<br>Expert,</div><div class="sig-name">${expert}</div></div>
-                <div class="sig-block" style="text-align:right;"><div class="sig-role">Avizat,<br>Manager proiect,</div><div class="sig-name">prof. dr. Ciprian MIHAI</div></div>
-                <div class="centered-sig"><div class="sig-role">Aprobat,<br>Director,</div><div class="sig-name">prof. Cătălin Ionuț BAZILUC</div></div>
-            </div></div>`;
-        
-        display.innerHTML = html;
+    } catch (err) {
+        console.error("Eroare la preluare nr. înregistrare:", err);
     }
+
+    // 4. Preluăm datele de pontaj pentru tabel
+    const { data: pontaje } = await _supabase.from('pontaj_detaliat')
+        .select('*')
+        .eq('expert', expert)
+        .eq('luna', selectatLuna)
+        .eq('an', selectatAn)
+        .order('zi', { ascending: true });
+
+    if (!pontaje || pontaje.length === 0) {
+        display.innerHTML = `<div class="page" style="justify-content:center; text-align:center; color:#64748b;">
+            <h3>Nu am găsit ore înregistrate</h3>
+            <p>Pentru ${selectatLuna} ${selectatAn}</p>
+        </div>`;
+        return;
+    }
+
+    let det = MAP_EXPERT_DETALII[expert];
+    let totProf = 0; 
+    pontaje.forEach(p => totProf += parseFloat(p.nr_ore));
+
+    // 5. Construim HTML-ul paginii
+    // Am adăugat ID-uri și contenteditable pentru a permite editarea și salvarea automată
+    let html = `<div class="page"><img src="antet_pnras.jpeg" class="antet-img">
+        <div class="nr-inregistrare">
+            Nr. înregistrare: 
+            <span id="nr_inreg_c" contenteditable="true" onblur="salveazaInfoInregistrare()" style="min-width: 30px; display: inline-block; border-bottom: 1px dashed #ccc;">${nrC}</span> 
+            / 
+            <span id="nr_inreg_d" contenteditable="true" onblur="salveazaInfoInregistrare()" style="min-width: 30px; display: inline-block; border-bottom: 1px dashed #ccc;">${nrD}</span>
+        </div>
+        <h2>Orar individual activități PNRAS</h2>
+        <div class="info-box">
+            <b>Activitatea:</b> ${DESC_ACTIVITATI_FULL[det.act]}<br>
+            <b>Disciplina:</b> ${det.desc}<br>
+            <b>Expert:</b> ${expert} | <b>Luna:</b> ${selectatLuna} ${selectatAn}
+        </div>
+        <table>
+            <thead>
+                <tr><th>Data</th><th>Clasa / Grupa</th><th>Interval Orar</th><th>Ore</th></tr>
+            </thead>
+            <tbody>`;
+
+    let zileP = {}; 
+    pontaje.forEach(p => { if(!zileP[p.zi]) zileP[p.zi]=[]; zileP[p.zi].push(p); });
+    
+    Object.keys(zileP).sort((a,b)=>a-b).forEach(z => {
+        let currS = ""; 
+        zileP[z].sort((a,b) => ORA_START(a.clase_grupe).localeCompare(ORA_START(b.clase_grupe))).forEach((act, idx) => {
+            if(idx === 0) currS = ORA_START(act.clase_grupe); 
+            let f = adunaTimp(currS, act.nr_ore);
+            html += `<tr>
+                <td>${z.toString().padStart(2,'0')}.${lunaCod}.${selectatAn}</td>
+                <td>${MAP_CLASE[act.clase_grupe] || act.clase_grupe}</td>
+                <td>${currS}-${f}</td>
+                <td>${act.nr_ore}</td>
+            </tr>`; 
+            currS = f;
+        });
+    });
+
+    html += `<tr><td colspan="3" class="tabel-total">TOTAL ORE EXPERT:</td><td><b>${totProf}</b></td></tr></tbody></table>
+        <div class="signatures-grid">
+            <div class="sig-block"><div class="sig-role">Întocmit,<br>Expert,</div><div class="sig-name">${expert}</div></div>
+            <div class="sig-block" style="text-align:right;"><div class="sig-role">Avizat,<br>Manager proiect,</div><div class="sig-name">prof. dr. Ciprian MIHAI</div></div>
+            <div class="centered-sig"><div class="sig-role">Aprobat,<br>Director,</div><div class="sig-name">prof. Cătălin Ionuț BAZILUC</div></div>
+        </div></div>`;
+    
+    display.innerHTML = html;
+}
+async function salveazaInfoInregistrare() {
+    const expert = localStorage.getItem('expertPNRAS');
+    const nr_val = document.getElementById('nr_inreg_c').innerText;
+    const data_val = document.getElementById('nr_inreg_d').innerText;
+    
+    // Generăm aceeași cheie ca la încărcare
+    const lunaCod = MAP_LUNI_COD[selectatLuna];
+    const tipDocCheie = `INFO_ORAR_${expert.replace(/\s+/g, '')}_${lunaCod}_${selectatAn}`;
+
+    console.log("Se salvează pentru:", tipDocCheie); // Verificăm în consolă dacă pornește
+
+    const { error } = await _supabase
+        .from('planificari_documente')
+        .upsert({
+            expert: expert,
+            tip_document: tipDocCheie,
+            luna: selectatLuna,
+            an: selectatAn,
+            continut_json: { nr_inreg: nr_val, data_inreg: data_val },
+            updated_at: new Date().toISOString()
+        }, { onConflict: 'tip_document' });
+
+    if (error) {
+        console.error("Eroare la salvare:", error.message);
+    } else {
+        console.log("Salvare reușită în Tabelul 4!");
+    }
+}
 
     window.onload = init;
 </script>
