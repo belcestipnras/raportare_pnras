@@ -172,7 +172,11 @@
         <div style="margin-top:15px; background:#000; padding:10px; border-radius:4px; display:flex; align-items:center; gap:10px;">
             <input type="checkbox" id="fm-check"> <label style="color:#fbbf24; font-weight:bold; font-size:12px;">FĂRĂ MASĂ CALDĂ</label>
         </div>
-        <button class="btn" style="background:var(--accent); color:#000; width:100%; margin-top:15px;" onclick="finalSave()">SALVEAZĂ CLOUD</button>
+        
+        <div style="display: flex; gap: 10px; margin-top: 15px;">
+            <button class="btn" style="background:var(--accent); color:#000; flex: 2;" onclick="finalSave()">SALVEAZĂ CLOUD</button>
+            <button class="btn" style="background:#4b5563; color:#fff; flex: 1;" onclick="document.getElementById('pop-clase').style.display='none'">ÎNCHIDE</button>
+        </div>
     </div>
 </div>
 
@@ -281,11 +285,29 @@
 
     function openO(e,z) { state.exp=e; state.zi=z; document.getElementById('pop-ore').style.display='flex'; }
     function pickH(n) { state.ore=n; document.getElementById('pop-ore').style.display='none'; openC(); }
-    function openC() {
+    
+async function openC() {
         const l = document.getElementById('clase-list'); l.innerHTML = "";
-        for(let i=1;i<=state.ore;i++) l.innerHTML += `<select id="sl-${i}" style="width:100%; margin-top:5px; background:#000; color:#fff; border:1px solid var(--accent); padding:5px;">${experti[state.exp].map(c=>`<option value="${c}">${c}</option>`).join('')}</select>`;
+        
+        const { data: existent } = await supabaseClient.from('pontaj_detaliat')
+            .select('*').match({ expert: state.exp, zi: state.zi, luna: state.luna, an: state.an }).maybeSingle();
+        const sel = existent ? existent.clase_grupe.split(',') : [];
+
+        for(let i=1; i<=state.ore; i++) {
+            const valCurenta = sel[i-1] || experti[state.exp][0];
+            l.innerHTML += `
+                <select id="sl-${i}" style="width:100%; margin-top:5px; background:#000; color:#fff; border:1px solid var(--accent); padding:5px;">
+                    ${experti[state.exp].map(c => {
+                        const nr = ratii[c] || 0;
+                        return `<option value="${c}" ${valCurenta === c ? 'selected' : ''}>${c} (${nr} elevi)</option>`;
+                    }).join('')}
+                </select>`;
+        }
+        
+        document.getElementById('fm-check').checked = existent ? existent.fara_masa : false;
         document.getElementById('pop-clase').style.display='flex';
     }
+
     async function finalSave() {
     let cls = []; 
     for(let i=1; i<=state.ore; i++) {
