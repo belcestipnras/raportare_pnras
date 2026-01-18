@@ -103,7 +103,7 @@
             const params = new URLSearchParams(window.location.search);
             const expert = params.get('expert'), clasaCod = params.get('clasa'), luna = params.get('luna'), an = params.get('an');
             document.getElementById('btn-back').onclick = () => { window.location.href = `dosar-expert.html?expert=${encodeURIComponent(expert)}`; };
-            const { data: pontaje } = await _supabase.from('pontaj_detaliat').select('zi').eq('expert', expert).eq('clase_grupe', clasaCod).eq('luna', luna).eq('an', an).order('zi', { ascending: true });
+            const { data: pontaje } = await _supabase.from('pontaj_detaliat').select('zi').eq('expert', expert).ilike('clase_grupe', `%${clasaCod}%`).eq('luna', luna).eq('an', an).order('zi', { ascending: true });
             if (!pontaje || pontaje.length === 0) { document.getElementById('status-msg').textContent = "⚠️ Nu s-au găsit activități."; return; }
             const { data: elevi } = await _supabase.from('elevi').select('nume_complet').eq('clasa_grupa', clasaCod).order('nume_complet', { ascending: true });
             const master = document.getElementById('master-container');

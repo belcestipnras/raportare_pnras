@@ -287,11 +287,29 @@
         document.getElementById('pop-clase').style.display='flex';
     }
     async function finalSave() {
-        let cls = []; for(let i=1;i<=state.ore;i++) cls.push(document.getElementById(`sl-${i}`).value);
-        const fm = document.getElementById('fm-check').checked;
-        await supabaseClient.from('pontaj_detaliat').upsert({ expert:state.exp, zi:state.zi, luna:state.luna, an:state.an, nr_ore:state.ore, clase_grupe:cls.join(','), fara_masa:fm }, { onConflict:'expert,zi,luna,an' });
-        closeModals(); refresh();
+    let cls = []; 
+    for(let i=1; i<=state.ore; i++) {
+        cls.push(document.getElementById(`sl-${i}`).value);
     }
+    
+    // LINIA NOUĂ: Elimină duplicatele (dacă ai 5A, 5A rămâne doar un 5A)
+    let claseUnice = [...new Set(cls)];
+    
+    const fm = document.getElementById('fm-check').checked;
+    
+    await supabaseClient.from('pontaj_detaliat').upsert({ 
+        expert: state.exp, 
+        zi: state.zi, 
+        luna: state.luna, 
+        an: state.an, 
+        nr_ore: state.ore, 
+        clase_grupe: claseUnice.join(','), // Salvăm lista curată
+        fara_masa: fm 
+    }, { onConflict: 'expert,zi,luna,an' });
+    
+    closeModals(); 
+    refresh();
+}
     async function deleteData() { if(confirm("Ștergi?")) { await supabaseClient.from('pontaj_detaliat').delete().match({ expert:state.exp, zi:state.zi, luna:state.luna, an:state.an }); closeModals(); refresh(); } }
     function closeModals() { document.getElementById('pop-ore').style.display='none'; document.getElementById('pop-clase').style.display='none'; }
     

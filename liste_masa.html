@@ -160,7 +160,14 @@
             globalConfig = { expert: params.get('expert'), clasa: params.get('clasa'), luna: params.get('luna'), an: params.get('an') };
             document.getElementById('btn-back').onclick = () => { window.location.href = `dosar-expert.html?expert=${encodeURIComponent(globalConfig.expert)}`; };
             
-            const { data: pontaje } = await _supabase.from('pontaj_detaliat').select('zi, fara_masa').eq('expert', globalConfig.expert).eq('clase_grupe', globalConfig.clasa).eq('luna', globalConfig.luna).eq('an', globalConfig.an).order('zi', { ascending: true });
+            const { data: pontaje } = await _supabase
+    .from('pontaj_detaliat')
+    .select('zi, fara_masa') // Sau select('*')
+    .eq('expert', globalConfig.expert)
+    .ilike('clase_grupe', `%${globalConfig.clasa}%`)
+    .eq('luna', globalConfig.luna)
+    .eq('an', globalConfig.an)
+    .order('zi', { ascending: true });
             if (!pontaje || pontaje.length === 0) { document.getElementById('status-msg').textContent = "⚠️ Nu s-au găsit activități."; return; }
 
             const { data: elevi } = await _supabase.from('elevi').select('nume_complet').eq('clasa_grupa', globalConfig.clasa).order('nume_complet', { ascending: true });
@@ -212,12 +219,19 @@
                     if (elevi) elevi.forEach((e, i) => adaugaRandElev(tbody, e.nume_complet, i));
                 }
                 master.appendChild(clone);
-            }
-            document.getElementById('status-msg').style.display = 'none';
-        } catch (err) { console.error(err); }
-    }
+            } // Închide bucla FOR (zilele)
 
-    function adaugaRandElev(tbody, nume, i) {
+            // Stingem mesajul aici (Succes)
+            document.getElementById('status-msg').style.display = 'none';
+
+        } catch (err) { 
+            console.error(err); 
+            // Stingem mesajul și aici (Eroare - siguranță)
+            document.getElementById('status-msg').style.display = 'none';
+        }
+    } // ACEASTA este ultima acoladă a funcției incarcaDate
+
+        function adaugaRandElev(tbody, nume, i) {
         const tr = document.createElement('tr');
         tr.innerHTML = `<td class="nr-cell">${i+1}</td><td><input type="text" class="edit-name" value="${nume}"></td><td><input type="checkbox" class="p-check" checked onclick="toggleCheck(this, 'p')"></td><td><input type="checkbox" class="a-check" onclick="toggleCheck(this, 'a')"></td><td></td>`;
         tbody.appendChild(tr);
