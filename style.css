@@ -75,13 +75,13 @@ html, body {
     flex-wrap: wrap; /* Pentru a trece pe rând nou pe mobil */
 }
 
-/* 5. STIL CARD BUTON */
+/* Modifică secțiunea 5 din style.css */
 .menu-card {
     background: white;
     border: 1px solid #edf2f7;
-    flex: 1;
-    min-width: 250px;
-    padding: 40px 20px;
+    flex: 1; /* Această proprietate le va face să crească/scadă egal */
+    min-width: 180px; /* Redus de la 250px pentru a permite 5 pe rând */
+    padding: 40px 10px; /* Redus puțin padding-ul lateral pentru text lung */
     border-radius: 16px;
     cursor: pointer;
     box-shadow: 0 4px 6px rgba(0,0,0,0.04);
@@ -89,7 +89,14 @@ html, body {
     flex-direction: column;
     align-items: center;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    text-decoration: none; /* În caz că sunt link-uri */
+    text-decoration: none;
+}
+
+.menu-card span {
+    font-size: 18px; /* Redus de la 20px pentru a preveni ruperea textului "Achiziții" */
+    font-weight: 600;
+    color: #2d3748;
+    text-align: center;
 }
 
 /* Efect Interactiv */
