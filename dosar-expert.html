@@ -79,6 +79,26 @@
         .btn-exit:hover { background: #ef4444; color: white; }
 
         .empty-hint { grid-column: span 2; grid-row: span 2; display: flex; align-items: center; justify-content: center; color: #475569; font-size: 15px; text-align: center; font-weight: 500; }
+
+/* Stil buton Ajutor - Adăugat */
+        .btn-ajutor {
+            display: block;
+            margin: 20px 15px;
+            padding: 10px;
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--primary);
+            border: 1px solid var(--primary);
+            border-radius: 10px;
+            font-weight: 700;
+            text-decoration: none;
+            text-align: center;
+            font-size: 11px;
+            transition: 0.3s;
+        }
+        .btn-ajutor:hover {
+            background: var(--primary);
+            color: white;
+        }
     </style>
 </head>
 <body>
@@ -132,6 +152,13 @@
             });
             nav.appendChild(grid);
         });
+
+// Inserare buton Ajutor la finalul navigării
+        const btnAjutor = document.createElement('a');
+        btnAjutor.className = 'btn-ajutor';
+        btnAjutor.innerText = 'AJUTĂ-MĂ!';
+        btnAjutor.href = `ajuta.html?expert=${encodeURIComponent(expert)}`;
+        nav.appendChild(btnAjutor);
     }
 
     async function loadClase(luna, an, btnEl) {
