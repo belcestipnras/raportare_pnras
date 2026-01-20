@@ -59,16 +59,15 @@
         .manual-date-cell { background: #fff; border: 1px dashed #ccc; font-weight: bold; cursor: text; padding: 4px; outline: none; text-align: center; }
 
         #lista-obiective { 
-            border: 1px dashed #ccc; 
-            padding: 2px; 
-            margin-top: 5px; 
-            min-height: 1.5em; 
-            outline: none;
-        }
-        #lista-obiective ul { 
-            margin: 0; 
-            padding-left: 20px; 
-        }
+    margin-top: 5px; 
+    margin-bottom: 15px;
+    border: 1px dashed #ccc; 
+    padding: 4px; 
+    min-height: 1.5em; 
+    outline: none;
+    white-space: pre-wrap; /* Asta asigură afișarea corectă a rândurilor */
+}
+/* Poți șterge regula #lista-obiective ul { ... } dacă mai există, nu mai avem nevoie de ea */
 
         .no-print { position: fixed; top: 0; left: 0; width: 100%; background: #1e293b; padding: 15px 20px; display: flex; align-items: center; justify-content: flex-end; gap: 10px; z-index: 1000; box-shadow: 0 2px 10px rgba(0,0,0,0.2); box-sizing: border-box; }
         .btn { padding: 8px 16px; border: none; cursor: pointer; font-weight: bold; border-radius: 6px; font-family: sans-serif; font-size: 14px; transition: 0.2s; }
@@ -82,9 +81,6 @@
         .sig-box { width: 30%; text-align: left; }
         .sig-center { text-align: center; }
         .sig-right { text-align: right; }
-
-        .footer-pnrr { width: 100%; text-align: center; font-size: 10pt; font-family: sans-serif; color: black; border-top: 1px solid #ccc; padding-top: 10px; margin-top: 40px; }
-        .footer-pnrr a { color: black; text-decoration: none; font-weight: bold; }
 
         @media print {
             body { background: white; padding: 0; margin: 0; }
@@ -123,7 +119,7 @@
                 <div style="font-weight: bold;">Clasa: <span id="label-clasa"></span></div>
             </div>
             <strong>Obiective:</strong>
-            <div id="lista-obiective" contenteditable="true"><ul><li></li></ul></div>
+            <div id="lista-obiective" contenteditable="true" onblur="formatObiective(this)"></div>
         </div>
 
         <table class="main-table">
@@ -144,13 +140,7 @@
             <div class="sig-box"><strong>Întocmit,</strong><br>Expert:<br><span id="sig-expert-nume"></span></div>
             <div class="sig-box sig-center"><strong>Avizat,</strong><br>Manager proiect,<br>prof. dr. Ciprian MIHAI</div>
             <div class="sig-box sig-right"><strong>Aprobat,</strong><br>Director,<br>prof. Cătălin Ionuț BAZILUC</div>
-        </div>
-
-        <div class="footer-pnrr">
-            „PNRR. Finanțat de Uniunea Europeană – UrmătoareaGenerațieUE”<br>
-            <a href="https://mfe.gov.ro/pnrr/" target="_blank">https://mfe.gov.ro/pnrr/</a> &nbsp;&nbsp; 
-            <a href="https://www.facebook.com/PNRROficial/" target="_blank">https://www.facebook.com/PNRROficial/</a>
-        </div>
+        </div>     
     </div>
 
 <script>
@@ -289,6 +279,21 @@
         setStatus('saved', '✅ Date sincronizate');
     }
 
+window.formatObiective = function(el) {
+    let text = el.innerText;
+    let lines = text.split('\n').filter(l => l.trim() !== "");
+    
+    if(lines.length > 0) {
+        // Formateaza cu bulina si SCOATE ; sau . de la final
+        el.innerText = lines.map(l => {
+            let curat = l.replace(/^•\s*/, '').trim(); // Scoate bulina veche daca exista
+            curat = curat.replace(/[.;]$/, ''); // SCOATE . sau ; de la final
+            return `• ${curat}`;
+        }).join('\n');
+    }
+    triggerSave();
+}
+
     function renderTable() {
         const tb = document.getElementById('tabel-body'); tb.innerHTML = "";
         localRows.forEach((r, i) => {
@@ -313,14 +318,22 @@
     }
 
     window.bul = function(idx, k, el) {
-        let text = el.innerText;
-        let lines = text.split('\n').filter(l => l.trim() !== "");
-        if(lines.length > 0) {
-             text = lines.map((l, i) => `• ${l.replace(/^• /, '').trim()}${i === lines.length - 1 ? '.' : ';'}`).join('\n');
-        }
-        localRows[idx][k] = text;
-        renderTable(); triggerSave();
+    let text = el.innerText;
+    let lines = text.split('\n').filter(l => l.trim() !== "");
+    
+    if(lines.length > 0) {
+        // Aceeasi logica: curata bulina veche, curata punctuatia finala, pune bulina noua
+        text = lines.map(l => {
+            let curat = l.replace(/^•\s*/, '').trim();
+            curat = curat.replace(/[.;]$/, '');
+            return `• ${curat}`;
+        }).join('\n');
     }
+    
+    localRows[idx][k] = text;
+    renderTable(); 
+    triggerSave();
+}
 
     let t;
     function triggerSave() {
