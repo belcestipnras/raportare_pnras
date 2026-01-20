@@ -124,8 +124,10 @@
     <script>
         const URL_S = 'https://aexjrbdgajurxzngfkpx.supabase.co';
         const KEY_S = 'sb_publishable_KPV__0BA9z4EvRl5eqC0FQ_hmBLOLYv';
-        const OA_KEY = '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';
+        const FUNCTION_URL = 'https://aexjrbdgajurxzngfkpx.supabase.co/functions/v1/chatgpt-pnras';
         
+        // AM ȘTERS OA_KEY de aici pentru siguranță!
+    
         const _sb = supabase.createClient(URL_S, KEY_S);
         let currentId = null; 
         let expertNume = "Necunoscut";
@@ -258,7 +260,7 @@
         }
 
         // --- AI ---
-        async function comunicaCuAI() {
+async function comunicaCuAI() {
             const cmd = document.getElementById('cerinte-ai').value.trim();
             const zona = document.getElementById('zona-dinamica');
             if(!cmd) return;
@@ -270,55 +272,59 @@
             document.getElementById('btn-ai').disabled = true;
             setStatus("AI gândește...");
 
+            // Construim instrucțiunile complete
+            // ATENȚIE: Aici am adăugat semnul ` (backtick) la final care lipsea!
+            const instructiuniSystem = `Ești un profesor expert care redactează o fișă de lucru.
+            REGULI STRICTE:
+            1. Generează DOAR conținutul cerut (exerciții, text, întrebări).
+            2. NU folosi formule de politețe, NU saluta, NU oferi sfaturi.
+            3. Continuă logic textul existent pe foaie.
+            4. Folosește tag-ul <p> pentru fiecare paragraf.
+            5. Folosește tag-ul <b> pentru a evidenția cuvinte cheie.
+            6. Stilul trebuie să fie academic, clar și direct, gata de printat.`;
+
+            const promptFinal = `${instructiuniSystem}\n\nCONTEXT DEJA EXISTENT:\n"${contextText}"\n\nCERINȚĂ NOUĂ:\n${cmd}`;
+
             try {
-                const resp = await fetch('https://api.openai.com/v1/chat/completions', {
+                // APELĂM FUNCȚIA TA SECURIZATĂ DIN SUPABASE
+                const resp = await fetch(FUNCTION_URL, {
                     method: 'POST',
-                    headers: { 'Authorization': `Bearer ${OA_KEY}`, 'Content-Type': 'application/json' },
+                    headers: { 
+                        'Authorization': `Bearer ${KEY_S}`, 
+                        'Content-Type': 'application/json' 
+                    },
                     body: JSON.stringify({
-                        model: "gpt-3.5-turbo",
-                        // AICI ESTE "CREIERUL" NOU:
-                        messages: [
-                            { 
-                                role: "system", 
-                                content: `Ești un profesor expert care redactează o fișă de lucru.
-                                REGULI STRICTE DE GENERARE:
-                                1. Generează DOAR conținutul cerut (exerciții, text, întrebări).
-                                2. NU folosi formule de politețe, NU saluta, NU oferi sfaturi, NU spune "Iată ce am generat".
-                                3. Continuă logic textul existent pe foaie fără să repeți ideile sau exercițiile deja scrise.
-                                4. Folosește tag-ul <p> pentru fiecare paragraf sau rând nou.
-                                5. Folosește tag-ul <b> pentru a evidenția cuvinte cheie.
-                                6. Dacă trebuie să faci o listă, pune fiecare element într-un <p> separat.
-                                7. Stilul trebuie să fie academic, clar și direct, gata de printat.` 
-                            },
-                            { 
-                                role: "user", 
-                                content: `CONTEXT DEJA EXISTENT PE FOAIE (Nu repeta asta):\n"${contextText}"\n\nCERINȚĂ NOUĂ (Execută strict asta):\n${cmd}` 
-                            }
-                        ],
-                        temperature: 0.7 // Creativitate echilibrată
+                        prompt: promptFinal
                     })
                 });
+
+                if (!resp.ok) {
+                    throw new Error(`Eroare server: ${resp.status}`);
+                }
+
                 const data = await resp.json();
                 
-                // Adăugăm conținutul nou la cel existent
-                zona.innerHTML += data.choices[0].message.content;
+                if (data.reply) {
+                    zona.innerHTML += data.reply;
+                } else {
+                    console.error("Răspuns gol:", data);
+                }
                 
                 document.getElementById('cerinte-ai').value = "";
                 
-                // Salvăm automat rezultatul
                 await salveazaFisa();
                 
             } catch (e) { 
-                alert("Eroare AI: Verifică conexiunea sau cheia."); 
+                alert("Eroare la generare. Verifică consola."); 
                 console.error(e);
             }
             finally { 
                 document.getElementById('btn-ai').disabled = false; 
                 setStatus("Generat."); 
             }
-        }
+        }        
 
-        function nouaFisa() {
+         function nouaFisa() {
             currentId = null;
             document.getElementById('titlu-input').value = "";
             document.getElementById('titlu-display').innerText = "TITLU FIȘĂ NOUĂ";
