@@ -38,6 +38,21 @@
         }
         .btn-home { top: 20px; }
         .btn-back { top: 75px; }
+
+.expert-card.admin-special {
+    border: 2px dashed var(--admin);
+    background: #eff6ff;
+}
+.expert-card.admin-special .folder-icon {
+    color: var(--admin);
+}
+.expert-card.admin-special:hover {
+    background: var(--admin);
+    color: white;
+}
+.expert-card.admin-special:hover .folder-icon {
+    color: white;
+}
     </style>
 </head>
 <body>
@@ -92,6 +107,13 @@
                 </div>
             `).join('');
 
+html += `
+                <div class="expert-card admin-special" onclick="accesAdmin()">
+                    <div class="folder-icon">🛡️</div>
+                    <div class="expert-name">Mihai Ciprian<br><small>Admin Control</small></div>
+                </div>
+            `;
+
             // 2. Adăugăm la final folderul administrativ (Notă Comandă)
             html += `
                 <div class="expert-card admin-card" onclick="window.location.href='nota_comanda_masa.html'">
@@ -101,6 +123,16 @@
             `;
 
             grid.innerHTML = html;
+        }
+
+function accesAdmin() {
+            const parolaIntroduca = prompt("Introduceți parola de administrator:");
+            
+            if (parolaIntroduca === "Geografie123") {
+                window.location.href = 'admin_verificare.html';
+            } else if (parolaIntroduca !== null) {
+                alert("Parolă incorectă! Acces refuzat.");
+            }
         }
 
         function deschideModal(nume) {
