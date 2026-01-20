@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <title>PNRAS MANAGER - HIGH CONTRAST</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --header-bg: #1e293b; /* Contrast închis pentru header expert */
+            --header-text: #ffffff;
+            --border: #e2e8f0;
+            --primary: #3b82f6; 
+            --success: #10b981; 
+            --danger: #ef4444;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+        }
+
+        body {
+            background-color: var(--bg); color: var(--text-main);
+            font-family: 'Inter', sans-serif; margin: 0; padding: 25px;
+        }
+
+        /* --- DASHBOARD HEADER --- */
+        .top-panel {
+            background: #fff; padding: 20px; border-radius: 12px;
+            border: 1px solid var(--border); margin-bottom: 30px;
+            display: flex; justify-content: space-between; align-items: center;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        }
+        .brand h1 { margin: 0; font-size: 1.6rem; font-weight: 800; color: #1e293b; letter-spacing: -0.5px; }
+        .brand span { color: var(--primary); font-size: 0.9rem; font-weight: 600; }
+
+        .controls { display: flex; gap: 10px; }
+        select, .btn {
+            padding: 10px 15px; border: 1px solid var(--border); border-radius: 6px;
+            background: #fff; font-weight: 600; cursor: pointer; color: var(--text-main);
+        }
+        .btn-print { background: #1e293b; color: white; border: none; }
+        .btn-print:hover { background: #0f172a; }
+
+        /* --- STATS ROW --- */
+        .kpi-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 15px; margin-bottom: 30px; }
+        .kpi-card {
+            background: #fff; padding: 20px; border-radius: 10px; border: 1px solid var(--border);
+            display: flex; flex-direction: column; position: relative; overflow: hidden;
+        }
+        .kpi-card::after { content:''; position: absolute; left:0; top:0; height:100%; width:4px; background: var(--primary); }
+        .kpi-card.valid::after { background: var(--success); }
+        
+        .kpi-label { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; }
+        .kpi-val { font-size: 1.8rem; font-weight: 800; margin-top: 5px; color: #1e293b; }
+
+        /* --- EXPERT CARD (HIGH CONTRAST) --- */
+        .expert-card {
+            background: #fff; border-radius: 12px; overflow: hidden;
+            border: 1px solid var(--border); margin-bottom: 25px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+        }
+
+        /* HEADER CU CONTRAST */
+        .card-header {
+            background: var(--header-bg); color: var(--header-text);
+            padding: 20px 25px; display: grid; grid-template-columns: 350px 1fr 200px;
+            align-items: center; gap: 20px; cursor: pointer; transition: 0.2s;
+        }
+        .card-header:hover { background: #0f172a; }
+
+        /* Profil Expert */
+        .profile { display: flex; align-items: center; gap: 15px; }
+        .avatar {
+            width: 50px; height: 50px; background: rgba(255,255,255,0.1); border-radius: 8px;
+            display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 1.2rem; border: 1px solid rgba(255,255,255,0.2);
+        }
+        .info h3 { margin: 0; font-size: 1.1rem; font-weight: 700; }
+        .info .meta { font-size: 0.8rem; color: #94a3b8; display: flex; gap: 10px; margin-top: 4px; }
+        .meta i { color: var(--primary); }
+
+        /* Bara Progres */
+        .progress-container { width: 100%; display: flex; flex-direction: column; justify-content: center; padding: 0 20px; }
+        .progress-labels { display: flex; justify-content: space-between; font-size: 0.75rem; color: #94a3b8; margin-bottom: 5px; font-weight: 600; }
+        .progress-track { width: 100%; height: 8px; background: rgba(255,255,255,0.1); border-radius: 4px; overflow: hidden; }
+        .progress-fill { height: 100%; background: var(--success); width: 0%; transition: width 0.5s ease; }
+
+        /* Istoric */
+        .history-badge {
+            text-align: right; font-size: 0.75rem; color: #cbd5e1; font-weight: 500;
+            background: rgba(255,255,255,0.05); padding: 8px 12px; border-radius: 6px;
+        }
+
+        /* --- CARD BODY (Documente) --- */
+        .card-body { padding: 25px; display: none; background: #fff; }
+        .card-body.open { display: block; }
+
+        /* Sectiuni */
+        .section-label { 
+            font-size: 0.75rem; font-weight: 800; color: #94a3b8; margin-bottom: 10px; 
+            text-transform: uppercase; letter-spacing: 1px; border-bottom: 1px solid #f1f5f9; padding-bottom: 5px;
+        }
+
+        /* Grid Documente */
+        .docs-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px; }
+        
+        .doc-item {
+            border: 1px solid var(--border); border-radius: 8px; padding: 8px 12px;
+            display: flex; justify-content: space-between; align-items: center; background: #f8fafc;
+        }
+        .doc-info { font-size: 0.85rem; font-weight: 600; color: #334155; display: flex; align-items: center; gap: 8px; }
+        
+        /* Actions */
+        .actions { display: flex; gap: 5px; }
+        .action-btn {
+            width: 32px; height: 32px; border-radius: 6px; border: 1px solid #cbd5e1;
+            display: flex; align-items: center; justify-content: center; cursor: pointer;
+            background: white; color: #64748b; transition: 0.2s;
+        }
+        .action-btn:hover { border-color: var(--primary); color: var(--primary); transform: translateY(-2px); }
+
+        /* Stare Validat */
+        .is-valid .action-btn.btn-check { 
+            background: var(--success); color: white; border-color: var(--success); 
+        }
+        .is-valid .doc-info { color: var(--success); }
+        .doc-item.is-valid { border-color: var(--success); background: #ecfdf5; }
+
+        /* Print Mode */
+        @media print {
+            body { background: white; padding: 0; }
+            .top-panel, .no-print { display: none !important; }
+            .expert-card { border: 1px solid #000; break-inside: avoid; box-shadow: none; margin-bottom: 30px; }
+            .card-header { background: #eee !important; color: black !important; border-bottom: 1px solid #000; }
+            .info .meta, .history-badge { color: #000 !important; }
+            .avatar { border: 1px solid #000 !important; color: black !important; }
+            .card-body { display: block !important; }
+            .progress-track { border: 1px solid #000; }
+            .progress-fill { background: #000 !important; }
+            .doc-item { border: 1px solid #ccc; }
+            .is-valid .btn-check { background: black !important; color: white !important; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="top-panel no-print">
+    <div class="brand">
+        <h1>PNRAS MANAGER V9</h1>
+        <span>Panou Control & Validare</span>
+    </div>
+    <div class="controls">
+        <select id="selLuna" onchange="initApp()">
+            <option value="Ianuarie">Ianuarie</option><option value="Februarie">Februarie</option>
+            <option value="Martie">Martie</option><option value="Aprilie">Aprilie</option>
+            <option value="Mai">Mai</option><option value="Iunie">Iunie</option>
+        </select>
+        <select id="selAn" onchange="initApp()">
+            <option value="2025" selected>2025</option><option value="2026">2026</option>
+        </select>
+        <button class="btn btn-print" onclick="window.print()">
+            <i class="fa-solid fa-print"></i> Printează Raport
+        </button>
+    </div>
+</div>
+
+<div class="kpi-row">
+    <div class="kpi-card">
+        <span class="kpi-label">Experți</span>
+        <span class="kpi-val" id="st-exp">0</span>
+    </div>
+    <div class="kpi-card">
+        <span class="kpi-label">Total Ore</span>
+        <span class="kpi-val" id="st-ore">0</span>
+    </div>
+    <div class="kpi-card">
+        <span class="kpi-label">Activități Generate</span>
+        <span class="kpi-val" id="st-gen">0</span>
+    </div>
+    <div class="kpi-card valid">
+        <span class="kpi-label">Validate de tine</span>
+        <span class="kpi-val" style="color:var(--success)" id="st-val">0</span>
+    </div>
+    <div class="kpi-card">
+        <span class="kpi-label">Progres General</span>
+        <span class="kpi-val" style="color:var(--primary)" id="st-prog">0%</span>
+    </div>
+</div>
+
+<div id="main-list">
+    <div style="text-align:center; padding:50px; color:#64748b;">
+        <i class="fa-solid fa-circle-notch fa-spin fa-2x"></i><br>Se încarcă datele...
+    </div>
+</div>
+
+<script>
+    const supabaseUrl = 'https://aexjrbdgajurxzngfkpx.supabase.co';
+    const supabaseKey = 'sb_publishable_KPV__0BA9z4EvRl5eqC0FQ_hmBLOLYv';
+    const _db = supabase.createClient(supabaseUrl, supabaseKey);
+
+    let DB = {};
+
+    async function initApp() {
+        const luna = document.getElementById('selLuna').value;
+        const an = document.getElementById('selAn').value;
+        
+        try {
+            const [rP, rD, rO, rDt] = await Promise.all([
+                _db.from('pontaj_detaliat').select('*').match({ luna, an: parseInt(an) }),
+                _db.from('planificari_documente').select('*'), // Luam tot pt istoric, filtram local
+                _db.from('orare_salvate').select('*'),
+                _db.from('documente_date').select('*').match({ luna, an })
+            ]);
+
+            DB = {
+                pontaj: rP.data || [],
+                docs: rD.data || [],
+                orare: rO.data || [],
+                date: rDt.data || []
+            };
+
+            renderUI(luna, an);
+
+        } catch (e) {
+            console.error(e);
+            alert("Eroare conexiune: " + e.message);
+        }
+    }
+
+    function renderUI(luna, an) {
+        const container = document.getElementById('main-list');
+        container.innerHTML = '';
+
+        // 1. Grupare Experți
+        let experts = {};
+        DB.pontaj.forEach(p => {
+            if(!experts[p.expert]) experts[p.expert] = { nume: p.expert, ore: 0, clase: new Set() };
+            experts[p.expert].ore += (p.nr_ore || 0);
+            if(p.clase_grupe) p.clase_grupe.split(',').forEach(c => experts[p.expert].clase.add(c.trim()));
+        });
+
+        const sorted = Object.values(experts).sort((a,b) => a.nume.localeCompare(b.nume));
+        
+        let kpi = { exp: sorted.length, ore: 0, gen: 0, val: 0, total: 0 };
+
+        sorted.forEach((exp, idx) => {
+            const claseArr = Array.from(exp.clase).sort();
+            kpi.ore += exp.ore;
+
+            // Calcul Documente Globale
+            const sOrar = getDocStatus(exp.nume, 'GLOBAL', 'ORAR', luna, an);
+            const sPont = getDocStatus(exp.nume, 'GLOBAL', 'PONT', luna, an);
+            const sRapo = getDocStatus(exp.nume, 'GLOBAL', 'RAP', luna, an);
+
+            // Calcul Documente Clase
+            let classDocsHTML = '';
+            let expTotalDocs = 3; // Orar, Pont, Rap
+            let expValidDocs = (sOrar.val?1:0) + (sPont.val?1:0) + (sRapo.val?1:0);
+            let expGenDocs = (sOrar.gen?1:0) + (sPont.gen?1:0) + (sRapo.gen?1:0);
+
+            if (claseArr.length > 0) {
+                claseArr.forEach(cls => {
+                    const sPlan = getDocStatus(exp.nume, cls, 'PLAN', luna, an);
+                    const sFisa = getDocStatus(exp.nume, cls, 'FISA', luna, an);
+                    const sPrez = getDocStatus(exp.nume, cls, 'PREZ', luna, an);
+                    const sMasa = getDocStatus(exp.nume, cls, 'MASA', luna, an);
+
+                    expTotalDocs += 4;
+                    if(sPlan.val) expValidDocs++; if(sFisa.val) expValidDocs++; 
+                    if(sPrez.val) expValidDocs++; if(sMasa.val) expValidDocs++;
+                    
+                    if(sPlan.gen) expGenDocs++; if(sFisa.gen) expGenDocs++; 
+                    if(sPrez.gen) expGenDocs++; if(sMasa.gen) expGenDocs++;
+
+                    classDocsHTML += `
+                        <div class="section-label" style="margin-top:10px;">CLASA ${cls}</div>
+                        <div class="docs-grid">
+                            ${renderDoc('Planificare', 'fa-calendar', 'planificare.html', sPlan, exp.nume, cls, luna, an)}
+                            ${renderDoc('Fișă Activitate', 'fa-file-lines', 'fise.html', sFisa, exp.nume, cls, luna, an)}
+                            ${renderDoc('Prezență', 'fa-users', 'liste_prezenta.html', sPrez, exp.nume, cls, luna, an)}
+                            ${renderDoc('Masă Caldă', 'fa-utensils', 'liste_masa.html', sMasa, exp.nume, cls, luna, an)}
+                        </div>
+                    `;
+                });
+            }
+
+            // Calcul Progres
+            const percent = Math.round((expValidDocs / expTotalDocs) * 100) || 0;
+            
+            // Calcul Istoric (Ultima modificare din DB.docs)
+            const lastActive = getLastActive(exp.nume);
+
+            // Update KPI Global
+            kpi.total += expTotalDocs;
+            kpi.val += expValidDocs;
+            kpi.gen += expGenDocs;
+
+            // HTML CARD
+            const card = document.createElement('div');
+            card.className = 'expert-card';
+            card.innerHTML = `
+                <div class="card-header" onclick="toggleCard(${idx})">
+                    <div class="profile">
+                        <div class="avatar">${getInitials(exp.nume)}</div>
+                        <div class="info">
+                            <h3>${exp.nume}</h3>
+                            <div class="meta">
+                                <span><i class="fa-solid fa-clock"></i> ${exp.ore} ore</span>
+                                <span><i class="fa-solid fa-layer-group"></i> ${claseArr.length} clase</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="progress-container">
+                        <div class="progress-labels">
+                            <span>Progres Validare</span>
+                            <span>${expValidDocs} / ${expTotalDocs}</span>
+                        </div>
+                        <div class="progress-track">
+                            <div class="progress-fill" style="width:${percent}%"></div>
+                        </div>
+                    </div>
+
+                    <div class="history-badge">
+                        <i class="fa-solid fa-history"></i> ${lastActive}
+                    </div>
+                </div>
+
+                <div class="card-body" id="body-${idx}">
+                    <div class="section-label">DOCUMENTE GLOBALE</div>
+                    <div class="docs-grid">
+                        ${renderDoc('Orar Individual', 'fa-clock', 'orar_individual.html', sOrar, exp.nume, 'GLOBAL', luna, an)}
+                        ${renderDoc('Pontaj Lunar', 'fa-stopwatch', 'pontaj_individual.html', sPont, exp.nume, 'GLOBAL', luna, an)}
+                        ${renderDoc('Raport Activitate', 'fa-chart-pie', 'raport.html', sRapo, exp.nume, 'GLOBAL', luna, an)}
+                    </div>
+                    ${classDocsHTML}
+                </div>
+            `;
+            container.appendChild(card);
+        });
+
+        // Update Stats
+        document.getElementById('st-exp').innerText = kpi.exp;
+        document.getElementById('st-ore').innerText = kpi.ore;
+        document.getElementById('st-gen').innerText = kpi.gen;
+        document.getElementById('st-val').innerText = kpi.val;
+        document.getElementById('st-prog').innerText = kpi.total > 0 ? Math.round((kpi.val/kpi.total)*100) + '%' : '0%';
+    }
+
+    // --- HELPERS ---
+
+    function renderDoc(label, icon, file, status, expert, clasa, luna, an) {
+        const isValid = status.val;
+        const isGen = status.gen;
+        const cls = isValid ? 'is-valid' : '';
+        const url = `${file}?expert=${encodeURIComponent(expert)}&clasa=${encodeURIComponent(clasa)}&luna=${luna}&an=${an}&admin=true`;
+
+        return `
+        <div class="doc-item ${cls}">
+            <div class="doc-info">
+                <i class="fa-solid ${icon}"></i> ${label}
+            </div>
+            <div class="actions">
+                <div class="action-btn" title="Deschide" onclick="window.open('${url}', '_blank')">
+                    <i class="fa-solid fa-eye"></i>
+                </div>
+                <div class="action-btn btn-check" title="Validează" onclick="toggleValid('${status.key}', ${isValid})">
+                    <i class="fa-solid fa-check"></i>
+                </div>
+            </div>
+        </div>`;
+    }
+
+    function getDocStatus(expert, clasa, type, luna, an) {
+        let gen = false;
+        
+        // Logica generare (daca exista fisierul creat de expert)
+        if(type === 'ORAR') {
+            const o = DB.orare.find(x => x.expert === expert && x.luna_an === `${luna}_${an}`);
+            if(o && o.continut_html && o.continut_html.includes('box-cifre">')) {
+                if(o.continut_html.split('box-cifre">')[1].split('</span>')[0].trim().length > 0) gen = true;
+            }
+        } else if (type === 'PONT') {
+            gen = DB.date.some(d => d.expert === expert && d.tip_document === 'Pontaj individual');
+        } else if (type === 'RAP') {
+            // Filtram docs doar pt luna curenta pt raportare generare
+            const currentDocs = DB.docs.filter(d => d.luna === luna && d.an === an);
+            gen = currentDocs.some(d => d.expert === expert && d.tip_document.includes('RAP'));
+        } else {
+            const currentDocs = DB.docs.filter(d => d.luna === luna && d.an === an);
+            gen = currentDocs.some(d => d.expert === expert && d.tip_document.includes(type) && d.tip_document.includes(clasa));
+        }
+
+        // Logica validare (din DB.docs dar cu cheia speciala)
+        const validKey = `VALID_${expert.replace(/\s/g,'')}_${type}_${clasa}_${luna}_${an}`;
+        const val = DB.docs.some(d => d.tip_document === validKey);
+
+        return { gen, val, key: validKey };
+    }
+
+    async function toggleValid(key, currentStatus) {
+        const luna = document.getElementById('selLuna').value;
+        const an = document.getElementById('selAn').value;
+
+        if(currentStatus) {
+            await _db.from('planificari_documente').delete().eq('tip_document', key);
+        } else {
+            await _db.from('planificari_documente').insert({
+                expert: 'ADMIN',
+                tip_document: key,
+                luna: luna,
+                an: an,
+                continut_json: { validated: true, ts: new Date() }
+            });
+        }
+        // Refresh rapid fara full reload visual
+        initApp(); 
+    }
+
+    function getLastActive(expert) {
+        // Cautam in toate documentele (indiferent de luna)
+        const docs = DB.docs.filter(d => d.expert === expert);
+        if(docs.length === 0) return "Inactiv";
+        
+        // Sortam descrescator dupa updated_at (daca exista) sau created_at
+        // Supabase returneaza created_at implicit daca nu selectam altceva, dar planificari_documente are updated_at
+        const dates = docs.map(d => new Date(d.updated_at || d.created_at)).sort((a,b) => b - a);
+        const last = dates[0];
+        
+        const diff = Math.floor((new Date() - last) / (1000 * 60 * 60 * 24));
+        if(diff === 0) return "Azi";
+        if(diff === 1) return "Ieri";
+        return `Acum ${diff} zile`;
+    }
+
+    function toggleCard(idx) {
+        const b = document.getElementById(`body-${idx}`);
+        b.classList.toggle('open');
+    }
+
+    function getInitials(name) {
+        return name.split(' ').map(n=>n[0]).join('').substring(0,2);
+    }
+
+    window.onload = initApp;
+</script>
+</body>
+</html>
