@@ -284,11 +284,12 @@ window.formatObiective = function(el) {
     let lines = text.split('\n').filter(l => l.trim() !== "");
     
     if(lines.length > 0) {
-        // Formateaza cu bulina si SCOATE ; sau . de la final
+        // Logica noua: Doar adauga bulina, NU sterge punctul sau ; de la final
         el.innerText = lines.map(l => {
-            let curat = l.replace(/^•\s*/, '').trim(); // Scoate bulina veche daca exista
-            curat = curat.replace(/[.;]$/, ''); // SCOATE . sau ; de la final
-            return `• ${curat}`;
+            // Curata doar bulina veche daca exista, ca sa nu le dublam
+            let curat = l.replace(/^•\s*/, '').trim(); 
+            // Returneaza textul exact cum l-ai scris tu, dar cu bulina in fata
+            return `• ${curat}`; 
         }).join('\n');
     }
     triggerSave();
@@ -322,11 +323,9 @@ window.formatObiective = function(el) {
     let lines = text.split('\n').filter(l => l.trim() !== "");
     
     if(lines.length > 0) {
-        // Aceeasi logica: curata bulina veche, curata punctuatia finala, pune bulina noua
         text = lines.map(l => {
             let curat = l.replace(/^•\s*/, '').trim();
-            curat = curat.replace(/[.;]$/, '');
-            return `• ${curat}`;
+            return `• ${curat}`; // Pastreaza punctuatia originala
         }).join('\n');
     }
     
