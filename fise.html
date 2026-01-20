@@ -6,79 +6,35 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         @page { size: A4; margin: 1.5cm; }
-        
         body { background: #f0f2f5; margin: 0; padding: 80px 0; font-family: "Times New Roman", serif; }
-        
-        /* BARA DE CONTROL ACTUALIZATĂ */
-        /* BARA DE CONTROL PE UN SINGUR RÂND */
-        /* BARA DE CONTROL COMPACTĂ - UN SINGUR RÂND */
         .no-print { 
             position: fixed; top: 0; left: 0; width: 100%; 
             background: #1e293b; padding: 10px 20px; 
-            display: grid; 
-            grid-template-columns: auto 1fr auto; 
-            align-items: center;
-            z-index: 1000; box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-            box-sizing: border-box;
-            gap: 15px;
+            display: grid; grid-template-columns: auto 1fr auto; 
+            align-items: center; z-index: 1000; box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            box-sizing: border-box; gap: 15px;
         }
-
         .nav-left { display: flex; gap: 15px; align-items: center; white-space: nowrap; }
         .nav-center { display: flex; justify-content: center; gap: 10px; }
-        .nav-right { display: flex; justify-content: flex-end; align-items: center; }
-
-        /* Ajustare dimensiune butoane pentru a garanta spațiul pe un rând */
+        .nav-right { display: flex; justify-content: flex-end; align-items: center; gap: 8px; }
         .btn { padding: 8px 16px; border: none; cursor: pointer; font-weight: bold; border-radius: 8px; font-family: sans-serif; transition: 0.2s; font-size: 13px; }
         .btn-print { background: #3b82f6; color: white; box-shadow: 0 4px 14px rgba(59, 130, 246, 0.4); }
-
-        .page { 
-            background: white; width: 210mm; min-height: 297mm; 
-            padding: 1.5cm; margin: 0 auto 30px auto;
-            box-sizing: border-box; box-shadow: 0 4px 20px rgba(0,0,0,0.08); 
-            display: flex; flex-direction: column;
-            page-break-after: always;
-        }
-
+        .btn-back { background: #475569; color: white; }
+        .btn-reset { background: #ef4444; color: white; }
+        .page { background: white; width: 210mm; min-height: 297mm; padding: 1.5cm; margin: 0 auto 30px auto; box-sizing: border-box; box-shadow: 0 4px 20px rgba(0,0,0,0.08); display: flex; flex-direction: column; page-break-after: always; }
         .antet-img { width: 100%; height: auto; margin-bottom: 10px; }
         .titlu-fisa { text-align: center; font-size: 16pt; font-weight: bold; margin: 15px 0; text-transform: uppercase; color: #1e293b; }
-        
-        /* CARD INFO */
-        .info-card { 
-            background: #ffffff; padding: 25px; border-radius: 12px; 
-            border: 1px solid #e2e8f0; border-left: 6px solid #2563eb;
-            margin-bottom: 30px; box-shadow: 0 2px 15px rgba(37, 99, 235, 0.05);
-            display: flex; flex-direction: column; gap: 12px;
-        }
+        .info-card { background: #ffffff; padding: 25px; border-radius: 12px; border: 1px solid #e2e8f0; border-left: 6px solid #2563eb; margin-bottom: 30px; box-shadow: 0 2px 15px rgba(37, 99, 235, 0.05); display: flex; flex-direction: column; gap: 12px; }
         .info-row { display: flex; align-items: flex-start; border-bottom: 1px solid #f1f5f9; padding-bottom: 8px; }
-        .info-row:last-child { border-bottom: none; padding-bottom: 0; }
         .info-label { min-width: 110px; font-family: sans-serif; font-size: 9pt; font-weight: 700; color: #64748b; text-transform: uppercase; }
         .info-value { font-size: 11.5pt; color: #1e293b; font-weight: 500; }
-
-        /* SECȚIUNI */
         .sectiune { margin-top: 15px; display: flex; flex-direction: column; position: relative; padding-left: 18px; width: 100%; box-sizing: border-box; }
         .sectiune-titlu { font-weight: bold; font-size: 10pt; color: #2563eb; text-transform: uppercase; margin-bottom: 6px; display: flex; align-items: center; gap: 8px; font-family: sans-serif; }
         .sectiune::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 5px; background: #2563eb; border-radius: 3px; }
-        
         .caseta { border: 1px solid #cbd5e1; padding: 12px; border-radius: 0 8px 8px 8px; min-height: 1.4em; font-size: 11.5pt; outline: none; white-space: pre-wrap; width: 100%; box-sizing: border-box; background: #fff; color: #000; }
-
         .signature-block { margin-top: 40px; padding: 20px; border: 1px dashed #cbd5e1; border-radius: 12px; background: #fcfcfc; }
-
-        /* BUTOANE */
-        .btn { padding: 10px 20px; border: none; cursor: pointer; font-weight: bold; border-radius: 8px; font-family: sans-serif; transition: 0.2s; font-size: 13px; }
-        .btn-print { background: #3b82f6; color: white; font-size: 15px; padding: 12px 40px; box-shadow: 0 4px 14px rgba(59, 130, 246, 0.4); }
-        .btn-back { background: #475569; color: white; }
-        .btn-reset { background: #ef4444; color: white; }
-        .btn:hover { opacity: 0.9; transform: translateY(-1px); }
-
-        #save-status { color: #10b981; font-family: sans-serif; font-size: 13px; font-weight: 600; }
-
-        @media print {
-            body { background: white; padding: 0; }
-            .no-print { display: none; }
-            .page { margin: 0; box-shadow: none; width: 100%; }
-            .caseta { border: 1px solid #94a3b8 !important; }
-            .info-card { border: 1px solid #cbd5e1 !important; border-left: 6px solid #2563eb !important; background: #fff !important; }
-        }
+        #save-status { color: #10b981; font-family: sans-serif; font-size: 13px; font-weight: 600; margin-left: 10px; }
+        @media print { body { background: white; padding: 0; } .no-print { display: none; } .page { margin: 0; box-shadow: none; width: 100%; } }
     </style>
 </head>
 <body>
@@ -88,33 +44,25 @@
             <button id="btn-back-dinamic" class="btn btn-back">⬅️ Înapoi</button>
             <div id="save-status"></div>
         </div>
-        
         <div class="nav-center">
             <button class="btn btn-print" onclick="window.print()">🖨️ PRINTEAZĂ TOT</button>
             <button class="btn" style="background: #8b5cf6; color: white;" onclick="completeazaToateFiseleAI()">✨ Completează tot cu AI</button>
         </div>
-
         <div class="nav-right">
-            <button class="btn btn-reset" onclick="reseteazaLaPlanificare()">🧹 Reset (Planificare)</button>
+            <button class="btn" style="background: #059669; color: white;" onclick="document.getElementById('input-fise').click()">📄 Încarcă Fișă</button>
+            <button class="btn" style="background: #d97706; color: white;" onclick="document.getElementById('input-foto').click()">📸 Fotografii</button>
+            <button class="btn btn-reset" onclick="reseteazaLaPlanificare()">🧹 Reset</button>
+            <input type="file" id="input-fise" style="display: none;" accept="application/pdf" onchange="incarcaInCloud(this, 'FISA')">
+            <input type="file" id="input-foto" style="display: none;" accept="image/*" onchange="incarcaInCloud(this, 'FOTO')">
         </div>
     </div>
-<div class="nav-right">
-    <button class="btn" style="background: #059669; color: white; margin-right: 8px;" 
-            onclick="document.getElementById('input-fise').click()">📄 Încarcă Fișă</button>
-    
-    <button class="btn" style="background: #d97706; color: white; margin-right: 15px;" 
-            onclick="document.getElementById('input-foto').click()">📸 Fotografii</button>
-      
-    <input type="file" id="input-fise" style="display: none;" accept="application/pdf" 
-           onchange="incarcaInCloud(this, 'FISA')">
-    <input type="file" id="input-foto" style="display: none;" accept="image/*" 
-           onchange="incarcaInCloud(this, 'FOTO')">
-</div>
+
     <div id="container-fise"></div>
 
 <script>
     const URL_S = 'https://aexjrbdgajurxzngfkpx.supabase.co';
     const KEY_S = 'sb_publishable_KPV__0BA9z4EvRl5eqC0FQ_hmBLOLYv';
+    const FUNCTION_URL = `${URL_S}/functions/v1/chatgpt-pnras`;
     const supabaseClient = supabase.createClient(URL_S, KEY_S);
 
     const params = new URLSearchParams(window.location.search);
@@ -124,26 +72,25 @@
         idData: `DATA_${params.get('expert')}_${params.get('clasa')}_${params.get('luna')}_${params.get('an')}`
     };
 
-    // LOGICA BUTON BACK DINAMIC
     document.getElementById('btn-back-dinamic').onclick = () => {
         window.location.href = `dosar-expert.html?expert=${encodeURIComponent(config.expert)}`;
     };
 
     const dbExperti = {
-        "Angheluș Raluca": { act: "A II.4. Activități remediale și diverse activități pedagogice și de sprijin", disc: "Activități remediale la limba și literatura română" },
-        "Baziluc Ana Maria": { act: "A II.4. Activități remediale și diverse activități pedagogice și de sprijin", disc: "Activități remediale la limba și literatura română" },
-        "Ghemeș Anca": { act: "A II.4. Activități remediale și diverse activități pedagogice și de sprijin", disc: "Activități remediale la limba și literatura română" },
-        "Arotăriței Dănuț": { act: "A II.4. Activități remediale și diverse activități pedagogice și de sprijin", disc: "Activități remediale la matematică" },
-        "Boldan Ovidiu": { act: "A II.4. Activități remediale și diverse activități pedagogice și de sprijin", disc: "Activități remediale la matematică" },
-        "Popovici Estera": { act: "A II.4. Activități remediale și diverse activități pedagogice și de sprijin", disc: "Activități remediale la matematică" },
-        "Iftene Ana Maria": { act: "A II.4. Activități remediale și diverse activități pedagogice și de sprijin", disc: "Activități remediale la matematică" },
-        "Albu Ștefan": { act: "A II.5. Activități extracurriculare și de educație non-formală", disc: "Clubul de activități sportive și outdoor" },
-        "Marele Daniela": { act: "A II.5. Activități extracurriculare și de educație non-formală", disc: "Clubul de pictură" },
-        "Tanasă Liliana": { act: "A II.5. Activități extracurriculare și de educație non-formală", disc: "Clubul de muzică" },
-        "Popa Gabriela": { act: "A II.5. Activități extracurriculare și de educație non-formală", disc: "Clubul de dansuri" },
-        "Nohai Iuliana": { act: "A II.5. Activități extracurriculare și de educație non-formală", disc: "Clubul de științe" },
-        "Nohai Vili": { act: "A II.5. Activități extracurriculare și de educație non-formală", disc: "Clubul de științe" },
-        "Aparascăi Vasile": { act: "A II.6. Activități de dezvoltare a abilităților de literație", disc: "Clubul de lectură și literație" }
+        "Angheluș Raluca": { act: "A II.4. Activități remediale", disc: "Activități remediale la limba și literatura română" },
+        "Baziluc Ana Maria": { act: "A II.4. Activități remediale", disc: "Activități remediale la limba și literatura română" },
+        "Ghemeș Anca": { act: "A II.4. Activități remediale", disc: "Activități remediale la limba și literatura română" },
+        "Arotăriței Dănuț": { act: "A II.4. Activități remediale", disc: "Activități remediale la matematică" },
+        "Boldan Ovidiu": { act: "A II.4. Activități remediale", disc: "Activități remediale la matematică" },
+        "Popovici Estera": { act: "A II.4. Activități remediale", disc: "Activități remediale la matematică" },
+        "Iftene Ana Maria": { act: "A II.4. Activități remediale", disc: "Activități remediale la matematică" },
+        "Albu Ștefan": { act: "A II.5. Activități extracurriculare", disc: "Clubul de activități sportive și outdoor" },
+        "Marele Daniela": { act: "A II.5. Activități extracurriculare", disc: "Clubul de pictură" },
+        "Tanasă Liliana": { act: "A II.5. Activități extracurriculare", disc: "Clubul de muzică" },
+        "Popa Gabriela": { act: "A II.5. Activități extracurriculare", disc: "Clubul de dansuri" },
+        "Nohai Iuliana": { act: "A II.5. Activități extracurriculare", disc: "Clubul de științe" },
+        "Nohai Vili": { act: "A II.5. Activități extracurriculare", disc: "Clubul de științe" },
+        "Aparascăi Vasile": { act: "A II.6. Activități literație", disc: "Clubul de lectură și literație" }
     };
 
     function applySmartBullets(text) {
@@ -167,22 +114,14 @@
             });
         });
         await supabaseClient.from('planificari_documente').upsert({ tip_document: config.idData, expert: config.expert, continut_json: { fise } }, { onConflict: 'tip_document' });
-        document.getElementById('save-status').style.display = 'block';
-        setTimeout(() => document.getElementById('save-status').style.display = 'none', 2000);
+        setStatus('saved', 'Salvat ✅');
+        setTimeout(() => setStatus('none', ''), 2000);
     }
 
     async function reseteazaLaPlanificare() {
-        if (confirm("Ești sigur că vrei să ștergi tot ce ai scris și să revii la datele inițiale din planificare? Această acțiune nu poate fi anulată.")) {
-            const { error } = await supabaseClient
-                .from('planificari_documente')
-                .delete()
-                .eq('tip_document', config.idData);
-            
-            if (!error) {
-                window.location.reload();
-            } else {
-                alert("Eroare la resetare: " + error.message);
-            }
+        if (confirm("Resetare la datele inițiale?")) {
+            const { error } = await supabaseClient.from('planificari_documente').delete().eq('tip_document', config.idData);
+            if (!error) window.location.reload();
         }
     }
 
@@ -195,23 +134,19 @@
             let { data: plan } = await supabaseClient.from('planificari_documente').select('continut_json').eq('tip_document', config.idDoc).maybeSingle();
             if (plan) {
                 rows = plan.continut_json.tableRows.map(r => ({ 
-                    data: r.data, titlu: r.cont, obiective: "", 
-                    activitati: r.actv || r.cont,
+                    data: r.data, titlu: r.cont, obiective: "", activitati: r.actv || r.cont,
                     metode: "", mijloace: r.res, organizare: "", concluzii: "" 
                 }));
             }
         }
-
         const container = document.getElementById('container-fise');
         const info = dbExperti[config.expert] || { act: "---", disc: "---" };
-
         rows.forEach(row => {
             const page = document.createElement('div');
             page.className = 'page';
             page.innerHTML = `
                 <img src="antet_pnras.jpeg" class="antet-img">
                 <div class="titlu-fisa">Fișă de activitate</div>
-                
                 <div class="info-card">
                     <div class="info-row"><span class="info-label">Activitatea:</span><span class="info-value">${info.act}</span></div>
                     <div class="info-row"><span class="info-label">Disciplina:</span><span class="info-value">${info.disc}</span></div>
@@ -219,7 +154,6 @@
                     <div class="info-row"><span class="info-label">Data:</span><span class="info-value data-val">${row.data}</span></div>
                     <div class="info-row"><span class="info-label">Clasa:</span><span class="info-value">${config.clasa}</span></div>
                 </div>
-
                 <div class="sectiune"><div class="sectiune-titlu">📌 Titlul activității:</div><div class="caseta" contenteditable="true" onblur="this.innerText=applySmartBullets(this.innerText); salveaza();">${applySmartBullets(row.titlu)}</div></div>
                 <div class="sectiune"><div class="sectiune-titlu">🎯 Obiective urmărite:</div><div class="caseta" contenteditable="true" onblur="this.innerText=applySmartBullets(this.innerText); salveaza();">${applySmartBullets(row.obiective)}</div></div>
                 <div class="sectiune"><div class="sectiune-titlu">📝 Activități de învățare:</div><div class="caseta" contenteditable="true" onblur="this.innerText=applySmartBullets(this.innerText); salveaza();">${applySmartBullets(row.activitati)}</div></div>
@@ -227,65 +161,48 @@
                 <div class="sectiune"><div class="sectiune-titlu">🛠️ Mijloace de învățământ:</div><div class="caseta" contenteditable="true" onblur="this.innerText=applySmartBullets(this.innerText); salveaza();">${applySmartBullets(row.mijloace)}</div></div>
                 <div class="sectiune"><div class="sectiune-titlu">👥 Forme de organizare:</div><div class="caseta" contenteditable="true" onblur="this.innerText=applySmartBullets(this.innerText); salveaza();">${applySmartBullets(row.organizare)}</div></div>
                 <div class="sectiune"><div class="sectiune-titlu">💡 Concluzii și recomandări:</div><div class="caseta" contenteditable="true" onblur="this.innerText=applySmartBullets(this.innerText); salveaza();">${applySmartBullets(row.concluzii)}</div></div>
-
                 <div class="signature-block">
                     <div style="font-weight: bold; color: #2563eb; margin-bottom: 5px; font-family: sans-serif; font-size: 10pt;">LIVRABILE:</div>
-                    <div style="font-size: 11pt; color: #475569;">
-                        • Anexa 1: Fișe de lucru/Materiale suport;<br>
-                        • Anexa 2: Fotografii.
-                    </div>
+                    <div style="font-size: 11pt; color: #475569;">• Anexa 1: Fișe de lucru/Materiale suport;<br>• Anexa 2: Fotografii.</div>
                     <div style="margin-top: 30px; font-weight: bold; font-size: 11pt; border-top: 1px solid #eee; padding-top: 15px;">Expert, ${config.expert}</div>
-                </div>
-            `;
+                </div>`;
             container.appendChild(page);
         });
     }
     init();
-// --- LOGICA AI PENTRU FIȘE ---
 
-// Această funcție va folosi elementul tău <div id="save-status">
-function setStatus(tip, mesaj) {
-    const el = document.getElementById('save-status');
-    if (!el) return;
-    el.innerText = mesaj;
-    el.style.color = tip === 'error' ? '#ef4444' : (tip === 'loading' ? '#fbbf24' : '#10b981');
-}
+    function setStatus(tip, mesaj) {
+        const el = document.getElementById('save-status');
+        if (!el) return;
+        el.innerText = mesaj;
+        el.style.color = tip === 'error' ? '#ef4444' : (tip === 'loading' ? '#fbbf24' : '#10b981');
+    }
 
-async function completeazaToateFiseleAI() {
+    async function completeazaToateFiseleAI() {
     const pagini = document.querySelectorAll('.page');
     if (!confirm(`Vrei să completezi automat ${pagini.length} fișe?`)) return;
 
     for (let i = 0; i < pagini.length; i++) {
-        const p = pagini[i];
-        const casete = p.querySelectorAll('.caseta');
+        const casete = pagini[i].querySelectorAll('.caseta');
+        const tema = casete[0].innerText.trim();
+        const activitateSursa = casete[2].innerText.trim();
         
-        const tema = casete[0].innerText.trim(); 
-        const activitateSursa = casete[2].innerText.trim(); 
-
-        if (tema.length < 2) continue;
+        if (tema.length < 1) continue;
 
         setStatus('loading', `🤖 Generare fișa ${i+1}/${pagini.length}...`);
 
-        // 1. MODIFICARE PROMPT: Am cerut explicit rânduri noi pentru fiecare punct
-        const promptStrict = `
-            Ești expert educațional PNRAS.
-            TEMA: "${tema}"
-            ACTIVITATE: "${activitateSursa}"
-            CERINȚA: Completează fișa respectând structura de mai jos.
-            
-            REGULI DE FORMATARE:
-            - Fiecare punct din Obiective, Metode și Mijloace trebuie să fie pe rând nou.
-            - NU folosi buline (le adaug eu).
-            - NU scrie titlurile secțiunilor.
-            - Folosește caracterul "|" doar pentru a separa secțiunile mari.
+        // Prompt nou cu "Ancore" - forțăm AI să pună etichete pe care codul le recunoaște 100%
+        const promptStrict = `Ești expert educațional PNRAS. Tema: "${tema}".
+Cerință: Generează text academic pentru o fișă de activitate.
 
-            STRUCTURA RĂSPUNSULUI (Exemplu de format):
-            Obiectiv 1
-            Obiectiv 2
-            Obiectiv 3 | Metoda 1
-            Metoda 2 | Mijloc 1
-            Mijloc 2 | Organizare | Concluzie
-        `;
+Respectă strict acest format pentru răspuns:
+SECȚIUNEA1: [Scrie minim 3 obiective cu verbe la infinitiv: Descoperirea, Realizarea, etc., unele sub altele, pe rânduri separate.]
+SECȚIUNEA2: [Cauta pe internet sau in bazele de date care dintre metode se potrivesc cel mai bine temei si scrie-le unele sub altele, pe randuri separate.]
+SECȚIUNEA3: [Scrie resursele digitale obligatorii: Wordwall, Kahoot, tablete, etc.]
+SECȚIUNEA4: [Scrie formele de organizare: grupe, echipe, in perechi, individuală, frontală, etc., unele sub altele, pe rânduri separate.]
+SECȚIUNEA5: [Scrie concluzii și recomandări pedagogice folosind verbe la infinitiv: realizarea, monitorizarea, dezvoltarea, etc. Trebuie sa inserezi si minim o concluzie a activitatii: activitatea s-a desfasurat in conditii normale, participantii manifestand dorinta de implicare, colaborare, etc., unele sub altele, pe rânduri separate.]
+
+REGULI: NU scrie altceva în afară de aceste 5 secțiuni. Fiecare secțiune pe rând nou.`;
 
         try {
             const response = await fetch(`${URL_S}/functions/v1/chatgpt-pnras`, {
@@ -295,127 +212,75 @@ async function completeazaToateFiseleAI() {
             });
 
             const data = await response.json();
-            let textAI = data.choices ? data.choices[0].message.content : (data.text || "");
-            
-            // Curățare cuvinte reziduale
-            const deSters = ["Obiective:", "Metode:", "Mijloace:", "Organizare:", "Concluzii:"];
-            deSters.forEach(cuvant => {
-                const regex = new RegExp(cuvant, "gi");
-                textAI = textAI.replace(regex, "");
-            });
+            let textAI = data.reply || "";
 
-            // 2. SPLIT & CLEAN: Împărțim pe secțiuni (Obiective | Metode | etc.)
-            const parti = textAI.split('|').map(p => p.trim());
+            // LOGICA DE DETECTARE DUPĂ ANCORE (Elimină riscul de decalare)
+            const extrage = (start, end) => {
+                const s = textAI.indexOf(start);
+                const e = end ? textAI.indexOf(end) : textAI.length;
+                if (s === -1) return "";
+                return textAI.substring(s + start.length, e).trim();
+            };
 
-            if (parti.length >= 5) {
-                // 3. SEPARARE PE RÂNDURI: applySmartBullets va prelua textul cu \n și va pune buline pe fiecare rând
-                casete[1].innerText = applySmartBullets(parti[0]); // Obiective
-                casete[3].innerText = applySmartBullets(parti[1]); // Metode
-                casete[4].innerText = applySmartBullets(parti[2]); // Mijloace
-                casete[5].innerText = applySmartBullets(parti[3]); // Organizare
-                casete[6].innerText = applySmartBullets(parti[4]); // Concluzii
+            const obj = extrage("SECȚIUNEA1:", "SECȚIUNEA2:");
+            const met = extrage("SECȚIUNEA2:", "SECȚIUNEA3:");
+            const res = extrage("SECȚIUNEA3:", "SECȚIUNEA4:");
+            const org = extrage("SECȚIUNEA4:", "SECȚIUNEA5:");
+            const con = extrage("SECȚIUNEA5:", null);
+
+            // Verificăm dacă am extras măcar obiectivele
+            if (obj.length > 5) {
+                casete[1].innerText = applySmartBullets(obj); // Obiective
+                casete[3].innerText = applySmartBullets(met); // Metode
+                casete[4].innerText = applySmartBullets(res); // Mijloace (Digitale)
+                casete[5].innerText = applySmartBullets(org); // Organizare
+                casete[6].innerText = applySmartBullets(con); // Concluzii
                 
-                if (typeof salveaza === 'function') await salveaza();
+                await salveaza();
+            } else {
+                // Dacă AI-ul a ignorat ancorele, folosim vechea metodă split ca ultimă șansă
+                let parti = textAI.split('|').map(p => p.trim());
+                if(parti.length >= 5) {
+                    casete[1].innerText = applySmartBullets(parti[0]);
+                    casete[3].innerText = applySmartBullets(parti[1]);
+                    casete[4].innerText = applySmartBullets(parti[2]);
+                    casete[5].innerText = applySmartBullets(parti[3]);
+                    casete[6].innerText = applySmartBullets(parti[4]);
+                    await salveaza();
+                }
             }
+
             await new Promise(r => setTimeout(r, 1000));
         } catch (e) {
-            console.error("Eroare:", e);
+            console.error(e);
             setStatus('error', "Eroare la fișa " + (i+1));
         }
     }
-    setStatus('saved', '✅ Fișe completate pe rânduri separate!');
-}
-let tipIncarcare = ''; 
-
-function selecteazaFisier(tip) {
-    tipIncarcare = tip;
-    const input = document.getElementById('upload-input-invizibil');
-    if (input) input.click();
+    setStatus('saved', '✅ Rezolvat!');
 }
 
-// ACEASTĂ FUNCȚIE LIPSEA DIN CODUL TĂU
-// --- FUNCȚIA DE UPLOAD (STREAMING) ---
-async function incarcaInCloud(inputElement, tip) {
-    const fisier = inputElement.files[0];
-    if (!fisier) return;
-
-    // 1. Preluăm datele de context din URL (Expert și Clasă)
-    const params = new URLSearchParams(window.location.search);
-    const expertName = params.get('expert') || "Expert_Necunoscut";
-    const clasa = params.get('clasa') || "5A";
-
-    // 2. Identificăm pagina pentru care se face încărcarea
-    const pagini = document.querySelectorAll('.page');
-    const raspuns = prompt(`Încarci ${tip}. Pentru ce pagină (1-${pagini.length})?`);
-    if (raspuns === null) { inputElement.value = ''; return; }
-    
-    const nr = parseInt(raspuns);
-    if (isNaN(nr) || nr < 1 || nr > pagini.length) {
-        alert("Pagină invalidă!");
-        inputElement.value = '';
-        return;
-    }
-
-    // 3. DEFINIM dataFisa (Aici era eroarea!)
-    // Căutăm data scrisă în pagina selectată (în elementul cu clasa .data-val)
-    const paginaSelectata = pagini[nr - 1];
-    let dataFisa = "01-01-2025"; // O dată de rezervă
-    const dataElement = paginaSelectata.querySelector('.data-val');
-    
-    if (dataElement && dataElement.innerText.trim() !== "") {
-        // Înlocuim punctele cu cratime pentru a fi acceptat ca nume de folder (ex: 31.01.2025 -> 31-01-2025)
-        dataFisa = dataElement.innerText.trim().replace(/\./g, '-');
-    }
-
-    const numeFinal = `${tip}_${nr}_${expertName.replace(/\s+/g, '_')}_${clasa}.${tip === 'FOTO' ? 'jpg' : 'pdf'}`;
-    
-    setStatus('loading', `🚀 Se pregătește ${numeFinal}...`);
-
-    const reader = new FileReader();
-    reader.readAsDataURL(fisier);
-    reader.onloadend = async () => {
-        const base64data = reader.result.split(',')[1];
-        
-        // FOLOSEȘTE ULTIMUL URL GENERAT LA PASUL 2 (cel cu /exec)
-        const googleScriptUrl = "https://script.google.com/macros/s/AKfycbwt8PX04jDM4a4vCbenf66TCixs47DwX8Ab8Ij6z580NxgsoNqqusdCKNjklzJ36qHUtA/exec";
-
-        try {
-            // Trimitem datele către Google Script
-            await fetch(googleScriptUrl, {
-                method: "POST",
-                mode: "no-cors", // <--- ACEASTA ESTE LINIA CRUCIALĂ
-                cache: "no-cache",
-                headers: {
-                    "Content-Type": "text/plain", // Folosim text/plain ca să nu declanșăm verificări de securitate
-                },
-                body: JSON.stringify({
-                    fileName: numeFinal,
-                    fileType: fisier.type,
-                    fileBase64: base64data,
-                    rootFolderId: '173Qq7JNoOEHL2ZnG4At2zH1MxzUiACvn',
-                    expertName: expertName, 
-                    clasa: clasa,           
-                    dataFisa: dataFisa      
-                })
-            });
-
-            // Deoarece folosim no-cors, browserul nu ne lasă să citim răspunsul,
-            // așa că afișăm succesul după o scurtă așteptare.
-            setTimeout(() => {
-                alert(`✅ CERERE TRIMISĂ!\nDocumentul a plecat spre: ${expertName} > Clasa ${clasa}`);
+    async function incarcaInCloud(inputElement, tip) {
+        const fisier = inputElement.files[0];
+        if (!fisier) return;
+        const pagini = document.querySelectorAll('.page');
+        const nr = prompt(`Pagină (1-${pagini.length})?`);
+        if (!nr) return;
+        const index = parseInt(nr) - 1;
+        const dataFisa = pagini[index].querySelector('.data-val').innerText.trim().replace(/\./g, '-');
+        const numeFinal = `${tip}_${nr}_${config.expert.replace(/\s+/g, '_')}_${config.clasa}.${tip === 'FOTO' ? 'jpg' : 'pdf'}`;
+        setStatus('loading', `🚀 Se încarcă...`);
+        const reader = new FileReader();
+        reader.readAsDataURL(fisier);
+        reader.onloadend = async () => {
+            const base64data = reader.result.split(',')[1];
+            const googleScriptUrl = "https://script.google.com/macros/s/AKfycbwt8PX04jDM4a4vCbenf66TCixs47DwX8Ab8Ij6z580NxgsoNqqusdCKNjklzJ36qHUtA/exec";
+            try {
+                await fetch(googleScriptUrl, { method: "POST", mode: "no-cors", body: JSON.stringify({ fileName: numeFinal, fileType: fisier.type, fileBase64: base64data, rootFolderId: '173Qq7JNoOEHL2ZnG4At2zH1MxzUiACvn', expertName: config.expert, clasa: config.clasa, dataFisa: dataFisa })});
+                alert("✅ Document trimis!");
                 setStatus('saved', "✅ Finalizat");
-            }, 1000);
-            
-        } catch (err) {
-            console.error("Eroare fetch:", err);
-            alert("Eroare la trimitere: " + err.message);
-            setStatus('error', "❌ Eroare");
-            } finally {
-            inputElement.value = '';
-        }
-    };
-}
-
+            } catch (err) { setStatus('error', "❌ Eroare"); }
+        };
+    }
 </script>
 </body>
 </html>
