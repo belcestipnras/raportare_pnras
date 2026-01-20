@@ -207,24 +207,37 @@
     }
 
     function showDetails(zi) {
-        const dayData = rawData.filter(x => x.zi == zi);
-        if (dayData.length === 0) return;
+        const activitatiZi = rawData.filter(x => x.zi == zi);
+        if (activitatiZi.length === 0) return;
         
-        const grupate = {};
-        dayData.forEach(x => {
-            if(!grupate[x.clasa]) grupate[x.clasa] = { profs: [], nr: dElevi[x.clasa] || 0 };
-            if(!grupate[x.clasa].profs.includes(x.expert)) grupate[x.clasa].profs.push(x.expert);
+        let grupate = {};
+        activitatiZi.forEach(x => {
+            if (!grupate[x.clasa]) {
+                grupate[x.clasa] = { 
+                    profs: [], 
+                    nr: dElevi[x.clasa] || 0 
+                };
+}
+            if (!grupate[x.clasa].profs.includes(x.expert)) {
+                grupate[x.clasa].profs.push(x.expert);
+            }
         });
 
         const modal = document.getElementById('modalDetalii');
         const content = document.getElementById('modalContent');
-        document.getElementById('modalTitle').innerText = `Nota Comanda: ${zi} ${luniArr[curL]} 2026`;
+        document.getElementById('modalTitle').innerText = `Nota Comandă: ${zi} ${luniArr[curL]} 2026`;
         content.innerHTML = '';
         
         let sumaTotala = 0;
+        let afiseazaAtentionareGluten = false;
+        const grupeCuGluten = ['PG1A', 'AR6B', 'PE6B', 'AV6B'];
         for (const [cl, info] of Object.entries(grupate)) {
             sumaTotala += info.nr;
-            content.innerHTML += `<div style="display:flex; justify-content:space-between; padding:10px; border-bottom:1px solid #eee; font-size:0.9rem;">
+if (grupeCuGluten.includes(cl)) {
+                afiseazaAtentionareGluten = true;
+            }
+content.innerHTML += `
+            <div style="display:flex; justify-content:space-between; padding:10px; border-bottom:1px solid #eee; font-size:0.9rem;">
                 <div style="display:flex; flex-direction:column;">
                     <span style="font-weight:700;">Grupă: ${cl}</span>
                     <span style="font-size:0.75rem; color:#64748b;">Expert: ${info.profs.join(", ")}</span>
@@ -232,7 +245,34 @@
                 <span style="font-weight:700; color:var(--primary);">${info.nr} porții</span>
             </div>`;
         }
-        content.innerHTML += `<div style="display:flex; justify-content:space-between; padding:12px; font-weight:bold; border-top:2px solid #3b82f6; margin-top:10px; background:#eff6ff;"><span>TOTAL GENERAL</span><span>${sumaTotala} PORȚII</span></div>`;
+let profesoriUnici = new Set();
+        activitatiZi.forEach(act => profesoriUnici.add(act.expert));
+if (profesoriUnici.size > 0) {
+            sumaTotala += profesoriUnici.size;
+            content.innerHTML += `
+            <div style="display:flex; justify-content:space-between; padding:10px; border-bottom:1px solid #eee; background-color: #f0fdf4;">
+                <div style="display:flex; flex-direction:column;">
+                    <span style="font-weight:700; color: #15803d;">Personal / Profesori</span>
+                    <span style="font-size:0.75rem; color:#166534;">${Array.from(profesoriUnici).join(", ")}</span>
+                </div>
+                <span style="font-weight:700; color:#15803d;">+${profesoriUnici.size} porții</span>
+            </div>`;
+        }
+        content.innerHTML += `
+        <div style="display:flex; justify-content:space-between; padding:15px 10px; font-size:1.1rem; font-weight:800; border-top:2px solid #333; margin-top:10px;">
+            <span>TOTAL GENERAL:</span>
+            <span>${sumaTotala} porții</span>
+        </div>`;
+
+        // 7. Afișare Alertă Gluten (Doar dacă flag-ul e activ)
+        if (afiseazaAtentionareGluten) {
+            content.innerHTML += `
+            <div style="margin-top: 15px; padding: 12px; background: #fee2e2; color: #991b1b; border: 1px solid #f87171; border-radius: 8px; text-align: center; font-weight: bold; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                ⚠️ IMPORTANT: ! 1 meniu fără gluten
+            </div>
+            `;
+        }
+
         modal.style.display = 'flex';
     }
 </script>
