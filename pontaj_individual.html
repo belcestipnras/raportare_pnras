@@ -249,7 +249,23 @@
 
     async function incarca() {
         const params = new URLSearchParams(window.location.search);
-        const expert = params.get('expert'), luna = params.get('luna'), an = params.get('an');
+
+        // MODIFICARE AICI: Expertul îl luăm din memorie, Luna/Anul din Link
+        const expert = localStorage.getItem('expertPNRAS'); 
+        
+        // Dacă link-ul nu are lună/an, punem automat data curentă ca rezervă
+        const azi = new Date();
+        const LUNI_LOCAL = ["Ianuarie", "Februarie", "Martie", "Aprilie", "Mai", "Iunie", "Iulie", "August", "Septembrie", "Octombrie", "Noiembrie", "Decembrie"];
+        
+        const luna = params.get('luna') || LUNI_LOCAL[azi.getMonth()];
+        const an = params.get('an') || azi.getFullYear();
+
+        if (!expert) {
+            alert("Nu ești logat! Mergi la pagina 'Dosar Expert'.");
+            return;
+        }
+
+        // --- DE AICI ÎN JOS ESTE CODUL TĂU ORIGINAL ---
         document.getElementById('btn-back').onclick = () => { window.location.href = `dosar-expert.html?expert=${encodeURIComponent(expert)}`; };
         document.getElementById('out-expert').textContent = expert;
         document.getElementById('sig-expert').textContent = expert;
@@ -263,6 +279,10 @@
         try {
             const { data } = await _supabase.from('pontaj_detaliat').select('*').eq('expert', expert).eq('luna', luna).eq('an', an).order('zi', { ascending: true });
             const tbody = document.getElementById('tabel-pontaj');
+            
+            // Curățăm tabelul înainte (bună practică)
+            tbody.innerHTML = "";
+
             if (data && data.length > 0) {
                 const zile = {};
                 data.forEach(r => {
@@ -276,6 +296,9 @@
                 }
                 tbody.innerHTML = html;
                 recalculareTotal();
+            } else {
+                // Mesaj dacă nu sunt date (ca să nu rămână gol și să crezi că e stricat)
+                tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; padding:20px; color:red;">Nu există ore înregistrate pentru ${luna} ${an}.</td></tr>`;
             }
         } catch (err) { console.error(err); }
     }
