@@ -65,31 +65,30 @@ html, body {
 
 /* 4. CONTAINER BUTOANE MARI (CARDS) */
 .menu-container {
-    width: 95%;
-    max-width: 1100px;
-    display: flex;
-    gap: 20px;
-    margin-top: 40px;
-    margin-bottom: 50px; /* Spațiu la finalul paginii */
-    justify-content: center;
-    flex-wrap: wrap; /* Pentru a trece pe rând nou pe mobil */
+    display: grid;
+    /* Aceasta este regula magică: creează coloane egale care se adaptează */
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 20px; /* Spațiu între butoane */
+    padding: 20px;
+    width: 100%;
+    max-width: 1000px; /* Lățimea maximă a meniului */
+    margin: 30px auto; /* Centrat pe mijlocul paginii */
 }
 
-/* Modifică secțiunea 5 din style.css */
+/* Asigură-te că butoanele ocupă tot spațiul celulei lor */
 .menu-card {
-    background: white;
-    border: 1px solid #edf2f7;
-    flex: 1; /* Această proprietate le va face să crească/scadă egal */
-    min-width: 180px; /* Redus de la 250px pentru a permite 5 pe rând */
-    padding: 40px 10px; /* Redus puțin padding-ul lateral pentru text lung */
-    border-radius: 16px;
-    cursor: pointer;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.04);
+    background-color: #ffffff; /* Fundal alb */
+    border: none; /* Fără contur urât */
+    border-radius: 16px; /* AICI sunt colțurile rotunjite frumos */
+    padding: 20px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    text-decoration: none;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Umbră fină */
+    transition: transform 0.2s ease, box-shadow 0.2s ease; /* Animație la hover */
+    min-height: 120px; /* Înălțime minimă ca să fie toate egale */
 }
 
 .menu-card span {
@@ -101,20 +100,22 @@ html, body {
 
 /* Efect Interactiv */
 .menu-card:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 15px 30px rgba(0,0,0,0.1);
-    border-color: #3ecf8e;
+    transform: translateY(-5px); /* Se ridică puțin */
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.15); /* Umbra devine mai puternică */
+    background-color: #f8f9fa; /* Se deschide puțin la culoare */
 }
 
 .menu-card .icon {
-    font-size: 50px;
-    margin-bottom: 15px;
+    font-size: 2.5rem;
+    margin-bottom: 10px;
 }
 
 .menu-card span {
-    font-size: 20px;
+    font-family: 'Inter', sans-serif;
     font-weight: 600;
-    color: #2d3748;
+    font-size: 1rem;
+    color: #333;
+    text-align: center;
 }
 
 /* 6. RESPONSIVITATE PENTRU MOBIL */
