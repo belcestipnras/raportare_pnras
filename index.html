@@ -47,6 +47,11 @@
         <div class="icon">💰</div>
         <span>Buget/Achiziții</span>
 </button>
+
+<button class="menu-card" onclick="verificaParolaMate()">
+        <div class="icon">🧮</div>
+        <span>MATE</span>
+    </button>
 </main>
 
     <script>
@@ -82,6 +87,15 @@ function verificaParolaBuget() {
     if (parolaIntrodusaBuget === "Buget123") { // Poți schimba parola aici
         window.location.href = 'buget_achizitii.html';
     } else if (parolaIntrodusaBuget !== null) {
+        alert("Parolă incorectă! Accesul a fost refuzat.");
+    }
+}
+
+function verificaParolaMate() {
+    const parolaIntrodusaMate = prompt("Introduceți parola pentru secțiunea MATE:");
+    if (parolaIntrodusaMate === "Mate123") { // Poți schimba parola aici
+        window.location.href = 'mate.html';
+    } else if (parolaIntrodusaMate !== null) {
         alert("Parolă incorectă! Accesul a fost refuzat.");
     }
 }
