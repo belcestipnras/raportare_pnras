@@ -141,9 +141,14 @@
         <img src="antet_pnras.jpeg" class="antet-img">
         
         <div class="nr-inreg">
-            <span>📝 Nr. înreg:</span>
-            <input type="text" placeholder="............... / ...............">
-        </div>
+    <span>📝 Nr. înreg:</span>
+    <input type="text" id="nr_inreg_val" onblur="salveazaMeta()" placeholder="..." 
+           style="border:none; border-bottom:1px dashed #000; width:60px; text-align:center; font-weight:bold; background:transparent;"> 
+    / 
+    <input type="text" id="data_inreg_val" onblur="salveazaMeta()" placeholder="..." 
+           style="border:none; border-bottom:1px dashed #000; width:90px; text-align:center; font-weight:bold; background:transparent;">
+    <span id="msg-salvare" style="font-size:10px; color:green; margin-left:10px; display:none;">✅ Salvat</span>
+</div>
 
         <h2>Fișă individuală de pontaj</h2>
 
@@ -247,60 +252,107 @@
         return `${zi.toString().padStart(2, '0')}.${luni[lunaText] || "01"}.${an}`;
     }
 
+    // Variabile globale pentru salvare
+    let g_expert, g_luna, g_an, g_tipDoc;
+    
+    // Mapare pentru a genera cheia documentului (ex: Ianuarie -> 01)
+    const MAP_LUNI_COD = { "Ianuarie": "01", "Februarie": "02", "Martie": "03", "Aprilie": "04", "Mai": "05", "Iunie": "06", "Iulie": "07", "August": "08", "Septembrie": "09", "Octombrie": "10", "Noiembrie": "11", "Decembrie": "12" };
+
     async function incarca() {
         const params = new URLSearchParams(window.location.search);
 
-        // MODIFICARE AICI: Expertul îl luăm din memorie, Luna/Anul din Link
-        const expert = localStorage.getItem('expertPNRAS'); 
+        // 1. IDENTIFICARE (Expert din Memorie, Data din Link)
+        g_expert = localStorage.getItem('expertPNRAS');
         
-        // Dacă link-ul nu are lună/an, punem automat data curentă ca rezervă
         const azi = new Date();
         const LUNI_LOCAL = ["Ianuarie", "Februarie", "Martie", "Aprilie", "Mai", "Iunie", "Iulie", "August", "Septembrie", "Octombrie", "Noiembrie", "Decembrie"];
         
-        const luna = params.get('luna') || LUNI_LOCAL[azi.getMonth()];
-        const an = params.get('an') || azi.getFullYear();
+        g_luna = params.get('luna') || LUNI_LOCAL[azi.getMonth()];
+        g_an = params.get('an') || azi.getFullYear();
 
-        if (!expert) {
-            alert("Nu ești logat! Mergi la pagina 'Dosar Expert'.");
-            return;
-        }
+        if (!g_expert) { alert("Nu ești logat! Mergi la 'Dosar Expert'."); return; }
 
-        // --- DE AICI ÎN JOS ESTE CODUL TĂU ORIGINAL ---
-        document.getElementById('btn-back').onclick = () => { window.location.href = `dosar-expert.html?expert=${encodeURIComponent(expert)}`; };
-        document.getElementById('out-expert').textContent = expert;
-        document.getElementById('sig-expert').textContent = expert;
-        document.getElementById('out-luna-an').textContent = `${luna} ${an}`;
-        document.getElementById('out-contract').textContent = CONTRACTE[expert] || "---";
-        document.getElementById('out-disciplina').textContent = MAP_DISCIPLINE[expert] || "---";
+        // Setare texte pe ecran
+        document.getElementById('out-expert').innerText = g_expert;
+        document.getElementById('sig-expert').innerText = g_expert;
+        document.getElementById('out-luna-an').innerText = `${g_luna} ${g_an}`;
+        document.getElementById('out-contract').textContent = CONTRACTE[g_expert] || "---";
+        document.getElementById('out-disciplina').textContent = MAP_DISCIPLINE[g_expert] || "---";
+        
         let actCod = "";
-        for (let k in MAP_ACT) if (MAP_ACT[k].includes(expert)) actCod = k;
+        for (let k in MAP_ACT) if (MAP_ACT[k].includes(g_expert)) actCod = k;
         document.getElementById('out-activitate').textContent = DESC_ACT[actCod] || "---";
 
+        document.getElementById('btn-back').onclick = () => { window.location.href = `dosar-expert.html?expert=${encodeURIComponent(g_expert)}`; };
+
+        // 2. RECUPERARE NR. ÎNREGISTRARE (Nou!)
+        // Generăm cheia unică: PONTAJ_Nume_01_2025
+        const lunaCod = MAP_LUNI_COD[g_luna] || "01";
+        g_tipDoc = `PONTAJ_${g_expert.replace(/\s+/g, '')}_${lunaCod}_${g_an}`;
+
         try {
-            const { data } = await _supabase.from('pontaj_detaliat').select('*').eq('expert', expert).eq('luna', luna).eq('an', an).order('zi', { ascending: true });
+            const { data: doc } = await _supabase
+                .from('planificari_documente')
+                .select('continut_json')
+                .eq('tip_document', g_tipDoc)
+                .maybeSingle();
+
+            if (doc && doc.continut_json) {
+                // Dacă găsim date, le punem în căsuțe
+                document.getElementById('nr_inreg_val').value = doc.continut_json.nr || "";
+                document.getElementById('data_inreg_val').value = doc.continut_json.data || "";
+            }
+        } catch (e) { console.error("Eroare la preluare Nr. Înreg:", e); }
+
+        // 3. GENERARE TABEL ORE (Standard)
+        try {
+            const { data } = await _supabase.from('pontaj_detaliat').select('*').eq('expert', g_expert).eq('luna', g_luna).eq('an', g_an).order('zi', { ascending: true });
             const tbody = document.getElementById('tabel-pontaj');
-            
-            // Curățăm tabelul înainte (bună practică)
             tbody.innerHTML = "";
 
             if (data && data.length > 0) {
                 const zile = {};
                 data.forEach(r => {
                     if (!zile[r.zi]) zile[r.zi] = { clase: [], ore: 0 };
-                    zile[r.zi].clase.push(MAP_CLASE[r.clase_grupe] || r.clase_grupe);
+                    const cls = MAP_CLASE[r.clase_grupe] || r.clase_grupe;
+                    if (!zile[r.zi].clase.includes(cls)) zile[r.zi].clase.push(cls);
                     zile[r.zi].ore += parseFloat(r.nr_ore);
                 });
-                let html = "", idx = 1;
+                let idx = 1;
+                let html = "";
                 for (let zi in zile) {
-                    html += `<tr><td>${idx++}</td><td contenteditable="true">${formatData(zi, luna, an)}</td><td contenteditable="true">${[...new Set(zile[zi].clase)].join(', ')}</td><td contenteditable="true">${zile[zi].ore}</td></tr>`;
+                    html += `<tr><td>${idx++}</td><td contenteditable="true">${formatData(zi, g_luna, g_an)}</td><td contenteditable="true">${[...new Set(zile[zi].clase)].join(', ')}</td><td contenteditable="true">${zile[zi].ore}</td></tr>`;
                 }
                 tbody.innerHTML = html;
                 recalculareTotal();
             } else {
-                // Mesaj dacă nu sunt date (ca să nu rămână gol și să crezi că e stricat)
-                tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; padding:20px; color:red;">Nu există ore înregistrate pentru ${luna} ${an}.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:red; padding:20px;">Nu există ore înregistrate pentru ${g_luna} ${g_an}.</td></tr>`;
             }
         } catch (err) { console.error(err); }
+    }
+
+async function salveazaMeta() {
+        const nr = document.getElementById('nr_inreg_val').value;
+        const dataVal = document.getElementById('data_inreg_val').value;
+        const msg = document.getElementById('msg-salvare');
+
+        // Salvăm în tabelul 'planificari_documente'
+        const { error } = await _supabase.from('planificari_documente').upsert({
+            expert: g_expert,
+            tip_document: g_tipDoc, // Cheia unică generată la încărcare
+            luna: g_luna,
+            an: g_an,
+            continut_json: { nr: nr, data: dataVal }, // Salvăm valorile ca JSON
+            updated_at: new Date().toISOString()
+        }, { onConflict: 'tip_document' });
+
+        if (!error) {
+            // Afișăm un mic mesaj "Salvat" care dispare după 2 secunde
+            if(msg) { msg.style.display = "inline"; setTimeout(() => msg.style.display = "none", 2000); }
+            console.log("Antet salvat cu succes!");
+        } else {
+            alert("Eroare la salvare: " + error.message);
+        }
     }
     document.addEventListener('DOMContentLoaded', incarca);
 </script>
