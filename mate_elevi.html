@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <title>PNRAS | Elevi Manager</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Montserrat:wght@700;800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        :root {
+            /* DARK MODE UI (Ecran) */
+            --bg-dark: #0f172a;
+            --glass: rgba(30, 41, 59, 0.95);
+            --text-light: #f1f5f9;
+            --accent-green: #22c55e;
+            --accent-blue: #3b82f6;
+            --accent-red: #ef4444;
+            
+            /* PRINT STYLES (Hârtie) */
+            --print-accent: #002266;
+            --print-line: 0.5pt solid var(--print-accent);
+            
+            /* LĂȚIMI COLOANE FIXE */
+            --w-nr: 50px;
+            --w-cnp: 140px;
+            --w-clasa: 70px;
+        }
+
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: var(--bg-dark); margin: 0; color: var(--text-light); overflow-x: hidden; }
+        
+        /* --- NAVIGARE --- */
+        .no-print { 
+            background: var(--glass); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(255,255,255,0.1);
+            padding: 12px 30px; position: sticky; top: 0; z-index: 9999; display: flex; align-items: center; justify-content: space-between;
+        }
+        .top-nav { display: flex; align-items: center; gap: 15px; width: 100%; max-width: 1400px; margin: 0 auto; }
+        .clase-row { display: flex; gap: 6px; overflow-x: auto; padding: 4px 0; scrollbar-width: none; }
+
+        /* BUTOANE */
+        .btn { padding: 8px 16px; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 600; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.05); color: #cbd5e1; transition: all 0.2s; }
+        .btn:hover { background: rgba(255,255,255,0.15); color: #fff; transform: translateY(-1px); }
+        .btn-clasa.active { background: var(--accent-green) !important; border-color: var(--accent-green) !important; color: #fff !important; box-shadow: 0 0 15px rgba(34, 197, 94, 0.4); }
+        
+        /* BUTON UNDO */
+        .btn-undo { background: var(--accent-red); color: white; border: none; display: none; animation: popIn 0.3s ease; }
+        @keyframes popIn { from { transform: scale(0.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+        /* DOCUMENT A4 */
+        .a4-container { width: 210mm; min-height: 297mm; margin: 40px auto; background: #fff; color: #000; padding: 15mm; display: flex; flex-direction: column; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); position: relative; }
+        .antet-img { width: 100%; margin-bottom: 5mm; }
+        .sectiune-aprobat { text-align: right; font-size: 13px; font-weight: 800; color: var(--print-accent); margin-bottom: 5mm; }
+        .titlu-document { text-align: center; font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: 14px; margin: 5mm 0; color: var(--print-accent); text-transform: uppercase; }
+        .info-header { display: grid; grid-template-columns: 1fr 1fr; font-size: 13px; margin-bottom: 15px; border: var(--print-line); }
+        .info-header div { padding: 8px 12px; border: var(--print-line); }
+        .full-row { grid-column: span 2; text-align: center; background: #f8fafc; font-weight: 800; }
+
+        /* TABEL STYLE */
+        table { width: 100%; border-collapse: collapse; table-layout: fixed; border: var(--print-line); margin: 0; }
+        th { background: #f0f4ff !important; font-weight: 800; font-size: 11px; color: var(--print-accent); border: var(--print-line); padding: 8px; text-transform: uppercase; }
+        td { border: var(--print-line); padding: 4px 10px; font-size: 12.5px; color: #000; font-weight: 600; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+        
+        tr.data-row:hover td { background-color: #f8fafc; }
+
+        /* --- COLOANE & ȘTERGERE --- */
+        .col-nr { 
+            width: var(--w-nr); 
+            text-align: center; 
+            color: var(--print-accent);
+            cursor: pointer; 
+            transition: all 0.2s;
+        }
+        
+        /* Efect Hover Ștergere (Ecran) */
+        .a4-container:hover .col-nr:hover {
+            background-color: #fee2e2;
+            color: #ef4444;
+            font-weight: 900;
+        }
+        /* La print, scoatem efectul de pointer */
+        @media print { .col-nr { cursor: default !important; } }
+
+        .col-cnp { width: var(--w-cnp); text-align: center; font-family: 'JetBrains Mono', monospace; }
+        .col-clasa { width: var(--w-clasa); text-align: center; display: none; } /* Ascuns default */
+        body.print-alfabetic .col-clasa { display: table-cell; } /* Vizibil la alfabetic */
+
+        .edit-input { width: 100%; border: none; background: transparent; font-family: inherit; font-size: 12.5px; color: #000; font-weight: 700; outline: none; }
+        .inreg-input { border: none !important; width: 220px; font-weight: 800; color: var(--print-accent) !important; font-family: 'JetBrains Mono', monospace; }
+        
+        .row-separator { background: #f1f5f9 !important; color: var(--print-accent) !important; font-weight: 800; font-size: 13px; text-align: left; padding: 10px 15px; border-top: 1.5pt solid var(--print-accent) !important; border-bottom: 0.5pt solid var(--print-accent) !important; }
+        
+        /* FOOTER & MAGIC GLUE */
+        .footer-document { margin-top: 30px; display: flex; justify-content: space-between; font-weight: 800; font-size: 13px; color: var(--print-accent); }
+        .print-group { display: block; page-break-inside: avoid; margin-top: -0.5pt; }
+
+        @media print {
+            @page { size: A4; margin: 1.5cm; }
+            body { background: white !important; color: #000 !important; }
+            .no-print { display: none !important; } 
+            .a4-container { width: 100%; margin: 0; padding: 0 !important; box-shadow: none; border:none; display: block; }
+            td, .edit-input { color: #000 !important; }
+            th, .row-separator, .titlu-document, .sectiune-aprobat, .footer-document, .info-header, table, .inreg-input { color: var(--print-accent) !important; border-color: var(--print-accent) !important; }
+            table { border-collapse: collapse; }
+            td { border: 0.5pt solid var(--print-accent); }
+            thead { display: table-header-group; }
+            tr.data-row:hover td { background-color: transparent !important; }
+        }
+    </style>
+</head>
+<body id="mainBody">
+
+<div class="no-print">
+    <div class="top-nav">
+        <button class="btn" onclick="window.location.href='mate.html'">← Meniu</button>
+        <div id="selectorClase" class="clase-row"></div>
+        <button id="btnUndo" class="btn btn-undo" onclick="restoreDeleted()">↩ Anulează ștergerea</button>
+        <div style="display:flex; gap:10px;">
+            <button class="btn" onclick="printMod('alfabetic')">Print Alfabetic</button>
+            <button class="btn" onclick="printMod('clase')">Print pe Clase</button>
+            <button class="btn" style="background:var(--accent-blue); color:white;" onclick="printCurent()">Print Curent</button>
+        </div>
+    </div>
+</div>
+
+<div id="documentA4" class="a4-container">
+    <img src="antet_pnras.jpeg" alt="Antet PNRAS" class="antet-img">
+    <div class="sectiune-aprobat">APROBAT,<br>DIRECTOR,<br>prof. Cătălin BAZILUC</div>
+    <div style="font-size:13px; margin-bottom:5mm; font-weight:700; color: var(--print-accent);">
+        Nr. înregistrare: <input type="text" id="nrInregInput" placeholder="..." class="edit-input inreg-input" onblur="saveCentralInreg(this.value)">
+    </div>
+    <div class="titlu-document">
+        LISTĂ ELEVI DIN GRUPUL-ȚINTĂ AL PROIECTULUI PNRAS<br>
+        ”FII UNUL DINTRE C.R.A.I.! (Creativitate, Reziliență, Adaptabilitate, Incluziune)”
+    </div>
+    <div class="info-header" id="infoBox">
+        <div id="boxClasa">CLASA: <span id="txtClasa" style="color:#000; font-weight:600">---</span></div>
+        <div id="boxAnScolar">AN ȘCOLAR: <span id="txtAnScolar" style="color:#000; font-weight:600">---</span></div>
+        <div id="boxDiriginte" style="grid-column: span 2;">DIRIGINTE: <span id="txtDiriginte" style="color:#000; font-weight:600">---</span></div>
+    </div>
+
+    <div id="zonaContinut"></div>
+
+    <button class="btn no-print" onclick="adaugaRand()" style="margin-top:20px; width:100%; justify-content:center; background:#10b981; color:#fff; border:none; padding:12px; font-size:14px;">+ ADĂUGĂ ELEV (sau ENTER)</button>
+</div>
+
+<script>
+    const SUPABASE_URL = 'https://aexjrbdgajurxzngfkpx.supabase.co';
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFleGpyYmRnYWp1cnh6bmdma3B4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgxMzE3NTYsImV4cCI6MjA4MzcwNzc1Nn0.VUx0QOKgjX4m23HOF2rBpE9vWA3T18KtjLc0w_iXhqA';
+    const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    const params = new URLSearchParams(window.location.search);
+    const anul = params.get('an') || '2025';
+    const ID_DOC = `LISTA_ELEVI_${anul}`;
+    let dataCache = [];
+    let clasaSelectata = "";
+    let deletedStack = []; 
+
+    async function init() {
+        const { data: reg } = await _supabase.from('registru_numere').select('nr_inreg').eq('id_document', ID_DOC).single();
+        if (reg) document.getElementById('nrInregInput').value = reg.nr_inreg;
+        const { data } = await _supabase.from('mate_pnras').select('*').eq('anul', anul);
+        dataCache = data || [];
+        renderTabs();
+    }
+
+    async function saveCentralInreg(val) {
+        await _supabase.from('registru_numere').upsert({ id_document: ID_DOC, nr_inreg: val, anul: anul, tip_document: 'lista_elevi' }, { onConflict: 'id_document' });
+    }
+
+    function renderTabs() {
+        const row = document.getElementById('selectorClase');
+        row.innerHTML = '';
+        const clase = [...new Set(dataCache.map(e => e.clasa))].sort();
+        clase.forEach(c => {
+            const b = document.createElement('button');
+            b.className = `btn btn-clasa ${c === clasaSelectata ? 'active' : ''}`;
+            b.innerText = c;
+            b.onclick = () => { clasaSelectata = c; updateView(false); };
+            row.appendChild(b);
+        });
+        if(!clasaSelectata && clase.length > 0) { clasaSelectata = clase[0]; updateView(false); }
+    }
+
+    function getFooterHTML(diriginte, showDiriginte) {
+        return `<div class="footer-document">
+            <div style="width:45%">AVIZAT,<br>MANAGER PROIECT,<br><div style="margin-top:10mm; color:#000">prof. dr. Ciprian MIHAI</div></div>
+            ${showDiriginte ? `<div style="width:45%; text-align:right;">ÎNTOCMIT,<br>DIRIGINTE,<br><div style="margin-top:10mm; color:#000">prof. ${diriginte}</div></div>` : ''}
+        </div>`;
+    }
+
+    // --- STRUCTURĂ TABEL FIXĂ ---
+    function getColGroupHTML(isAlfabetic) {
+        if(isAlfabetic) {
+            return `<colgroup><col class="col-nr"><col class="col-clasa"><col style="width:auto"><col class="col-cnp"></colgroup>`;
+        } else {
+            return `<colgroup><col class="col-nr"><col style="width:auto"><col class="col-cnp"></colgroup>`;
+        }
+    }
+
+    function getTableHeaderHTML(isAlfabetic) {
+        if(isAlfabetic) {
+            return `<thead><tr><th class="col-nr">Nr.</th><th class="col-clasa">Clasa</th><th>Nume și prenume elev</th><th class="col-cnp">CNP</th></tr></thead>`;
+        } else {
+             return `<thead><tr><th class="col-nr">Nr.</th><th>Nume și prenume elev</th><th class="col-cnp">CNP</th></tr></thead>`;
+        }
+    }
+
+    function createRowHTML(row, index, isAlfabetic) {
+        if (row.type === 'separator') {
+            const span = isAlfabetic ? 4 : 3; 
+            return `<tr><td colspan="${span}" class="row-separator">CLASA ${row.clasa} (Diriginte: ${row.dir})</td></tr>`;
+        } else {
+            let html = `<tr class="data-row">
+                <td class="col-nr" onclick="del(${row.data.id})" title="Click pentru a șterge">${row.nr || index + 1}</td>`;
+            
+            if(isAlfabetic) html += `<td class="col-clasa">${row.data.clasa}</td>`;
+            
+            html += `<td><input class="edit-input" value="${row.data.nume_elev}" onblur="save(${row.data.id}, 'nume_elev', this.value)" onkeydown="handleEnter(event)"></td>
+                <td class="col-cnp"><input class="edit-input" style="text-align:center" value="${row.data.cnp || ''}" onblur="save(${row.data.id}, 'cnp', this.value)" onkeydown="handleEnter(event)"></td>
+                </tr>`;
+            return html;
+        }
+    }
+
+    // ENTER pentru Rând Nou
+    function handleEnter(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            e.target.blur(); 
+            adaugaRand();
+        }
+    }
+
+    function updateView(isAlfabetic = false) { 
+        renderTabs(); 
+        document.getElementById('txtAnScolar').innerText = (anul === '2025') ? "2024-2025" : "2025-2026";
+        document.getElementById('txtClasa').innerText = isAlfabetic ? "TOATE" : clasaSelectata;
+        
+        let filtered = [];
+        let dir = "---";
+
+        if(isAlfabetic) {
+            filtered = [...dataCache].sort((a,b) => a.nume_elev.localeCompare(b.nume_elev));
+            dir = ""; 
+        } else {
+            filtered = dataCache.filter(e => e.clasa === clasaSelectata).sort((a,b) => a.nume_elev.localeCompare(b.nume_elev));
+            dir = filtered[0]?.diriginte || "---";
+            document.getElementById('txtDiriginte').innerText = dir;
+        }
+
+        const zona = document.getElementById('zonaContinut');
+        const lastIndex = filtered.length - 1;
+
+        // Tabel Mare
+        let html = `<table style="border-bottom:none; margin-bottom:0;">${getColGroupHTML(isAlfabetic)}${getTableHeaderHTML(isAlfabetic)}<tbody>`;
+        filtered.forEach((e, i) => { if(i < lastIndex) html += createRowHTML({type:'data', data:e}, i, isAlfabetic); });
+        html += `</tbody></table>`;
+
+        // Magic Glue (Ultimul rând + Footer)
+        if (lastIndex >= 0) {
+            const lastE = filtered[lastIndex];
+            html += `
+            <div class="print-group">
+                <table style="border-top:none; margin-top:0;">
+                    ${getColGroupHTML(isAlfabetic)}
+                    <tbody>${createRowHTML({type:'data', data:lastE}, lastIndex, isAlfabetic)}</tbody>
+                </table>
+                ${getFooterHTML(dir, !isAlfabetic)}
+            </div>`;
+        } else {
+             html += `<div class="print-group">${getFooterHTML(dir, !isAlfabetic)}</div>`;
+        }
+        zona.innerHTML = html;
+    }
+
+    function renderPrintPeClase() {
+        const zona = document.getElementById('zonaContinut');
+        const isAlfabetic = false;
+
+        const clase = [...new Set(dataCache.map(e => e.clasa))].sort();
+        let allRows = [];
+        let c = 1;
+        clase.forEach(cl => {
+            const el = dataCache.filter(e => e.clasa === cl).sort((a,b) => a.nume_elev.localeCompare(b.nume_elev));
+            allRows.push({ type: 'separator', clasa: cl, dir: el[0]?.diriginte || '---' });
+            el.forEach(e => allRows.push({ type: 'data', data: e, nr: c++ }));
+        });
+
+        const lastIndex = allRows.length - 1;
+        let html = `<table style="border-bottom:none; margin-bottom:0;">${getColGroupHTML(isAlfabetic)}${getTableHeaderHTML(isAlfabetic)}<tbody>`;
+        allRows.forEach((row, i) => { if(i < lastIndex) html += createRowHTML(row, i, isAlfabetic); });
+        html += `</tbody></table>`;
+
+        if (lastIndex >= 0) {
+            const lastRow = allRows[lastIndex];
+            html += `
+            <div class="print-group">
+                <table style="border-top:none; margin-top:0;">
+                    ${getColGroupHTML(isAlfabetic)}
+                    <tbody>${createRowHTML(lastRow, lastIndex, isAlfabetic)}</tbody>
+                </table>
+                ${getFooterHTML("", false)}
+            </div>`;
+        }
+        zona.innerHTML = html;
+    }
+
+    async function del(id) {
+        if(confirm("Dorești să ștergi acest elev?")) {
+            const item = dataCache.find(x => x.id === id);
+            if(item) {
+                deletedStack.push(item);
+                document.getElementById('btnUndo').style.display = 'block';
+                await _supabase.from('mate_pnras').delete().eq('id', id);
+                dataCache = dataCache.filter(x => x.id !== id);
+                // Refresh view curent
+                const isAlfabetic = document.getElementById('txtClasa').innerText === 'TOATE';
+                updateView(isAlfabetic);
+            }
+        }
+    }
+
+    async function restoreDeleted() { 
+        if(deletedStack.length > 0) { 
+            const item = deletedStack.pop(); 
+            const { id, ...rest } = item; 
+            const { data } = await _supabase.from('mate_pnras').insert([rest]).select(); 
+            if(data) { 
+                dataCache.push(data[0]); 
+                const isAlfabetic = document.getElementById('txtClasa').innerText === 'TOATE';
+                updateView(isAlfabetic);
+            } 
+            if(deletedStack.length === 0) document.getElementById('btnUndo').style.display = 'none'; 
+        } 
+    }
+
+    async function save(id, col, val) { await _supabase.from('mate_pnras').update({ [col]: val }).eq('id', id); const idx = dataCache.findIndex(x => x.id === id); if(idx > -1) { dataCache[idx][col] = val; if(col === 'nume_elev') { const isAlfabetic = document.getElementById('txtClasa').innerText === 'TOATE'; updateView(isAlfabetic); } } }
+    
+    async function adaugaRand() { 
+        const p = { nume_elev: "", clasa: clasaSelectata, anul: parseInt(anul), diriginte: document.getElementById('txtDiriginte').innerText, cnp: "" }; 
+        const { data } = await _supabase.from('mate_pnras').insert([p]).select(); 
+        if(data) { 
+            dataCache.push(data[0]); 
+            updateView(false); 
+            setTimeout(() => {
+                const inputs = document.querySelectorAll('.edit-input');
+                if(inputs.length > 1) inputs[inputs.length - 2].focus(); 
+            }, 100);
+        } 
+    }
+
+    function printCurent() {
+        document.getElementById('mainBody').classList.remove('print-alfabetic');
+        document.getElementById('boxAnScolar').classList.remove('full-row');
+        document.getElementById('boxClasa').style.display = 'block';
+        document.getElementById('boxDiriginte').style.display = 'block';
+        updateView(false); 
+        window.print();
+    }
+
+    function printMod(tip) {
+        const boxAn = document.getElementById('boxAnScolar');
+        document.getElementById('boxClasa').style.display = 'none';
+        document.getElementById('boxDiriginte').style.display = 'none';
+        boxAn.classList.add('full-row');
+
+        if(tip === 'alfabetic') {
+            document.getElementById('mainBody').classList.add('print-alfabetic');
+            updateView(true); 
+        } else {
+            document.getElementById('mainBody').classList.remove('print-alfabetic');
+            renderPrintPeClase(); 
+        }
+
+        window.print();
+        setTimeout(() => {
+            document.getElementById('mainBody').classList.remove('print-alfabetic');
+            boxAn.classList.remove('full-row');
+            document.getElementById('boxClasa').style.display = 'block';
+            document.getElementById('boxDiriginte').style.display = 'block';
+            updateView(false); 
+        }, 1000);
+    }
+    init();
+</script>
+</body>
+</html>

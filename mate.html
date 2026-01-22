@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MATE - PNRAS</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f6f9;
+        }
+
+        /* BARA DE SUS */
+        .top-bar {
+            background-color: white;
+            padding: 15px 25px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .nav-section { display: flex; align-items: center; gap: 20px; }
+
+        .btn-back {
+            text-decoration: none;
+            color: #333;
+            font-weight: 700;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            padding: 8px 15px;
+            border-radius: 8px;
+            transition: background 0.2s;
+        }
+        .btn-back:hover { background-color: #f0f0f0; }
+
+        /* SELECTOR AN */
+        .year-selector {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            padding: 20px;
+            background: #ebeef2;
+        }
+
+        .year-box {
+            background: white;
+            border: 2px solid #ddd;
+            padding: 10px 40px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 800;
+            color: #7f8c8d;
+            transition: all 0.2s ease;
+        }
+
+        .year-box.active {
+            border-color: #2980b9;
+            color: #2980b9;
+            background: #e1f0fa;
+        }
+
+        /* GRILE BUTOANE PRINCIPALE */
+        .main-content {
+            max-width: 1000px;
+            margin: 40px auto;
+            padding: 0 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+        }
+
+        .card-button {
+            background: white;
+            border: 2px solid transparent;
+            padding: 30px 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            text-align: center;
+        }
+
+        .card-button:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+            border-color: #2980b9;
+        }
+
+        .card-button .icon { font-size: 2.5rem; }
+        .card-button span { font-weight: 700; font-size: 1rem; color: #2c3e50; }
+    </style>
+</head>
+<body>
+
+    <nav class="top-bar">
+        <div class="nav-section">
+            <a href="index.html" class="btn-back"><span>⬅</span> ÎNAPOI</a>
+            <h2 style="margin: 0; font-size: 1.1rem; color: #2c3e50;">MODUL MATE</h2>
+        </div>
+        <div style="color: #7f8c8d; font-size: 0.8rem; font-weight: bold;">STATISTICI REZERVATE</div>
+    </nav>
+
+    <div class="year-selector">
+        <div id="y2025" class="year-box active" onclick="selectYear(2025)">2025</div>
+        <div id="y2026" class="year-box" onclick="selectYear(2026)">2026</div>
+    </div>
+
+    <main class="main-content">
+        <button class="card-button" onclick="navigheaza('mate_elevi')">
+            <div class="icon">🧑‍🎓</div>
+            <span>Elevi</span>
+        </button>
+
+        <button class="card-button" onclick="navigheaza('mate_sasat')">
+            <div class="icon">📊</div>
+            <span>Sasat</span>
+        </button>
+
+        <button class="card-button" onclick="navigheaza('mate_observatie')">
+            <div class="icon">🧐</div>
+            <span>Fișe de observație</span>
+        </button>
+
+        <button class="card-button" onclick="navigheaza('mate_evaluare')">
+            <div class="icon">📈</div>
+            <span>Fișe de evaluare</span>
+        </button>
+    </main>
+
+    <script>
+        let selectedYear = 2026; // Anul setat implicit la pornire
+
+function selectYear(year) {
+    selectedYear = year;
+    
+    // Actualizăm aspectul butoanelor pentru a vedea ce am selectat
+    // Căutăm butoanele după ID-urile lor: y2025 și y2026
+    const btn2025 = document.getElementById('y2025');
+    const btn2026 = document.getElementById('y2026');
+
+    if (year === 2025) {
+        btn2025.style.backgroundColor = '#1a73e8'; // Albastru aprins pentru activ
+        btn2025.style.color = 'white';
+        btn2026.style.backgroundColor = '#e0e0e0'; // Gri pentru inactiv
+        btn2026.style.color = 'black';
+    } else {
+        btn2026.style.backgroundColor = '#1a73e8';
+        btn2026.style.color = 'white';
+        btn2025.style.backgroundColor = '#e0e0e0';
+        btn2025.style.color = 'black';
+    }
+    console.log("An selectat curent:", selectedYear);
+}
+
+function navigheaza(pagina) {
+    // Această funcție trimite acum anul către pagină sub formă de parametru
+    // Exemplu: dacă apeși Elevi, te duce la mate_elevi.html?an=2026
+    window.location.href = `${pagina}.html?an=${selectedYear}`;
+}
+
+// Rulăm funcția o dată la început pentru a activa butonul de 2026 implicit
+document.addEventListener('DOMContentLoaded', () => {
+    selectYear(2026);
+});
+    </script>
+</body>
+</html>
