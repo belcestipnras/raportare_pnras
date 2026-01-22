@@ -178,8 +178,6 @@ function getInterpretation(avg) {
 }
 
 async function init() {
-    document.getElementById('data-doc').innerText = `DATA: ${new Date().toLocaleDateString('ro-RO')}`;
-
     const { data, error } = await _db.from(TABLE_NAME).select('*').not('a11', 'is', null);
     if (error || !data) return;
 
@@ -290,3 +288,4 @@ init();
 </body>
 
 </html>
+
