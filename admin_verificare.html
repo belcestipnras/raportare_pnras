@@ -362,8 +362,7 @@
                 <i class="fa-solid ${icon}"></i> ${label}
             </div>
             <div class="actions">
-                <div class="action-btn" title="Deschide" onclick="window.open('${url}', '_blank')">
-                    <i class="fa-solid fa-eye"></i>
+                <div class="action-btn" title="Deschide" onclick="impersonateAndOpen('${url}', '${expert}')">
                 </div>
                 <div class="action-btn btn-check" title="Validează" onclick="toggleValid('${status.key}', ${isValid})">
                     <i class="fa-solid fa-check"></i>
@@ -442,6 +441,15 @@
     function getInitials(name) {
         return name.split(' ').map(n=>n[0]).join('').substring(0,2);
     }
+
+// Funcție care schimbă utilizatorul în memorie și apoi deschide pagina
+function impersonateAndOpen(url, expertName) {
+    // Aici folosim cheia pe care mi-ai dat-o
+    localStorage.setItem('expertPNRAS', expertName); 
+    
+    // Acum deschidem pagina, și ea va crede că acest expert este logat
+    window.open(url, '_blank');
+}
 
     window.onload = initApp;
 </script>
