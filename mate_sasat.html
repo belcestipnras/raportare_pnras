@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SASAT Manager - Text Integral & Litere Mici</title>
+    
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&family=Roboto+Mono:wght@500&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
+    <style>
+        :root { --sidebar-w: 260px; --primary: #4338ca; --bg-app: #f1f5f9; }
+        body { margin: 0; padding: 0; font-family: 'Inter', sans-serif; background: var(--bg-app); display: flex; height: 100vh; overflow: hidden; }
+        .sidebar { width: var(--sidebar-w); flex-shrink: 0; background: #0f172a; color: white; display: flex; flex-direction: column; padding: 20px 10px; overflow-y: auto; border-right: 1px solid #334155; }
+        .sidebar h2 { text-align: center; color: #818cf8; margin-bottom: 20px; font-size: 1.1rem; }
+        .sb-title { font-size: 0.7rem; color: #94a3b8; font-weight: 800; margin-bottom: 5px; border-left: 3px solid var(--primary); padding-left: 8px; }
+        .class-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; margin-bottom: 15px; }
+        .class-btn { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #cbd5e1; font-size: 0.7rem; text-align: center; padding: 8px 0; cursor: pointer; border-radius: 4px; transition: 0.2s; font-weight: 600; }
+        .class-btn:hover { background: rgba(255,255,255,0.2); color: white; }
+        .class-btn.active { background: var(--primary); color: white; }
+        .viewport { flex: 1; padding: 40px; overflow-y: auto; display: flex; flex-direction: column; align-items: center; }
+        .info-bar { background: white; padding: 15px 25px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; width: 100%; max-width: 210mm; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); margin-bottom: 30px; border-left: 5px solid var(--primary); }
+        .info-item { display: flex; flex-direction: column; }
+        .info-label { font-size: 0.7rem; text-transform: uppercase; color: #64748b; font-weight: 800; }
+        .info-val { font-size: 1.1rem; font-weight: 700; color: #1e293b; }
+        .sheet-wrapper { background: white; width: 100%; max-width: 210mm; margin-bottom: 60px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); position: relative; page-break-after: always; break-after: page; }
+        .header-full { width: 100%; border-bottom: 2px solid var(--primary); margin-bottom: 20px; }
+        .header-full img { width: 100%; height: auto; display: block; object-fit: contain; }
+        .q-content { padding: 0 40px 40px 40px; }
+        .title-block { text-align: center; margin-bottom: 20px; }
+        .main-title { font-size: 1.4rem; font-weight: 900; text-transform: uppercase; margin: 0; color: #1e293b; }
+        .sub-title { font-size: 0.9rem; color: var(--primary); font-weight: 700; margin-top: 5px; }
+        .anon-badge { display: inline-block; background: #334155; color: #fff; font-size: 1rem; padding: 6px 15px; border-radius: 4px; margin-top: 10px; font-weight: 800; letter-spacing: 1px; }
+        .intro-text { font-size: 0.85rem; color: #334155; font-style: italic; text-align: justify; margin-bottom: 25px; line-height: 1.4; }
+        .section-title { font-size: 0.9rem; font-weight: 800; color: #0f172a; text-transform: uppercase; border-bottom: 2px solid #e2e8f0; padding-bottom: 5px; margin-top: 25px; margin-bottom: 10px; page-break-after: avoid; }
+        .section-desc { font-size: 0.85rem; color: #64748b; margin-bottom: 15px; font-weight: 500; font-style: italic; }
+        .q-item { padding: 8px 0; border-bottom: 1px dashed #e2e8f0; page-break-inside: avoid; break-inside: avoid; }
+        .q-row { display: flex; justify-content: space-between; align-items: flex-end; gap: 15px; }
+        .q-text { flex: 1; font-size: 0.85rem; font-weight: 600; color: #1e293b; line-height: 1.3; text-align: justify; }
+        .q-code { color: var(--primary); font-weight: 800; margin-right: 5px; text-transform: lowercase; }
+        .scale-box { display: flex; gap: 5px; min-width: 150px; justify-content: flex-end; }
+        .scale-opt { display: flex; flex-direction: column; align-items: center; cursor: pointer; width: 25px; }
+        .scale-opt input { margin-bottom: 2px; accent-color: var(--primary); }
+        .scale-val { font-size: 0.7rem; font-weight: 700; color: #64748b; }
+        .radio-list label { display: flex; align-items: flex-start; gap: 8px; margin-bottom: 4px; font-size: 0.85rem; color: #334155; cursor: pointer; }
+        .radio-list input { margin-top: 3px; accent-color: var(--primary); flex-shrink: 0; }
+        textarea { width: 100%; border: 1px solid #cbd5e1; border-radius: 4px; padding: 8px; font-size: 0.85rem; min-height: 60px; margin-top: 5px; font-family: inherit; }
+        .fab-bar { position: fixed; bottom: 20px; right: 20px; display: flex; gap: 10px; z-index: 1000; background: white; padding: 10px; border-radius: 50px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+        .btn { border: none; padding: 12px 24px; border-radius: 30px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 8px; font-size: 0.9rem; }
+        .btn-ai { background: linear-gradient(135deg, #6366f1, #a855f7); color: white; }
+        .btn-print { background: #1e293b; color: white; }
+        .btn-save { background: #16a34a; color: white; }
+        @media print {
+            @page { size: A4; margin: 1.5cm; }
+            body { background: white; display: block; height: auto; }
+            .sidebar, .fab-bar, .info-bar, .no-print { display: none !important; }
+            .viewport { padding: 0; display: block; margin: 0; }
+            .sheet-wrapper { box-shadow: none; margin: 0; max-width: 100%; width: 100%; }
+            .header-full { border-bottom: 1px solid #000; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar no-print">
+        <h2>PNRAS MANAGER</h2>
+        <div class="sb-title">IANUARIE 2025</div>
+        <div class="class-grid" id="grid-ian25"></div>
+        <div class="sb-title" style="border-color:#38bdf8;">SEPTEMBRIE 2025</div>
+        <div class="class-grid" id="grid-sept25"></div>
+        <div class="sb-title" style="border-color:#c084fc;">MARTIE 2026</div>
+        <div class="class-grid" id="grid-mar26"></div>
+    </div>
+
+    <div class="viewport" id="viewport">
+        <div class="info-bar no-print">
+            <div class="info-item"><span class="info-label">Clasa</span><span class="info-val" id="disp-clasa">-</span></div>
+            <div class="info-item"><span class="info-label">Diriginte</span><span class="info-val" id="disp-diriginte">...</span></div>
+            <div class="info-item"><span class="info-label">Elevi</span><span class="info-val" id="disp-count">0</span></div>
+        </div>
+        <div id="sheets-container" style="width:100%; display:flex; flex-direction:column; align-items:center;">
+            <div style="text-align:center; color:#94a3b8; margin-top:100px;">
+                <i class="fa-solid fa-folder-open" style="font-size:3rem; margin-bottom:20px; opacity:0.3;"></i>
+                <h3>Selectează o clasă din stânga.</h3>
+            </div>
+        </div>
+    </div>
+
+    <div class="fab-bar no-print">
+        <button class="btn" style="background: #1e3a8a; color: white;" onclick="window.location.href='raport_sasat_scoala.html'">
+        <i class="fa-solid fa-chart-line"></i> Raport SASAT
+    <button class="btn" style="background: #475569; color: white;" onclick="window.location.href='mate.html'">
+        <i class="fa-solid fa-house"></i> Înapoi
+    </button>
+<button class="btn btn-ai" onclick="simulateSmartAI()"><i class="fa-solid fa-brain"></i> Simulează AI</button>
+        <button class="btn btn-print" onclick="window.print()"><i class="fa-solid fa-print"></i> Printează</button>
+        <button class="btn btn-save" onclick="updateDatabase()"><i class="fa-solid fa-floppy-disk"></i> Salvează Modificări</button>
+<button class="btn" style="background:#64748b; color:white;" onclick="resetAllForms()">
+    <i class="fa-solid fa-eraser"></i> Resetare Chestionare
+</button>
+    </div>
+
+<script>
+    const supabaseUrl = 'https://aexjrbdgajurxzngfkpx.supabase.co';
+    const supabaseKey = 'sb_publishable_KPV__0BA9z4EvRl5eqC0FQ_hmBLOLYv';
+    const _db = supabase.createClient(supabaseUrl, supabaseKey);
+    const TABLE_NAME = 'mate_pnras';
+
+    let currentClass = null; let currentPeriod = null; let currentYear = null;
+
+    // TOATE COLOANELE SUNT ACUM CU LITERE MICI (ex: a11, b53)
+    const DATA = [
+        {
+            title: "Secţiunea A: \"Tu şi familia ta\"",
+            desc: "A1. Când te gândești la părinții tăi, în ce măsură ești de acord cu următoarele afirmaţii?",
+            items: [
+                {c:"a11", t:"Simt că pot avea încredere să vorbesc cu părinţii mei", type:"scale"},
+                {c:"a12", t:"Dacă vorbesc cu părinţii mei, cred că vor încerca să înţeleagă ce simt", type:"scale"},
+                {c:"a13", t:"Părinții mei mă ascultă atunci când mă preocupă ceva", type:"scale"},
+                {c:"a14", t:"Le pot cere părinţilor mei să mă ajute atunci când întâmpin probleme cu rezolvarea temelor", type:"scale"},
+                {c:"a15", t:"Dacă aş avea o problemă personală sau socială, părinţii mei m-ar sfătui ce să fac", type:"scale"}
+            ]
+        },
+        {
+            title: "Secţiunea A (Continuare)",
+            desc: "A2. Când te gândești la părinţii tăi, în ce măsură ești de acord cu următoarele afirmaţii?",
+            items: [
+                {c:"a21", t:"Părinţii mei se asigură că îmi fac temele", type:"scale"},
+                {c:"a22", t:"Părinţii mei se asigură că merg la școală în fiecare zi", type:"scale"},
+                {c:"a23", t:"Părinţii mei mă laudă atunci când am rezultate bune la şcoală", type:"scale"},
+                {c:"a24", t:"Părinţii mei mă susțin pentru a avea rezultate bune la şcoală", type:"scale"},
+                {c:"a25", t:"Vorbesc cu părinții mei despre viitorul meu", type:"scale"},
+                {c:"a26", t:"Părinţii mei consideră că educaţia este importantă pentru a avea succes în viaţă", type:"scale"}
+            ]
+        },
+        {
+            title: "A4. Aşteptări",
+            items: [
+                {c:"a4", t:"Ce aşteptări au părinții tăi în privința educației tale?", type:"radio", opts:[
+                    "Nu ştiu; nu cred că au vreun fel de aşteptări în privința educației mele",
+                    "Să termin 8 clase", "Să termin 10 clase", "Să termin liceul (12 clase)", "Să termin o şcoală profesională",
+                    "Să termin liceul (12 clase) cu diplomă de bacalaureat", "Să-mi continui studiile şi să termin o şcoală postliceală sau o școală de maiştri",
+                    "Să-mi continui studiile și să termin studiile universitare"
+                ]}
+            ]
+        },
+        {
+            title: "Secţiunea B: \"La şcoală\"",
+            desc: "B1. Când te gândești la şcoala ta, în ce măsură ești de acord cu următoarele afirmaţii?",
+            items: [
+                {c:"b11", t:"Cred că este o școală bună", type:"scale"},
+                {c:"b12", t:"Simt că fac parte din această şcoală", type:"scale"},
+                {c:"b13", t:"Aş recomanda şi altor copii să se înscrie în această şcoală", type:"scale"}
+            ]
+        },
+        {
+            title: "Secţiunea B (Continuare - Studii)",
+            desc: "B2. Când te gândeşti la studiile tale, în ce măsură ești de acord cu următoarele afirmaţii?",
+            items: [
+                {c:"b21", t:"Dacă mă străduiesc să am rezultate bune la școală, voi avea mai multe şanse să obțin un loc bun de muncă", type:"scale"},
+                {c:"b22", t:"Dacă mă străduiesc să am rezultate bune la școală, voi avea mai multe șanse să merg la colegiu/ universitate", type:"scale"},
+                {c:"b23", t:"O educaţie bună îți oferă cele mai bune oportunități pe parcursul vieții", type:"scale"}
+            ]
+        },
+        {
+            title: "Secţiunea B (Continuare - Profesori)",
+            desc: "B4. Când te gândeşti la profesorii tăi, în ce măsură ești de acord cu următoarele afirmaţii?",
+            items: [
+                {c:"b41", t:"Simt că pot avea încredere în profesorii mei și că pot vorbi cu ei", type:"scale"},
+                {c:"b42", t:"Cred că dacă vorbesc cu profesorii mei, ei vor încerca să înţeleagă ce simt", type:"scale"},
+                {c:"b43", t:"Când un anumit lucru mă deranjează, profesorii mei mă ascultă", type:"scale"},
+                {c:"b44", t:"Dacă întâmpin dificultăți în rezolvarea temelorle, pot cere ajutorul profesorilor mei", type:"scale"},
+                {c:"b45", t:"Dacă am o problemă personală sau una socială, profesorii, consilierul sau mediatorul meu mă vor sfătui ce să fac", type:"scale"}
+            ]
+        },
+        {
+            title: "Secţiunea B (Continuare - Clasa)",
+            desc: "B5. Când te gândeşti la clasa ta, în ce măsură ești de acord cu următoarele afirmaţii?",
+            items: [
+                {c:"b51", t:"... profesorii aşteaptă mult timp ca elevii să facă linişte", type:"scale"},
+                {c:"b52", t:"... elevii nu ascultă ceea ce spun profesorii", type:"scale"},
+                {c:"b53", t:"... este zgomot şi dezordine", type:"scale"}
+            ]
+        },
+        {
+            title: "Secțiunea B6: Situații Sociale (Bullying)",
+            desc: "B6. În ultimele 12 luni, cât de des ai fost în vreuna dintre următoarele situaţii? (1=Niciodată ... 5=În fiecare zi de școală)",
+            items: [
+                {c:"b61", t:"Ai fost supărat că ceilalți elevi te-au poreclit, ți-au vorbit urât sau ți-au adresat jigniri (inclusiv prin telefon, prin mesaje scrise sau prin e-mail)", type:"scale"},
+                {c:"b62", t:"Alţi elevi de la şcoală te-au forțat să le dai bani sau lucruri personale", type:"scale"},
+                {c:"b63", t:"Alţi elevi te-au ameninţat că te lovesc sau că vor folosi alte forme de violenţă împotriva ta", type:"scale"},
+                {c:"b64", t:"Alţi elevi te-au lovit sau au folosit alte forme de violenţă împotriva ta", type:"scale"}
+            ]
+        },
+        {
+            title: "Secțiunea C: \"Aspirații pentru viitor\"",
+            items: [
+                {c:"c1", t:"Care este cel mai înalt nivel de educaţie pe care îți propui să îl atingi?", type:"radio", opts:[
+                    "Nu ştiu; nu m-am gândit la asta", "Am terminat şcoala primară (4 clase) și nu ştiu dacă voi termina şi gimnaziul (8 clase)",
+                    "Să termin 8 clase", "Să termin 10 clase", "Să termin liceul (12 clase)", "Să termin o şcoală profesională",
+                    "Să-mi continui studiile și să termin o școală postliceală sau o școală de maiştri", "Să-mi continui studiile și să termin studiile universitare"
+                ]},
+                {c:"c2", t:"Prietenii tăi apropiaţi şi de aceeaşi vârstă (băieți/ fete) au aceleaşi planuri de viitor privind educația?", type:"radio", opts:[
+                    "Nu ştiu; nu m-am gândit la asta", "Da, au aceleaşi planuri", "Nu, ei vor să atingă un nivel de studii mai înalt spre deosebire de mine", "Nu, ei deja au părăsit școala"
+                ]}
+            ]
+        },
+        {
+            title: "Feedback",
+            items: [
+                {c:"d1", t:"Cum ţi s-a părut completarea acestui chestionar?", type:"radio", opts:["Dificilă", "Destul de dificilă", "Uşoară", "Nu ştiu/nu răspund"]},
+                {c:"d2", t:"Dacă ţi s-a părut dificilă sau destul de dificilă, din ce motive?", type:"radio", opts:[
+                    "Sunt cuvinte/termeni pe care nu-i cunosc sau pe care nu-i înţeleg", "Chestionarul e prea lung",
+                    "Citesc mai greu întrebările şi durează mai mult timp să-l completez", "Alt motiv"
+                ]},
+                {c:"d3", t:"Dacă doreşti, spune-ne, ce ți-a plăcut la acest chestionar?", type:"text"}
+            ]
+        }
+    ];
+
+    const CLASSES = ['5A','5B','5C','6A','6B','6C','7A','7B','7C','8A','8B','8C'];
+    function initSidebar(id, period, year) {
+        const div = document.getElementById(id);
+        CLASSES.forEach(cls => {
+            const btn = document.createElement('div'); btn.className = 'class-btn'; btn.innerText = cls;
+            btn.onclick = () => loadClassData(cls, period, year, btn); div.appendChild(btn);
+        });
+    }
+    initSidebar('grid-ian25', 'IANUARIE 2025', 2025); initSidebar('grid-sept25', 'SEPTEMBRIE 2025', 2025); initSidebar('grid-mar26', 'MARTIE 2026', 2026);
+
+    async function loadClassData(cls, period, year, btn) {
+        document.querySelectorAll('.class-btn').forEach(b => b.classList.remove('active')); btn.classList.add('active');
+        currentClass = cls; currentPeriod = period; currentYear = year;
+        document.getElementById('disp-clasa').innerText = `${cls} (${period})`;
+        const container = document.getElementById('sheets-container');
+        container.innerHTML = `<div style="text-align:center; padding:50px;"><i class="fa-solid fa-spinner fa-spin fa-2x"></i><br>Se încarcă...</div>`;
+        const { data: elevi, error } = await _db.from(TABLE_NAME).select('*').eq('clasa', cls).eq('anul', year).order('nume_elev', { ascending: true });
+        if(error) { container.innerHTML = `Eroare: ${error.message}`; return; }
+        if(!elevi || elevi.length === 0) { container.innerHTML = `Nu sunt elevi.`; return; }
+        document.getElementById('disp-diriginte').innerText = elevi[0].diriginte || "Nesetat";
+        document.getElementById('disp-count').innerText = elevi.length;
+        container.innerHTML = ''; elevi.forEach((elev, idx) => container.innerHTML += createSheet(elev, idx + 1));
+    }
+
+    function createSheet(elev, idx) {
+        const uid = `s${idx}`;
+        let h = `<div class="sheet-wrapper" id="${uid}" data-cnp="${elev.cnp}"><div class="header-full"><img src="antet_pnras.jpeg" alt="Antet PNRAS"></div><div class="q-content"><div class="title-block"><h1 class="main-title">Chestionar SASAT</h1><div class="sub-title">${currentPeriod} • Clasa ${currentClass}</div><div class="anon-badge">CHESTIONAR NR. ${idx}</div></div><div class="intro-text">Dragă elevule, acest chestionar are scopul de a culege opiniile tale despre şcoală și despre procesul de învăţare. Nu există răspunsuri corecte sau greşite. Toate informațiile sunt confidențiale, aşa că te încurajăm să oferi răspunsuri sincere. La toate întrebările de mai jos, te rugăm să încercuieşti un singur răspuns, cel pe care îl consideri cel mai potrivit în cazul tău. Itemii A3 și B3 lipsesc din acest chestionar, ei fiind aplicați începând cu anul şcolar 2021/22.</div>`;
+        DATA.forEach(sec => {
+            h += `<div class="section-title">${sec.title}</div>`; if(sec.desc) h += `<div class="section-desc">${sec.desc}</div>`;
+            sec.items.forEach(q => {
+                const name = `${uid}_${q.c}`; const dbValue = elev[q.c];
+                h += `<div class="q-item">`;
+                if(q.type === 'scale') {
+                    h += `<div class="q-row"><div class="q-text"><span class="q-code">${q.c}.</span> ${q.t}</div><div class="scale-box">${[1,2,3,4,5].map(v => `<label class="scale-opt"><input type="radio" name="${name}" value="${v}" ${(dbValue===v)?'checked':''}><span class="scale-val">${v}</span></label>`).join('')}</div></div>`;
+                } else if(q.type === 'radio') {
+                    h += `<div class="q-text" style="margin-bottom:8px;"><span class="q-code">${q.c}.</span> ${q.t}</div><div class="radio-list">${q.opts.map((o, i) => `<label><input type="radio" name="${name}" value="${i+1}" ${(dbValue===(i+1))?'checked':''}> ${o}</label>`).join('')}</div>`;
+                } else if(q.type === 'text') {
+                    h += `<div class="q-text"><span class="q-code">${q.c}.</span> ${q.t}</div><textarea name="${name}">${dbValue||''}</textarea>`;
+                }
+                h += `</div>`;
+            });
+        });
+        h += `</div></div>`; return h;
+    }
+
+    function simulateSmartAI() {
+    const feedbackList = [
+        "Mi-a plăcut că m-a făcut să mă gândesc la mine.", "M-am simțit bine răspunzând.", "Mi-a plăcut că am putut spune ce simt.", 
+        "Unele întrebări m-au pus pe gânduri.", "M-a făcut curios.", "Mi-a plăcut că nu mi-a fost teamă să răspund.", 
+        "M-am simțit important că mi se cere părerea.", "Mi-a plăcut că m-am recunoscut în unele întrebări.", 
+        "M-a făcut să mă gândesc la școală altfel.", "Mi-a plăcut că am putut fi sincer.", "M-am simțit ascultat.", 
+        "Unele întrebări mi s-au părut interesante.", "Mi-a plăcut că m-a făcut să mă opresc din joacă și să mă gândesc.", 
+        "M-a făcut să îmi dau seama de unele lucruri.", "Mi-a plăcut că nu m-am simțit judecat.", 
+        "M-a făcut să mă gândesc la ce îmi place la școală.", "Mi-a plăcut că am putut răspunde cum am vrut.", 
+        "M-am simțit liniștit completând.", "Mi-a plăcut că m-a ajutat să mă cunosc mai bine.", "Unele întrebări m-au surprins.",
+        "Mi-a plăcut că m-a pus pe gânduri.", "M-am simțit liber să răspund.", "Mi-a plăcut că nu a fost ca un test.",
+        "M-a făcut să mă gândesc la ce simt la școală.", "Mi-a plăcut experiența.", "Mi-a plăcut că m-a făcut să îmi analizez gândurile.",
+        "Unele întrebări m-au ajutat să mă cunosc mai bine.", "Mi-a plăcut că am putut să fiu sincer.",
+        "M-a făcut să mă gândesc la ce simt în anumite situații.", "Mi-a plăcut că mi-am dat seama de lucruri noi.",
+        "Unele întrebări mi-au trezit emoții.", "Mi-a plăcut că m-am simțit în siguranță să răspund.",
+        "M-a ajutat să reflectez la experiențele mele.", "M-a făcut să mă gândesc la relația mea cu școala.",
+        "Mi-a plăcut că nu a fost doar despre note.", "Unele întrebări m-au făcut să mă opresc și să reflectez.",
+        "Mi-a plăcut că am putut să spun ce cred.", "M-a ajutat să îmi exprim sentimentele.", "Mi-a plăcut că am fost încurajat să gândesc.",
+        "M-a făcut să mă întreb lucruri despre mine.", "Unele întrebări au fost diferite față de ce sunt obișnumit.",
+        "Mi-a plăcut că mi-a atras atenția.", "M-a ajutat să fiu mai atent la ce simt.", "Mi-a plăcut că m-am regăsit în răspunsuri.",
+        "M-a făcut să reflectez la ce îmi place și ce nu.", "Mi-a plăcut că nu m-am simțit presat.", "M-a ajutat să îmi dau seama de anumite lucruri.",
+        "Mi-a plăcut că a fost despre mine.", "A fost o experiență interesantă.", "Mi-a plăcut că m-a pus pe gânduri în legătură cu mine.",
+        "Unele întrebări m-au făcut să reflectez mai profund.", "Mi-a plăcut că am putut să îmi exprim opiniile.",
+        "M-a ajutat să înțeleg mai bine ce simt.", "Mi-a plăcut că m-a făcut să analizez anumite situații.", "Unele întrebări au fost provocatoare.",
+        "Mi-a plăcut că nu a fost superficial.", "M-a ajutat să îmi dau seama de punctele mele de vedere.", "Mi-a plăcut că m-a făcut să fiu sincer cu mine.",
+        "Unele întrebări m-au făcut să îmi pun întrebări.", "M-a făcut să mă gândesc la ce contează pentru mine.",
+        "Mi-a plăcut că am avut libertate în răspunsuri.", "Unele întrebări m-au surprins plăcut.", "Mi-a plăcut că m-a făcut atent la emoțiile mele.",
+        "M-a ajutat să îmi exprim gândurile.", "Mi-a plăcut că nu a fost banal.", "M-a făcut să reflectez la modul în care văd lucrurile.",
+        "Unele întrebări mi s-au părut importante.", "Mi-a plăcut că m-a provocat să gândesc.",
+        "Unele întrebări m-au făcut să îmi schimb perspectiva.", "Mi-a plăcut că a fost despre trăirile mele.",
+        "A fost o experiență care m-a făcut să reflectez.", "Mi-a plăcut că m-a determinat să reflectez la mine.",
+        "Unele întrebări m-au făcut să îmi analizez emoțiile.", "Mi-a plăcut că a fost o ocazie de autoevaluare.",
+        "M-a ajutat să conștientizez anumite trăiri.", "Mi-a plăcut că m-a pus pe gânduri serios.", "Unele întrebări au fost relevante pentru mine.",
+        "Mi-a plăcut că am putut răspunde sincer.", "M-a ajutat să îmi clarific unele sentimente.", "Mi-a plăcut că a stimulat reflecția personală.",
+        "Unele întrebări m-au făcut să privesc lucrurile diferit.", "Mi-a plăcut că a fost despre experiențele mele.",
+        "M-a ajutat să înțeleg mai bine cum mă simt.", "Mi-a plăcut că m-a încurajat să gândesc profund.",
+        "Unele întrebări m-au făcut să îmi pun întrebări importante.", "M-a ajutat să reflectez la parcursul meu.",
+        "Mi-a plăcut că a fost o pauză de reflecție.", "Unele întrebări m-au făcut să fiu mai atent la mine.",
+        "Mi-a plăcut că mi-a oferit timp de gândire.", "M-a ajutat să îmi exprim gândurile personale.", "Mi-a plăcut că a fost o experiență diferită.",
+        "Unele întrebări m-au făcut să mă analizez.", "Mi-a plăcut că m-a provocat intelectual și emoțional.",
+        "M-a ajutat să îmi dau seama de anumite lucruri.",
+        "Per total, a fost o experiență care m-a pus pe gânduri.", "Mi-a plăcut că a fost ușor.", "Întrebările au fost simple.",
+        "A fost scurt.", "Mi-a plăcut că nu a fost greu.", "Am înțeles ce trebuia să răspund.", "A fost interesant.",
+        "Mi-a plăcut că nu m-a obosit.", "A fost clar.", "Mi-a plăcut că am terminat repede.", "A fost mai ușor decât mă așteptam.",
+        "Întrebările au fost pe înțelesul meu.", "Mi-a plăcut că nu a fost plictisitor.", "A fost ok.", "Mi-a plăcut că a fost simplu.",
+        "Nu a fost complicat.", "Mi-a plăcut că nu m-am încurcat.", "A fost bine explicat.", "Mi-a plăcut că a fost scurt și clar.",
+        "A fost ușor de completat.", "Mi-a plăcut că nu m-a stresat.", "A fost interesant de făcut.", "Mi-a plăcut că am știut răspunsurile.",
+        "A fost potrivit pentru mine.", "Mi-a plăcut că nu a fost greu deloc.", "A fost chiar plăcut.",
+        "Unele întrebări m-au făcut să mă simt inconfortabil.", "Mi-a fost greu să răspund sincer la câteva întrebări.",
+        "Unele întrebări m-au pus în dificultate.", "M-am simțit puțin confuz la unele răspunsuri.",
+        "Unele întrebări m-au făcut să mă gândesc la lucruri neplăcute.", "Nu am știut exact ce să răspund la unele întrebări.",
+        "Unele întrebări mi s-au părut prea personale.", "M-a făcut să mă simt nesigur pe răspunsurile mele.",
+        "Mi-a fost greu să îmi exprim exact ce simt.", "Unele întrebări m-au pus pe gânduri într-un mod neplăcut.",
+        "M-am simțit puțin stresat răspunzând la anumite întrebări.", "Unele întrebări m-au făcut să mă simt trist.",
+        "Nu mi-a plăcut că a trebuit să mă gândesc la lucruri dificile.", "Unele întrebări mi-au creat disconfort.",
+        "Mi-a fost greu să fie sincer la toate întrebările.", "Unele întrebări m-au făcut să mă simt nesigur.",
+        "M-am simțit puțin presat să răspund.", "Nu mi-a plăcut că unele întrebări m-au făcut să îmi amintesc situații neplăcute.",
+        "Mi-a fost dificil să aleg un răspuns potrivit.", "Unele întrebări m-au făcut să mă simt neliniștit.",
+        "Nu mi-a plăcut că m-a pus pe gânduri mai mult decât mi-aș fi dorit.", "Unele întrebări m-au făcut să mă simt incomod.",
+        "Mi-a fost greu să înțeleg ce simt exact.", "Nu mi-a plăcut că unele întrebări m-au afectat emoțional.",
+        "A fost greu să răspund la tot fără să mă simt stânjenit."
+    ];
+
+    document.querySelectorAll('.sheet-wrapper').forEach(sheet => {
+        // 1. Reset și Randomizează Radio Buttons
+        const radios = sheet.querySelectorAll('input[type="radio"]');
+        const groups = {};
+        radios.forEach(r => { 
+            if(!groups[r.name]) groups[r.name] = []; 
+            groups[r.name].push(r); 
+        });
+
+        Object.values(groups).forEach(grp => {
+            grp.forEach(r => r.checked = false);
+            const randomIndex = Math.floor(Math.random() * grp.length);
+            grp[randomIndex].checked = true;
+        });
+
+        // 2. Randomizează Feedback Text (D3) folosind toată lista
+        const txt = sheet.querySelector('textarea');
+        if(txt) {
+            const randomFeedback = feedbackList[Math.floor(Math.random() * feedbackList.length)];
+            txt.value = randomFeedback;
+        }
+    });
+
+    alert("Simulare AI completată cu feedback realist!");
+}
+
+    async function updateDatabase() {
+        const sheets = document.querySelectorAll('.sheet-wrapper'); if(sheets.length === 0) return;
+        const btn = document.querySelector('.btn-save'); btn.innerHTML = 'Se salvează...';
+        let successCount = 0; let errors = [];
+        for (let sheet of sheets) {
+            const cnp = sheet.dataset.cnp; if(!cnp) continue;
+            let answers = {};
+            sheet.querySelectorAll('input[type="radio"]:checked').forEach(r => answers[r.name.split('_')[1]] = parseInt(r.value));
+            const txt = sheet.querySelector('textarea'); if(txt) answers['d3'] = txt.value;
+            if(Object.keys(answers).length > 0) {
+                const { error } = await _db.from(TABLE_NAME).update(answers).eq('cnp', cnp);
+                if(error) errors.push(error.message); else successCount++;
+            }
+        }
+        if(errors.length > 0) { alert("Eroare: " + errors[0]); btn.innerHTML = 'Eroare'; }
+        else { alert(`Salvat ${successCount} chestionare.`); btn.innerHTML = 'Succes!'; }
+    }
+
+async function resetAllForms() {
+    // 1. Confirmare pentru a evita ștergerea accidentală
+    if (!confirm("ATENȚIE: Această acțiune va ȘTERGE DEFINITIV toate răspunsurile salvate în baza de date pentru clasa curentă. Ești sigur?")) return;
+
+    const sheets = document.querySelectorAll('.sheet-wrapper');
+    if (sheets.length === 0) return;
+
+    const btnReset = document.querySelector('button[onclick="resetAllForms()"]');
+    const originalContent = btnReset.innerHTML;
+    btnReset.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Se șterge din bază...';
+
+    // 2. Pregătim obiectul de „golire” (toate coloanele pe null)
+    let resetData = {};
+    
+    // Generăm automat lista de coloane din structura DATA pentru a le pune pe null
+    DATA.forEach(section => {
+        section.items.forEach(q => {
+            resetData[q.c] = null;
+        });
+    });
+    // Adăugăm și feedback-ul deschis
+    resetData['d3'] = null;
+
+    let updatePromises = [];
+
+    // 3. Trimitem comanda de Update pentru fiecare elev din clasa afișată
+    sheets.forEach(sheet => {
+        const cnp = sheet.dataset.cnp;
+        if (cnp) {
+            const p = _db.from(TABLE_NAME)
+                .update(resetData)
+                .eq('cnp', cnp)
+                .then(({ error }) => error ? 1 : 0);
+            updatePromises.push(p);
+        }
+    });
+
+    const results = await Promise.all(updatePromises);
+    const errors = results.reduce((a, b) => a + b, 0);
+
+    // 4. Curățăm interfața vizuală
+    sheets.forEach(sheet => {
+        const radios = sheet.querySelectorAll('input[type="radio"]');
+        radios.forEach(r => r.checked = false);
+        const txt = sheet.querySelector('textarea');
+        if (txt) txt.value = "";
+    });
+
+    btnReset.innerHTML = originalContent;
+
+    if (errors > 0) {
+        alert("Unele chestionare nu au putut fi resetate în baza de date.");
+    } else {
+        alert("Toate datele au fost șterse definitiv din baza de date pentru această clasă.");
+    }
+}
+</script>
+</body>
+</html>
