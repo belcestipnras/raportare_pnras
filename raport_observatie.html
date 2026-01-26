@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Raport Strategic Fișe de Observație MATE</title>
+    
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Montserrat:wght@700;800&family=Roboto+Mono:wght@500;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
+    <style>
+        :root { 
+            --primary: #1e3a8a; --accent: #2563eb; --bg-soft: #f8fafc;
+            --danger: #dc2626; --warning: #d97706; --success: #059669;
+            --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+        @page { size: A4; margin: 1cm; }
+        
+        body { font-family: 'Inter', sans-serif; background: #f1f5f9; margin: 0; padding: 0; color: #1e293b; font-size: 8.5pt; line-height: 1.5; }
+        
+        /* REZOLVARE UMBRĂ LA PRINT */
+        @media print { 
+            .no-print { display: none !important; } 
+            body { background: white !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; } 
+            .a4-page { margin: 0 !important; box-shadow: none !important; width: 100% !important; padding: 0.5cm !important; border: none !important; }
+            .card, .stat-card-top, .main-header, .period-selector { box-shadow: none !important; border: 1px solid #e2e8f0 !important; }
+            .keep-together { box-shadow: none !important; border: none !important; }
+        }
+
+        .a4-page { width: 210mm; min-height: 297mm; margin: 20px auto; background: white; padding: 1.2cm; box-sizing: border-box; box-shadow: var(--shadow); border-radius: 4px; position: relative; }
+
+        .antet-full { width: 100%; margin-bottom: 5px; }
+        .antet-img { width: 100%; height: auto; display: block; }
+        .nr-inreg-row { margin: 10px 0; font-weight: 700; font-size: 8.5pt; color: #000; }
+        .edit-line { padding: 0 5px; min-width: 150px; display: inline-block; border-bottom: 1px dashed #94a3b8; cursor: text; }
+
+        .header-center { text-align: center; margin: 20px 0 30px 0; }
+        .header-center h1 { margin: 0; font-size: 1.5rem; color: #0f172a; text-transform: uppercase; font-weight: 800; }
+        .header-center h2 { margin: 5px 0; font-size: 1rem; color: var(--accent); font-weight: 700; text-transform: uppercase; }
+
+        .main-header { 
+            background: linear-gradient(135deg, var(--primary), #1e40af); 
+            color: white; padding: 10px 18px; font-weight: 800; font-size: 9.5pt; 
+            text-transform: uppercase; border-radius: 8px; display: flex; align-items: center; gap: 10px;
+            margin-bottom: 15px; margin-top: 25px; box-shadow: var(--shadow);
+        }
+
+        .stats-grid-top { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; }
+        .stat-card-top { background: white; padding: 12px; border-radius: 12px; border: 1px solid #e2e8f0; text-align: center; box-shadow: var(--shadow); }
+        .stat-label-top { font-size: 0.65rem; font-weight: 700; color: #64748b; text-transform: uppercase; }
+        .stat-value-top { font-size: 1.5rem; font-weight: 800; color: var(--primary); margin: 3px 0; }
+
+        .cards-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+        .card { 
+            background: white; border-radius: 10px; padding: 12px; border: 1px solid #e2e8f0; 
+            display: flex; flex-direction: column; box-shadow: var(--shadow); position: relative; overflow: hidden;
+        }
+        .card::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 5px; background: var(--accent); }
+        
+        .card-header-flex { display: flex; justify-content: space-between; align-items: center; }
+        .card-title { font-weight: 800; color: #0f172a; font-size: 9pt; }
+        
+        .prog-bar { width: 100%; height: 7px; background: #f1f5f9; border-radius: 10px; overflow: hidden; border: 1px solid #e2e8f0; margin-top: 8px; }
+        .prog-fill { height: 100%; border-radius: 10px; transition: width 1s ease-out; }
+        
+        .score-val { font-family: 'Roboto Mono', monospace; font-weight: 800; font-size: 11pt; color: var(--primary); }
+        .count-sub { font-size: 7.5pt; color: #64748b; font-weight: 600; }
+
+        .class-header-title { 
+            color: var(--primary); font-size: 10.5pt; font-weight: 800; 
+            text-transform: uppercase; margin: 30px 0 12px 0; padding-bottom: 5px; 
+            border-bottom: 2px solid var(--accent); display: flex; justify-content: space-between; align-items: center;
+        }
+
+        /* DISTANȚĂ MICĂ ÎNTRE PARAGRAFE */
+        .ai-paragraph { display: block; text-indent: 1.27cm; margin-bottom: 8px; text-align: justify; font-size: 10.5pt; color: #1e293b; line-height: 1.6; }
+        
+        .keep-together { page-break-inside: avoid; display: block; margin-top: 30px; border: none; box-shadow: none; }
+        .signature-row { display: flex; flex-direction: column; align-items: center; text-align: center; margin-top: 25px; }
+        .sig-box { font-size: 11pt; font-weight: 800; border-top: 2px solid #000; padding-top: 8px; min-width: 280px; line-height: 1.4; margin-top: 35px; }
+
+        .nav-bar { position: fixed; top: 20px; left: 20px; display: flex; flex-direction: column; gap: 10px; z-index: 9999; }
+        .btn { padding: 12px 20px; border: none; border-radius: 10px; font-weight: 700; cursor: pointer; color: white; display: flex; align-items: center; gap: 10px; box-shadow: 0 10px 20px rgba(0,0,0,0.15); font-size: 8.5pt; }
+        
+        .period-selector { background: white; padding: 15px; border-radius: 14px; margin: 15px auto; width: 210mm; text-align: center; border: 1px solid #e2e8f0; box-shadow: var(--shadow); }
+        .p-btn { padding: 10px 18px; border: 1px solid #e2e8f0; border-radius: 8px; cursor: pointer; background: white; font-weight: 800; margin: 0 5px; color: #64748b; font-size: 8.5pt; }
+        .p-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+    </style>
+</head>
+<body>
+
+<div class="nav-bar no-print">
+    <button class="btn" style="background:#475569;" onclick="window.history.back()"><i class="fa-solid fa-arrow-left"></i> ÎNAPOI</button>
+    <button class="btn" style="background:var(--accent);" onclick="generateInterpretation()"><i class="fa-solid fa-wand-magic-sparkles"></i> GENEREAZĂ ANALIZĂ</button>
+    <button class="btn" style="background:#000;" onclick="window.print()"><i class="fa-solid fa-print"></i> SALVEAZĂ PDF</button>
+</div>
+
+<div class="period-selector no-print">
+    <button class="p-btn" onclick="initRaport('IANUARIE 2025', 2025, this)">IANUARIE 2025</button>
+    <button class="p-btn" onclick="initRaport('SEPTEMBRIE 2025', 2025, this)">SEPTEMBRIE 2025</button>
+    <button class="p-btn" onclick="initRaport('MARTIE 2026', 2026, this)">MARTIE 2026</button>
+</div>
+
+<div class="a4-page">
+    <div class="antet-full"><img src="antet_pnras.jpeg" class="antet-img"></div>
+    <div class="nr-inreg-row">NR. ÎNREG: <span class="edit-line" id="nr-inreg-field" contenteditable="true">........ / ................</span></div>
+
+    <div class="header-center">
+        <h1>Raport Fișe de observație</h1>
+        <h2 id="display-period">Selectați Perioada</h2>
+        <div style="margin-top:15px;">
+            <div style="font-weight: 800; font-size: 9.5pt; text-transform: uppercase; color: var(--primary);">Categoria I: Activități de identificarea și monitorizare a elevilor în risc de abandon școlar - MATE</div>
+            <div style="font-weight: 600; font-size: 9pt; color: #64748b;">A I.2. Aplicarea Fișei de observare și a Fișei de evaluare MATE</div>
+        </div>
+    </div>
+
+    <div class="stats-grid-top">
+        <div class="stat-card-top"><div class="stat-label-top">Elevi Monitorizați</div><div class="stat-value-top" id="t-total">0</div></div>
+        <div class="stat-card-top" style="border-bottom: 4px solid var(--danger);"><div class="stat-label-top">Risc Ridicat</div><div class="stat-value-top" id="t-ridicat">0</div></div>
+        <div class="stat-card-top" style="border-bottom: 4px solid var(--warning);"><div class="stat-label-top">Risc Mediu</div><div class="stat-value-top" id="t-mediu">0</div></div>
+        <div class="stat-card-top" style="border-bottom: 4px solid var(--success);"><div class="stat-label-top">Vulnerabili</div><div class="stat-value-top" id="t-vulnerabil">0</div></div>
+    </div>
+
+    <div class="section-wrap">
+        <div class="main-header"><i class="fa-solid fa-chart-column"></i> Secțiunea I: Sinteza indicatorilor la nivel de unitate</div>
+        <div id="unit-summary" class="cards-grid"></div>
+    </div>
+
+    <div class="section-wrap">
+        <div class="main-header"><i class="fa-solid fa-users-rays"></i> Secțiunea II: Analiza comparativă pe clase</div>
+        <div id="classes-container"></div>
+    </div>
+
+    <div class="section-wrap">
+        <div class="main-header"><i class="fa-solid fa-file-pen"></i> Secțiunea III: Analiză și concluzii</div>
+        <div id="interpretare-text" contenteditable="true">
+            <span style="color: #64748b; font-style: italic;">Așteptare selecție perioadă...</span>
+        </div>
+    </div>
+</div>
+
+<script>
+const supabaseUrl = 'https://aexjrbdgajurxzngfkpx.supabase.co';
+const supabaseKey = 'sb_publishable_KPV__0BA9z4EvRl5eqC0FQ_hmBLOLYv';
+const _db = supabase.createClient(supabaseUrl, supabaseKey);
+
+const OBS_METRICS = [
+    { id: "fo_frecventa", label: "Frecvență redusă" },
+    { id: "fo_rezultate", label: "Rezultate școlare slabe" },
+    { id: "fo_repetent_1", label: "Repetent o dată" },
+    { id: "fo_repetent_m", label: "Repetent de mai multe ori" },
+    { id: "fo_sanctionat", label: "Sancționat" }
+];
+
+let dateleCurente = [];
+let currentPeriod = "";
+
+async function initRaport(period, year, btn) {
+    document.querySelectorAll('.p-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentPeriod = period;
+    document.getElementById('display-period').innerText = period;
+
+    let targetYear = (period === 'SEPTEMBRIE 2025' || period === 'MARTIE 2026') ? 2026 : year;
+
+    const { data, error } = await _db.from('mate_pnras').select('*').eq('anul', targetYear);
+    if (error) return;
+    
+    dateleCurente = data || [];
+    updateGlobalHeader();
+    renderCards(dateleCurente, 'unit-summary');
+    renderClasses();
+    await incarcaRaportSalvat();
+}
+
+function getCountDA(data, id) {
+    return data.filter(e => String(e[id] || "").toUpperCase().trim() === "DA").length;
+}
+
+function updateGlobalHeader() {
+    const total = dateleCurente.length;
+    const ridicat = dateleCurente.filter(e => String(e.risc).toUpperCase() === 'RIDICAT').length;
+    const mediu = dateleCurente.filter(e => String(e.risc).toUpperCase() === 'MEDIU').length;
+    const vulnerabili = dateleCurente.filter(e => 
+        OBS_METRICS.some(m => String(e[m.id] || "").toUpperCase().trim() === "DA")
+    ).length;
+
+    document.getElementById('t-total').innerText = total;
+    document.getElementById('t-ridicat').innerText = ridicat;
+    document.getElementById('t-mediu').innerText = mediu;
+    document.getElementById('t-vulnerabil').innerText = vulnerabili;
+}
+
+function renderCards(data, containerId) {
+    const container = document.getElementById(containerId);
+    container.innerHTML = "";
+    if(!data.length) return;
+
+    OBS_METRICS.forEach(m => {
+        const count = getCountDA(data, m.id);
+        const perc = ((count / data.length) * 100).toFixed(1);
+        const color = count > 0 ? (perc > 20 ? 'var(--danger)' : 'var(--warning)') : 'var(--success)';
+
+        container.innerHTML += `
+            <div class="card">
+                <div class="card-header-flex">
+                    <div class="card-title">${m.label}</div>
+                    <div class="score-val">${perc}%</div>
+                </div>
+                <div class="count-sub">${count} elevi din ${data.length} monitorizați</div>
+                <div class="prog-bar"><div class="prog-fill" style="width:${perc}%; background:${color}"></div></div>
+            </div>`;
+    });
+}
+
+function renderClasses() {
+    const container = document.getElementById('classes-container');
+    container.innerHTML = "";
+    const clase = [...new Set(dateleCurente.map(d => d.clasa))].sort();
+
+    clase.forEach(c => {
+        const cD = dateleCurente.filter(d => d.clasa === c);
+        const gridId = `grid-${c.replace(/\s/g, '_')}`;
+        container.innerHTML += `
+            <div class="class-header-title">
+                <span>ANALIZĂ CLASA ${c}</span>
+                <span style="font-size: 8pt; font-weight: 500;">EFECTIV: ${cD.length} ELEVI</span>
+            </div>
+            <div class="cards-grid" id="${gridId}"></div>`;
+        renderCards(cD, gridId);
+    });
+}
+
+async function generateInterpretation() {
+    if (!dateleCurente.length) return;
+    const out = document.getElementById('interpretare-text');
+    out.innerHTML = '<span>Preluare indicatori MATE...</span>';
+    
+    try {
+        const stats = OBS_METRICS.map(m => `${m.label}: ${getCountDA(dateleCurente, m.id)} elevi`).join(', ');
+        const ridicat = document.getElementById('t-ridicat').innerText;
+
+        const response = await fetch('https://aexjrbdgajurxzngfkpx.supabase.co/functions/v1/chatgpt-pnras', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${supabaseKey}` },
+            body: JSON.stringify({ 
+                prompt: `CONTEXT: Analiză fișe de observație MATE (diringinți) la Liceul „V.M. Craiu” Belcești. 
+                DATE: ${stats}. Risc ridicat: ${ridicat}. Total: ${dateleCurente.length}. Perioada: ${currentPeriod}.
+                SARCINĂ: Scrie Secțiunea III (Analiză și Concluzii). 
+                REGULI: 
+                - Introducere obligatorie: "Din analiza datelor colectate prin intermediul fișelor de observație completate de diriginți...".
+                - Limbaj IMPERSONAL (se observă, se constată). FĂRĂ persoana I.
+                - Soluții PNRAS: Remedial, outdoor, consiliere, subvenții.
+                - FĂRĂ liste/titluri. Paragrafe clare. Ton profesional dar nu excesiv de academic.` 
+            })
+        });
+        const r = await response.json();
+        const paragraphs = r.reply.split('\n').filter(p => p.trim() !== '');
+        
+        let bodyHtml = paragraphs.slice(0, -1).map(p => `<span class="ai-paragraph">${p.trim()}</span>`).join('');
+        const lastP = paragraphs[paragraphs.length - 1];
+
+        const footerHtml = `
+            <div class="keep-together">
+                <span class="ai-paragraph">${lastP.trim()}</span>
+                <div class="signature-row">
+                    <div style="font-weight: 800; color: #000; font-size: 11pt;">Întocmit,</div>
+                    <div style="font-weight: 700; margin-bottom: 25px; font-size: 10pt;">Manager proiect PNRAS,</div>
+                    <div class="sig-box">
+                        Prof. dr. Ciprian MIHAI
+                    </div>
+                </div>
+            </div>`;
+            
+        out.innerHTML = bodyHtml + footerHtml;
+        await salveazaInSupabase();
+    } catch (e) { out.innerHTML = "Eroare la procesare."; }
+}
+
+async function salveazaInSupabase() {
+    const reportId = `obs_v14_no_shadow_${currentPeriod.replace(/ /g, '_')}`;
+    const analiza = document.getElementById('interpretare-text').innerHTML;
+    const nrInreg = document.getElementById('nr-inreg-field').innerText;
+    await _db.from('rapoarte_salvate').upsert({ id: reportId, continut_analiza: analiza, nr_inreg: nrInreg, updated_at: new Date() });
+}
+
+async function incarcaRaportSalvat() {
+    const reportId = `obs_v14_no_shadow_${currentPeriod.replace(/ /g, '_')}`;
+    const { data } = await _db.from('rapoarte_salvate').select('*').eq('id', reportId).maybeSingle();
+    if (data) {
+        document.getElementById('interpretare-text').innerHTML = data.continut_analiza;
+        document.getElementById('nr-inreg-field').innerText = data.nr_inreg;
+    } else {
+        document.getElementById('interpretare-text').innerHTML = '<span style="color:#64748b;">Apăsați butonul de generare.</span>';
+    }
+}
+</script>
+</body>
+</html>
