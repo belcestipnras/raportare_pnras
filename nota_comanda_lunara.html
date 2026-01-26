@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notă Comandă - Vizualizare Print</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Montserrat:wght@700&display=swap" rel="stylesheet">
+    <style>
+        :root { --primary: #1e40af; }
+        body { margin: 0; font-family: 'Inter', sans-serif; background: #475569; color: #1e293b; padding: 20px 0; }
+        
+        .sheet {
+            background: white; width: 210mm; margin: 0 auto; box-sizing: border-box; 
+            padding: 1.5cm; position: relative; font-family: "Times New Roman", Times, serif; 
+            font-size: 12pt; line-height: 1.5; color: #000; box-shadow: 0 0 30px rgba(0,0,0,0.3);
+        }
+        .antet-img { width: 100%; height: auto; margin-bottom: 10px; }
+        .nr-inregistrare { margin-top: 5px; font-weight: bold; font-size: 12pt; display: flex; align-items: center; }
+        
+        .header-box { text-align: center; margin: 20px 0; border: 1pt solid var(--primary); padding: 15px; border-radius: 12px; background: #f0f7ff; }
+        .titlu-principal { font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: 18pt; color: var(--primary); text-transform: uppercase; margin: 0; }
+        
+        .destinatar-card { background: #f8fafc; padding: 15px; border-left: 6px solid var(--primary); margin: 15px 0; border-radius: 4px; font-weight: bold; }
+        .continut-text { text-indent: 1.25cm; text-align: justify; margin-bottom: 8px; }
+
+        .tabel-comanda { width: 100%; border-collapse: collapse; border: 1pt solid #000; table-layout: fixed; }
+        .tabel-comanda th, .tabel-comanda td { border: 1pt solid #000; padding: 8px; text-align: center; }
+        .tabel-comanda th { background: #eff6ff !important; font-weight: bold; }
+
+        .info-container { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 25px; }
+        .info-box { border: 1pt solid #000; padding: 12px; border-radius: 8px; }
+        .semnatura { margin-top: 40px; text-align: right; font-weight: bold; padding-right: 30px; }
+
+        .controls-top { position: fixed; top: 10px; left: 50%; transform: translateX(-50%); z-index: 1000; }
+        .btn-print { background: var(--primary); color: white; padding: 10px 25px; border-radius: 8px; border: none; cursor: pointer; font-weight: bold; box-shadow: 0 4px 6px rgba(0,0,0,0.2); }
+
+        @media print {
+            body { background: white; padding: 0; }
+            .controls-top { display: none; }
+            .sheet { box-shadow: none; margin: 0; width: 100%; padding: 0 !important; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="controls-top">
+        <button class="btn-print" onclick="window.print()">🖨️ PRINTEAZĂ NOTA LUNARĂ</button>
+    </div>
+
+    <div class="sheet">
+        <img src="antet_pnras.jpeg" alt="Antet PNRAS" class="antet-img">
+        
+        <div class="nr-inregistrare">Nr. ............ / ........................</div>
+
+        <div class="header-box">
+            <div class="titlu-principal">📝 Notă de comandă</div>
+            <div class="subtitlu">privind distribuirea pachetului alimentar de tip masă caldă, pentru elevii participanți la activitățile remediale și extracurriculare</div>
+        </div>
+
+        <div class="destinatar-card">
+            🏢 Către: SC PROCONS IAȘI SRL<br>📍 Adresa: Sat Belcești, Comuna Belcești, nr. 370, mansardă, Județul Iași
+        </div>
+
+        <div class="continut-text">👋 Stimată doamnă Murariu Mirela,</div>
+        <div class="continut-text">
+            Vă transmitem prezenta notă de comandă cu privire la distribuirea pachetului alimentar de tip masă caldă, pentru 
+            <strong>luna <span id="view-luna" style="color:var(--primary)">________</span> 2026</strong>, după cum urmează:
+        </div>
+
+        <div style="font-weight: bold; margin: 15px 0 5px 0; color: var(--primary);">📌 Denumire activitate, conform cererii de finanțare: A II.3. Gustări/Masă rece/caldă și sănătoasă</div>
+
+        <table class="tabel-comanda">
+            <thead>
+                <tr>
+                    <th style="width: 8%;">Nr. crt.</th>
+                    <th style="width: 42%;">Denumirea serviciului</th>
+                    <th style="width: 25%;">Data</th>
+                    <th style="width: 25%;">Cantitate (porții)</th>
+                </tr>
+            </thead>
+            <tbody id="corp-tabel"></tbody>
+            <tfoot>
+                <tr style="font-weight: bold; background: #f8fafc;">
+                    <td colspan="3" style="text-align: right; padding-right: 15px;">📊 TOTAL PORȚII LUNĂ</td>
+                    <td id="total-final">0</td>
+                </tr>
+            </tfoot>
+        </table>
+
+        <div class="info-container">
+            <div class="info-box">
+                <div style="font-weight:bold; color:var(--primary); margin-bottom:5px;">🔍 Mențiuni:</div>
+                <ul style="margin:0; padding:0; list-style:none; font-size:10.5pt;">
+                    <li style="text-indent:0.5cm;">1. Produsele trebuie fi livrate conform contractului de prestări servicii de catering Nr. 143/06.12.2024;</li>
+                    <li style="text-indent:0.5cm;">2. Produsele trebuie să fie conforme din punct de vedere sanitar-veterinar;</li>
+                    <li style="text-indent:0.5cm;">3. Pe durata transportului, marfa trebuie să fie însoțită de aviz;</li>
+                </ul>
+            </div>
+            <div class="info-box">
+                <div style="font-weight:bold; color:var(--primary); margin-bottom:5px;">🚚 Date privind livrarea:</div>
+                <ul style="margin:0; padding:0; list-style:none; font-size:10.5pt;">
+                    <li style="text-indent:0.5cm;">1. Numele delegatului: Murariu Mirela;</li>
+                    <li style="text-indent:0.5cm;">2. Livrările se vor efectua la adresa beneficiarului, la datele stabilite conform prezentei note de comanda, la ora 13.30;</li>
+                    <li style="text-indent:0.5cm;">3. Persoana delegată pentru a primi produsele este Pavel Ioan, tel. 0748159864;</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="semnatura">
+            🖋️ Manager proiect,<br>prof. dr. Ciprian MIHAI
+        </div>
+    </div>
+
+    <script type="module">
+        const URL_S = 'https://aexjrbdgajurxzngfkpx.supabase.co';
+        const KEY_S = 'sb_publishable_KPV__0BA9z4EvRl5eqC0FQ_hmBLOLYv';
+        const supabase = window.supabase.createClient(URL_S, KEY_S);
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const luna = urlParams.get('luna');
+        const an = urlParams.get('an') || "2026";
+        const luniMap = {"Ianuarie":"01","Februarie":"02","Martie":"03","Aprilie":"04","Mai":"05","Iunie":"06","Iulie":"07","August":"08","Septembrie":"09","Octombrie":"10","Noiembrie":"11","Decembrie":"12"};
+
+        async function init() {
+            if (!luna) return;
+            document.getElementById('view-luna').innerText = luna;
+
+            const { data, error } = await supabase
+                .from('nota_comanda')
+                .select('*')
+                .eq('an', an)
+                .eq('luna', luna);
+
+            if (error) return;
+
+            // Logica de calcul: Elevi + Experți Unici pe zi
+            const dateZilnice = {};
+            data.forEach(item => {
+                if (!dateZilnice[item.zi]) {
+                    dateZilnice[item.zi] = { elevi: 0, experti: new Set() };
+                }
+                dateZilnice[item.zi].elevi += (item.nr_elevi || 0);
+                if (item.expert) dateZilnice[item.zi].experti.add(item.expert);
+            });
+
+            const zileSortate = Object.keys(dateZilnice).sort((a,b) => a-b);
+            renderTabel(zileSortate, dateZilnice);
+        }
+
+        function renderTabel(zile, date) {
+            const tbody = document.getElementById('corp-tabel');
+            let totalGeneral = 0;
+            const descriere = "Pachet alimentar de tip masă caldă, conform Contractului nr. 143/06.12.2024";
+
+            tbody.innerHTML = zile.map((zi, i) => {
+                const totalZi = date[zi].elevi + date[zi].experti.size;
+                totalGeneral += totalZi;
+                const dataFormatata = `${zi.toString().padStart(2,'0')}.${luniMap[luna]}.${an}`;
+                
+                return `
+                    <tr>
+                        <td>${i+1}</td>
+                        ${i===0 ? `<td rowspan="${zile.length}">${descriere}</td>` : ''}
+                        <td>${dataFormatata}</td>
+                        <td>${totalZi}</td>
+                    </tr>
+                `;
+            }).join('');
+
+            document.getElementById('total-final').innerText = totalGeneral;
+        }
+
+        init();
+    </script>
+</body>
+</html>
