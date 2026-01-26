@@ -111,8 +111,8 @@
     }
 
     const sb = supabase.createClient('https://aexjrbdgajurxzngfkpx.supabase.co', 'sb_publishable_KPV__0BA9z4EvRl5eqC0FQ_hmBLOLYv');
-    const dElevi = { "SG1A": 8, "SG1B": 8, "PG1A": 10, "PG1B": 10, "StG1A": 13, "StG1B": 10, "AV5A": 8, "AV5B": 8, "AV6A": 13, "AV6B": 8, "AV7A": 12, "AV7B": 9, "AV8A1": 10, "AV8A2": 10, "AV8B1": 8, "AV8B2": 6, "AR5AB": 11, "AR5A": 8, "AR5B": 8, "AR6A": 12, "AR6B": 8, "AR7B": 9, "BA6B": 8, "BA7A": 12, "BA8A1": 10, "BA8A2": 10, "BA8B": 8, "5C": 14, "7C": 8, "AD8B1": 7, "AD8B2": 6, "AD8B3": 8, "PE8A1": 10, "PE8A2": 10, "PE6B": 8, "PE7A": 12, "IA5AB1": 11, "IA5AB2": 12, "IA6A": 13, "IA7B": 10 };
-    const mProf = { "Angheluș Raluca": ["AR5AB", "AR5A", "AR5B", "AR6A", "AR6B", "AR7B"], "Baziluc Ana Maria": ["BA6B", "BA7A", "BA8A1", "BA8A2", "BA8B"], "Ghemeș Anca": ["5C", "7C"], "Arotăriței Dănuț": ["AD8B1", "AD8B2", "AD8B3", "7C"], "Popovici Estera": ["PE8A1", "PE8A2", "PE6B", "PE7A"], "Albu Ștefan": ["SG1A", "SG1B"], "Marele Daniela": ["PG1A", "PG1B"], "Nohai Iuliana": ["StG1A"], "Nohai Vili": ["StG1B"], "Aparascăi Vasile": ["AV5A", "AV5B", "5C", "AV6A", "AV6B", "AV7A", "AV7B", "7C", "AV8A1", "AV8A2", "AV8B1", "AV8B2"], "Iftene Ana Maria": ["IA5AB1", "IA5AB2", "IA6A", "IA7B", "5C"] };
+    const dElevi = { "SG1A": 8, "SG1B": 8, "PG1A": 10, "PG1B": 10, "StG1A": 13, "StG1B": 10, "AV5A": 8, "AV5B": 8, "AV6A": 13, "AV6B": 8, "AV7A": 12, "AV7B": 9, "AV8A1": 10, "AV8A2": 10, "AV8B1": 8, "AV8B2": 6, "AR5AB": 11, "AR5A": 8, "AR5B": 8, "AR6A": 12, "AR6B": 8, "AR7B": 9, "BA6B": 8, "BA7A": 12, "BA8A1": 10, "BA8A2": 10, "BA8B": 8, "5C": 14, "7C": 8, "AD8B1": 7, "AD8B2": 6, "AD8B3": 8, "PE8A1": 10, "PE8A2": 10, "PE6B1": 8, "PE6B2": 12, "PE7A": 12, "IA5AB1": 11, "IA5AB2": 12, "IA6A": 13, "IA7B": 10 };
+    const mProf = { "Angheluș Raluca": ["AR5AB", "AR5A", "AR5B", "AR6A", "AR6B", "AR7B"], "Baziluc Ana Maria": ["BA6B", "BA7A", "BA8A1", "BA8A2", "BA8B"], "Ghemeș Anca": ["5C", "7C"], "Arotăriței Dănuț": ["AD8B1", "AD8B2", "AD8B3", "7C"], "Popovici Estera": ["PE8A1", "PE8A2", "PE6B1", "PE6B2", "PE7A"], "Albu Ștefan": ["SG1A", "SG1B"], "Marele Daniela": ["PG1A", "PG1B"], "Nohai Iuliana": ["StG1A"], "Nohai Vili": ["StG1B"], "Aparascăi Vasile": ["AV5A", "AV5B", "5C", "AV6A", "AV6B", "AV7A", "AV7B", "7C", "AV8A1", "AV8A2", "AV8B1", "AV8B2"], "Iftene Ana Maria": ["IA5AB1", "IA5AB2", "IA6A", "IA7B", "5C"] };
     const luniArr = ["Ianuarie", "Februarie", "Martie", "Aprilie", "Mai", "Iunie"];
     const zileSapt = ["L", "M", "M", "J", "V", "S", "D"];
 
@@ -168,8 +168,11 @@
             const isWE = (dateC.getDay() === 0 || dateC.getDay() === 6);
             const dayData = rawData.filter(x => x.zi == d);
             const claseUnice = [...new Set(dayData.map(x => x.clasa))];
-            let p = 0; claseUnice.forEach(cl => p += (dElevi[cl] || 0));
-            totalLuna += p;
+const profiUnici = [...new Set(dayData.map(x => x.expert))]; // Identifică profesorii
+let p = 0; 
+claseUnice.forEach(cl => p += (dElevi[cl] || 0)); // Sumă elevi
+p += profiUnici.length; // Adaugă numărul de profesori
+totalLuna += p; // Actualizează totalul general
             
             const box = document.createElement('div');
             box.className = `stat-box ${isWE ? 'weekend-bg' : ''} ${p > 0 ? 'has-data' : ''}`;
@@ -230,7 +233,7 @@
         
         let sumaTotala = 0;
         let afiseazaAtentionareGluten = false;
-        const grupeCuGluten = ['PG1A', 'AR6B', 'PE6B', 'AV6B'];
+        const grupeCuGluten = ['PG1A', 'AR6B', 'PE6B1', 'AV6B'];
         for (const [cl, info] of Object.entries(grupate)) {
             sumaTotala += info.nr;
 if (grupeCuGluten.includes(cl)) {
