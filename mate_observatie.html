@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fișe Observație MATE - PNRAS</title>
+    
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Montserrat:wght@600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
+    <style>
+        :root { 
+            --sidebar-w: 300px; 
+            --primary: #4338ca; 
+            --accent: #f59e0b; 
+            --bg-app: #94a3b8;
+            --card-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2);
+        }
+        
+        body { margin: 0; padding: 0; font-family: 'Inter', sans-serif; background: var(--bg-app); display: flex; height: 100vh; overflow: hidden; }
+        
+        /* SIDEBAR */
+        .sidebar { width: var(--sidebar-w); flex-shrink: 0; background: #0f172a; color: white; display: flex; flex-direction: column; padding: 25px; overflow-y: auto; border-right: 1px solid #1e293b; }
+        .brand { font-size: 1.2rem; font-family: 'Montserrat'; font-weight: 800; margin-bottom: 25px; color: #818cf8; display: flex; align-items: center; gap: 10px; }
+        .section-label { font-size: 0.7rem; text-transform: uppercase; color: #94a3b8; font-weight: 800; margin: 20px 0 10px 0; border-bottom: 1px solid #334155; padding-bottom: 5px; }
+        
+        .sidebar-input { background: #1e293b; border: 1px solid #334155; border-radius: 8px; padding: 12px; color: white; font-size: 0.9rem; margin-bottom: 12px; width: 100%; box-sizing: border-box; outline: none; }
+
+        .year-toggle { display: flex; background: #000; border-radius: 10px; padding: 4px; margin-bottom: 15px; }
+        .year-btn { flex: 1; border: none; background: transparent; color: #94a3b8; padding: 10px; font-weight: 700; cursor: pointer; font-size: 0.75rem; }
+        .year-btn.active { background: var(--primary); color: white; border-radius: 7px; }
+
+        .class-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+        .class-card { background: #1e293b; border: 1px solid #334155; color: #cbd5e1; padding: 12px 0; text-align: center; border-radius: 8px; cursor: pointer; font-weight: 800; }
+        .class-card.active { background: var(--primary); color: white; border-color: #818cf8; box-shadow: 0 0 15px rgba(67, 56, 202, 0.4); }
+
+        .btn-group { margin-top: auto; padding-top: 30px; display: flex; flex-direction: column; gap: 10px; }
+        .print-btn { background: #059669; color: white; border: none; padding: 14px; border-radius: 10px; font-weight: 800; cursor: pointer; font-family: 'Montserrat'; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .raport-btn { background: var(--accent); color: white; border: none; padding: 14px; border-radius: 10px; font-weight: 800; text-align: center; text-decoration: none; font-size: 0.85rem; font-family: 'Montserrat'; }
+
+        .main-content { flex-grow: 1; overflow-y: auto; padding: 40px; background: #cbd5e1; }
+        
+        /* DESIGN FOAIE A4 */
+        .sheet { background: white; width: 210mm; min-height: 296mm; margin: 0 auto 40px auto; padding: 15mm 18mm; box-shadow: var(--card-shadow); position: relative; box-sizing: border-box; }
+        .sheet-antet { width: 100%; margin-bottom: 15px; }
+        .sheet-antet img { width: 100%; height: auto; display: block; }
+
+        .nr-inreg-row { display: inline-block; background: #eff6ff; border: 1px solid #bfdbfe; padding: 8px 15px; border-radius: 6px; font-family: 'Montserrat'; font-weight: 800; font-size: 0.9rem; color: #1e40af; margin-bottom: 20px; }
+
+        .doc-title-container { text-align: center; margin-bottom: 25px; }
+        .doc-title-main { font-family: 'Montserrat'; font-weight: 800; font-size: 1.4rem; text-transform: uppercase; color: #1e3a8a; margin: 0; }
+        .doc-title-cat { font-family: 'Montserrat'; font-weight: 800; font-size: 0.7rem; margin: 5px 0; color: #000; text-transform: uppercase; }
+        .doc-title-sub { font-family: 'Montserrat'; font-weight: 700; font-size: 0.85rem; color: #1e293b; background: #fef3c7; display: inline-block; padding: 5px 15px; border-radius: 4px; margin-top: 5px; }
+
+        .info-card { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 15px 20px; margin-bottom: 15px; display: grid; grid-template-columns: 2fr 1fr 2fr 1fr; gap: 15px; border-top: 4px solid var(--primary); }
+        .info-label { font-size: 0.6rem; text-transform: uppercase; color: #64748b; font-weight: 800; }
+        .info-value { font-weight: 700; font-size: 0.95rem; color: #000; border-bottom: 1px solid #cbd5e1; display: block; }
+
+        .mate-table { width: 100%; border-collapse: collapse; margin-bottom: 25px; border: 1px solid #94a3b8; }
+        .mate-table th { background: #1e3a8a; color: white; padding: 10px; text-align: left; font-weight: 800; text-transform: uppercase; font-size: 0.65rem; }
+        .mate-table td { padding: 8px 12px; border: 1px solid #cbd5e1; font-size: 0.82rem; color: #1e293b; }
+        .mate-table tr:nth-child(even) { background-color: #f8fafc; }
+
+        .radio-group { display: flex; gap: 15px; justify-content: center; }
+        .radio-label { display: flex; align-items: center; gap: 5px; cursor: pointer; font-weight: 800; font-size: 0.7rem; }
+
+        .footer-section { margin-top: 40px; display: flex; justify-content: space-between; align-items: flex-end; }
+        .sig-label { font-size: 0.8rem; font-weight: 800; color: #000; margin-bottom: 40px; text-transform: uppercase; }
+        .sig-name { font-size: 0.9rem; font-weight: 800; color: #000; border-top: 1px solid #000; padding-top: 5px; }
+
+        @media print {
+            @page { margin: 0; size: A4; }
+            body { background: white; display: block; }
+            .sidebar { display: none !important; }
+            .main-content { padding: 0; margin: 0; background: white; overflow: visible; }
+            .sheet { box-shadow: none; margin: 0; width: 210mm; min-height: 296mm; page-break-after: always; padding: 10mm 15mm !important; border: none; }
+            .mate-table th { background: #1e3a8a !important; -webkit-print-color-adjust: exact; }
+            .doc-title-sub { background: #fef3c7 !important; -webkit-print-color-adjust: exact; }
+            .nr-inreg-row { background: #eff6ff !important; -webkit-print-color-adjust: exact; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+        <div class="brand"><i class="fa-solid fa-file-invoice"></i> <span>MATE PNRAS</span></div>
+        
+        <div class="section-label">Configurare NR. ÎNREG</div>
+        <input type="text" id="nrBaza" class="sidebar-input" placeholder="Nr. bază (ex: 12)" oninput="handleConfigChange()">
+        <input type="text" id="dataDoc" class="sidebar-input" placeholder="Data (ex: 23.01.2026)" oninput="handleConfigChange()">
+
+        <div class="section-label">An Școlar</div>
+        <div class="year-toggle">
+            <button class="year-btn" id="btn2025" onclick="setYear(2025)">2024-25</button>
+            <button class="year-btn active" id="btn2026" onclick="setYear(2026)">2025-26</button>
+        </div>
+
+        <div class="section-label">Alege Clasa</div>
+        <div class="class-grid" id="classGrid"></div>
+
+        <div class="btn-group">
+            <button onclick="window.print()" class="print-btn"><i class="fa-solid fa-print"></i> Printează</button>
+            <a href="raport_observatie.html" class="raport-btn">Vezi Raport MATE</a>
+        </div>
+    </div>
+
+    <div class="main-content" id="sheetsContainer">
+        <div style="text-align: center; color: white; margin-top: 150px; opacity: 0.6;">
+            <h2>Selectați clasa</h2>
+        </div>
+    </div>
+
+    <script>
+        const supabaseUrl = 'https://aexjrbdgajurxzngfkpx.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFleGpyYmRnYWp1cnh6bmdma3B4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgxMzE3NTYsImV4cCI6MjA4MzcwNzc1Nn0.VUx0QOKgjX4m23HOF2rBpE9vWA3T18KtjLc0w_iXhqA';
+        const _db = supabase.createClient(supabaseUrl, supabaseKey);
+        
+        const TABLE_DATA = 'mate_pnras';
+        const TABLE_CONFIG = 'rapoarte_salvate';
+
+        let currentYear = 2026;
+        let currentClass = null;
+        let saveTimeout = null;
+
+        const INDICATORS = [
+            { col: 'fo_frecventa', text: 'Elevul are o prezenţă scăzută la şcoală (peste 20 absenţe nemotivate/lună)' },
+            { col: 'fo_rezultate', text: 'Elevul are performanţe academice scăzute (note < 6,5, corigențe sau scădere bruscă)' },
+            { col: 'fo_repetent_1', text: 'Elevul a repetat cel puţin un an de studiu' },
+            { col: 'fo_repetent_m', text: 'Elevul a repetat cel puţin doi ani de studiu' },
+            { col: 'fo_sanctionat', text: 'Elevul are un istoric şcolar de sancţiuni disciplinare sau plângeri' }
+        ];
+
+        // Populare Grid Clase
+        const clase = ['5A','5B','5C','6A','6B','6C','7A','7B','7C','8A','8B','8C'];
+        const grid = document.getElementById('classGrid');
+        clase.forEach(c => {
+            const d = document.createElement('div');
+            d.className = 'class-card'; d.innerText = c;
+            d.onclick = () => selectClass(c, d);
+            grid.appendChild(d);
+        });
+
+        // Încărcare la Refresh
+        window.onload = async () => {
+            await loadSavedConfig();
+        };
+
+        async function loadSavedConfig() {
+            const configId = `config_mate_obs_${currentYear}`;
+            const { data } = await _db.from(TABLE_CONFIG).select('metadata').eq('id', configId).maybeSingle();
+            if (data && data.metadata) {
+                document.getElementById('nrBaza').value = data.metadata.nrBaza || '';
+                document.getElementById('dataDoc').value = data.metadata.dataDoc || '';
+            }
+        }
+
+        function handleConfigChange() {
+            updateAllInregDisplays();
+            clearTimeout(saveTimeout);
+            saveTimeout = setTimeout(saveConfig, 1000);
+        }
+
+        async function saveConfig() {
+            const configId = `config_mate_obs_${currentYear}`;
+            const meta = { 
+                nrBaza: document.getElementById('nrBaza').value, 
+                dataDoc: document.getElementById('dataDoc').value 
+            };
+            await _db.from(TABLE_CONFIG).upsert({ id: configId, metadata: meta, updated_at: new Date() });
+        }
+
+        function updateAllInregDisplays() {
+            const nr = document.getElementById('nrBaza').value || '...';
+            const dt = document.getElementById('dataDoc').value || '...';
+            document.querySelectorAll('.nr-display').forEach((el, idx) => {
+                el.innerText = `${nr}/${currentClass || 'CL'}/${idx+1}/${dt}`;
+            });
+        }
+
+        async function setYear(y) {
+            currentYear = y;
+            document.querySelectorAll('.year-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById('btn'+y).classList.add('active');
+            await loadSavedConfig();
+            if(currentClass) loadStudents();
+        }
+
+        async function selectClass(cls, el) {
+            currentClass = cls;
+            document.querySelectorAll('.class-card').forEach(c => c.classList.remove('active'));
+            el.classList.add('active');
+            // Înainte de a încărca elevii, ne asigurăm că avem ultimele date de configurare
+            await loadSavedConfig();
+            loadStudents();
+        }
+
+        async function loadStudents() {
+            const container = document.getElementById('sheetsContainer');
+            container.innerHTML = '<div style="text-align:center; padding:50px; color:white;">Se încarcă datele...</div>';
+            const { data } = await _db.from(TABLE_DATA).select('*').eq('clasa', currentClass).eq('anul', currentYear).order('nume_elev', { ascending: true });
+            if(data) renderSheets(data);
+        }
+
+        function renderSheets(students) {
+            const container = document.getElementById('sheetsContainer');
+            container.innerHTML = "";
+            const nr = document.getElementById('nrBaza').value || '...';
+            const dt = document.getElementById('dataDoc').value || '...';
+            
+            students.forEach((s, idx) => {
+                const sheet = document.createElement('div');
+                sheet.className = 'sheet';
+                sheet.innerHTML = `
+                    <div class="sheet-antet"><img src="antet_pnras.jpeg"></div>
+                    <div class="nr-inreg-row">NR. ÎNREG: <span class="nr-display">${nr}/${currentClass}/${idx+1}/${dt}</span></div>
+                    
+                    <div class="doc-title-container">
+                        <h1 class="doc-title-main">Fișa de observație MATE</h1>
+                        <p class="doc-title-cat"><b>Categoria I: Activități de identificarea și monitorizare a elevilor în risc de abandon școlar - MATE</b></p>
+                        <p class="doc-title-sub">A I.2. Aplicarea Fișei de observare și a Fișei de evaluare MATE</p>
+                    </div>
+
+                    <div class="info-card">
+                        <div class="info-item"><span class="info-label">Elev</span><span class="info-value">${s.nume_elev}</span></div>
+                        <div class="info-item"><span class="info-label">Clasă</span><span class="info-value">${s.clasa}</span></div>
+                        <div class="info-item"><span class="info-label">Diriginte</span><span class="info-value">Prof. ${s.diriginte || ''}</span></div>
+                        <div class="info-item"><span class="info-label">An Școlar</span><span class="info-value">${currentYear-1}-${currentYear}</span></div>
+                    </div>
+
+                    <table class="mate-table">
+                        <thead><tr><th style="width: 75%;">Indicatori de risc identificați</th><th style="text-align:center;">DA / NU</th></tr></thead>
+                        <tbody>
+                            ${INDICATORS.map(ind => `
+                                <tr>
+                                    <td>${ind.text}</td>
+                                    <td>
+                                        <div class="radio-group">
+                                            <label class="radio-label"><input type="radio" name="${s.id}_${ind.col}" value="Da" ${s[ind.col] === 'Da' ? 'checked' : ''} onchange="updateValue(${s.id}, '${ind.col}', 'Da')"> DA</label>
+                                            <label class="radio-label"><input type="radio" name="${s.id}_${ind.col}" value="Nu" ${s[ind.col] !== 'Da' ? 'checked' : ''} onchange="updateValue(${s.id}, '${ind.col}', 'Nu')"> NU</label>
+                                        </div>
+                                    </td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+
+                    <div class="footer-section">
+                        <div class="sig-box">
+                            <div class="sig-label">Profesor Diriginte,</div>
+                            <div class="sig-name">Prof. ${s.diriginte || ''}</div>
+                        </div>
+                    </div>`;
+                container.appendChild(sheet);
+            });
+        }
+
+        async function updateValue(id, col, val) {
+            await _db.from(TABLE_DATA).update({ [col]: val }).eq('id', id);
+        }
+    </script>
+</body>
+</html>
