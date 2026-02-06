@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <title>Angajamente Remediere</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Montserrat:wght@700;800&display=swap" rel="stylesheet">
+    <style>
+        :root { 
+            --sidebar-bg: #ffffff; 
+            --page-bg: #cbd5e1; 
+            --accent: #2563eb; 
+            --text-main: #0f172a;
+        }
+        body { margin: 0; display: flex; height: 100vh; font-family: 'Inter', sans-serif; background: var(--page-bg); overflow: hidden; color: var(--text-main); }
+
+        /* SIDEBAR */
+        .sidebar { 
+            width: 320px; background: var(--sidebar-bg); border-right: 1px solid #94a3b8; 
+            display: flex; flex-direction: column; padding: 20px; box-sizing: border-box; 
+            overflow-y: auto; z-index: 100; flex-shrink: 0;
+        }
+
+        .print-btn {
+            width: 100%; padding: 12px; background: var(--accent); color: white; border: none; 
+            border-radius: 6px; font-weight: 700; cursor: pointer; margin-bottom: 20px; 
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+        }
+        .print-btn:hover { background: #1d4ed8; }
+
+        .section-label { font-weight: 800; font-size: 0.75rem; color: #64748b; text-transform: uppercase; margin: 15px 0 8px 0; }
+        
+        .year-toggle { display: flex; gap: 5px; margin-bottom: 10px; background: #f1f5f9; padding: 4px; border-radius: 6px; }
+        .year-btn { flex: 1; padding: 6px; border: none; border-radius: 4px; background: transparent; cursor: pointer; font-weight: 600; font-size: 0.85rem; color: #64748b; }
+        .year-btn.active { background: white; color: var(--accent); box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
+
+        .settings-group { background: #f8fafc; padding: 12px; border-radius: 6px; border: 1px solid #e2e8f0; margin-bottom: 10px; }
+        .settings-label { font-size: 0.75rem; font-weight: 700; margin-bottom: 5px; display: block; color: #475569; }
+        .settings-input { width: 100%; padding: 6px; margin-bottom: 5px; border: 1px solid #cbd5e1; border-radius: 4px; font-family: 'Inter', sans-serif; font-size: 0.85rem; }
+
+        .classes-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+        .class-btn { padding: 8px; border: 1px solid #e2e8f0; border-radius: 4px; text-align: center; cursor: pointer; font-weight: 600; font-size: 0.85rem; background: white; color: #475569; }
+        .class-btn:hover { border-color: var(--accent); color: var(--accent); }
+        .class-btn.active { background: var(--accent); color: white; border-color: var(--accent); }
+
+        /* WORKSPACE */
+        .workspace { 
+            flex: 1; 
+            overflow-y: auto; 
+            padding: 40px 20px; 
+            display: block; 
+            text-align: center;
+        }
+        
+        /* A4 PAGE - AUTO HEIGHT ON SCREEN */
+        .a4-page { 
+            width: 210mm; 
+            min-height: 297mm;
+            height: fit-content; 
+            margin: 0 auto 40px auto; 
+            background: white; 
+            padding: 1.5cm 2cm; 
+            box-sizing: border-box; 
+            position: relative;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            text-align: left; 
+            overflow: visible; 
+        }
+
+        .antet-img { width: 100%; height: auto; margin-bottom: 10px; }
+        
+        .doc-title { text-align: center; font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: 14pt; text-transform: uppercase; margin-bottom: 5px; color: #000; }
+        .doc-subtitle { text-align: center; font-size: 10pt; font-weight: 600; margin-bottom: 20px; color: #000; }
+
+        /* SECTION STYLING */
+        .section-title { 
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 700; 
+            font-size: 10pt; 
+            text-transform: uppercase; 
+            margin: 20px 0 10px 0; 
+            padding: 6px 10px;
+            color: #1e3a8a; 
+            background-color: #eff6ff; 
+            border-left: 4px solid #2563eb; 
+            border-radius: 0 4px 4px 0;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+
+        .content-text { font-size: 10pt; line-height: 1.4; text-align: justify; color: #000; }
+        .content-text ol { margin: 5px 0 10px 0; padding-left: 20px; }
+        .content-text li { margin-bottom: 3px; padding-left: 5px; }
+
+        /* SEMNĂTURI */
+        .signature-row { display: flex; justify-content: space-between; margin-top: 50px; font-size: 10pt; font-weight: 600; page-break-inside: avoid; align-items: flex-start; }
+        .signature-col { text-align: center; width: 33%; }
+        .signature-name { margin-top: 25px; display: block; font-weight: 700; }
+        
+        .auto-generated-ref { font-weight: 700; }
+        strong { color: #000; font-weight: 700; }
+
+        @media print {
+            .sidebar { display: none !important; }
+            body { background: white; display: block; overflow: visible; height: auto; }
+            .workspace { padding: 0; display: block; overflow: visible; height: auto; }
+            .a4-page { 
+                box-shadow: none; margin: 0; width: 100%; border: none; 
+                page-break-after: always; padding: 1.5cm 2cm;
+                height: auto; min-height: 0; display: block;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="sidebar">
+    <button class="print-btn" onclick="window.print()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+        Printează
+    </button>
+
+    <div class="section-label">An Școlar</div>
+    <div class="year-toggle">
+        <button class="year-btn" id="y2025" onclick="setYear(2025)">2025</button>
+        <button class="year-btn active" id="y2026" onclick="setYear(2026)">2026</button>
+    </div>
+
+    <div class="section-label">Configurare Nr. Înreg.</div>
+    
+    <div class="settings-group">
+        <label class="settings-label">Pentru Anul 2025</label>
+        <input type="text" id="nr_2025" class="settings-input" placeholder="Nr. (ex: 12)" oninput="saveAndRefresh()">
+        <input type="text" id="data_2025" class="settings-input" placeholder="Data (ex: 12.01.2025)" oninput="saveAndRefresh()">
+    </div>
+
+    <div class="settings-group">
+        <label class="settings-label">Pentru Anul 2026</label>
+        <input type="text" id="nr_2026" class="settings-input" placeholder="Nr. (ex: 15)" oninput="saveAndRefresh()">
+        <input type="text" id="data_2026" class="settings-input" placeholder="Data (ex: 15.01.2026)" oninput="saveAndRefresh()">
+    </div>
+
+    <div class="section-label">Clasa</div>
+    <div class="classes-grid" id="classes-container"></div>
+</div>
+
+<div class="workspace" id="document-container">
+    <div style="color:#64748b; margin-top:50px; font-weight:600;">Selectează o clasă din meniu.</div>
+</div>
+
+<script>
+    const supabaseUrl = 'https://aexjrbdgajurxzngfkpx.supabase.co';
+    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFleGpyYmRnYWp1cnh6bmdma3B4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgxMzE3NTYsImV4cCI6MjA4MzcwNzc1Nn0.VUx0QOKgjX4m23HOF2rBpE9vWA3T18KtjLc0w_iXhqA';
+    const _db = supabase.createClient(supabaseUrl, supabaseKey);
+
+    let currentYear = 2026;
+    const clase = ["5A", "5B", "5C", "6A", "6B", "6C", "7A", "7B", "7C", "8A", "8B", "8C"];
+    let cachedData = null;
+    let cachedClass = null;
+
+    window.onload = function() {
+        if(localStorage.getItem('nr_2025')) document.getElementById('nr_2025').value = localStorage.getItem('nr_2025');
+        if(localStorage.getItem('data_2025')) document.getElementById('data_2025').value = localStorage.getItem('data_2025');
+        if(localStorage.getItem('nr_2026')) document.getElementById('nr_2026').value = localStorage.getItem('nr_2026');
+        if(localStorage.getItem('data_2026')) document.getElementById('data_2026').value = localStorage.getItem('data_2026');
+        renderClasses();
+    };
+
+    function saveAndRefresh() {
+        localStorage.setItem('nr_2025', document.getElementById('nr_2025').value);
+        localStorage.setItem('data_2025', document.getElementById('data_2025').value);
+        localStorage.setItem('nr_2026', document.getElementById('nr_2026').value);
+        localStorage.setItem('data_2026', document.getElementById('data_2026').value);
+        if(cachedData && cachedClass) renderFise(cachedData, cachedClass);
+    }
+
+    function setYear(year) {
+        currentYear = year;
+        document.querySelectorAll('.year-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById('y' + year).classList.add('active');
+        const activeClassBtn = document.querySelector('.class-btn.active');
+        if(activeClassBtn) incarcaToateFisele(activeClassBtn.innerText, activeClassBtn);
+        else document.getElementById('document-container').innerHTML = '<div style="color:#64748b; margin-top:50px; font-weight:600;">Selectează o clasă din meniu.</div>';
+    }
+
+    function renderClasses() {
+        const container = document.getElementById('classes-container');
+        container.innerHTML = clase.map(c => `<div class="class-btn" onclick="incarcaToateFisele('${c}', this)">${c}</div>`).join('');
+    }
+
+    async function incarcaToateFisele(numeClasa, element) {
+        document.querySelectorAll('.class-btn').forEach(b => b.classList.remove('active'));
+        if(element) element.classList.add('active');
+        const workspace = document.getElementById('document-container');
+        workspace.innerHTML = "<div style='color:#64748b; margin-top:20px;'>Se încarcă...</div>";
+        const { data, error } = await _db.from('mate_pnras').select('*').eq('clasa', numeClasa).eq('anul', currentYear).order('nume_elev');
+        if (!error && data) {
+            cachedData = data;
+            cachedClass = numeClasa;
+            renderFise(data, numeClasa);
+        } else {
+            workspace.innerHTML = "Eroare la încărcare.";
+        }
+    }
+
+    function calculeazaLuni(dataStartStr) {
+        if(!dataStartStr || dataStartStr.length < 10) return "___";
+        const parts = dataStartStr.split('.');
+        if(parts.length !== 3) return "___";
+        const start = new Date(parts[2], parts[1] - 1, parts[0]); 
+        const end = new Date(2026, 5, 30); 
+        let luni = (end.getFullYear() - start.getFullYear()) * 12;
+        luni -= start.getMonth();
+        luni += end.getMonth();
+        return luni >= 0 ? luni + 1 : 0;
+    }
+
+    function renderFise(data, numeClasa) {
+        const workspace = document.getElementById('document-container');
+        
+        let nrPlan = document.getElementById('nr_' + currentYear).value || ''; 
+        let dataPlan = document.getElementById('data_' + currentYear).value || '';
+
+        let numarLuni = calculeazaLuni(dataPlan);
+        let textLuni = (numarLuni === "___") ? "___" : numarLuni;
+        let textDataStart = (dataPlan === "") ? "(data semnării)" : dataPlan;
+
+        workspace.innerHTML = data.map((elev, index) => {
+            let nrInregistrareCompus = '';
+            if(nrPlan !== '' && dataPlan !== '') {
+                nrInregistrareCompus = `${nrPlan}/${numeClasa}/${index + 1}/${dataPlan}`;
+            }
+
+            let numeParinte = elev.nume_mama || elev.nume_tata || '................................';
+            let adresa = elev.fo_adresa || '............................................';
+            let telefon = elev.telefon_parinte || '............................';
+
+            return `
+                <div class="a4-page">
+                    <img src="antet_pnras.jpeg" class="antet-img">
+                    
+                    <div class="doc-title">Angajament de remediere</div>
+                    <div class="doc-subtitle">
+                        Anexă la Planul de servicii educaționale nr. 
+                        <span class="auto-generated-ref">${nrInregistrareCompus}</span>
+                    </div>
+
+                    <div class="section-title">I. Părțile semnatare:</div>
+                    <div class="content-text">
+                        1. <strong>Liceul Tehnologic ”Victor Mihăilescu Craiu” Belcești</strong>, cu sediul în Comuna Belcești, Județul Iași, 
+                        reprezentată prin profesor <strong>${elev.diriginte || '................'}</strong>, în calitate de responsabil de caz pentru prevenire
+                        <br><br>
+                        și
+                        <br><br>
+                        2. Părintele/Reprezentantul legal al elevului, Doamna/Domnul <strong>${numeParinte}</strong>, 
+                        cu domiciliul în <strong>${adresa}</strong>, județul <strong>Iași</strong>, telefon <strong>${telefon}</strong>, 
+                        în calitate de <strong>părinte</strong>, al elevului/elevei <strong>${elev.nume_elev}</strong>, 
+                        din clasa a <strong>${numeClasa}</strong>.
+                    </div>
+
+                    <div class="section-title">II. Obiectivele acordului</div>
+                    <div class="content-text">
+                        <ol>
+                            <li>Reducerea numărului de absențe;</li>
+                            <li>Îmbunătățirea rezultatelor școlare;</li>
+                            <li>Reducerea repetenției și a abandonului;</li>
+                            <li>Rezolvarea dificultăților de învățare;</li>
+                            <li>Îmbunătățirea comportamentului elevului.</li>
+                        </ol>
+                    </div>
+
+                    <div class="section-title">III. Responsabilitățile responsabilului de caz (diriginte)</div>
+                    <div class="content-text">
+                        <ol>
+                            <li>Monitorizarea aplicării măsurilor de prevenire și a formelor de sprijin, precum și a activităților remediale;</li>
+                            <li>Asigurarea spațiului, cadrului organizatoric și logistic pentru desfășurarea activităților prevăzute în prezentul acord;</li>
+                            <li>Monitorizarea evoluției elevului și atingerea obiectivelor din Planul de servicii de educație individualizat.</li>
+                        </ol>
+                    </div>
+
+                    <div class="section-title">IV. Responsabilitățile directorului și experților</div>
+                    <div class="content-text">
+                        <ol>
+                            <li>Asigurarea în școală a tuturor serviciilor și specialiștilor prevăzuți în Planul de servicii de educație individualizat;</li>
+                            <li>Monitorizarea intervențiilor și supravegherea responsabilului de caz pentru prevenire;</li>
+                            <li>Asigurarea unui cadru organizatoric și logistic optim pentru desfășurarea activităților.</li>
+                        </ol>
+                    </div>
+
+                    <div class="section-title">V. Responsabilitățile părintelui/reprezentantului legal</div>
+                    <div class="content-text">
+                        <ol>
+                            <li>Să se prezinte la școală ori de câte ori este solicitat, pentru a discuta cu personalul didactic despre modul de implicare în activitatea, progresul și comportamentul propriului copil;</li>
+                            <li>Să colaboreze cu cadrele didactice și cu ceilalți specialiști în vederea luării celei mai bune decizii pentru copil, cu privire la atingerea obiectivelor propuse;</li>
+                            <li>Să îi asigure copilului, în limita posibilităților, suportul necesar (condiții materiale, spațiu etc.) bunei desfășurări a activităților școlare;</li>
+                            <li>Să participe la sesiunile de consiliere.</li>
+                        </ol>
+                    </div>
+
+                    <div class="section-title">VI. Responsabilitățile elevului</div>
+                    <div class="content-text">
+                        Elevul se angajează să:
+                        <ol>
+                            <li>Participe activ și constant la activitățile de remediere stabilite în plan (ore remediale, activități suplimentare, sesiuni de sprijin).</li>
+                            <li>Respecte programul activităților de remediere și să anunțe din timp eventualele absențe justificate.</li>
+                            <li>Îndeplinească sarcinile de lucru primite în cadrul activităților remediale (fișe de lucru, exerciții, teme individuale).</li>
+                            <li>Colaboreze cu cadrul didactic, solicitând sprijin ori de câte ori întâmpină dificultăți în înțelegerea conținuturilor.</li>
+                            <li>Manifeste o atitudine responsabilă și respectuoasă față de profesor, colegi și procesul educațional.</li>
+                            <li>Depună efort constant pentru îmbunătățirea rezultatelor școlare și recuperarea lacunelor identificate.</li>
+                            <li>Respecte regulile unității de învățământ și normele de comportament în timpul activităților remediale.</li>
+                            <li>Monitorizeze propriul progres, acceptând feedback-ul oferit de cadrul didactic și aplicând recomandările primite.</li>
+                        </ol>
+                    </div>
+
+                    <div class="section-title">VII. Durata acordului</div>
+                    <div class="content-text">
+                        Prezentul acord se încheie pentru o perioadă de <strong>${textLuni} luni</strong>, de la <strong>${textDataStart}</strong>, până la <strong>30 iunie 2026</strong>, sau până la finalizarea ciclului gimnazial.<br>
+                        Pe parcursul celor <strong>${textLuni} luni</strong> vor avea loc evaluări intermediare, în funcție de rezultatele cărora se vor stabili pașii următori și se vor încheia acte adiționale la prezentul Angajament.
+                        <br><br>
+                        Încheiat astăzi, <strong>${dataPlan || '................'}</strong>, în 2 exemplare, în original, pentru fiecare parte.
+                    </div>
+
+                    <div class="signature-row">
+                        <div class="signature-col">
+                            Diriginte,
+                            <span class="signature-name">${elev.diriginte || '................'}</span>
+                        </div>
+                        <div class="signature-col">
+                            Părinte,
+                            <span class="signature-name">${numeParinte}</span>
+                        </div>
+                        <div class="signature-col">
+                            Elev,
+                            <span class="signature-name">${elev.nume_elev}</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+</script>
+</body>
+</html>

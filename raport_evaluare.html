@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <title>Raport Fișe de evaluare MATE</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Roboto+Mono:wght@500;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
+    <style>
+        :root { --primary: #1e3a8a; --accent: #2563eb; --danger: #dc2626; --warning: #d97706; --success: #059669; }
+        @page { size: A4; margin: 1.2cm; }
+        
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background: #f1f5f9; 
+            margin: 0; 
+            padding: 0; 
+            color: #1e293b; 
+            font-size: 8.5pt; 
+            line-height: 1.4; 
+            display: flex; 
+            justify-content: center; 
+        }
+        
+        @media print { 
+            .no-print { display: none !important; } 
+            body { background: white !important; display: block !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; } 
+            .a4-page { margin: 0 !important; box-shadow: none !important; width: 100% !important; padding: 1cm !important; border: none !important; }
+            .main-section-header { background: var(--primary) !important; color: white !important; -webkit-print-color-adjust: exact !important; }
+            .edit-input { border: none !important; }
+            .perc-val { -webkit-print-color-adjust: exact !important; }
+        }
+
+        .a4-page { width: 210mm; min-height: 297mm; margin: 20px 0; background: white; padding: 1.5cm; box-sizing: border-box; box-shadow: 0 10px 25px rgba(0,0,0,0.05); position: relative; }
+        .antet-img { width: 100%; height: auto; }
+        
+        .nr-inreg-row { margin: 15px 0; font-weight: 700; font-family: 'Roboto Mono', monospace; font-size: 10pt; }
+        .edit-input { border: none; border-bottom: 1px dotted #000; outline: none; width: 280px; font-family: inherit; font-weight: 800; background: transparent; }
+        
+        .header-title { text-align: center; margin-bottom: 25px; }
+        .header-title h1 { margin: 0; font-size: 16pt; font-weight: 800; text-transform: uppercase; color: #000; }
+        .sub-titlu-blue { font-weight: 700; font-size: 10pt; color: var(--primary); margin-top: 10px; text-transform: uppercase; }
+        .info-header { font-weight: 700; font-size: 11pt; color: #1e293b; margin-top: 5px; }
+
+        .sidebar-nav { position: fixed; top: 20px; left: 20px; width: 260px; background: #fff; padding: 15px; border-radius: 12px; box-shadow: 0 15px 30px rgba(0,0,0,0.1); max-height: 90vh; overflow-y: auto; }
+        .nav-actions { display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 2px solid #eee; }
+        
+        .card-nav { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px; margin-bottom: 8px; cursor: pointer; transition: 0.2s; }
+        .card-nav.active { border-left: 5px solid var(--accent); background: #eff6ff; }
+        
+        .main-section-header { background: var(--primary); color: white; padding: 10px 15px; font-weight: 800; border-radius: 4px; margin: 30px 0 10px 0; text-transform: uppercase; font-size: 11pt; }
+        .subsec-title { font-weight: 800; font-size: 10pt; color: var(--primary); border-bottom: 2px solid #e2e8f0; padding-bottom: 5px; margin-top: 20px; }
+        .indicator-row { display: flex; justify-content: space-between; padding: 7px 0; border-bottom: 0.5pt solid #f1f5f9; align-items: flex-start; gap: 15px; }
+        .ind-text { flex: 1; font-size: 9pt; text-align: justify; }
+        .ind-val { font-weight: 700; font-family: 'Roboto Mono', monospace; white-space: nowrap; }
+        
+        .perc-high { color: var(--danger); }
+        .perc-med { color: var(--warning); }
+        .perc-low { color: var(--success); }
+
+        .ai-paragraph { display: block; text-indent: 1.27cm; margin-bottom: 12px; text-align: justify; font-size: 10.5pt; line-height: 1.6; }
+        .ai-box-editable { min-height: 200pt; border: 1px solid #e2e8f0; padding: 15px; background: #fff; outline: none; border-radius: 4px; }
+        
+        .footer-signatures { margin-top: 50px; display: flex; justify-content: space-between; align-items: flex-start; page-break-inside: avoid; }
+        .sig-block { text-align: center; width: 45%; }
+        .sig-label { font-weight: 800; text-transform: uppercase; font-size: 9pt; }
+        .sig-name { margin-top: 40px; font-weight: 800; border-top: 1px solid #000; padding-top: 5px; font-size: 10pt; }
+
+        .btn-side { width: 100%; padding: 10px; border: none; border-radius: 8px; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 9pt; }
+    </style>
+</head>
+<body>
+
+<div class="sidebar-nav no-print">
+    <div class="nav-actions">
+        <button class="btn-side" style="background:#475569; color:white;" onclick="location.href='mate_evaluare.html'">
+            <i class="fa-solid fa-arrow-left"></i> ÎNAPOI LA EVALUARE
+        </button>
+        <button class="btn-side" style="background:var(--accent); color:white;" onclick="genereazaAnalizaAI()">
+            <i class="fa-solid fa-wand-magic-sparkles"></i> GENEREAZĂ ANALIZĂ AI
+        </button>
+        <button class="btn-side" style="background:#000; color:white;" onclick="window.print()">
+            <i class="fa-solid fa-print"></i> PRINTEAZĂ PAGINA
+        </button>
+    </div>
+    <div style="font-weight:800; color:var(--primary); margin-bottom:10px;">SELECTARE RAPORT:</div>
+    <div id="nav-wrapper"></div>
+</div>
+
+<div class="a4-page">
+    <img src="antet_pnras.jpeg" class="antet-img">
+    <div class="nr-inreg-row">
+        NR. ÎNREG: <input type="text" id="nr-inreg-input" class="edit-input" onblur="salveazaDate()">
+    </div>
+
+    <div class="header-title">
+        <h1>Raport Fișe de evaluare MATE</h1>
+        <div class="sub-titlu-blue">Categoria I: Activități de identificarea și monitorizare a elevilor în risc de abandon școlar - MATE</div>
+        <div id="clasa-an-header" class="info-header"></div>
+        <div style="font-weight: 600; font-size: 9pt; color: #64748b; margin-top: 5px;">I.2. Aplicarea Fișei de observare și a Fișei de evaluare MATE</div>
+    </div>
+
+    <div class="main-section-header">Secțiunea I. Indicatori Fișe de evaluare MATE</div>
+    <div id="content-indicators"></div>
+
+    <div class="main-section-header">Sectiunea II. Analiză și interpretare</div>
+    <div id="ai-box" class="ai-box-editable" contenteditable="true" onblur="salveazaDate()"></div>
+
+    <div id="signature-container"></div>
+</div>
+
+<script>
+const supabaseUrl = 'https://aexjrbdgajurxzngfkpx.supabase.co';
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFleGpyYmRnYWp1cnh6bmdma3B4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgxMzE3NTYsImV4cCI6MjA4MzcwNzc1Nn0.VUx0QOKgjX4m23HOF2rBpE9vWA3T18KtjLc0w_iXhqA';
+const _db = supabase.createClient(supabaseUrl, supabaseKey);
+
+const params = new URLSearchParams(window.location.search);
+const anSelectat = params.get('an') || 2026;
+let toateDatele = [];
+let vizualizareCurenta = 'General';
+let contextStatisticiAI = {};
+
+const MATE_MAP = {
+    'sub-a': { title: "(A) Factori de risc în relaţie cu sprijinul familial", items: [
+        { id: 'p8', text: "Familia nu îşi permite costurile şcolare (haine, materiale, navetă) pentru că este săracă sau are venituri foarte mici?" },
+        { id: 'p9', text: "Părinte minor, familie monoparentală, familie reorganizată (părintele în grija căruia se află s-a recăsătorit), familie cu mai mult de 3 copii, unul sau ambii părinţi nu sunt acasaă, fiind plecaţi la muncă în afara localităţii sau în străinătate, unul sau mai mulţi copii separaţi de familie sau reintegraţi în familie (după ce au fost în regim de protecţie specială)?" },
+        { id: 'p10', text: "Părinţii, părintele unic sau îngrijitorul copilului din gospodărie nu acordă importanţă sau au o atitudine negativă faţă de educaţia copiilor/şcoală?" },
+        { id: 'p11', text: "Elevul are unul sau mai mulţi fraţi sau surori (de 6-17 ani) care nu au fost niciodată la şcoală, au abandonat sau au părăsit timpuriu şcoala?" },
+        { id: 'p12', text: "Copilul nu are condiţii minimale de studiu acasă?" }
+    ]},
+    'sub-b': { title: "(B) Factori de risc legaţi de situaţia copilului", items: [
+        { id: 'p13', text: "Elevul/eleva are dizabilităţi (cu certificat de handicap) sau CES (cu certificat de orientare şcolară)?" },
+        { id: 'p14', text: "Elevul are dificultăţi de învăţare, fără certificat de dizabilitate/ orientare şcolară?" },
+        { id: 'p15', text: "În ultimul an, elevul/eleva a fost plecat(ă) din ţară sau din localitate o dată sau de mai multe ori pentru o perioadă mai mare de 3 luni?" },
+        { id: 'p16', text: "Elevul/eleva stă în gazdă sau la internat?" },
+        { id: 'p17', text: "Elevul/eleva este căsătorit(ă), are copil sau eleva e însărcinată?" },
+        { id: 'p18', text: "Lipsa interesului sau aspiraţiilor legate de educaţie ale elevului/elevei?" }
+    ]},
+    'sub-c': { title: "(C) Factori de risc în relaţie cu şcoala", items: [
+        { id: 'p19', text: "Discriminare sau izolare la şcoală a elevului/elevei?" },
+        { id: 'p20', text: "Violenţă la şcoală (elevul a fost implicat in conflicte create de el/ea sau alţi elevi?" },
+        { id: 'p21', text: "Alte cauze şcolare identificate:" }
+    ]},
+    'sub-d': { title: "(D) Factori de risc în relaţie cu comunitatea", items: [
+        { id: 'p22', text: "Elevul/eleva stă într-o zonă marginalizată sau într-comunitate aflată în evidenţa sistemului de protecţie specială a copilului?" },
+        { id: 'p23', text: "Elevul/eleva stă într-un sat/într-o zonă de unde naveta spre şi dinspre şcoală este dificilă sau imposibilă?" }
+    ]}
+};
+
+async function init() {
+    const { data, error } = await _db.from('mate_pnras').select('*').eq('anul', anSelectat).order('nume_elev', { ascending: true });
+    if (!error) {
+        toateDatele = data;
+        renderNav();
+        await switchView('General');
+    }
+}
+
+function renderNav() {
+    const wrapper = document.getElementById('nav-wrapper');
+    const clase = [...new Set(toateDatele.map(e => e.clasa))].sort();
+    let html = `<div class="card-nav active" id="btn-General" onclick="switchView('General')"><b>Raport General</b><br><small>Total Școală</small></div>`;
+    clase.forEach(c => { html += `<div class="card-nav" id="btn-${c}" onclick="switchView('${c}')"><b>Clasa ${c}</b><br><small>${toateDatele.filter(x=>x.clasa===c).length} elevi</small></div>`; });
+    wrapper.innerHTML = html;
+}
+
+async function switchView(view) {
+    vizualizareCurenta = view;
+    document.querySelectorAll('.card-nav').forEach(b => b.classList.remove('active'));
+    const activeBtn = document.getElementById(`btn-${view}`);
+    if (activeBtn) activeBtn.classList.add('active');
+    
+    document.getElementById('clasa-an-header').innerText = (view === 'General' ? 'Nivel Școală' : 'Clasa: ' + view) + ' | An școlar: ' + anSelectat;
+
+    const subset = view === 'General' ? toateDatele : toateDatele.filter(e => e.clasa === view);
+    renderIndicators(subset);
+    renderSignatures(subset);
+    
+    // REÎNCĂRCARE DIN DB PENTRU FIECARE VIZUALIZARE (REPARĂ PROBLEMA REFRESH)
+    const idRef = subset[0]?.id;
+    if (idRef) {
+        const { data, error } = await _db.from('mate_pnras').select('observatii_evaluare, nr_inregistrare').eq('id', idRef).single();
+        if (!error && data) {
+            document.getElementById('ai-box').innerHTML = data.observatii_evaluare || "";
+            document.getElementById('nr-inreg-input').value = data.nr_inregistrare || "";
+            // Sincronizăm și local
+            subset[0].observatii_evaluare = data.observatii_evaluare;
+            subset[0].nr_inregistrare = data.nr_inregistrare;
+        }
+    }
+}
+
+function renderIndicators(subset) {
+    const container = document.getElementById('content-indicators');
+    const total = subset.length;
+    let html = "";
+    contextStatisticiAI = {};
+
+    Object.entries(MATE_MAP).forEach(([key, sec]) => {
+        html += `<div class="subsec-title">${sec.title}</div>`;
+        contextStatisticiAI[sec.title] = [];
+        sec.items.forEach(it => {
+            const count = subset.filter(e => (e[it.id]||'').toUpperCase()==='DA').length;
+            const proc = total > 0 ? ((count/total)*100).toFixed(1) : 0;
+            let cls = proc > 25 ? 'perc-high' : (proc >= 10 ? 'perc-med' : 'perc-low');
+            html += `<div class="indicator-row"><div class="ind-text">${it.text}</div><div class="ind-val ${cls}">${count}/${total} (${proc}%)</div></div>`;
+            contextStatisticiAI[sec.title].push(`${it.text}: ${proc}%`);
+        });
+    });
+    container.innerHTML = html;
+}
+
+function renderSignatures(subset) {
+    const cont = document.getElementById('signature-container');
+    if (vizualizareCurenta === 'General') {
+        cont.innerHTML = `<div class="footer-signatures">
+            <div class="sig-block"><div class="sig-label">Întocmit,<br>Manager proiect,</div><div class="sig-name">prof. dr. Ciprian MIHAI</div></div>
+            <div class="sig-block"><div class="sig-label">Aprobat,<br>Director,</div><div class="sig-name">prof. Cătălin Ionuț BAZILUC</div></div>
+        </div>`;
+    } else {
+        const diriginte = subset[0]?.diriginte || "---";
+        cont.innerHTML = `<div class="footer-signatures">
+            <div class="sig-block" style="width:100%;"><div class="sig-label">Întocmit,<br>Diriginte,</div><div class="sig-name">${diriginte}</div></div>
+        </div>`;
+    }
+}
+
+async function salveazaDate() {
+    const subset = vizualizareCurenta === 'General' ? toateDatele : toateDatele.filter(e => e.clasa === vizualizareCurenta);
+    const idReferinta = subset[0]?.id;
+    if (!idReferinta) return;
+
+    const valAI = document.getElementById('ai-box').innerHTML;
+    const valNr = document.getElementById('nr-inreg-input').value;
+
+    const { error } = await _db.from('mate_pnras').update({ 
+        observatii_evaluare: valAI, 
+        nr_inregistrare: valNr 
+    }).eq('id', idReferinta);
+
+    if (!error) {
+        subset[0].observatii_evaluare = valAI;
+        subset[0].nr_inregistrare = valNr;
+        console.log("Date salvate persistent.");
+    }
+}
+
+async function genereazaAnalizaAI() {
+    const box = document.getElementById('ai-box'); 
+    box.innerHTML = "<em>🤖 Se analizează cifrele pe subsecțiuni...</em>";
+    let dateStructurate = "";
+    for (const [sectiune, indicatori] of Object.entries(contextStatisticiAI)) {
+        dateStructurate += `\n${sectiune}:\n- ${indicatori.join("\n- ")}\n`;
+    }
+
+    try {
+        const response = await fetch(`${supabaseUrl}/functions/v1/chatgpt-pnras`, {
+            method: 'POST', 
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${supabaseKey}` },
+            body: JSON.stringify({ 
+                prompt: `Analizează datele MATE pentru ${vizualizareCurenta}:${dateStructurate}. SARCINĂ: Scrie o analiză strategică integrată. REGULI: 1. Analizează fiecare subsecțiune corelând cifrele cu riscul de abandon. 2. Folosește 4 paragrafe ample, indentate la 1.27cm. 3. Nu folosi liste.` 
+            })
+        });
+        const res = await response.json();
+        box.innerHTML = res.reply.split('\n').filter(p => p.trim() !== '').map(p => `<span class="ai-paragraph">${p}</span>`).join('');
+        await salveazaDate();
+    } catch (e) { box.innerHTML = "Eroare AI."; }
+}
+
+init();
+</script>
+</body>
+</html>

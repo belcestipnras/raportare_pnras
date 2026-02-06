@@ -353,7 +353,15 @@ async function salveazaMeta() {
         } else {
             alert("Eroare la salvare: " + error.message);
         }
+
+    }function verificaParolaMate() {
+    const parolaIntrodusaMate = prompt("Introduceți parola pentru secțiunea MATE:");
+    if (parolaIntrodusaMate === "Mate123") { // Poți schimba parola aici
+        window.location.href = 'mate.html';
+    } else if (parolaIntrodusaMate !== null) {
+        alert("Parolă incorectă! Accesul a fost refuzat.");
     }
+}
     document.addEventListener('DOMContentLoaded', incarca);
 </script>
 </body>

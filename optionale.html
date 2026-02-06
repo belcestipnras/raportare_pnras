@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PNRAS Manager - GitHub Ready Master</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Roboto+Mono:wght@500&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <style>
+        :root {
+            --sidebar-width: 380px;
+            --primary: #0056b3;
+            --active-green: #28a745;
+            --batch-print: #dc3545;
+            --bg-viewer: #525659;
+            --border: #ddd;
+        }
+
+        body { font-family: 'Inter', sans-serif; margin: 0; padding: 0; background-color: white; display: flex; height: 100vh; overflow: hidden; }
+
+        /* --- SIDEBAR --- */
+        .sidebar { width: var(--sidebar-width); background: white; border-right: 1px solid var(--border); height: 100vh; display: flex; flex-direction: column; flex-shrink: 0; z-index: 10; }
+        .sidebar-header { padding: 15px; background: #f8f9fa; border-bottom: 1px solid var(--border); }
+        .year-tabs { display: flex; width: 100%; border-bottom: 1px solid var(--border); background: #e9ecef; }
+        .tab-btn { flex: 1; padding: 12px; border: none; background: transparent; font-weight: 700; color: #666; cursor: pointer; border-bottom: 3px solid transparent; }
+        .tab-btn.active { background: white; color: var(--primary); border-bottom: 3px solid var(--primary); }
+        
+        .docs-container { padding: 15px; flex-grow: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; }
+        .year-content { display: none; flex-direction: column; gap: 15px; }
+        .year-content.active { display: flex; }
+
+        .doc-section { border: 1px solid #eee; border-radius: 4px; padding: 8px; background: white; margin-bottom: 10px; }
+        .doc-header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
+        .doc-title { font-size: 0.8rem; font-weight: 800; color: #333; text-transform: uppercase; }
+
+        .config-row { display: flex; gap: 5px; margin-bottom: 8px; }
+        .cfg-input { width: 100%; padding: 6px; border: 1px solid #ccc; border-radius: 3px; font-size: 12px; }
+        .cfg-input.saving { background-color: #fff3cd; }
+        .cfg-input.saved { background-color: #d4edda; }
+
+        .class-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; }
+        .c-btn { background: white; border: 1px solid #ced4da; border-radius: 3px; padding: 6px 0; font-family: 'Roboto Mono', monospace; font-size: 0.75rem; color: #333; cursor: pointer; }
+        .c-btn.active { background: var(--active-green); color: white; border-color: var(--active-green); }
+        .btn-batch { background: white; color: var(--batch-print); border: 1px solid var(--batch-print); font-size: 0.65rem; font-weight: 700; padding: 2px 6px; border-radius: 3px; cursor: pointer; }
+
+        /* --- VIEWER --- */
+        .main-content { flex-grow: 1; height: 100vh; overflow-y: auto; background-color: var(--bg-viewer); display: flex; flex-direction: column; align-items: center; padding: 20px 0; }
+        .doc-toolbar { position: sticky; top: 10px; z-index: 500; background: rgba(40,40,40,0.95); color: white; padding: 10px 30px; border-radius: 30px; display: flex; align-items: center; gap: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.5); margin-bottom: 20px; }
+        .btn-print-action { background: var(--active-green); color: white; border: none; padding: 8px 20px; border-radius: 20px; font-weight: 700; cursor: pointer; }
+
+        /* --- A4 PAGE STYLE --- */
+        .a4-page {
+            background: white; width: 210mm; min-height: 297mm; flex-shrink: 0;
+            padding: 1.5cm; box-shadow: 0 10px 30px rgba(0,0,0,0.5); 
+            box-sizing: border-box; position: relative; display: block;
+            font-family: 'Times New Roman', Times, serif; color: black;
+            line-height: 1.15; margin-bottom: 30px;
+        }
+        
+        /* Editabil Styles */
+        [contenteditable="true"]:focus { background-color: #fffde7; outline: 1px solid var(--primary); }
+        .saving-visual { position: absolute; top: 10px; right: 20px; font-size: 9pt; font-weight: bold; color: #28a745; font-family: sans-serif; display: none; }
+
+        .header-img { width: 100%; height: auto; display: block; margin-bottom: 5px; }
+        .reg-number { font-size: 11pt; margin-bottom: 10px; }
+        h1.doc-main-title { text-align: center; font-weight: bold; font-size: 11pt; margin: 5px 0 5px 0; text-transform: uppercase; line-height: 1.1; }
+        .school-year-subtitle { text-align: center; font-weight: bold; font-size: 11pt; margin-bottom: 15px; }
+
+        .section-box { border: 1px solid #000; padding: 5px 10px; margin-bottom: 10px; }
+        .student-info-block { font-size: 11pt; line-height: 1.1; }
+        .label { font-weight: bold; display: inline-block; width: 85px; }
+
+        .declaration-intro, .consent-final { text-align: justify; font-size: 11pt; text-indent: 40px; margin-bottom: 8px; }
+        .legal-list { margin: 0; padding-left: 30px; text-align: justify; list-style-type: decimal; }
+        .legal-list li { margin-bottom: 4px; font-size: 10.5pt; line-height: 1.15; }
+
+        .table-adeverinta { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 11pt; }
+        .table-adeverinta th, .table-adeverinta td { border: 1px solid black; padding: 6px; text-align: left; }
+        .table-adeverinta th { background-color: #f2f2f2; text-align: center; }
+
+        .footer-signatures { margin-top: 30px; display: flex; justify-content: space-between; align-items: flex-start; font-size: 11pt; }
+
+        @media print {
+            @page { size: A4; margin: 0; }
+            html, body { height: auto; overflow: visible; background: white !important; }
+            .sidebar, .doc-toolbar { display: none !important; }
+            .main-content { position: static; display: block; width: 100%; height: auto; padding: 0 !important; margin: 0 !important; background: white !important; }
+            .a4-page { margin: 0 !important; border: none !important; box-shadow: none !important; width: 210mm !important; min-height: 297mm !important; page-break-after: always !important; padding: 1.5cm !important; }
+            .saving-visual { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <div style="font-weight:800; color:#333; font-size:1.1rem;">🗂️ PNRAS Manager</div>
+            <div style="font-size:0.8rem; color:#666;" id="status-text">Conectare Supabase...</div>
+        </div>
+        <div class="year-tabs">
+            <button class="tab-btn active" onclick="switchTab('2025', this)">2025</button>
+            <button class="tab-btn" onclick="switchTab('2026', this)">2026</button>
+        </div>
+        <div class="docs-container" id="side-docs"></div>
+    </div>
+
+    <div class="main-content" id="print-area">
+        <div style="margin-top:200px; text-align:center; color:#ccc;"><h3>Sistem pregătit pentru GitHub Pages.</h3></div>
+    </div>
+
+    <script>
+        const { createClient } = supabase;
+        const dbClient = createClient('https://aexjrbdgajurxzngfkpx.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFleGpyYmRnYWp1cnh6bmdma3B4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgxMzE3NTYsImV4cCI6MjA4MzcwNzc1Nn0.VUx0QOKgjX4m23HOF2rBpE9vWA3T18KtjLc0w_iXhqA');
+        
+        const structura = {
+            '2025': ['5A', '5B', '6A', '6B', '6C', '7A', '7B', '8A', '8B', '8C'],
+            '2026': ['5A', '5B', '5C', '6A', '6B', '7A', '7B', '7C', '8A', '8B']
+        };
+        const tipuriDoc = ['GDPR', 'Consimțământ', 'Adeverințe'];
+        const TITLU_PROIECT = "FII UNUL DINTRE C.R.A.I.! (Creativitate, Reziliență, Adaptabilitate, Incluziune)";
+
+        window.addEventListener('DOMContentLoaded', async () => {
+            renderSidebar();
+            await fetchConfigs();
+            document.getElementById('status-text').textContent = "● Conectat";
+        });
+
+        function renderSidebar() {
+            const container = document.getElementById('side-docs');
+            container.innerHTML = Object.keys(structura).map(year => `
+                <div id="view-${year}" class="year-content ${year==='2025'?'active':''}">
+                    ${tipuriDoc.map(doc => `
+                        <div class="doc-section">
+                            <div class="doc-header-row"><span class="doc-title">${doc}</span><button class="btn-batch" onclick="loadBatch('${year}', '${doc}')">Tot</button></div>
+                            <div class="config-row">
+                                <input type="text" id="in_nr_${year}_${doc}" class="cfg-input" placeholder="Nr. Start" onchange="saveConfig('${year}', '${doc}')">
+                                <input type="text" id="in_dt_${year}_${doc}" class="cfg-input" placeholder="Data" onchange="saveConfig('${year}', '${doc}')">
+                            </div>
+                            <div class="class-grid">${structura[year].map(c => `<button class="c-btn" onclick="loadClass('${year}','${doc}','${c}', this)">${c}</button>`).join('')}</div>
+                        </div>
+                    `).join('')}
+                </div>
+            `).join('');
+        }
+
+        async function fetchConfigs() {
+            const { data } = await dbClient.from('numere_inregistrare').select('*').like('id_unique', 'CONF_%');
+            if(data) data.forEach(row => {
+                const parts = row.id_unique.split('_');
+                const nr = document.getElementById(`in_nr_${parts[1]}_${parts[2]}`);
+                const dt = document.getElementById(`in_dt_${parts[1]}_${parts[2]}`);
+                if(nr) { nr.value = row.nr_c || ''; dt.value = row.nr_d || ''; }
+            });
+        }
+
+        async function saveConfig(year, docType) {
+            const nr = document.getElementById(`in_nr_${year}_${docType}`);
+            const dt = document.getElementById(`in_dt_${year}_${docType}`);
+            await dbClient.from('numere_inregistrare').upsert({ id_unique: `CONF_${year}_${docType}`, an: parseInt(year), tip_registru: docType, nr_c: nr.value, nr_d: dt.value, expert_nume: 'Sistem', luna: 1 }, { onConflict: 'id_unique' });
+        }
+
+        function localSave(id, docType, key, value) {
+            const storageKey = `PNRAS_EDIT_${id}_${docType}`;
+            let storedData = JSON.parse(localStorage.getItem(storageKey)) || {};
+            storedData[key] = value;
+            localStorage.setItem(storageKey, JSON.stringify(storedData));
+            
+            const visual = document.getElementById(`status-${id}`);
+            if(visual) {
+                visual.textContent = "Salvat ✓";
+                visual.style.display = "block";
+                setTimeout(() => visual.style.display = "none", 1500);
+            }
+        }
+
+        function getLocalValue(id, docType, key, defaultValue) {
+            const storedData = JSON.parse(localStorage.getItem(`PNRAS_EDIT_${id}_${docType}`));
+            if(storedData && storedData[key] !== undefined) return storedData[key];
+            return defaultValue;
+        }
+
+        function extractDateFromCNP(cnp) {
+            if (!cnp || cnp.toString().length !== 13) return null;
+            const c = cnp.toString();
+            const s = parseInt(c[0]);
+            const century = (s === 5 || s === 6) ? '20' : '19';
+            return `${c.substring(5, 7)}.${c.substring(3, 5)}.${century}${c.substring(1, 3)}`;
+        }
+
+        function switchTab(year, btn) {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            document.querySelectorAll('.year-content').forEach(c => c.classList.remove('active'));
+            document.getElementById(`view-${year}`).classList.add('active');
+        }
+
+        async function loadClass(year, docType, clasa, btn) {
+            document.querySelectorAll('.c-btn').forEach(b => b.classList.remove('active'));
+            if(btn) btn.classList.add('active');
+            const printArea = document.getElementById('print-area');
+            const nrVal = document.getElementById(`in_nr_${year}_${docType}`)?.value || '___';
+            const dtVal = document.getElementById(`in_dt_${year}_${docType}`)?.value || '__.__.____';
+            const { data: students } = await dbClient.from('mate_pnras').select('*').eq('clasa', clasa).eq('anul', year).order('nume_elev', { ascending: true });
+            
+            let html = `<div class="doc-toolbar"><div><strong>${clasa} - ${docType}</strong></div><button class="btn-print-action" onclick="window.print()">🖨️ Printează</button></div>`;
+            if(students) students.forEach((elev, index) => html += generateA4Page(elev, index, nrVal, dtVal, clasa, docType));
+            printArea.innerHTML = html;
+        }
+
+        function generateA4Page(elev, index, nrVal, dtVal, clasa, docType) {
+            const sid = elev.id;
+            const regNumber = getLocalValue(sid, docType, 'reg_nr', `Nr. ${nrVal}/${clasa}/${index + 1}/${dtVal}`);
+            let pOrig = (elev.nume_mama && elev.nume_mama !== '-') ? {n: elev.nume_mama, c: elev.cnp_mama} : {n: elev.nume_tata || '', c: elev.cnp_tata || ''};
+            
+            let pNume = getLocalValue(sid, docType, 'p_nume', pOrig.n);
+            let pCNP = getLocalValue(sid, docType, 'p_cnp', pOrig.c);
+            let eNume = getLocalValue(sid, docType, 'e_nume', elev.nume_elev);
+            let dataN = pCNP ? extractDateFromCNP(pCNP) : '............';
+
+            let title = "";
+            let content = "";
+            let footer = "";
+
+            const anScolarLabel = elev.anul === '2025' ? "2024 - 2025" : "2025 - 2026";
+
+            if (docType === "Consimțământ") {
+                title = "Declarație privind evitarea dublei finanțări";
+                content = `<p class="declaration-intro" contenteditable="true" onblur="localSave('${sid}','${docType}','c1',this.innerHTML)">Subsemnata/Subsemnatul <strong>${pNume || '...................'}</strong>, CNP: ${pCNP || '...................'}, în calitate de părinte al elevului <strong>${eNume}</strong>, declar pe propria răspundere că nu am participat și nu particip la un alt proiect finanțat din fonduri nerambursabile, cu aceleași activități precum cele furnizate prin proiectul ”${TITLU_PROIECT}”, cod F-PNRAS-2-2023-0447. De asemenea, mi s-au adus la cunoștință drepturile, obligațiile și beneficiile obținute prin participarea la acest proiect și subscriu pentru acestea. Nerespectarea obligațiilor va fi sancționată prin excludere din cadrul proiectului.</p>`;
+                footer = `<div>Data: ${dtVal}</div><div style="text-align:center; width:280px;">Semnătură Părinte:<br><strong>${pNume}</strong><br><br>.......................................</div>`;
+            } else if (docType === "Adeverințe") {
+                title = "Adeverință de apartenență la grupul țintă PNRAS";
+                content = `<p style="text-indent: 40px; margin: 40px 0; font-size: 12pt; text-align: justify;" contenteditable="true" onblur="localSave('${sid}','${docType}','c1',this.innerHTML)">Prin prezenta se adeverește că elevul(a) <strong>${eNume}</strong> este elev la Liceul Tehnologic ”Victor Mihăilescu Craiu” Belcești, în clasa <strong>${clasa}</strong>, și face parte din grupul-țintă al proiectului „${TITLU_PROIECT}”, cod F-PNRAS-2-2023-0447. Adeverința se eliberează pentru a-i servi la dosarul personal din cadrul proiectului.</p>`;
+                footer = `<div>Data: ${dtVal}</div><div style="text-align:center; width:280px;">Secretar,<br><strong>Hasmațuchi Otilia</strong><br><br>.......................................</div>`;
+            } else {
+                title = "Declarație de consimțământ privind acordul pentru prelucrarea datelor cu caracter personal și folosirea imaginii";
+                content = `
+                    <p class="declaration-intro" contenteditable="true" onblur="localSave('${sid}','${docType}','c1',this.innerHTML)">Subsemnatul/Subsemnata <strong>${pNume || '...................'}</strong>, CNP: ${pCNP || '...................'}, născut/ă la data de: ${dataN}, declar că:</p>
+                    <ol class="legal-list" contenteditable="true" onblur="localSave('${sid}','${docType}','c2',this.innerHTML)">
+                        <li>Am fost informat(ă) cu privire la prevederile Regulamentului (UE) 679/26 aprilie 2016 privind protecția persoanelor fizice în ceea ce privește prelucrarea datelor cu caracter personal și privind libera circulație a acestor date și de abrogare a Directivei 95/46/CE (Regulamentul general privind protecția datelor), adoptat de Parlamentul European și Consiliul Uniunii Europene.</li>
+                        <li>Am fost informat(ă) că beneficiez de dreptul de acces, de intervenție asupra datelor mele și dreptul de a nu fi supus unei decizii individuale. Am fost informat(ă) că datele cu caracter personal precum și ale copilului/copiii meu/mei minor/minori, soțului/soției urmează să fie prelucrate și stocate la Liceul Tehnologic „Victor Mihăilescu Craiu” Belcești, în cadrul proiectului „${TITLU_PROIECT}”.</li>
+                        <li>Am fost informat(ă) că prelucrarea datelor mele cu caracter personal precum și ale copilului/copiii meu/mei minor/minori este necesară în vederea obligațiilor legale ce revin operatorului, respectiv Liceul Tehnologic „Victor Mihăilescu Craiu” Belcești, în cadrul proiectului „${TITLU_PROIECT}”, precum și în scopul intereselor și drepturilor ce îmi revin.</li>
+                        <li>Am fost informat(ă) că datele mele cu caracter personal sunt comunicate autorităților publice precum și altor instituții abilitate (Ex.: ANAF, ANFP, ITM, A.N.I.) la solicitarea instanțelor judecătorești sau organelor de cercetare penală etc.</li>
+                        <li>Am fost informat(ă) că în scopul prelucrării exacte a datelor mele cu caracter personal, am obligația de a aduce la cunoștința operatorului, respectiv Liceul Tehnologic „Victor Mihăilescu Craiu” Belcești, în cadrul proiectului menționat, orice modificare survenită asupra datelor mele personale.</li>
+                        <li>Am fost informat(ă) că am dreptul să îmi retrag consimțământul în orice moment printr-o cerere scrisă, întocmită, datată și semnată, depusă la sediul Liceului Tehnologic „Victor Mihăilescu Craiu” Belcești, din cadrul proiectului „${TITLU_PROIECT}”, exceptând cazul în care prelucrarea datelor mele cu caracter personal este necesară în legătură cu raportul de muncă/serviciu.</li>
+                    </ol>
+                    <p class="consent-final" contenteditable="true" onblur="localSave('${sid}','${docType}','c3',this.innerHTML)">În consecință, îmi dau consimțământul pentru prelucrarea, transmiterea și stocarea datelor cu caracter personal în cadrul Liceului Tehnologic „Victor Mihăilescu Craiu” Belcești, din cadrul proiectului „${TITLU_PROIECT}”.</p>`;
+                footer = `<div>Data: ${dtVal}</div><div style="text-align:center; width:280px;">Semnătură Părinte:<br><strong>${pNume}</strong><br><br>.......................................</div>`;
+            }
+
+            return `
+            <div class="a4-page">
+                <div class="saving-visual" id="status-${sid}"></div>
+                <img src="antet_pnras.jpeg" alt="ANTET" class="header-img">
+                <div class="reg-number" contenteditable="true" onblur="localSave('${sid}','${docType}','reg_nr',this.innerText)">${regNumber}</div>
+                <h1 class="doc-main-title" contenteditable="true">${title}</h1>
+                <div class="school-year-subtitle">An școlar ${anScolarLabel}</div>
+                <div class="section-box"><div class="student-info-block"><div><span class="label">Elev:</span> <strong contenteditable="true" onblur="localSave('${sid}','${docType}','e_nume',this.innerText)">${eNume}</strong></div><div><span class="label">CNP:</span> ${elev.cnp}</div><div><span class="label">Clasa:</span> ${elev.clasa}</div><div><span class="label">Diriginte:</span> ${elev.diriginte}</div></div></div>
+                ${content}
+                <div class="footer-signatures" contenteditable="true">${footer}</div>
+            </div>`;
+        }
+
+        async function loadBatch(year, docType) {
+            const nrVal = document.getElementById(`in_nr_${year}_${docType}`)?.value || '___';
+            const dtVal = document.getElementById(`in_dt_${year}_${docType}`)?.value || '__.__.____';
+            const { data: students } = await dbClient.from('mate_pnras').select('*').eq('anul', year).order('nume_elev', { ascending: true });
+            
+            const anScolarLabel = year === '2025' ? "2024 - 2025" : "2025 - 2026";
+
+            if (docType === "Adeverințe") {
+                let htmlTabel = `
+                <div class="doc-toolbar"><div><strong>Adeverință Colectivă - ${year}</strong></div><button class="btn-print-action" onclick="window.print()">Printează Tabel</button></div>
+                <div class="a4-page">
+                    <img src="antet_pnras.jpeg" alt="ANTET" class="header-img">
+                    <div class="reg-number" contenteditable="true">Nr. ${nrVal}/${dtVal}</div>
+                    <h1 class="doc-main-title">TABEL NOMINAL CU ELEVII CUPRINȘI ÎN GRUPUL ȚINTĂ PNRAS</h1>
+                    <div class="school-year-subtitle">An școlar ${anScolarLabel}</div>
+                    <p style="text-indent: 40px; text-align: justify;">Prezenta adeverește că următorii elevi sunt înscriși în grupul țintă al proiectului „${TITLU_PROIECT}”, cod F-PNRAS-2-2023-0447, în anul școlar corespunzător:</p>
+                    <table class="table-adeverinta" contenteditable="true">
+                        <thead><tr><th>Nr. Crt.</th><th>Nume și Prenume Elev</th><th>Clasa</th></tr></thead>
+                        <tbody>${students.map((elev, i) => `<tr><td style="text-align:center;">${i + 1}</td><td>${elev.nume_elev}</td><td style="text-align:center;">${elev.clasa}</td></tr>`).join('')}</tbody>
+                    </table>
+                    <div class="footer-signatures"><div>Data: ${dtVal}</div><div style="text-align:center; width:280px;">Secretar,<br><strong>Hasmațuchi Otilia</strong><br><br>.......................................</div></div>
+                </div>`;
+                document.getElementById('print-area').innerHTML = htmlTabel;
+            } else {
+                let fullHtml = `<div class="doc-toolbar"><div><strong>BATCH ${year} - ${docType}</strong></div><button class="btn-print-action" onclick="window.print()">PRINTEAZĂ TOT</button></div>`;
+                if(students) students.forEach((elev, index) => fullHtml += generateA4Page(elev, index, nrVal, dtVal, elev.clasa, docType));
+                document.getElementById('print-area').innerHTML = fullHtml;
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registre Centralizatoare</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <style>
+        :root { --pnras-blue: #0056b3; --bg-color: #f4f6f9; --table-border: #d1d9e0; }
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg-color); margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; }
+        .back-btn { position: absolute; top: 20px; left: 20px; text-decoration: none; color: var(--pnras-blue); font-weight: 600; background: white; padding: 8px 16px; border-radius: 6px; border: 1px solid #e0e0e0; cursor: pointer; }
+        .action-btn { background-color: var(--pnras-blue); color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: 600; font-family: 'Inter', sans-serif; margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,86,179,0.2); }
+        .btn-green { background-color: #28a745; }
+        #selection-ui { width: 100%; display: flex; flex-direction: column; align-items: center; }
+        h1 { color: var(--pnras-blue); margin: 10px 0 20px 0; font-size: 1.5rem; font-weight: 700; }
+        .years-container { display: flex; gap: 15px; }
+        .year-card { background: white; border: 2px solid transparent; border-radius: 8px; width: 130px; height: 70px; display: flex; flex-direction: column; justify-content: center; align-items: center; cursor: pointer; }
+        .year-card.active { border-color: var(--pnras-blue); background-color: #f0f7ff; }
+        .year-title { font-size: 1.5rem; font-weight: 700; color: var(--pnras-blue); }
+        .year-subtitle { font-size: 0.75rem; color: #666; font-weight: 500; }
+        .sub-cards-container { display: none; gap: 12px; margin-top: 15px; }
+        .sub-cards-container.visible { display: flex; }
+        .reg-card { background: white; border: 1px solid #e0e0e0; border-radius: 8px; width: 150px; height: 60px; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; }
+        .reg-card:hover { border-color: var(--pnras-blue); }
+        #a4-view { display: none; flex-direction: column; align-items: center; width: 100%; }
+        .controls-a4 { display: flex; gap: 15px; margin-bottom: 20px; }
+        .a4-page { background-color: white; width: 210mm; min-height: 297mm; padding: 1.5cm; box-sizing: border-box; box-shadow: 0 8px 25px rgba(0,0,0,0.1); margin-bottom: 40px; }
+        .antet-img { width: 100%; height: auto; display: block; margin-bottom: 10px; }
+        .nr-inregistrare { width: 100%; text-align: left; font-size: 0.9rem; font-weight: 600; margin-bottom: 30px; color: #333; display: flex; align-items: center; gap: 5px; }
+        
+        /* Inputul Editabil */
+        .nr-input { border: 1px dashed #d1d9e0; outline: none; font-family: inherit; font-size: 0.9rem; width: 200px; background: transparent; font-weight: 600; padding: 2px 5px; color: #000; border-radius: 4px; transition: 0.3s; }
+        .nr-input:focus { border-color: var(--pnras-blue); background-color: #f0f7ff; }
+
+        .registru-title { text-align: center; font-size: 1.15rem; font-weight: 700; margin-bottom: 5px; text-transform: uppercase; color: #333; }
+        .an-scolar { text-align: center; font-size: 1rem; font-weight: 500; color: #555; margin-bottom: 30px; }
+        .table-wrapper { border-radius: 12px; overflow: hidden; box-shadow: 0 6px 15px rgba(0, 0, 0, 0.08); border: 1px solid var(--table-border); background: white; }
+        
+        table { width: 100%; border-collapse: collapse; font-size: 0.75rem; }
+        th, td { border-bottom: 1px solid var(--table-border); border-right: 1px solid var(--table-border); padding: 6px 4px; text-align: center; vertical-align: middle; }
+        th:last-child, td:last-child { border-right: none; }
+        tbody tr:last-child td { border-bottom: none; }
+        th { background-color: #f8f9fa; font-weight: 700; color: #333; line-height: 1.2; }
+        .class-row td { background-color: #f0f7ff; color: var(--pnras-blue); font-weight: 700; text-align: left; padding: 8px; font-size: 0.8rem; }
+        .nume-td { text-align: left; font-weight: 600; color: #222; }
+        .val-da { color: #d93025; font-weight: 700; }
+        
+        .input-decizie { width: 90%; padding: 4px; font-family: 'Inter', sans-serif; font-size: 0.75rem; text-align: center; border: 1px dashed #aaa; background: transparent; color: #333; border-radius: 4px; }
+        .input-decizie:focus { outline: none; border-color: var(--pnras-blue); background: #f0f7ff; font-weight: 600; }
+
+        .signatures { display: flex; justify-content: space-between; margin-top: 40px; padding: 0 30px; font-size: 0.95rem; }
+        .sig-block { line-height: 1.5; }
+
+        #save-status { font-size: 0.8rem; color: #28a745; font-weight: normal; margin-left: 10px; opacity: 0; transition: opacity 0.5s; }
+
+        @media print {
+            * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+            @page { size: portrait; margin: 1.5cm; } 
+            body { margin: 0; padding: 0; background: white; }
+            #selection-ui, .controls-a4, .back-btn { display: none !important; }
+            .a4-page { box-shadow: none !important; width: 100% !important; min-height: auto !important; padding: 0 !important; }
+            .table-wrapper { box-shadow: none !important; border-radius: 8px !important; }
+            th { background-color: #f8f9fa !important; color: #333 !important; }
+            .class-row td { background-color: #f0f7ff !important; color: var(--pnras-blue) !important; }
+            .val-da { color: #d93025 !important; }
+            .keep-together { break-inside: avoid; }
+            .input-decizie, .nr-input { border: none !important; background: transparent !important; font-weight: 600; }
+            #save-status { display: none !important; }
+        }
+    </style>
+</head>
+<body>
+
+    <a href="mate.html" class="back-btn" id="main-back">← Înapoi la MATE</a>
+
+    <div id="selection-ui">
+        <h1>Registre Centralizatoare</h1>
+        <div class="years-container">
+            <div class="year-card" id="btn-2025" onclick="showRegisters('2025')">
+                <span class="year-title">2025</span><span class="year-subtitle">Anul Școlar</span>
+            </div>
+            <div class="year-card" id="btn-2026" onclick="showRegisters('2026')">
+                <span class="year-title">2026</span><span class="year-subtitle">Anul Școlar</span>
+            </div>
+        </div>
+        <div class="sub-cards-container" id="reg-2025">
+            <div class="reg-card" onclick="openA4('2025', 'observatie')">📄 Registru observație</div>
+            <div class="reg-card" onclick="openA4('2025', 'evaluare')">📊 Registru evaluare</div>
+            <div class="reg-card" onclick="openA4('2025', 'dosare')">📂 Registru dosare</div>
+        </div>
+        <div class="sub-cards-container" id="reg-2026">
+            <div class="reg-card" onclick="openA4('2026', 'observatie')">📄 Registru observație</div>
+            <div class="reg-card" onclick="openA4('2026', 'evaluare')">📊 Registru evaluare</div>
+            <div class="reg-card" onclick="openA4('2026', 'dosare')">📂 Registru dosare</div>
+        </div>
+    </div>
+
+    <div id="a4-view">
+        <div class="controls-a4">
+            <button class="back-btn" style="position: static;" onclick="closeA4()">← Închide Tabelul</button>
+            <button class="action-btn btn-green" onclick="fetchNrInregistrare()">📥 Preia Nr. Înregistrare</button>
+            <button class="action-btn" onclick="window.print()">🖨️ Printare Registru</button>
+        </div>
+
+        <div class="a4-page">
+            <img src="antet_pnras.jpeg" alt="Antet PNRAS" class="antet-img">
+
+            <div class="nr-inregistrare">
+                Nr. înregistrare: 
+                <input type="text" class="nr-input" id="a4-nr-input" onblur="saveNrInregistrare()" placeholder="Ex: Nr. 150 / 01.10.2025">
+                <span id="save-status">✓ Salvat</span>
+            </div>
+
+            <div class="registru-title" id="a4-registru-titlu">REGISTRU CENTRALIZATOR XXXX MATE</div>
+            <div class="an-scolar" id="a4-an-scolar">An școlar XXXX - XXXX</div>
+
+            <div class="table-wrapper">
+                <table id="tabel-principal">
+                    </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentYearGlobal = null;
+        let currentTipGlobal = null;
+
+        function showRegisters(year) {
+            document.getElementById('btn-2025').classList.remove('active');
+            document.getElementById('btn-2026').classList.remove('active');
+            document.getElementById('reg-2025').classList.remove('visible');
+            document.getElementById('reg-2026').classList.remove('visible');
+            document.getElementById('btn-' + year).classList.add('active');
+            document.getElementById('reg-' + year).classList.add('visible');
+        }
+
+        function openA4(year, tip) {
+            document.getElementById('selection-ui').style.display = 'none';
+            document.getElementById('main-back').style.display = 'none';
+            document.getElementById('a4-view').style.display = 'flex';
+            
+            currentYearGlobal = parseInt(year);
+            currentTipGlobal = tip;
+            
+            const prevYear = parseInt(year) - 1;
+            document.getElementById('a4-an-scolar').innerText = `An școlar ${prevYear} - ${year}`;
+            
+            const titlu = document.getElementById('a4-registru-titlu');
+            if(tip === 'evaluare') titlu.innerText = "REGISTRU CENTRALIZATOR FIȘE DE EVALUARE MATE";
+            else if (tip === 'dosare') titlu.innerText = "REGISTRU CENTRALIZATOR DOSARE DE CAZ MATE";
+            else titlu.innerText = "REGISTRU CENTRALIZATOR FIȘE DE OBSERVAȚIE MATE";
+            
+            document.getElementById('a4-nr-input').value = "";
+
+            if (typeof loadRegistru === 'function') {
+                loadRegistru(year, tip);
+                fetchNrInregistrare(); // Incarca automat numarul
+            }
+        }
+
+        function closeA4() {
+            document.getElementById('a4-view').style.display = 'none';
+            document.getElementById('selection-ui').style.display = 'flex';
+            document.getElementById('main-back').style.display = 'flex';
+        }
+
+        function sincronizeazaDecizie(element, idClasa) {
+            const valoareNoua = element.value;
+            const toateInputurile = document.querySelectorAll(`.clasa-${idClasa}`);
+            toateInputurile.forEach(input => {
+                input.value = valoareNoua;
+            });
+        }
+
+        window.onload = function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const anDinUrl = urlParams.get('an');
+            if (anDinUrl === '2025' || anDinUrl === '2026') {
+                showRegisters(anDinUrl);
+            }
+        };
+    </script>
+
+    <script>
+        let supabaseClient = null;
+
+        try {
+            supabaseClient = window.supabase.createClient(
+                'https://aexjrbdgajurxzngfkpx.supabase.co',
+                'sb_publishable_KPV__0BA9z4EvRl5eqC0FQ_hmBLOLYv'
+            );
+        } catch (e) {
+            console.error("Nu s-a putut încărca Supabase.");
+        }
+
+        function formatNumeClasa(clasaCode) {
+            if (!clasaCode) return "Clasă nespecificată";
+            const match = clasaCode.match(/^([5-8])([A-Z])$/);
+            if (!match) return clasaCode;
+            const romanNumerals = { '5': 'V', '6': 'VI', '7': 'VII', '8': 'VIII' };
+            return `a ${romanNumerals[match[1]]}-a ${match[2]}`;
+        }
+
+        function formatDaNu(valoare) {
+            let val = (valoare || 'NU').toUpperCase().trim();
+            return val === 'DA' ? '<td class="val-da">DA</td>' : '<td>NU</td>';
+        }
+
+        // ==========================================
+        // LOGICA INTELIGENTĂ (Refolosim tabelul existent)
+        // ==========================================
+
+        async function saveNrInregistrare() {
+            const inputVal = document.getElementById('a4-nr-input').value;
+            if (!supabaseClient || !currentYearGlobal || !currentTipGlobal) return;
+
+            // Generăm un ID unic per an și registru (ex: "REG_observatie_2026")
+            const idCodificat = `REG_${currentTipGlobal}_${currentYearGlobal}`;
+
+            try {
+                // Upsert se uită la `id_unique`. Dacă găsește codul, face UPDATE, altfel INSERT.
+                const { error } = await supabaseClient
+                    .from('numere_inregistrare')
+                    .upsert({ 
+                        id_unique: idCodificat, 
+                        expert_nume: 'Sistem', // Metadate standard
+                        luna: 1,
+                        an: currentYearGlobal,
+                        nr_c: inputVal, // Aici punem Numărul Tău!
+                        ultima_modificare: new Date().toISOString()
+                    }, { onConflict: 'id_unique' });
+
+                if (!error) {
+                    const status = document.getElementById('save-status');
+                    status.style.opacity = 1;
+                    setTimeout(() => status.style.opacity = 0, 2000);
+                } else {
+                    console.error("Eroare Supabase:", error);
+                }
+            } catch (err) {
+                console.error("Eroare JS la salvare:", err);
+            }
+        }
+
+        async function fetchNrInregistrare() {
+            if (!supabaseClient || !currentYearGlobal || !currentTipGlobal) return;
+
+            const idCodificat = `REG_${currentTipGlobal}_${currentYearGlobal}`;
+
+            try {
+                // Căutăm direct după codul de mai sus
+                const { data, error } = await supabaseClient
+                    .from('numere_inregistrare')
+                    .select('nr_c')
+                    .eq('id_unique', idCodificat)
+                    .single();
+
+                if (!error && data && data.nr_c) {
+                    document.getElementById('a4-nr-input').value = data.nr_c;
+                }
+            } catch (err) {
+                console.error("Eroare la preluare:", err);
+            }
+        }
+
+        // ==========================================
+
+        async function loadRegistru(anulText, tipRegistru) {
+            const tabelHtml = document.getElementById('tabel-principal');
+            if (!supabaseClient) return;
+
+            tabelHtml.innerHTML = '<tbody><tr><td colspan="100%">Se interoghează baza de date...</td></tr></tbody>';
+
+            let headerHtml = '';
+            let numarColoane = 0;
+
+            if (tipRegistru === 'evaluare') {
+                numarColoane = 18;
+                headerHtml = `
+                    <thead>
+                        <tr>
+                            <th rowspan="2" width="3%">Nr.</th>
+                            <th rowspan="2" width="22%">Nume și Prenume Elev</th>
+                            <th colspan="5">A</th>
+                            <th colspan="6">B</th>
+                            <th colspan="3">C</th>
+                            <th colspan="2">D</th>
+                        </tr>
+                        <tr>
+                            <th width="4%">8</th><th width="4%">9</th><th width="4%">10</th><th width="4%">11</th><th width="4%">12</th>
+                            <th width="4%">13</th><th width="4%">14</th><th width="4%">15</th><th width="4%">16</th><th width="4%">17</th><th width="4%">18</th>
+                            <th width="4%">19</th><th width="4%">20</th><th width="4%">21</th>
+                            <th width="4%">22</th><th width="4%">23</th>
+                        </tr>
+                    </thead>
+                `;
+            } else if (tipRegistru === 'dosare') {
+                numarColoane = 5;
+                headerHtml = `
+                    <thead>
+                        <tr>
+                            <th width="5%">Nr.</th>
+                            <th width="35%">Nume și Prenume Elev</th>
+                            <th width="15%">Dosar de caz<br>(Număr)</th>
+                            <th width="20%">Decizie aprobare<br>(Nr. / Dată)</th>
+                            <th width="25%">Responsabil caz<br>(Diriginte)</th>
+                        </tr>
+                    </thead>
+                `;
+            } else {
+                numarColoane = 7;
+                headerHtml = `
+                    <thead>
+                        <tr>
+                            <th width="4%">Nr.</th>
+                            <th width="30%">Nume și Prenume Elev</th>
+                            <th width="13%">Frecvență<br>redusă</th>
+                            <th width="13%">Rezultate<br>slabe</th>
+                            <th width="13%">Repetent<br>1x</th>
+                            <th width="13%">Repetent<br>+2x</th>
+                            <th width="14%">Sancționat</th>
+                        </tr>
+                    </thead>
+                `;
+            }
+
+            try {
+                const { data: eleviInitial, error } = await supabaseClient
+                    .from('mate_pnras')
+                    .select('*')
+                    .eq('anul', anulText)
+                    .order('clasa', { ascending: true })
+                    .order('nume_elev', { ascending: true });
+
+                if (error || !eleviInitial || eleviInitial.length === 0) {
+                    tabelHtml.innerHTML = headerHtml + `<tbody><tr><td colspan="${numarColoane}">Nu s-au găsit elevi.</td></tr></tbody>`;
+                    return;
+                }
+
+                let elevi = eleviInitial;
+                if (tipRegistru === 'evaluare' || tipRegistru === 'dosare') {
+                    elevi = eleviInitial.filter(elev => 
+                        elev.nr_dosar && 
+                        elev.nr_dosar.trim() !== '' && 
+                        elev.nr_dosar.trim() !== '-'
+                    );
+                }
+
+                if (elevi.length === 0) {
+                    tabelHtml.innerHTML = headerHtml + `<tbody><tr><td colspan="${numarColoane}">Niciun elev nu are dosar de caz deschis în acest an.</td></tr></tbody>`;
+                    return;
+                }
+
+                const totalElevi = elevi.length;
+                const pragGrupare = Math.max(0, totalElevi - 5); 
+
+                let bodyHtml = '<tbody>';
+                let currentClasa = '';
+                let nrCrtGlobal = 1;
+
+                elevi.forEach((elev, index) => {
+                    
+                    if (index === pragGrupare) {
+                        bodyHtml += '</tbody><tbody class="keep-together">';
+                    }
+
+                    if (elev.clasa !== currentClasa) {
+                        currentClasa = elev.clasa;
+                        const diriginte = elev.diriginte || "Nespecificat";
+                        bodyHtml += `<tr class="class-row"><td colspan="${numarColoane}">Clasa ${formatNumeClasa(currentClasa)} - Diriginte: ${diriginte}</td></tr>`;
+                    }
+
+                    bodyHtml += `<tr><td>${nrCrtGlobal}.</td><td class="nume-td">${elev.nume_elev}</td>`;
+
+                    if (tipRegistru === 'evaluare') {
+                        bodyHtml += `
+                            ${formatDaNu(elev.p8)}${formatDaNu(elev.p9)}${formatDaNu(elev.p10)}${formatDaNu(elev.p11)}${formatDaNu(elev.p12)}
+                            ${formatDaNu(elev.p13)}${formatDaNu(elev.p14)}${formatDaNu(elev.p15)}${formatDaNu(elev.p16)}${formatDaNu(elev.p17)}${formatDaNu(elev.p18)}
+                            ${formatDaNu(elev.p19)}${formatDaNu(elev.p20)}${formatDaNu(elev.p21)}
+                            ${formatDaNu(elev.p22)}${formatDaNu(elev.p23)}
+                        `;
+                    } else if (tipRegistru === 'dosare') {
+                        bodyHtml += `
+                            <td style="font-weight: 600; color: var(--pnras-blue);">${elev.nr_dosar || ''}</td>
+                            <td><input type="text" class="input-decizie clasa-${elev.clasa}" oninput="sincronizeazaDecizie(this, '${elev.clasa}')" placeholder="Ex: 56/12.10.2025"></td>
+                            <td>${elev.diriginte || ''}</td>
+                        `;
+                    } else {
+                        bodyHtml += `
+                            ${formatDaNu(elev.fo_frecventa)}
+                            ${formatDaNu(elev.fo_rezultate)}
+                            ${formatDaNu(elev.fo_repetent_1)}
+                            ${formatDaNu(elev.fo_repetent_m)}
+                            ${formatDaNu(elev.fo_sanctionat)}
+                        `;
+                    }
+
+                    bodyHtml += `</tr>`;
+                    nrCrtGlobal++;
+                });
+
+                bodyHtml += `
+                    <tr style="border: none;">
+                        <td colspan="${numarColoane}" style="border: none; padding: 0;">
+                            <div class="signatures">
+                                <div class="sig-block" style="text-align: left;">
+                                    <b>Întocmit,</b><br>
+                                    Manager proiect,<br>
+                                    prof. dr. Ciprian MIHAI
+                                </div>
+                                <div class="sig-block" style="text-align: right;">
+                                    <b>Aprobat,</b><br>
+                                    Director,<br>
+                                    prof. Cătălin Ionuț BAZILUC
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>`;
+
+                tabelHtml.innerHTML = headerHtml + bodyHtml;
+
+            } catch (err) {
+                console.error("Eroare:", err);
+            }
+        }
+    </script>
+</body>
+</html>

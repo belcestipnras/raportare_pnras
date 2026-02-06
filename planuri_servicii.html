@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Planuri de Servicii PNRAS</title>
+    
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Montserrat:wght@700;800&display=swap" rel="stylesheet">
+
+    <style>
+        :root { 
+            --primary: #0b5394; 
+            --primary-light: #e0f2fe;
+            --text-dark: #1e293b;
+            --text-gray: #64748b;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        
+        /* SETĂRI GENERALE */
+        body { font-family: 'Inter', sans-serif; background: #f8fafc; margin: 0; padding: 0; color: var(--text-dark); line-height: 1.4; }
+
+        /* VIZUALIZARE ECRAN */
+        .page-continuous { 
+            width: 210mm; 
+            margin: 30px auto; 
+            background: white; 
+            padding: 20mm 15mm; 
+            box-sizing: border-box; 
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); 
+            position: relative; 
+            margin-bottom: 50px; 
+            display: flex;
+            flex-direction: column;
+            border-radius: 4px;
+        }
+
+        /* CONFIGURARE PRINT */
+        @page { 
+            size: A4; 
+            margin: 15mm 15mm; 
+        }
+        
+        @media print { 
+    .no-print { display: none !important; } 
+    
+    /* FORȚARE CULORI ȘI FUNDALURI */
+    * { 
+        -webkit-print-color-adjust: exact !important; 
+        print-color-adjust: exact !important; 
+    }
+
+    body, html { 
+        background: white !important; 
+        margin: 0 !important; 
+        padding: 0 !important; 
+    }
+            
+            .page-continuous { 
+                width: 100% !important; 
+                margin: 0 !important; 
+                padding: 0 !important;
+                border: none !important; 
+                box-shadow: none !important; /* Elimină orice umbră la print */
+                display: block !important;
+            }
+
+            .fisa-complet { 
+                page-break-after: always !important; 
+                display: block;
+            }
+
+            /* Ascundem elementele de input native la print si aratam doar textul */
+            input[type="text"] { border: none !important; background: transparent !important; }
+            
+            /* REGLAJE VIZUALE TABELE LA PRINT */
+            .categorie-titlu { 
+                background: #0b5394 !important; 
+                color: white !important; 
+                -webkit-print-color-adjust: exact !important; 
+                print-color-adjust: exact !important;
+                box-shadow: none !important;
+            }
+            
+            .content-box, .info-item { 
+                box-shadow: none !important; 
+                border: 1px solid #ccc !important;
+                border-left: 4px solid #0b5394 !important; 
+                break-inside: avoid; /* Evită ruperea box-urilor */
+            }
+            
+            /* LOGICA INVIZIBILĂ PENTRU SEMNĂTURI */
+            .signature-wrapper {
+                page-break-inside: avoid !important;
+                break-inside: avoid !important;
+                margin-top: 20px;
+            }
+        }
+
+        /* --- STILURI MODERNE --- */
+        .antet-img { width: 100%; height: auto; margin-bottom: 10px; }
+        
+        .nr-inreg-box {
+            text-align: left; font-weight: 800; font-size: 10pt; margin-bottom: 10px;
+            color: var(--text-dark); font-family: 'Montserrat', sans-serif;
+            display: flex; align-items: center; gap: 5px;
+        }
+
+        .titlu-principal { 
+            text-align: center; font-family: 'Montserrat', sans-serif; 
+            font-size: 13pt; font-weight: 800; text-transform: uppercase; 
+            margin: 10px 0; line-height: 1.3; color: #0f172a;
+        }
+        
+        .subtitlu-italic { 
+            text-align: justify; font-style: italic; font-size: 9pt; 
+            color: #334155; margin-bottom: 20px; display: block; 
+            line-height: 1.3; padding: 0 5px; 
+        }
+        
+        .an-scolar-box { 
+            text-align: center; font-weight: 800; color: var(--primary); 
+            margin-bottom: 20px; font-size: 11pt; display: flex; 
+            justify-content: center; align-items: center; gap: 15px; 
+        }
+        .an-scolar-box::before, .an-scolar-box::after { content: ""; flex: 1; height: 2px; background: #e2e8f0; }
+        
+        /* SECȚIUNI */
+        .section-box { 
+            background: transparent; 
+            padding: 0; 
+            margin-top: 20px; 
+            border: none; 
+            display: flex;
+            flex-direction: column;
+            gap: 15px; 
+        }
+
+        /* TITLURI SECȚIUNI */
+        .categorie-titlu { 
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 700; 
+            text-transform: uppercase; 
+            font-size: 10.5pt; 
+            background: linear-gradient(90deg, #0b5394 0%, #1e40af 100%);
+            color: white; 
+            padding: 8px 12px;
+            border-radius: 6px;
+            margin-bottom: 5px;
+            display: flex; align-items: center; gap: 10px;
+            box-shadow: 0 4px 6px -1px rgba(11, 83, 148, 0.3);
+        }
+        
+        /* CASETE INFORMATII */
+        .info-item, .content-box { 
+            background: white; 
+            padding: 12px 15px; 
+            border-radius: 6px; 
+            box-shadow: var(--shadow-md);
+            border-left: 4px solid var(--primary);
+            border-top: 1px solid #f1f5f9;
+            border-right: 1px solid #f1f5f9;
+            border-bottom: 1px solid #f1f5f9;
+            font-size: 9.5pt;
+            display: block; 
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        
+        .label { 
+            font-weight: 700; color: #64748b; font-size: 7.5pt; 
+            margin-bottom: 4px; 
+            text-transform: uppercase; letter-spacing: 0.5px;
+            display: block;
+        }
+        .valoare { font-weight: 700; color: #0f172a; font-size: 10pt; display: block; }
+        .full-width { grid-column: span 2; }
+        
+        /* Risc */
+        .intrebare-titlu { color: #334155; font-weight: 700; font-style: italic; font-size: 10pt; display: block; margin-bottom: 8px; }
+        .risk-container { display: flex; flex-direction: column; gap: 8px; margin-top: 5px; }
+        .risk-item { 
+            background: #fff1f2; 
+            padding: 8px 12px; 
+            border-radius: 6px; 
+            display: flex; align-items: flex-start; gap: 10px; 
+            border-left: 4px solid #e11d48; 
+            box-shadow: var(--shadow-sm);
+        }
+        .risk-status { font-weight: 800; min-width: 35px; text-align: center; padding: 2px 0; border-radius: 4px; font-size: 8pt; margin-top: 2px; background: #e11d48; color: white; }
+        .risk-text { font-size: 9.5pt; font-weight: 500; color: #881337; line-height: 1.4; }
+        
+        /* Text general */
+        .text-paragraf { text-indent: 1.5cm; margin: 0 0 10px 0; text-align: justify; font-size: 10pt; font-weight: 400; color: #1e293b; line-height: 1.6; }
+        
+        .checkbox-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; font-size: 9.5pt; font-weight: 500; color: #334155; }
+        input[type="checkbox"] { transform: scale(1.2); cursor: pointer; accent-color: var(--primary); }
+        
+        .input-inreg { border: none; font-weight: 700; font-size: 10pt; width: 300px; text-align: left; background: transparent; font-family: 'Inter', sans-serif; color: #000; border-bottom: 1px dashed #cbd5e1; }
+        .input-inreg:focus { outline: none; border-bottom: 2px solid #0b5394; }
+        .input-editabil { border: none; border-bottom: 1px dotted #94a3b8; background: transparent; font-family: 'Inter', sans-serif; font-size: 9.5pt; padding: 0 5px; outline: none; color: #000; font-weight: 600; width: 100%; }
+
+        /* Semnături - STIL NOU PENTRU GRUPARE INVIZIBILĂ */
+        .signature-wrapper {
+            /* Această clasă asigură gruparea la print */
+            margin-top: 20px;
+            width: 100%;
+        }
+        
+        .signatures-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-top: 15px; }
+        .signature-block { display: flex; flex-direction: column; gap: 40px; }
+        .signature-item { font-size: 10pt; }
+        .role-title { font-weight: 700; color: var(--primary); display: block; margin-bottom: 4px; font-size: 8.5pt; text-transform: uppercase; letter-spacing: 0.5px; }
+        .role-name { font-weight: 600; color: #0f172a; border-bottom: 1px solid #e2e8f0; display: block; padding-bottom: 2px; }
+
+        /* Meniu */
+        .top-nav { position: sticky; top: 0; background: white; z-index: 1000; border-bottom: 1px solid #e2e8f0; padding: 15px; box-shadow: var(--shadow-md); display: flex; flex-direction: column; gap: 10px; align-items: center; }
+        .tab-container { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; width: 100%; }
+        .btn-tab { padding: 10px 20px; border: 1px solid #e2e8f0; border-radius: 8px; background: white; font-weight: 600; cursor: pointer; color: #475569; transition: all 0.2s; }
+        .btn-tab:hover { background: #f1f5f9; }
+        .btn-tab.active { background: var(--primary); color: white; border-color: var(--primary); box-shadow: 0 4px 6px -1px rgba(11, 83, 148, 0.4); }
+        
+        .global-controls { display: flex; gap: 15px; align-items: center; background: #f8fafc; padding: 10px 20px; border-radius: 8px; border: 1px solid #e2e8f0; margin-bottom: 10px; }
+        .global-input { padding: 6px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-weight: 600; width: 100px; text-align: center; color: var(--primary); }
+        .global-label { font-size: 8.5pt; font-weight: 700; color: #64748b; text-transform: uppercase; margin-bottom: 4px; display: block; }
+    </style>
+</head>
+<body>
+
+<div class="top-nav no-print">
+    <div class="global-controls" id="global-panel" style="display:none;">
+        <div>
+            <span class="global-label">Prefix Nr.</span>
+            <input type="text" id="global-prefix" class="global-input" value="___" oninput="updateRegistrationNumbers()">
+        </div>
+        <div style="font-weight: 800; color: #94a3b8; padding-top: 15px;">/ CLASA / NR /</div>
+        <div>
+            <span class="global-label">Sufix (Dată)</span>
+            <input type="text" id="global-suffix" class="global-input" value="____" oninput="updateRegistrationNumbers()">
+        </div>
+    </div>
+
+    <div class="tab-container">
+        <select id="select-an" class="btn-tab" onchange="incarcaDatele()">
+            <option value="2026" selected>Anul Școlar: 2025-2026</option>
+            <option value="2025">Anul Școlar: 2024-2025</option>
+        </select>
+        <button class="btn-tab" style="background:#0b5394; color:white; border:none;" onclick="window.print()">🖨️ Printează Planurile</button>
+        <div id="selector-clase" class="tab-container" style="margin-top:10px; width:100%;"></div>
+    </div>
+</div>
+
+<div id="container-fise"></div>
+
+<script>
+const supabaseUrl = 'https://aexjrbdgajurxzngfkpx.supabase.co';
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFleGpyYmRnYWp1cnh6bmdma3B4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgxMzE3NTYsImV4cCI6MjA4MzcwNzc1Nn0.VUx0QOKgjX4m23HOF2rBpE9vWA3T18KtjLc0w_iXhqA';
+const _db = supabase.createClient(supabaseUrl, supabaseKey);
+
+let eleviDB = [];
+let clasaActiva = "";
+
+// DATE PROFESORI - NU MODIFICA
+const ROLURI_EXPERTI = {
+    "Angheluș Raluca": "Expert activități remediale la limba și literatura română",
+    "Baziluc Ana Maria": "Expert activități remediale la limba și literatura română",
+    "Ghemeș Anca": "Expert activități remediale la limba și literatura română",
+    "Arotăriței Dănuț": "Expert activități remediale la matematică",
+    "Boldan Ovidiu": "Expert activități remediale la matematică",
+    "Popovici Estera": "Expert activități remediale la matematică",
+    "Iftene Ana Maria": "Expert activități remediale la matematică",
+    "Albu Ștefan": "Expert activități extracurriculare la Clubul de activități sportive și outdoor",
+    "Marele Daniela": "Expert activități extracurriculare la Clubul de pictură",
+    "Tanasă Liliana": "Expert activități extracurriculare la Clubul de muzică",
+    "Popa Gabriela": "Expert activități extracurriculare la Clubul de dansuri",
+    "Nohai Iuliana": "Expert activități extracurriculare la Clubul de științe",
+    "Nohai Vili": "Expert activități extracurriculare la Clubul de științe",
+    "Aparascăi Vasile": "Expert activități extracurriculare la Clubul de lectură și literație"
+};
+
+const SPECIALISTI_2025 = [
+    { nume: "Angheluș Raluca", grupe: ["5A", "5B", "6B", "8B"] },
+    { nume: "Baziluc Ana Maria", grupe: ["6A", "7A", "7B", "8A"] },
+    { nume: "Ghemeș Anca", grupe: ["6C", "8C"] },
+    { nume: "Arotăriței Dănuț", grupe: ["5A", "6B", "7B", "8B"] },
+    { nume: "Boldan Ovidiu", grupe: ["6C", "8C"] },
+    { nume: "Popovici Estera", grupe: ["5B", "6A", "7A", "8A"] },
+    { nume: "Albu Ștefan", grupe: ["SG1", "SG2"] },
+    { nume: "Marele Daniela", grupe: ["PG1", "PG2"] },
+    { nume: "Tanasă Liliana", grupe: ["MG1", "MG2"] },
+    { nume: "Popa Gabriela", grupe: ["DG1"] },
+    { nume: "Nohai Iuliana", grupe: ["StG1"] },
+    { nume: "Nohai Vili", grupe: ["StG2"] },
+    { nume: "Aparascăi Vasile", grupe: ["5A", "5B", "6A", "6B", "6C", "7A", "7B", "8A", "8B", "8C"] }
+];
+
+const SPECIALISTI_2026 = [
+    { nume: "Angheluș Raluca", grupe: ["AR5AB", "AR5A", "AR5B", "AR6A", "AR6B", "AR7B"] },
+    { nume: "Baziluc Ana Maria", grupe: ["BA6B", "BA7A", "BA8A1", "BA8A2", "BA8B"] },
+    { nume: "Ghemeș Anca", grupe: ["5C", "7C"] },
+    { nume: "Arotăriței Dănuț", grupe: ["AD8B1", "AD8B2", "AD8B3", "7C"] },
+    { nume: "Popovici Estera", grupe: ["PE8A1", "PE8A2", "PE6B1", "PE6B2", "PE7A"] },
+    { nume: "Albu Ștefan", grupe: ["SG1A", "SG1B"] },
+    { nume: "Marele Daniela", grupe: ["PG1A", "PG2A"] },
+    { nume: "Nohai Iuliana", grupe: ["StG1A"] },
+    { nume: "Nohai Vili", grupe: ["StG1B"] },
+    { nume: "Aparascăi Vasile", grupe: ["AV5A", "AV5B", "5C", "AV6A", "AV6B", "AV7A", "AV7B", "7C", "AV8A1", "AV8A2", "AV8B1", "AV8B2"] },
+    { nume: "Iftene Ana Maria", grupe: ["IA5AB1", "IA5AB2", "IA6A", "IA7B", "5C"] }
+];
+
+async function incarcaDatele() {
+    const an = document.getElementById('select-an').value;
+    try {
+        const { data: listaPnras, error: err1 } = await _db.from('mate_pnras').select('*').eq('anul', parseInt(an));
+        if (err1) throw err1;
+        if (!listaPnras || listaPnras.length === 0) { eleviDB = []; renderCartonaseClase(); return; }
+
+        const listaCNP = listaPnras.map(e => e.cnp).filter(c => c && String(c).length > 5);
+        const { data: listaActivitati, error: err2 } = await _db.from('elevi').select('cnp, clasa_grupa').in('cnp', listaCNP).eq('anul', parseInt(an));
+        if (err2) console.error(err2);
+
+        const cnpUriInscrisi = new Set((listaActivitati || []).map(e => String(e.cnp)));
+        const listaPnrasFiltrata = listaPnras.filter(pnrasItem => cnpUriInscrisi.has(String(pnrasItem.cnp)));
+
+        eleviDB = listaPnrasFiltrata.map(pnrasItem => {
+            const activitatiElev = (listaActivitati || []).filter(e => String(e.cnp) === String(pnrasItem.cnp));
+            const setGrupe = new Set(activitatiElev.map(e => e.clasa_grupa).filter(g => g));
+            return { ...pnrasItem, activitati_extra: [...setGrupe].join(', '), grupe_array: [...setGrupe] };
+        });
+
+        eleviDB = eleviDB.filter(e => e.nr_dosar && e.nr_dosar !== "" && e.nr_dosar !== "---");
+        renderCartonaseClase();
+    } catch (e) { console.error(e); }
+}
+
+function calculeazaDateCNP(cnp, anScolar) {
+    if (!cnp || String(cnp).length < 7) return { gen: "---", varsta: "---" };
+    const sCnp = String(cnp).trim();
+    const genCifra = parseInt(sCnp.charAt(0));
+    const gen = (genCifra === 5) ? "Masculin" : (genCifra === 6) ? "Feminin" : "---";
+    let anPrefix = (genCifra === 5 || genCifra === 6) ? 2000 : 1900;
+    let anNastere = parseInt(sCnp.substring(1, 3)) + anPrefix;
+    let dataReferinta = (anScolar === "2026") ? new Date(2025, 8, 1) : new Date(2025, 0, 1);
+    let varsta = dataReferinta.getFullYear() - anNastere;
+    return { gen, varsta: varsta + " ani" };
+}
+
+function renderCartonaseClase() {
+    const container = document.getElementById('selector-clase');
+    container.innerHTML = "";
+    document.getElementById('global-panel').style.display = 'none'; 
+    const claseUnice = [...new Set(eleviDB.map(e => e.clasa))].sort();
+    if(claseUnice.length === 0) { container.innerHTML = "Nu există elevi."; return; }
+
+    claseUnice.forEach(clasa => {
+        const btn = document.createElement('button');
+        btn.className = `btn-tab ${clasa === clasaActiva ? 'active' : ''}`;
+        btn.innerText = `Clasa ${clasa}`;
+        btn.onclick = () => { clasaActiva = clasa; renderCartonaseClase(); renderPlanuri(clasa); };
+        container.appendChild(btn);
+    });
+}
+
+function updateRegistrationNumbers() {
+    const prefix = document.getElementById('global-prefix').value;
+    const suffix = document.getElementById('global-suffix').value;
+    const elements = document.querySelectorAll('.reg-dynamic-text');
+    elements.forEach(el => {
+        const clasa = el.getAttribute('data-clasa');
+        const index = el.getAttribute('data-index');
+        el.innerText = `Nr. ${prefix} / ${clasa} / ${index} / ${suffix}`;
+    });
+}
+
+function renderPlanuri(clasa) {
+    const container = document.getElementById('container-fise');
+    container.innerHTML = "";
+    document.getElementById('global-panel').style.display = 'flex'; 
+    const an = document.getElementById('select-an').value;
+    const textAnScolar = (an == "2026") ? "2025 - 2026" : "2024 - 2025";
+    const listaSpecialistiCurenta = (an == "2026") ? SPECIALISTI_2026 : SPECIALISTI_2025;
+
+    const mapareCluburi = { 'PG': 'Activități extracurriculare la Clubul de pictură', 'MG': 'Activități extracurriculare la Clubul de muzică', 'DG': 'Activități extracurriculare la Clubul de dansuri', 'SG': 'Activități extracurriculare la Clubul de activități sportive și outdoor', 'StG': 'Activități extracurriculare la Clubul de științe' };
+    const romRemedial2026 = ["AR5AB", "AR5A", "AR5B", "AR6A", "AR6B", "AR7B", "BA6B", "BA7A", "BA8A1", "BA8A2", "BA8B", "5C", "6C", "8C", "7C"];
+    const mateRemedial2026 = ["AD8B1", "AD8B2", "AD8B3", "7C", "6C", "8C", "PE8A1", "PE8A2", "PE6B1", "PE6B2", "PE7A", "IA5AB1", "IA5AB2", "IA6A", "IA7B", "5C"];
+    const literatie2026 = ["AV5A", "AV5B", "5C", "AV6A", "AV6B", "AV7A", "AV7B", "7C", "AV8A1", "AV8A2", "AV8B1", "AV8B2"];
+    const claseGimnaziu2025 = ['5A','5B','6A','6B','6C','7A','7B','8A','8B','8C'];
+
+    const eleviFiltrati = eleviDB.filter(e => e.clasa === clasa).sort((a,b) => a.nume_elev.localeCompare(b.nume_elev));
+
+    eleviFiltrati.forEach((elev, index) => {
+        const dCNP = calculeazaDateCNP(elev.cnp, an);
+        let numeParinte = elev.nume_mama;
+        if (!numeParinte || numeParinte === "---" || numeParinte.trim() === "") { numeParinte = elev.nume_tata; }
+        if (!numeParinte || numeParinte === "---" || numeParinte.trim() === "") { numeParinte = ""; }
+        const nrCrt = index + 1;
+        const grupeElev = elev.grupe_array || [];
+
+        let continutRemedial = "", continutLiteratie = "", continutCluburi = "";
+        let areRomana = false, areMate = false, areLiteratie = false;
+
+        if (an == "2026") {
+            areRomana = grupeElev.some(g => romRemedial2026.includes(g));
+            areMate = grupeElev.some(g => mateRemedial2026.includes(g));
+            areLiteratie = grupeElev.some(g => literatie2026.includes(g));
+        } else {
+            const esteGimnaziu = grupeElev.some(g => claseGimnaziu2025.includes(g));
+            if (esteGimnaziu) { areRomana = true; areMate = true; areLiteratie = true; }
+        }
+
+        if (areRomana || areMate) {
+            continutRemedial = `<div style="margin-bottom: 5px;"><div style="font-weight: 700; font-size: 9.5pt; margin-bottom: 2px;">II.4. Activități remediale și diverse activități pedagogice și de sprijin</div><ul style="margin: 0; padding-left: 20px; font-size: 9pt;">${areRomana ? '<li>Activități remediale la limba și literatura română</li>' : ''}${areMate ? '<li>Activități remediale la matematică</li>' : ''}</ul></div>`;
+        }
+        if (areLiteratie) {
+            continutLiteratie = `<div style="margin-bottom: 5px;"><div style="font-weight: 700; font-size: 9.5pt; margin-bottom: 2px;">II.6. Activități pentru dezvoltarea literației – Club de lectură</div><ul style="margin: 0; padding-left: 20px; font-size: 9pt;"><li>Activități la Clubul de lectură și literație</li></ul></div>`;
+        }
+
+        let texteCluburi = [];
+        grupeElev.forEach(g => {
+            for (const [prefix, text] of Object.entries(mapareCluburi)) {
+                if (g.startsWith(prefix)) texteCluburi.push(text);
+            }
+        });
+        texteCluburi = [...new Set(texteCluburi)];
+        if (texteCluburi.length > 0) {
+            continutCluburi = `<div style="margin-bottom: 5px;"><div style="font-weight: 700; font-size: 9.5pt; margin-bottom: 2px;">II.5. Activități extracurriculare și/sau extrașcolare, inclusiv în parteneriate cu ONG</div><ul style="margin: 0; padding-left: 20px; font-size: 9pt;">${texteCluburi.map(t => `<li>${t}</li>`).join('')}</ul></div>`;
+        }
+
+        let htmlSubsectiuneaA = "";
+        if (continutRemedial || continutCluburi || continutLiteratie) {
+            htmlSubsectiuneaA = `<div class="content-box"><div style="font-weight: 700; font-size: 9.5pt; margin-bottom: 5px; border-bottom: 1px solid #e2e8f0; padding-bottom: 3px;">A. Tipuri de servicii educaționale necesare elevului/elevei</div>${continutRemedial}${continutCluburi}${continutLiteratie}</div>`;
+        }
+
+        let specialistiGasiti = [];
+        listaSpecialistiCurenta.forEach(spec => {
+            if (grupeElev.some(g => spec.grupe.includes(g))) { specialistiGasiti.push(`${spec.nume} - ${ROLURI_EXPERTI[spec.nume] || "Expert"}`); }
+        });
+        specialistiGasiti = [...new Set(specialistiGasiti)];
+
+        let htmlSubsectiuneaB = "";
+        if (specialistiGasiti.length > 0) {
+            htmlSubsectiuneaB = `<div class="content-box"><div style="font-weight: 700; font-size: 9.5pt; margin-bottom: 5px; border-bottom: 1px solid #e2e8f0; padding-bottom: 3px;">B. Specialiști necesari elevului/elevei</div><ul style="margin: 0; padding-left: 20px; font-size: 9pt; line-height: 1.4;">${specialistiGasiti.map(text => `<li>${text}</li>`).join('')}</ul></div>`;
+        }
+
+        let htmlSubsectiuneaC = `
+            <div class="content-box">
+                <div style="font-weight: 700; font-size: 9.5pt; margin-bottom: 5px; border-bottom: 1px solid #e2e8f0; padding-bottom: 3px;">C. Beneficiile necesare elevului</div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 5px;">
+                    <div class="checkbox-row"><input type="checkbox" checked> Masă caldă/Pachet alimentar</div>
+                    <div class="checkbox-row"><input type="checkbox" checked> Subvenții și premii</div>
+                    <div class="checkbox-row"><input type="checkbox" checked> Participarea la activități remediale</div>
+                    <div class="checkbox-row"><input type="checkbox" checked> Participarea la activități extracurriculare</div>
+                </div>
+                <div style="margin-top: 5px; font-size: 9pt; font-weight: 500;">Alte beneficii: <input type="text" class="input-editabil" value="nu este cazul"></div>
+            </div>`;
+
+        let htmlSubsectiuneaD = `
+            <div class="content-box">
+                <div style="font-weight: 700; font-size: 9.5pt; margin-bottom: 5px; border-bottom: 1px solid #e2e8f0; padding-bottom: 3px;">D. Asigurarea participării copilului sau a părinților/a îngrijitorului în cadrul măsurilor de prevenire a PTȘ organizate la nivelul școlii</div>
+                <div class="checkbox-row"><input type="checkbox" checked> Educație parentală (doar dacă este necesar)</div>
+                <div class="checkbox-row"><input type="checkbox" checked> Activități comune cu elevii și părinții (doar dacă este necesar)</div>
+            </div>`;
+
+        // --- SCHIMBARE MAJORA AICI: SCOATERE DIN TABEL (content-box) SI GRUPARE INVIZIBILA ---
+        let htmlSemnaturi = `
+            <div class="signature-wrapper">
+                <div style="font-weight: 700; font-size: 9.5pt; margin-bottom: 10px; border-bottom: 2px solid #0b5394; padding-bottom: 3px;">Semnături</div>
+                <div class="signatures-grid">
+                    <div class="signature-block">
+                        <div class="signature-item"><span class="role-title">Director,</span><span class="role-name">prof. Cătălin Ionuț BAZILUC</span></div>
+                        <div class="signature-item"><span class="role-title">Manager proiect,</span><span class="role-name">prof. dr. Ciprian MIHAI</span></div>
+                    </div>
+                    <div class="signature-block">
+                        <div class="signature-item"><span class="role-title">Responsabil caz (Diriginte),</span><span class="role-name">${elev.diriginte || '---'}</span></div>
+                        <div class="signature-item"><span class="role-title">Părinte/Reprezentant legal,</span><input type="text" class="input-editabil" value="${numeParinte}" style="width: 100%; font-weight: bold; margin-top: 2px;"></div>
+                    </div>
+                </div>
+            </div>`;
+
+        const indicators1 = [{ id: 'fo_frecventa', text: 'Elevul are o prezenţă scăzută la şcoală (peste 20 absenţe nemotivate/lună)' }, { id: 'fo_rezultate', text: 'Elevul are performanţe academice scăzute (note < 6,5, corigențe sau scădere bruscă)' }, { id: 'fo_repetent_1', text: 'Elevul a repetat cel puțin un an de studiu' }, { id: 'fo_repetent_m', text: 'Elevul a repetat cel puțin doi ani de studiu' }, { id: 'fo_sanctionat', text: 'Elevul are un istoric şcolar de sancţiuni disciplinare sau plângeri' }].filter(ind => String(elev[ind.id] || 'NU').toUpperCase() === 'DA');
+        const indicators2 = [{ id: 'p8', text: 'Familia nu își permite costurile școlare (haine, încălțăminte, materiale școlare, naveta etc.) pentru că este săracă sau are venituri foarte mici' }, { id: 'p9', text: 'Părinte minor, familie monoparentală, familie reorganizată (părintele în grija căruia se află s-a recăsătorit), familie cu mai mult de 3 copii, unul sau ambii părinţi nu sunt acasaă, fiind plecaţi la muncă în afara localităţii sau în străinătate, unul sau mai mulţi copii separaţi de familie sau reintegraţi în familie (după ce au fost în regim de protecţie specială)' }, { id: 'p10', text: 'Părinţii, părintele unic sau îngrijitorul copilului din gospodărie nu acordă importanţă sau au o atitudine negativă faţă de educaţia copiilor/şcoală' }, { id: 'p11', text: 'Elevul are unul sau mai mulţi fraţi sau surori (de 6-17 ani) care nu au fost niciodată la şcoală, au abandonat sau au părăsit timpuriu şcoala' }, { id: 'p12', text: 'Copilul nu are condiţii minimale de studiu acasă' }, { id: 'p13', text: 'Elevul/eleva are dizabilităţi (cu certificat de handicap) sau CES (cu certificat de orientare şcolară)' }, { id: 'p14', text: 'Elevul are dificultăţi de învăţare, fără certificat de dizabilitate/ orientare şcolară (de ex. învaţă greu legătura între litere şi sunete; nu poate citi sau fac greşeli serioase de citire sau pronunţie; este încet în învăţarea noilor deprinderi; are dificultăţi în planificarea şi organizarea timpului şi/sau în învăţarea alfabetului, etc.)' }, { id: 'p15', text: 'În ultimul an, elevul/eleva a fost plecat(ă) din ţară sau din localitate o dată sau de mai multe ori pentru o perioadă mai mare de 3 luni, în afara vacanţei de vară' }, { id: 'p16', text: 'Elevul/eleva stă în gazdă sau la internat' }, { id: 'p17', text: 'Elevul/eleva este căsătorit(ă), are copil sau eleva e însărcinată' }, { id: 'p18', text: 'Lipsa interesului sau aspiraţiilor legate de educaţie ale elevului/elevei' }, { id: 'p19', text: 'Discriminare sau izolare la şcoală a elevului/elevei' }, { id: 'p20', text: 'Violenţă la şcoală (elevul a fost implicat in conflicte create de el/ea sau alţi elevi' }, { id: 'p21', text: 'Relaţii tensionate cu unele cadre didactice' }, { id: 'p22', text: 'Elevul/eleva stă într-o zonă marginalizată sau într-comunitate aflată în evidenţa sistemului de protecţie specială a copilului' }, { id: 'p23', text: 'Elevul/eleva stă într-un sat/într-o zonă de unde naveta spre şi dinspre şcoală este dificilă sau imposibilă în anumite perioade' }].filter(ind => String(elev[ind.id] || 'NU').toUpperCase() === 'DA');
+
+        container.insertAdjacentHTML('beforeend', `
+            <div class="fisa-complet">
+                <div class="page-continuous">
+                    <img src="antet_pnras.jpeg" class="antet-img">
+                    <div class="nr-inreg-box reg-dynamic-text" data-clasa="${elev.clasa}" data-index="${nrCrt}">Nr. ___ / ${elev.clasa} / ${nrCrt} / ____</div>
+                    <div class="titlu-principal">Plan de servicii educaționale pentru nivelurile 2 și 3 de intervenție</div>
+                    <div class="subtitlu-italic">(elevi identificați în risc de PTȘ pentru care personalul şcolii trebuie să planifice un set de intervenții diferite şi complementare de abordare a diferitelor combinații de factori de risc şi motivele care stau la baza acestora)</div>
+                    <div class="an-scolar-box">An școlar: ${textAnScolar}</div>
+                    
+                    <div class="section-box">
+                        <div class="categorie-titlu">I. Informații generale de identificare a elevului</div>
+                        <div class="info-grid">
+                            <div class="info-item full-width"><span class="label">Nume și prenume elev:</span><span class="valoare">${elev.nume_elev}</span></div>
+                            <div class="info-item"><span class="label">Unitatea de Învățământ:</span><span class="valoare">Liceul Tehnologic ”Victor Mihăilescu Craiu” Belcești</span></div>
+                            <div class="info-item"><span class="label">Nr. identificare Observatorul Școlii:</span><span class="valoare">${elev.nr_dosar}</span></div>
+                            <div class="info-item"><span class="label">CNP elev:</span><span class="valoare">${elev.cnp || '---'}</span></div>
+                            <div class="info-item"><span class="label">Gen / Vârstă:</span><span class="valoare">${dCNP.gen} / ${dCNP.varsta}</span></div>
+                            <div class="info-item"><span class="label">Clasa / Tip curs:</span><span class="valoare">${elev.clasa} / ZI</span></div>
+                        </div>
+                    </div>
+
+                    <div class="section-box">
+                        <div class="categorie-titlu">II. Cine participă la întâlnire din partea elevului?</div>
+                        <div class="info-grid">
+                            <div class="info-item"><span class="label">Părinte / Reprezentant Legal:</span><span class="valoare">${numeParinte}</span></div>
+                            <div class="info-item"><span class="label">Telefon contact:</span><span class="valoare">${elev.telefon_parinte || '---'}</span></div>
+                        </div>
+                    </div>
+
+                    <div class="section-box">
+                        <div class="categorie-titlu">III. Responsabil de caz</div>
+                        <div class="info-grid">
+                            <div class="info-item full-width"><span class="label">Profesor Diriginte:</span><span class="valoare">${elev.diriginte || '---'}</span></div>
+                        </div>
+                    </div>
+
+                    <div class="section-box" style="margin-top: 60px !important;">
+                        <div class="categorie-titlu">IV. Introducere</div>
+                        <div class="content-box">
+                            <span class="intrebare-titlu">1. Care sunt indicatorii de risc înregistrați în Fișa de observație MATE?</span>
+                            <div class="risk-container">${indicators1.map(ind => `<div class="risk-item"><span class="risk-status">DA</span><span class="risk-text">${ind.text}</span></div>`).join('')}</div>
+                            
+                            <span class="intrebare-titlu" style="margin-top: 15px;">2. Care sunt cauzele și factorii de risc identificați prin Fișa de evaluare MATE?</span>
+                            <div class="risk-container">${indicators2.map(ind => `<div class="risk-item"><span class="risk-status">DA</span><span class="risk-text">${ind.text}</span></div>`).join('')}</div>
+                        </div>
+                    </div>
+
+                    <div class="section-box">
+                        <div class="categorie-titlu">V. Scopul întâlnirii</div>
+                        <div class="content-box">
+                            <p class="text-paragraf">Scopul întâlnirii este acela de a discuta și a cădea de acord împreună asupra celor mai adecvate măsuri prin care putem sprijini elevul <strong>${elev.nume_elev}</strong>, să își îmbunătățească situația școlară.</p>
+                            <p class="text-paragraf">Planul de servicii educaționale este considerat final doar după ce elevul <strong>${elev.nume_elev}</strong> și dumneavoastră sunteți de acord cu măsurile propuse.</p>
+                            <p class="text-paragraf">Puteți refuza măsurile cu care nu sunteți de acord și vă încurajăm să propuneți orice alte măsuri și acțiuni credeți că ar putea fi mai eficiente și de care elevul <strong>${elev.nume_elev}</strong> are nevoie.</p>
+                        </div>
+                    </div>
+
+                    <div class="section-box">
+                        <div class="categorie-titlu">VI. Servicii educaționale</div>
+                        ${htmlSubsectiuneaA}
+                        ${htmlSubsectiuneaB}
+                        ${htmlSubsectiuneaC}
+                        ${htmlSubsectiuneaD}
+                        ${htmlSemnaturi}
+                    </div>
+                </div>
+            </div>
+        `);
+    });
+    
+    updateRegistrationNumbers();
+}
+incarcaDatele();
+</script>
+</body>
+</html>

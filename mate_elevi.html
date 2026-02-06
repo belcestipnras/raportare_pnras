@@ -147,19 +147,57 @@
     const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
     const params = new URLSearchParams(window.location.search);
-    const anul = params.get('an') || '2025';
-    const ID_DOC = `LISTA_ELEVI_${anul}`;
-    let dataCache = [];
-    let clasaSelectata = "";
-    let deletedStack = []; 
+let anul = params.get('an') || '2025'; // Schimbat din const în let
+let ID_DOC = `LISTA_ELEVI_${anul}`;    // Schimbat din const în let
+let dataCache = [];
+let clasaSelectata = "";
+let deletedStack = []; 
 
     async function init() {
-        const { data: reg } = await _supabase.from('registru_numere').select('nr_inreg').eq('id_document', ID_DOC).single();
-        if (reg) document.getElementById('nrInregInput').value = reg.nr_inreg;
-        const { data } = await _supabase.from('mate_pnras').select('*').eq('anul', anul);
-        dataCache = data || [];
-        renderTabs();
+    // Sincronizăm selectorul vizual
+    const sel = document.getElementById('selectorAn');
+    if(sel) sel.value = anul;
+
+    // Luăm numărul de înregistrare specific anului curent
+    const { data: reg } = await _supabase.from('registru_numere')
+        .select('nr_inreg')
+        .eq('id_document', ID_DOC)
+        .single();
+    
+    document.getElementById('nrInregInput').value = reg ? reg.nr_inreg : "";
+
+    // IMPORTANT: Interogăm Supabase strict pentru anul selectat
+    const { data, error } = await _supabase.from('mate_pnras')
+        .select('*')
+        .eq('anul', parseInt(anul)); // Ne asigurăm că anul e număr
+
+    if (error) {
+        console.error("Eroare Supabase:", error);
+        return;
     }
+
+    dataCache = data || [];
+    
+    // Resetăm clasa selectată pentru a forța reîncărcarea listei noi
+    clasaSelectata = ""; 
+    renderTabs();
+}
+
+async function onAnulChange(anNou) {
+    anul = anNou;
+    ID_DOC = `LISTA_ELEVI_${anul}`; // Actualizăm ID-ul pentru registrul de numere
+    
+    // Actualizăm URL-ul în browser (fără refresh)
+    const url = new URL(window.location);
+    url.searchParams.set('an', anNou);
+    window.history.pushState({}, '', url);
+
+    // Resetăm interfața și cache-ul
+    dataCache = [];
+    document.getElementById('zonaContinut').innerHTML = "Se încarcă...";
+    
+    await init();
+}
 
     async function saveCentralInreg(val) {
         await _supabase.from('registru_numere').upsert({ id_document: ID_DOC, nr_inreg: val, anul: anul, tip_document: 'lista_elevi' }, { onConflict: 'id_document' });

@@ -230,17 +230,38 @@
     initSidebar('grid-ian25', 'IANUARIE 2025', 2025); initSidebar('grid-sept25', 'SEPTEMBRIE 2025', 2025); initSidebar('grid-mar26', 'MARTIE 2026', 2026);
 
     async function loadClassData(cls, period, year, btn) {
-        document.querySelectorAll('.class-btn').forEach(b => b.classList.remove('active')); btn.classList.add('active');
-        currentClass = cls; currentPeriod = period; currentYear = year;
+        document.querySelectorAll('.class-btn').forEach(b => b.classList.remove('active')); 
+        btn.classList.add('active');
+        
+        currentClass = cls; 
+        currentPeriod = period; 
+        
+        // LOGICA NOUĂ: Dacă este Septembrie 2025, forțăm anul 2026
+        let yearToFetch = year;
+        if (period === 'SEPTEMBRIE 2025' && year === 2025) {
+            yearToFetch = 2026;
+        }
+        currentYear = yearToFetch;
+
         document.getElementById('disp-clasa').innerText = `${cls} (${period})`;
         const container = document.getElementById('sheets-container');
         container.innerHTML = `<div style="text-align:center; padding:50px;"><i class="fa-solid fa-spinner fa-spin fa-2x"></i><br>Se încarcă...</div>`;
-        const { data: elevi, error } = await _db.from(TABLE_NAME).select('*').eq('clasa', cls).eq('anul', year).order('nume_elev', { ascending: true });
+        
+        // Folosim yearToFetch în loc de parametrul inițial year
+        const { data: elevi, error } = await _db.from(TABLE_NAME)
+            .select('*')
+            .eq('clasa', cls)
+            .eq('anul', yearToFetch)
+            .order('nume_elev', { ascending: true });
+
         if(error) { container.innerHTML = `Eroare: ${error.message}`; return; }
-        if(!elevi || elevi.length === 0) { container.innerHTML = `Nu sunt elevi.`; return; }
+        if(!elevi || elevi.length === 0) { container.innerHTML = `Nu sunt elevi găsiți pentru anul ${yearToFetch}.`; return; }
+        
         document.getElementById('disp-diriginte').innerText = elevi[0].diriginte || "Nesetat";
         document.getElementById('disp-count').innerText = elevi.length;
-        container.innerHTML = ''; elevi.forEach((elev, idx) => container.innerHTML += createSheet(elev, idx + 1));
+        
+        container.innerHTML = ''; 
+        elevi.forEach((elev, idx) => container.innerHTML += createSheet(elev, idx + 1));
     }
 
     function createSheet(elev, idx) {
@@ -337,10 +358,18 @@
         });
 
         Object.values(groups).forEach(grp => {
-            grp.forEach(r => r.checked = false);
-            const randomIndex = Math.floor(Math.random() * grp.length);
-            grp[randomIndex].checked = true;
-        });
+        // Resetăm totul mai întâi
+        grp.forEach(r => r.checked = false);
+
+        // FILTRARE: Creăm o listă nouă care exclude butoanele cu valoarea "1"
+        const filteredGrp = grp.filter(r => r.value !== "1");
+
+        // Alegem un index aleatoriu DOAR din cele rămase (valorile 2, 3, 4, 5)
+        if (filteredGrp.length > 0) {
+            const randomIndex = Math.floor(Math.random() * filteredGrp.length);
+            filteredGrp[randomIndex].checked = true;
+        }
+    });
 
         // 2. Randomizează Feedback Text (D3) folosind toată lista
         const txt = sheet.querySelector('textarea');

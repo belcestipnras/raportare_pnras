@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Buget PNRAS</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Times+New+Roman&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <style>
+        :root { --pnras-blue: #0056b3; --bg-color: #f4f6f9; --text-dark: #333; --border-color: #d1d9e0; --green: #28a745; --orange: #fd7e14; --red: #dc3545;}
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg-color); margin: 0; display: flex; height: 100vh; overflow: hidden; color: var(--text-dark); }
+        
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-thumb { background: #ccc; border-radius: 4px; }
+
+        /* ========================================= */
+        /* STÂNGA: BORD FINANCIAR COMPLET            */
+        /* ========================================= */
+        .sidebar { width: 320px; background: white; border-right: 1px solid var(--border-color); display: flex; flex-direction: column; padding: 25px; box-sizing: border-box; box-shadow: 2px 0 10px rgba(0,0,0,0.03); z-index: 10; overflow-y: auto;}
+        .back-btn { text-decoration: none; color: var(--pnras-blue); font-weight: 600; margin-bottom: 30px; display: inline-block;}
+        
+        .btn-raport { background: #111; color: white; border: none; padding: 15px; border-radius: 8px; font-weight: 700; font-size: 1rem; cursor: pointer; transition: 0.2s; box-shadow: 0 4px 10px rgba(0,0,0,0.2); margin-bottom: 25px; text-transform: uppercase; letter-spacing: 0.5px;}
+        .btn-raport:hover { background: #333; transform: translateY(-2px); }
+
+        .btn-print-sidebar { background: #f0f4f8; color: var(--pnras-blue); border: 1px solid #d1d9e0; padding: 10px; border-radius: 6px; font-weight: 600; font-size: 0.85rem; cursor: pointer; transition: 0.2s; text-align: left; display: flex; align-items: center; gap: 8px;}
+        .btn-print-sidebar:hover { background: var(--pnras-blue); color: white; border-color: var(--pnras-blue);}
+
+        .section-title { font-size: 0.8rem; font-weight: 700; color: #aaa; text-transform: uppercase; margin-bottom: 15px; letter-spacing: 0.5px; }
+        .total-box { margin-bottom: 20px; }
+        .total-label { font-size: 0.85rem; color: #555; font-weight: 600; text-transform: uppercase; margin-bottom: 5px; }
+        .total-val { font-size: 1.6rem; font-weight: 700; color: #111; }
+        
+        .total-val.blue { color: var(--pnras-blue); }
+        .total-val.red { color: var(--red); }
+        .total-val.green { color: var(--green); }
+        .total-val.orange { color: var(--orange); }
+        .divider { height: 1px; background: #eee; margin: 25px 0; }
+
+        /* ========================================= */
+        /* ZONA CENTRALĂ                             */
+        /* ========================================= */
+        .main-content { flex-grow: 1; display: flex; flex-direction: column; overflow: hidden; }
+        .top-header { padding: 20px 30px; display: flex; justify-content: space-between; align-items: center; background: white; border-bottom: 1px solid var(--border-color); }
+        .top-header h1 { margin: 0; font-size: 1.5rem; color: var(--pnras-blue); }
+        .year-selector { display: flex; gap: 10px; }
+        .year-btn { background: #f0f0f0; border: none; padding: 8px 20px; border-radius: 6px; font-weight: 600; cursor: pointer; color: #444; transition: 0.2s; }
+        .year-btn.active { background: #333; color: white; }
+        .year-btn.total-btn { background: #e0f2fe; color: var(--pnras-blue); border: 1px solid #bae6fd; margin-left: 10px;}
+        .year-btn.total-btn.active { background: var(--pnras-blue); color: white; border-color: var(--pnras-blue);}
+
+        /* MENIU PILONI */
+        .activities-nav { display: flex; gap: 10px; padding: 15px 30px; background: #fbfdff; border-bottom: 1px solid var(--border-color); flex-wrap: wrap;}
+        .activity-card { flex: 1; min-width: 180px; background: white; border: 2px solid var(--border-color); border-radius: 10px; padding: 12px; cursor: pointer; text-align: center; font-weight: 600; font-size: 0.85rem; color: #444; transition: 0.2s; display: flex; align-items: center; justify-content: center; line-height: 1.3;}
+        .activity-card.active { background: var(--pnras-blue); color: white; border-color: var(--pnras-blue); box-shadow: 0 4px 10px rgba(0,86,179,0.2); }
+
+        .selection-summary { background: #111; color: white; padding: 12px 30px; display: flex; justify-content: space-between; align-items: center; font-size: 0.95rem; font-weight: 600; }
+        .selection-summary .sum-item { display: flex; align-items: center; gap: 8px; }
+        
+        .btn-print-view { background: white; color: #111; border: none; padding: 6px 12px; border-radius: 4px; font-weight: 700; font-size: 0.85rem; cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 6px;}
+        .btn-print-view:hover { background: #f0f0f0; }
+
+        .data-viewport { flex-grow: 1; padding: 30px; overflow-y: auto; }
+        .empty-state { text-align: center; color: #888; margin-top: 50px; font-style: italic; font-size: 1.1rem; }
+
+        /* LINIA DE BUGET */
+        .buget-row { background: white; border: 1px solid var(--border-color); border-radius: 8px; margin-bottom: 25px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); overflow: hidden; }
+        .buget-header { background: #f8fbff; padding: 20px; display: flex; flex-direction: column; gap: 15px; border-bottom: 1px solid var(--border-color); }
+        .buget-title-container { display: flex; justify-content: space-between; align-items: center; }
+        .buget-title { font-size: 1.05rem; color: #111; line-height: 1.4; max-width: 65%; font-family: 'Times New Roman', Times, serif;}
+        
+        .line-financials { display: flex; gap: 30px; align-items: center; justify-content: flex-end;}
+        .fin-block { display: flex; flex-direction: column; align-items: flex-end; }
+        .fin-block.alocat { color: #111; }
+        .fin-block.cheltuit { color: var(--red); }
+        .fin-block.ramas { color: var(--green); }
+        .fin-label { font-size: 0.75rem; text-transform: uppercase; font-weight: 600; opacity: 0.7; }
+        .fin-val { font-size: 1.15rem; font-weight: 700; }
+
+        .matrix-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; background: #fff; border: 1px solid #bae6fd; border-radius: 6px; padding: 10px;}
+        .matrix-col { display: flex; flex-direction: column; border-right: 1px solid #e2e8f0; padding-right: 10px; font-size: 0.85rem;}
+        .matrix-col:last-child { border-right: none; padding-right: 0;}
+        .matrix-title { font-weight: 700; color: var(--pnras-blue); margin-bottom: 8px; text-transform: uppercase; font-size: 0.8rem;}
+        .m-row { display: flex; justify-content: space-between; margin-bottom: 4px; border-bottom: 1px dashed #f0f0f0; padding-bottom: 2px;}
+        .m-row:last-child { border-bottom: none; font-weight: 700; padding-top: 4px; border-top: 1px solid #e2e8f0;}
+        .m-lbl { color: #666; }
+        .m-val { color: #111; }
+
+        .budget-timeline { display: flex; background: #fff; border: 1px solid #e2e8f0; border-radius: 6px; padding: 10px 15px; font-size: 0.85rem; justify-content: space-between; }
+        .timeline-item { display: flex; flex-direction: column; }
+        .timeline-label { color: #666; font-size: 0.75rem; text-transform: uppercase; font-weight: 600; }
+        .timeline-val { font-weight: 700; color: #111; margin-top: 2px; }
+
+        /* CONTRACTE SI FACTURI */
+        .contracte-container { padding: 20px; }
+        .contract-box { background: #f9fafb; border: 1px solid #e2e8f0; border-radius: 6px; padding: 15px; margin-bottom: 10px; border-left: 4px solid var(--pnras-blue); }
+        .contract-header { display: flex; justify-content: space-between; font-weight: 600; color: #111; margin-bottom: 5px; align-items: center; }
+        .tva-details { font-size: 0.75rem; color: #777; font-weight: 500; font-style: italic; margin-bottom: 10px;}
+        
+        .contract-status { font-size: 0.75rem; padding: 3px 8px; border-radius: 4px; color: white; background: #6c757d; }
+        .contract-status.platit { background: var(--green); }
+        .contract-status.derulare { background: var(--orange); }
+
+        .factura-list { margin-left: 10px; padding-left: 15px; border-left: 2px solid #cbd5e0; }
+        .factura-row { display: flex; justify-content: space-between; font-size: 0.85rem; color: #444; margin-bottom: 5px; align-items: center; }
+        
+        .btn-add-contract { background: #eef2f5; color: var(--pnras-blue); border: 1px dashed var(--pnras-blue); padding: 8px 15px; border-radius: 6px; font-weight: 600; cursor: pointer; width: 100%; margin-top: 10px; transition: 0.2s;}
+        .btn-add-contract:hover { background: #e2e8f0;}
+        .btn-add-factura { background: white; border: 1px solid #ccc; padding: 5px 10px; border-radius: 4px; font-size: 0.8rem; font-weight: 600; cursor: pointer; margin-top: 10px; }
+        
+        .btn-delete { background: none; border: none; color: #dc3545; font-size: 1rem; cursor: pointer; opacity: 0.4; transition: 0.2s; padding: 0 5px; line-height: 1; }
+        .btn-delete:hover { opacity: 1; transform: scale(1.1); }
+
+        /* ======================================================= */
+        /* MODAL VIZUALIZARE ECRAN CA "FOAIE A4"                   */
+        /* ======================================================= */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #444; display: none; justify-content: center; align-items: flex-start; z-index: 1000; overflow-y: auto; padding-top: 20px; padding-bottom: 20px;}
+        
+        .modal-audit { 
+            background: white; 
+            width: 210mm; 
+            min-height: 297mm; 
+            box-shadow: 0 0 15px rgba(0,0,0,0.5); 
+            display: flex; 
+            flex-direction: column; 
+            font-family: 'Times New Roman', Times, serif; 
+            color: #000; 
+            position: relative;
+            margin-bottom: 40px; 
+            overflow: visible; 
+        }
+        
+        .print-controls { position: sticky; top: 0; background: #222; padding: 10px 15px; display: flex; justify-content: space-between; z-index: 10;}
+        .btn-print-action { background: var(--pnras-blue); color: white; border: none; padding: 8px 20px; font-size: 1rem; font-weight: bold; cursor: pointer; border-radius: 4px;}
+        .close-audit { background: #dc3545; color: white; border: none; padding: 8px 15px; font-size: 1rem; cursor: pointer; font-weight: bold; border-radius: 4px;}
+
+        .a4-content { padding: 1.5cm; box-sizing: border-box; background: white; width: 100%;}
+        .antet-img { width: 100%; height: auto; display: block; margin-bottom: 20px; }
+        
+        .audit-title { text-align: center; font-size: 1.15rem; font-weight: bold; margin-bottom: 5px; text-transform: uppercase;}
+        .audit-subtitle { text-align: center; font-size: 0.9rem; margin-bottom: 25px; font-style: italic; }
+
+        .audit-section { margin-bottom: 25px; border: 1px solid #000; padding: 15px; background: #fff;}
+        .section-h { font-size: 1rem; font-weight: bold; text-transform: uppercase; margin-bottom: 10px; border-bottom: 1px solid #000; padding-bottom: 5px;}
+
+        /* TABEL REGISTRE - Ierarhie Pilon + Subcat */
+        .audit-table { width: 100%; border-collapse: collapse; margin-bottom: 15px; font-size: 0.85rem;}
+        .audit-table th, .audit-table td { border: 1px solid #000; padding: 6px; text-align: right; }
+        .audit-table th { background-color: #f2f2f2; text-align: center; font-weight: bold;}
+        .audit-table td.text-left { text-align: left; line-height: 1.3;}
+        .audit-table tr.total-row { font-weight: bold; background-color: #e6e6e6; font-size: 0.9rem;}
+
+        .kpi-grid { display: flex; justify-content: space-between; gap: 15px; margin-bottom: 15px; }
+        .kpi-box { border: 1px solid #000; padding: 10px; text-align: center; flex: 1; background: #fafafa;}
+        .kpi-label { font-size: 0.8rem; font-weight: bold; margin-bottom: 5px; text-transform: uppercase;}
+        .kpi-val { font-size: 1.15rem; font-weight: bold; }
+
+        .audit-signatures { display: flex; justify-content: space-between; margin-top: 40px; font-size: 0.95rem; line-height: 1.3; }
+        .sig-block { text-align: left; width: 45%; }
+
+
+        /* ========================================================== */
+        /* SETĂRI STRICTE IMPRIMANTĂ (Margini 1.5cm, Paginare corectă)*/
+        /* ========================================================== */
+        @media print {
+            * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+            @page { size: A4 portrait; margin: 1.5cm !important; }
+            
+            html, body { background: white !important; margin: 0 !important; height: auto !important; overflow: visible !important;}
+            
+            .sidebar, .main-content, .print-controls { display: none !important; }
+            #modal-contract, #modal-factura { display: none !important; }
+
+            .modal-overlay { display: block !important; position: static !important; background: white !important; padding: 0 !important; height: auto !important; overflow: visible !important;}
+            .modal-audit { box-shadow: none !important; border: none !important; width: 100% !important; min-height: auto !important; height: auto !important; margin: 0 !important; overflow: visible !important;}
+            
+            .a4-content { padding: 0 !important; width: 100% !important; height: auto !important; overflow: visible !important;}
+            .no-print { display: none !important; }
+            
+            .buget-row { page-break-inside: auto !important; margin-bottom: 15px !important;}
+            .buget-header { page-break-after: avoid !important; page-break-inside: avoid !important; padding: 12px !important;}
+            .contracte-container { padding: 12px !important;}
+            .contract-box { page-break-inside: avoid !important; padding: 8px !important; margin-bottom: 5px !important;}
+            .audit-signatures { page-break-inside: avoid !important; page-break-before: avoid !important; margin-top: 20px !important;}
+
+            ::-webkit-scrollbar { display: none !important; }
+
+            /* SCALARE FONTURI PT PRINTARE (Uniformizare, fără salturi mari) */
+            .audit-title { font-size: 1.15rem !important; }
+            .audit-subtitle { font-size: 0.85rem !important; margin-bottom: 15px !important;}
+            .section-h { font-size: 0.95rem !important; }
+            .kpi-val { font-size: 1.1rem !important;}
+            .buget-title { font-size: 0.95rem !important; }
+            .line-financials { gap: 15px !important; }
+            .fin-val { font-size: 0.95rem !important; }
+            .fin-label { font-size: 0.7rem !important; }
+            .matrix-grid { gap: 4px !important; padding: 6px !important; font-size: 0.75rem !important;}
+            .m-val { font-size: 0.75rem !important; font-weight: 800; white-space: nowrap; letter-spacing: -0.3px; }
+            .audit-table { font-size: 0.8rem !important; }
+            .factura-row { font-size: 0.8rem !important; }
+        }
+
+        /* MODALE STANDARD - Formulare */
+        .modal-overlay.operational { background: rgba(0,0,0,0.5); align-items: center;}
+        .modal { background: white; width: 500px; padding: 30px; border-radius: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); font-family: 'Inter', sans-serif;}
+        .modal h2 { margin-top: 0; color: var(--pnras-blue); border-bottom: 2px solid #eee; padding-bottom: 15px; margin-bottom: 20px;}
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; font-size: 0.85rem; font-weight: 600; color: #555; margin-bottom: 5px; }
+        .form-group input, .form-group select { width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 6px; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+        .tva-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px;}
+        .modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 25px; }
+        .btn-save { background: var(--pnras-blue); color: white; border: none; padding: 10px 20px; border-radius: 6px; font-weight: 600; cursor: pointer; }
+        .btn-cancel { background: #e0e0e0; border: none; padding: 10px 20px; border-radius: 6px; font-weight: 600; cursor: pointer; }
+
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+        <a href="index.html" class="back-btn">← Înapoi la Meniu</a>
+
+        <div class="total-box">
+            <div class="total-label">Buget TOTAL PNRAS</div>
+            <div class="total-val blue" id="total-buget">0 LEI</div>
+        </div>
+        <div class="divider"></div>
+
+        <div class="section-title">Situație Contractare</div>
+        <div class="total-box">
+            <div class="total-label">Total Contractat</div>
+            <div class="total-val orange" id="total-contractat">0 LEI</div>
+        </div>
+        <div class="total-box">
+            <div class="total-label">Rămas de Contractat</div>
+            <div class="total-val green" id="total-ramas-contractare">0 LEI</div>
+        </div>
+        <div class="divider"></div>
+
+        <div class="section-title">Situație Plăți</div>
+        <div class="total-box">
+            <div class="total-label">Total Cheltuit (Plătit)</div>
+            <div class="total-val red" id="total-platit">0 LEI</div>
+        </div>
+        <div class="total-box">
+            <div class="total-label">Rămas Disponibil în Cont</div>
+            <div class="total-val green" id="total-ramas-plati">0 LEI</div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="section-title">🖨️ Centru Printare (Rapoarte PDF)</div>
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+            <button class="btn-print-sidebar" onclick="genereazaRaportAudit()">📊 Raport Sintetic (Audit)</button>
+            <button class="btn-print-sidebar" onclick="printeazaTotalProiect()">🗂️ Printează TOT Proiectul</button>
+            <button class="btn-print-sidebar" onclick="printeazaFacturiPeAni()">💸 Registru Facturi (pe ani)</button>
+            <button class="btn-print-sidebar" onclick="printeazaContractePeAni()">📝 Registru Contracte (pe ani)</button>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="top-header">
+            <h1>Achiziții și Plăți</h1>
+            <div class="year-selector">
+                <button class="year-btn" onclick="schimbaAn(2024, this)">2024</button>
+                <button class="year-btn active" onclick="schimbaAn(2025, this)">2025</button>
+                <button class="year-btn" onclick="schimbaAn(2026, this)">2026</button>
+                <button class="year-btn total-btn" onclick="schimbaAn('TOTAL', this)">TOTAL PROIECT</button>
+            </div>
+        </div>
+
+        <div class="activities-nav">
+            <div class="activity-card" id="btn-I" onclick="schimbaActivitate('I', this)">I. Activități MATE</div>
+            <div class="activity-card active" id="btn-II" onclick="schimbaActivitate('II', this)">II. Activități de prevenire, intervenție și compensare</div>
+            <div class="activity-card" id="btn-III" onclick="schimbaActivitate('III', this)">III. Lucrări de amenajare minore, achiziționarea de bunuri</div>
+            <div class="activity-card" id="btn-IV" onclick="schimbaActivitate('IV', this)">IV. Activități de digitalizare a procesului educațional</div>
+        </div>
+
+        <div class="selection-summary">
+            <div id="text-bara-neagra">Sinteză Selecție Curentă</div>
+            <div style="display: flex; gap: 20px; align-items: center;">
+                <div class="sum-item"><span>Disponibil:</span> <span id="sel-alocat">0 LEI</span></div>
+                <div class="sum-item" style="color: #ff6b6b;"><span>Cheltuit:</span> <span id="sel-cheltuit">0 LEI</span></div>
+                <div class="sum-item" style="color: #51cf66;"><span>Rămas:</span> <span id="sel-ramas">0 LEI</span></div>
+                
+                <button class="btn-print-view" onclick="printeazaFisaCurenta()">🖨️ Printează Vizualizarea Curentă</button>
+            </div>
+        </div>
+
+        <div class="data-viewport" id="data-container"></div>
+    </div>
+
+    <div class="modal-overlay" id="modal-audit-overlay">
+        <div class="modal-audit">
+            <div class="print-controls">
+                <button class="btn-print-action" onclick="window.print()">🖨️ Trimite la Imprimantă (A4)</button>
+                <button class="close-audit" onclick="inchideModale()">✖ Închide Vizualizarea</button>
+            </div>
+            <div class="a4-content" id="audit-content"></div>
+        </div>
+    </div>
+
+    <div class="modal-overlay operational" id="modal-contract">
+        <div class="modal">
+            <h2>Adaugă Contract / Achiziție</h2>
+            <input type="hidden" id="c-parent-id">
+            <input type="hidden" id="c-an">
+            <input type="hidden" id="c-pilon">
+            <input type="hidden" id="c-subcategorie">
+
+            <div class="form-group"><label>Titlu (Ex: Catering Masă Caldă)</label><input type="text" id="c-titlu"></div>
+            
+            <div class="tva-grid">
+                <div class="form-group"><label>Val. Fără TVA (LEI)</label><input type="number" id="c-fara-tva" step="0.01" oninput="calculeazaTotalContract()"></div>
+                <div class="form-group"><label>Val. TVA (LEI)</label><input type="number" id="c-tva" step="0.01" oninput="calculeazaTotalContract()"></div>
+                <div class="form-group"><label>TOTAL (Inclusiv TVA)</label><input type="number" id="c-valoare" readonly style="background:#e9ecef; font-weight:bold;"></div>
+            </div>
+
+            <div class="form-group"><label>Stare Contract</label>
+                <select id="c-stare">
+                    <option value="Planificat">🟡 Planificat / SEAP</option>
+                    <option value="In_derulare">🟠 Contract semnat (În derulare)</option>
+                    <option value="Finalizat">🟢 Finalizat / Facturat</option>
+                </select>
+            </div>
+            <div class="modal-actions">
+                <button class="btn-cancel" onclick="inchideModale()">Anulează</button>
+                <button class="btn-save" onclick="salveazaContract()">Salvează</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay operational" id="modal-factura">
+        <div class="modal">
+            <h2>Adaugă Factură / Plată</h2>
+            <input type="hidden" id="f-parent-id">
+            <input type="hidden" id="f-an">
+
+            <div class="form-group"><label>Descriere (Ex: Factura nr. 10/Ianuarie)</label><input type="text" id="f-titlu"></div>
+            
+            <div class="tva-grid">
+                <div class="form-group"><label>Fără TVA (LEI)</label><input type="number" id="f-fara-tva" step="0.01" oninput="calculeazaTotalFactura()"></div>
+                <div class="form-group"><label>TVA (LEI)</label><input type="number" id="f-tva" step="0.01" oninput="calculeazaTotalFactura()"></div>
+                <div class="form-group"><label>TOTAL Plătit</label><input type="number" id="f-valoare" readonly style="background:#e9ecef; font-weight:bold;"></div>
+            </div>
+
+            <div class="modal-actions">
+                <button class="btn-cancel" onclick="inchideModale()">Anulează</button>
+                <button class="btn-save" onclick="salveazaFactura()">Înregistrează Plata</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const supabaseUrl = 'https://aexjrbdgajurxzngfkpx.supabase.co';
+        const supabaseKey = 'sb_publishable_KPV__0BA9z4EvRl5eqC0FQ_hmBLOLYv';
+        const supabaseClient = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+        let rawData = [];
+        let anSelectat = 2025; 
+        let pilonSelectat = 'II'; 
+
+        const formatBani = (val) => new Intl.NumberFormat('ro-RO', { style: 'currency', currency: 'RON', minimumFractionDigits: 2 }).format(val);
+
+        // ==========================================
+        // DICTIONAR OFICIAL PNRAS EXACT
+        // Cheia este litera (a, b, c), valoarea este textul tău exact.
+        // ==========================================
+        const subcategoriiPNRAS = {
+            'a': 'Servicii si bunuri',
+            'b': 'Subvenții, ajutoare, premii',
+            'c': 'Cheltuieli de natura salariala',
+            'd': 'Cheltuieli formare cadre didactice',
+            'e': 'Mobilier si mici lucrari de amenajare',
+            'f': 'Echipamente si software'
+        };
+
+        // Generează ierarhia 2 rânduri (pentru printurile cu toți pilonii)
+        function getIerarhiePilonSiCategorie(pilonId, literaDb) {
+            const litera = (literaDb || '').toLowerCase().trim();
+            let numePilon = "";
+
+            if (pilonId === 'I') numePilon = "I. Activități MATE";
+            else if (pilonId === 'II') numePilon = "II. Activități de prevenire, intervenție și compensare";
+            else if (pilonId === 'III') numePilon = "III. Lucrări de amenajare minore, achiziționarea de bunuri";
+            else if (pilonId === 'IV') numePilon = "IV. Activități de digitalizare a procesului educațional";
+
+            const numeSubcat = subcategoriiPNRAS[litera] || "Alte cheltuieli";
+
+            return `<span style="font-weight:700;">${numePilon}</span><br><span style="padding-left:15px; font-style:italic;">${litera}. ${numeSubcat}</span>`;
+        }
+
+        // Generează doar litera și numele (pentru ecranul principal de lucru)
+        // Am adăugat argumentul "literaDb" corect.
+        function getNumeComplet(literaDb) {
+            const litera = (literaDb || '').toLowerCase().trim();
+            const numeSubcat = subcategoriiPNRAS[litera] || "Alte cheltuieli";
+            return `${litera}. ${numeSubcat}`;
+        }
+
+        window.onload = function() { incarcaDatele(); };
+
+        async function incarcaDatele() {
+            const { data, error } = await supabaseClient.from('buget_pnras').select('*');
+            if (error) { console.error(error); return; }
+            rawData = data;
+            
+            calculeazaTotaluriGlobale();
+            randeazaContinutul();
+        }
+
+        function calculeazaTotalContract() {
+            const faraTva = parseFloat(document.getElementById('c-fara-tva').value) || 0;
+            const tva = parseFloat(document.getElementById('c-tva').value) || 0;
+            document.getElementById('c-valoare').value = (faraTva + tva).toFixed(2);
+        }
+
+        function calculeazaTotalFactura() {
+            const faraTva = parseFloat(document.getElementById('f-fara-tva').value) || 0;
+            const tva = parseFloat(document.getElementById('f-tva').value) || 0;
+            document.getElementById('f-valoare').value = (faraTva + tva).toFixed(2);
+        }
+
+        // ==========================================
+        // GENERATOARE DE RAPOARTE PDF
+        // ==========================================
+        
+        function printeazaTotalProiect() {
+            const pilonOriginal = pilonSelectat;
+            const titluPerioada = (anSelectat === 'TOTAL') ? "MULTIANUALĂ (2024 - 2026)" : `ANUL FINANCIAR ${anSelectat}`;
+            
+            let totHtml = '';
+            // Ordonare fixă I -> IV
+            const totiPilonii = [
+                {id: 'I', nume: 'I. Activități MATE'}, 
+                {id: 'II', nume: 'II. Activități de prevenire, intervenție și compensare'}, 
+                {id: 'III', nume: 'III. Lucrări de amenajare minore, achiziționarea de bunuri'}, 
+                {id: 'IV', nume: 'IV. Activități de digitalizare a procesului educațional'}
+            ];
+
+            totiPilonii.forEach(p => {
+                pilonSelectat = p.id;
+                const htmlPilon = randeazaLinii(true); 
+                if(!htmlPilon.includes("Nu există buget")) {
+                    totHtml += `<div style="font-family: 'Inter', sans-serif; font-weight:800; font-size: 1.15rem; margin-top: 25px; margin-bottom: 10px; color: var(--pnras-blue); border-bottom: 1px solid var(--pnras-blue); padding-bottom: 3px;">${p.nume.toUpperCase()}</div><div style="font-family: 'Times New Roman', Times, serif;">${htmlPilon}</div>`;
+                }
+            });
+
+            pilonSelectat = pilonOriginal;
+
+            const printHtml = `<img src="antet_pnras.jpeg" class="antet-img" alt="Antet PNRAS"><div class="audit-title" style="margin-bottom:5px;">REGISTRU COMPLET - EXECUȚIE FINANCIARĂ</div><div class="audit-title" style="color:var(--pnras-blue); font-size:1.15rem;">TOATE SECȚIUNILE DE FINANȚARE (I - IV)</div><div class="audit-subtitle">Perioada analizată: ${titluPerioada} | Data generării: ${new Date().toLocaleDateString('ro-RO')}</div>${totHtml}<div class="audit-signatures" style="margin-top: 40px;"><div class="sig-block"><b>Întocmit,</b><br>Responsabil Financiar PNRAS<br>ec. Viorica MORĂRAȘU</div><div class="sig-block" style="text-align: right;"><b>Aprobat,</b><br>Director,<br>prof. Cătălin Ionuț BAZILUC</div></div>`;
+            document.getElementById('audit-content').innerHTML = printHtml; document.getElementById('modal-audit-overlay').style.display = 'flex';
+        }
+
+        function printeazaFacturiPeAni() {
+            let tabelHtml = ''; let totalPlatitGrand = 0;
+            [2024, 2025, 2026].forEach(an => {
+                let facturiAn = rawData.filter(r => r.tip_rand === 'FACTURA' && r.an === an);
+                if(facturiAn.length > 0) {
+                    // SORTARE STRICTA: Pilon + Subcategorie
+                    facturiAn.sort((a, b) => a.pilon.localeCompare(b.pilon) || a.subcategorie.localeCompare(b.subcategorie));
+
+                    let totalAn = 0;
+                    tabelHtml += `<div class="section-h" style="margin-top: 25px;">Facturi Efectuate în Anul ${an}</div><table class="audit-table"><thead><tr><th class="text-left" style="width: 50%;">Categorie / Pilon</th><th class="text-left">Denumire Factură</th><th style="width: 15%;">Suma Plătită</th></tr></thead><tbody>`;
+                    facturiAn.forEach(f => { 
+                        totalAn += parseFloat(f.valoare); 
+                        tabelHtml += `<tr><td class="text-left">${getIerarhiePilonSiCategorie(f.pilon, f.subcategorie)}</td><td class="text-left">${f.titlu}</td><td>${formatBani(f.valoare)}</td></tr>`; 
+                    });
+                    totalPlatitGrand += totalAn;
+                    tabelHtml += `<tr class="total-row"><td colspan="2" class="text-left">TOTAL PLĂTIT ANUL ${an}:</td><td>${formatBani(totalAn)}</td></tr></tbody></table>`;
+                }
+            });
+
+            const printHtml = `<img src="antet_pnras.jpeg" class="antet-img" alt="Antet PNRAS"><div class="audit-title" style="margin-bottom:5px;">REGISTRU JURNAL DE PLĂȚI (FACTURI)</div><div class="audit-subtitle">Generat la data: ${new Date().toLocaleDateString('ro-RO')} | Total Istoric Plătit: ${formatBani(totalPlatitGrand)}</div>${tabelHtml}<div class="audit-signatures"><div class="sig-block"><b>Întocmit,</b><br>Responsabil Financiar PNRAS<br>ec. Viorica MORĂRAȘU</div><div class="sig-block" style="text-align: right;"><b>Aprobat,</b><br>Director,<br>prof. Cătălin Ionuț BAZILUC</div></div>`;
+            document.getElementById('audit-content').innerHTML = printHtml; document.getElementById('modal-audit-overlay').style.display = 'flex';
+        }
+
+        function printeazaContractePeAni() {
+            let tabelHtml = ''; let totalContractatGrand = 0;
+            [2024, 2025, 2026].forEach(an => {
+                let contracteAn = rawData.filter(r => r.tip_rand === 'CONTRACT' && r.an === an);
+                if(contracteAn.length > 0) {
+                    // SORTARE STRICTA: Pilon + Subcategorie
+                    contracteAn.sort((a, b) => a.pilon.localeCompare(b.pilon) || a.subcategorie.localeCompare(b.subcategorie));
+
+                    let totalAn = 0;
+                    tabelHtml += `<div class="section-h" style="margin-top: 25px;">Proceduri / Contracte din Anul ${an}</div><table class="audit-table"><thead><tr><th class="text-left" style="width: 50%;">Linie Buget / Pilon</th><th class="text-left">Obiect Achiziție</th><th>Stare</th><th style="width: 15%;">Valoare Angajată</th></tr></thead><tbody>`;
+                    contracteAn.forEach(c => { 
+                        totalAn += parseFloat(c.valoare); 
+                        tabelHtml += `<tr><td class="text-left">${getIerarhiePilonSiCategorie(c.pilon, c.subcategorie)}</td><td class="text-left">${c.titlu}</td><td>${c.stare}</td><td>${formatBani(c.valoare)}</td></tr>`; 
+                    });
+                    totalContractatGrand += totalAn;
+                    tabelHtml += `<tr class="total-row"><td colspan="3" class="text-left">TOTAL ANGAJAMENTE ANUL ${an}:</td><td>${formatBani(totalAn)}</td></tr></tbody></table>`;
+                }
+            });
+
+            const printHtml = `<img src="antet_pnras.jpeg" class="antet-img" alt="Antet PNRAS"><div class="audit-title" style="margin-bottom:5px;">REGISTRU PROCEDURI DE ACHIZIȚIE (CONTRACTE)</div><div class="audit-subtitle">Generat la data: ${new Date().toLocaleDateString('ro-RO')} | Total Istoric Angajat: ${formatBani(totalContractatGrand)}</div>${tabelHtml}<div class="audit-signatures"><div class="sig-block"><b>Întocmit,</b><br>Responsabil Financiar PNRAS<br>ec. Viorica MORĂRAȘU</div><div class="sig-block" style="text-align: right;"><b>Aprobat,</b><br>Director,<br>prof. Cătălin Ionuț BAZILUC</div></div>`;
+            document.getElementById('audit-content').innerHTML = printHtml; document.getElementById('modal-audit-overlay').style.display = 'flex';
+        }
+
+        function printeazaFisaCurenta() {
+            const htmlLinii = randeazaLinii(true); 
+            const numePilon = document.querySelector('.activity-card.active').innerText;
+            const titluPerioada = (anSelectat === 'TOTAL') ? "MULTIANUALĂ (2024 - 2026)" : `ANUL FINANCIAR ${anSelectat}`;
+            const printHtml = `<img src="antet_pnras.jpeg" class="antet-img" alt="Antet PNRAS"><div class="audit-title" style="margin-bottom:5px;">FIȘĂ DE EXECUȚIE BUGETARĂ PNRAS</div><div class="audit-title" style="color:var(--pnras-blue); font-size:1.15rem;">SECȚIUNEA: ${numePilon.toUpperCase()}</div><div class="audit-subtitle">Perioada analizată: ${titluPerioada} | Data generării: ${new Date().toLocaleDateString('ro-RO')}</div><div style="font-family: 'Times New Roman', Times, serif;">${htmlLinii}</div><div class="audit-signatures"><div class="sig-block"><b>Întocmit,</b><br>Responsabil Financiar PNRAS<br>ec. Viorica MORĂRAȘU</div><div class="sig-block" style="text-align: right;"><b>Aprobat,</b><br>Director,<br>prof. Cătălin Ionuț BAZILUC</div></div>`;
+            document.getElementById('audit-content').innerHTML = printHtml; document.getElementById('modal-audit-overlay').style.display = 'flex';
+        }
+
+        function genereazaRaportAudit() {
+            let totalBuget = 0, totalContractat = 0, totalPlatit = 0;
+            rawData.filter(r => r.tip_rand === 'BUGET').forEach(r => totalBuget += parseFloat(r.valoare));
+            rawData.filter(r => r.tip_rand === 'CONTRACT').forEach(r => totalContractat += parseFloat(r.valoare));
+            rawData.filter(r => r.tip_rand === 'FACTURA').forEach(r => totalPlatit += parseFloat(r.valoare));
+
+            const gradAbsorbtie = totalBuget > 0 ? (totalPlatit / totalBuget) * 100 : 0;
+            const gradContractare = totalBuget > 0 ? (totalContractat / totalBuget) * 100 : 0;
+            const disponibilNecontractat = totalBuget - totalContractat;
+
+            let randuriAni = '';
+            [2024, 2025, 2026].forEach(an => {
+                let b = 0, c = 0, p = 0;
+                rawData.filter(r => r.tip_rand === 'BUGET' && r.an === an).forEach(r => b += parseFloat(r.valoare));
+                rawData.filter(r => r.tip_rand === 'CONTRACT' && r.an === an).forEach(r => c += parseFloat(r.valoare));
+                rawData.filter(r => r.tip_rand === 'FACTURA' && r.an === an).forEach(r => p += parseFloat(r.valoare));
+                const proc = b > 0 ? (p / b) * 100 : 0;
+                randuriAni += `<tr><td class="text-left"><b>Anul ${an}</b></td><td>${formatBani(b)}</td><td>${formatBani(c)}</td><td>${formatBani(p)}</td><td>${proc.toFixed(1)}%</td></tr>`;
+            });
+
+            const contracte = rawData.filter(r => r.tip_rand === 'CONTRACT');
+            let valFinalizate = 0, valDerulare = 0, valPlanificate = 0;
+            contracte.filter(c => c.stare === 'Finalizat').forEach(c => valFinalizate += parseFloat(c.valoare));
+            contracte.filter(c => c.stare === 'In_derulare').forEach(c => valDerulare += parseFloat(c.valoare));
+            contracte.filter(c => c.stare === 'Planificat').forEach(c => valPlanificate += parseFloat(c.valoare));
+
+            let uniceObj = {};
+            rawData.filter(r => r.tip_rand === 'BUGET').forEach(r => uniceObj[`${r.pilon}_${r.subcategorie}`] = { pilon: r.pilon, sub: r.subcategorie });
+            let liniiUnice = Object.values(uniceObj);
+
+            // SORTARE STRICTA: Pilon + Subcategorie pt Raportul Audit
+            liniiUnice.sort((a, b) => a.pilon.localeCompare(b.pilon) || a.sub.localeCompare(b.sub));
+
+            let randuriLinii = '';
+
+            liniiUnice.forEach(obj => {
+                let alocatSub = 0, platitSub = 0;
+                rawData.filter(r => r.tip_rand === 'BUGET' && r.pilon === obj.pilon && r.subcategorie === obj.sub).forEach(r => alocatSub += parseFloat(r.valoare));
+                rawData.filter(r => r.tip_rand === 'FACTURA' && r.pilon === obj.pilon && r.subcategorie === obj.sub).forEach(r => platitSub += parseFloat(r.valoare));
+                const proc = alocatSub > 0 ? (platitSub / alocatSub) * 100 : 0;
+                randuriLinii += `<tr><td class="text-left">${getIerarhiePilonSiCategorie(obj.pilon, obj.sub)}</td><td>${formatBani(alocatSub)}</td><td>${formatBani(platitSub)}</td><td>${formatBani(alocatSub - platitSub)}</td><td>${proc.toFixed(1)}%</td></tr>`;
+            });
+
+            const reportHtml = `
+                <img src="antet_pnras.jpeg" class="antet-img" alt="Antet PNRAS">
+                <div class="audit-title">RAPORT DE AUDIT FINANCIAR - EXECUȚIE PNRAS</div>
+                <div class="audit-subtitle">Generat la data de: ${new Date().toLocaleDateString('ro-RO')} | Cod Proiect: F-PNRAS-2-2023-0447</div>
+
+                <div class="audit-section"><div class="section-h">1. Sinteză Execuție Financiară (Indicatori Principali)</div>
+                    <div class="kpi-grid">
+                        <div class="kpi-box"><div class="kpi-label">Buget Total Aprobat</div><div class="kpi-val">${formatBani(totalBuget)}</div></div>
+                        <div class="kpi-box"><div class="kpi-label">Grad Absorbție</div><div class="kpi-val" style="color:var(--pnras-blue);">${gradAbsorbtie.toFixed(2)}%</div></div>
+                        <div class="kpi-box"><div class="kpi-label">Grad Contractare</div><div class="kpi-val">${gradContractare.toFixed(2)}%</div></div>
+                    </div>
+                    <table class="audit-table"><tr><td class="text-left">Total Angajamente:</td><td><b>${formatBani(totalContractat)}</b></td></tr><tr><td class="text-left">Total Plăți Efectuate:</td><td><b>${formatBani(totalPlatit)}</b></td></tr><tr class="total-row"><td class="text-left">RĂMAS DISPONIBIL NECONTRACTAT:</td><td>${formatBani(disponibilNecontractat)}</td></tr></table>
+                </div>
+
+                <div class="audit-section"><div class="section-h">2. Analiza Multianuală (2024 - 2026)</div><table class="audit-table"><thead><tr><th>An Financiar</th><th>Buget Alocat</th><th>Angajat</th><th>Plătit</th><th>% Absorbție</th></tr></thead><tbody>${randuriAni}</tbody></table></div>
+                <div class="audit-section"><div class="section-h">3. Situația Angajamentelor Juridice</div><table class="audit-table"><tr><td class="text-left">Valoare Contracte Finalizate</td><td>${formatBani(valFinalizate)}</td></tr><tr><td class="text-left">Valoare Contracte În Derulare</td><td>${formatBani(valDerulare)}</td></tr><tr><td class="text-left">Valoare Proceduri Planificate</td><td>${formatBani(valPlanificate)}</td></tr><tr class="total-row"><td class="text-left">ANGAJAMENTE VIITOARE DE PLATĂ:</td><td>${formatBani(totalContractat - totalPlatit)}</td></tr></table></div>
+                <div class="audit-section"><div class="section-h">4. Verificare Cheltuieli pe Categorii</div><table class="audit-table"><thead><tr><th class="text-left">Categorie Cheltuială</th><th>Alocat</th><th>Cheltuit</th><th>Rămas</th><th>%</th></tr></thead><tbody>${randuriLinii}</tbody></table></div>
+                <div class="audit-signatures"><div class="sig-block"><b>Întocmit,</b><br>Responsabil Financiar PNRAS<br>ec. Viorica MORĂRAȘU</div><div class="sig-block" style="text-align: right;"><b>Aprobat,</b><br>Director,<br>prof. Cătălin Ionuț BAZILUC</div></div>
+            `;
+            document.getElementById('audit-content').innerHTML = reportHtml; document.getElementById('modal-audit-overlay').style.display = 'flex';
+        }
+
+        // ==========================================
+        // MOTORUL PRINCIPAL DE RANDARE ECRAN
+        // ==========================================
+        function calculeazaTotaluriGlobale() {
+            let totalBuget = 0, totalContractat = 0, totalPlatit = 0;
+            rawData.filter(r => r.tip_rand === 'BUGET').forEach(r => totalBuget += parseFloat(r.valoare));
+            rawData.filter(r => r.tip_rand === 'CONTRACT').forEach(r => totalContractat += parseFloat(r.valoare));
+            rawData.filter(r => r.tip_rand === 'FACTURA').forEach(r => totalPlatit += parseFloat(r.valoare));
+
+            document.getElementById('total-buget').innerText = formatBani(totalBuget);
+            document.getElementById('total-contractat').innerText = formatBani(totalContractat);
+            document.getElementById('total-ramas-contractare').innerText = formatBani(totalBuget - totalContractat);
+            document.getElementById('total-platit').innerText = formatBani(totalPlatit);
+            document.getElementById('total-ramas-plati').innerText = formatBani(totalBuget - totalPlatit);
+        }
+
+        function randeazaContinutul() {
+            const html = randeazaLinii(false);
+            document.getElementById('data-container').innerHTML = html;
+        }
+
+        function randeazaLinii(isPrintMode) {
+            let containerHtml = '';
+            const isTotalView = (anSelectat === 'TOTAL');
+
+            if(!isPrintMode) {
+                if(isTotalView) document.getElementById('text-bara-neagra').innerText = "Sinteză Multianuală TOTALĂ (Execuție 2024 - 2026)";
+                else document.getElementById('text-bara-neagra').innerText = "Sinteză Selecție Curentă (Include reportările din anii trecuți)";
+            }
+
+            const liniiDinPilon = rawData.filter(r => r.tip_rand === 'BUGET' && r.pilon === pilonSelectat);
+            
+            // SORTARE ALFABETICA a-f PE ECRAN
+            const categoriiUnice = [...new Set(liniiDinPilon.map(r => r.subcategorie))].sort();
+            
+            let selTotalDisponibil = 0, selTotalCheltuit = 0, randate = 0;
+
+            categoriiUnice.forEach(subcat => {
+                const bugetOriginal = liniiDinPilon.find(r => r.subcategorie === subcat);
+
+                // TITLU PE ECRAN PRINCIPAL (APELAT CORECT ACUM!)
+                const titluComplet = getNumeComplet(subcat);
+
+                let bugetRealDisponibil = 0;
+                let bugetCheltuitInAn = 0;
+                let contracteCurente = [];
+                let timelineHtml = '';
+
+                let b24 = 0, b25 = 0, b26 = 0;
+                let p24 = 0, p25 = 0, p26 = 0;
+
+                rawData.filter(r => r.tip_rand === 'BUGET' && r.pilon === pilonSelectat && r.subcategorie === subcat).forEach(r => {
+                    if(r.an === 2024) b24 += parseFloat(r.valoare); if(r.an === 2025) b25 += parseFloat(r.valoare); if(r.an === 2026) b26 += parseFloat(r.valoare);
+                });
+                rawData.filter(r => r.tip_rand === 'FACTURA' && r.pilon === pilonSelectat && r.subcategorie === subcat).forEach(r => {
+                    if(r.an === 2024) p24 += parseFloat(r.valoare); if(r.an === 2025) p25 += parseFloat(r.valoare); if(r.an === 2026) p26 += parseFloat(r.valoare);
+                });
+
+                let r24 = b24 - p24;
+                let r25_cumulat = r24 + b25 - p25;
+                let r26_cumulat = r25_cumulat + b26 - p26;
+
+                if(isTotalView) {
+                    bugetRealDisponibil = b24 + b25 + b26;
+                    contracteCurente = rawData.filter(r => r.tip_rand === 'CONTRACT' && r.pilon === pilonSelectat && r.subcategorie === subcat);
+                    
+                    if (bugetRealDisponibil <= 0) return;
+
+                    let c25 = (p25 > b25) ? (r25_cumulat >= 0 ? "color:var(--green);" : "color:var(--red);") : "";
+                    let c26 = (p26 > b26) ? (r26_cumulat >= 0 ? "color:var(--green);" : "color:var(--red);") : "";
+
+                    timelineHtml = `
+                        <div class="matrix-grid">
+                            <div class="matrix-col"><div class="matrix-title">Total Proiect</div><div class="m-row"><span class="m-lbl">Alocat:</span><span class="m-val">${formatBani(bugetRealDisponibil)}</span></div><div class="m-row"><span class="m-lbl">Cheltuit:</span><span class="m-val">${formatBani(p24+p25+p26)}</span></div><div class="m-row" style="color:var(--pnras-blue);"><span class="m-lbl">Rămas Final:</span><span class="m-val">${formatBani(r26_cumulat)}</span></div></div>
+                            <div class="matrix-col"><div class="matrix-title">Anul 2024</div><div class="m-row"><span class="m-lbl">Alocat:</span><span class="m-val">${formatBani(b24)}</span></div><div class="m-row"><span class="m-lbl">Cheltuit:</span><span class="m-val">${formatBani(p24)}</span></div><div class="m-row" style="${p24>b24 ? 'color:var(--red);' : ''}"><span class="m-lbl">Rămas 2024:</span><span class="m-val">${formatBani(r24)}</span></div></div>
+                            <div class="matrix-col"><div class="matrix-title">Anul 2025</div><div class="m-row"><span class="m-lbl">Alocat:</span><span class="m-val">${formatBani(b25)}</span></div><div class="m-row"><span class="m-lbl">Cheltuit:</span><span class="m-val">${formatBani(p25)}</span></div><div class="m-row" style="${c25}"><span class="m-lbl">Rămas '24+'25:</span><span class="m-val">${formatBani(r25_cumulat)}</span></div></div>
+                            <div class="matrix-col"><div class="matrix-title">Anul 2026</div><div class="m-row"><span class="m-lbl">Alocat:</span><span class="m-val">${formatBani(b26)}</span></div><div class="m-row"><span class="m-lbl">Cheltuit:</span><span class="m-val">${formatBani(p26)}</span></div><div class="m-row" style="${c26}"><span class="m-lbl">Rămas Total:</span><span class="m-val">${formatBani(r26_cumulat)}</span></div></div>
+                        </div>`;
+
+                } else {
+                    const bugetAnual = rawData.find(r => r.tip_rand === 'BUGET' && r.pilon === pilonSelectat && r.subcategorie === subcat && r.an === anSelectat);
+                    const bugetAnCurent = bugetAnual ? parseFloat(bugetAnual.valoare) : 0;
+                    
+                    let reportatTrecut = 0; if(anSelectat === 2025) reportatTrecut = r24; if(anSelectat === 2026) reportatTrecut = r25_cumulat;
+                    let bugetViitor = 0; if(anSelectat === 2024) bugetViitor = b25 + b26; if(anSelectat === 2025) bugetViitor = b26;
+
+                    bugetRealDisponibil = bugetAnCurent + reportatTrecut;
+
+                    if (bugetRealDisponibil <= 0 && bugetAnCurent <= 0) return;
+
+                    contracteCurente = rawData.filter(r => r.tip_rand === 'CONTRACT' && r.pilon === pilonSelectat && r.subcategorie === subcat && r.an === anSelectat);
+
+                    let textAnTrecut = "Rămași din anii trecuți:"; if(anSelectat === 2025) textAnTrecut = "Rămași din 2024:"; if(anSelectat === 2026) textAnTrecut = "Rămași din 2024 & 2025:";
+                    let textAnViitor = "Rămași pt. anii viitori:"; if(anSelectat === 2024) textAnViitor = "Rămași pt. 2025 & 2026:"; if(anSelectat === 2025) textAnViitor = "Rămași pt. 2026:";
+                    
+                    timelineHtml = `<div class="budget-timeline"><div class="timeline-item"><span class="timeline-label">${textAnTrecut}</span><span class="timeline-val plus">${reportatTrecut > 0 ? '+ ' + formatBani(reportatTrecut) : formatBani(reportatTrecut)}</span></div><div class="timeline-item"><span class="timeline-label">Prevăzut pe ${anSelectat}:</span><span class="timeline-val">${formatBani(bugetAnCurent)}</span></div><div class="timeline-item" style="opacity: ${bugetViitor > 0 ? 1 : 0.5}"><span class="timeline-label">${textAnViitor}</span><span class="timeline-val future">${formatBani(bugetViitor)}</span></div></div>`;
+                }
+
+                randate++; 
+                selTotalDisponibil += bugetRealDisponibil;
+                let contracteHtml = '';
+
+                contracteCurente.forEach(contract => {
+                    const facturi = rawData.filter(r => r.parent_id === contract.id && r.tip_rand === 'FACTURA');
+                    const cheltuitContract = facturi.reduce((sum, f) => sum + parseFloat(f.valoare), 0);
+                    bugetCheltuitInAn += cheltuitContract;
+
+                    let facturiHtml = facturi.map(f => {
+                        const tvaInfo = (f.val_tva > 0 || f.val_fara_tva > 0) ? `<span style="color:#777; font-size:0.7rem; font-style:italic;">(Fără TVA: ${formatBani(f.val_fara_tva)} | TVA: ${formatBani(f.val_tva)})</span>` : '';
+                        const anInfo = isTotalView ? ` <span style="font-weight:600; color:#555;">(Anul ${f.an})</span>` : '';
+                        
+                        return `
+                        <div class="factura-row">
+                            <span style="display:flex; flex-direction:column;">
+                                <span>↪ ${f.titlu} ${anInfo}</span>
+                                ${tvaInfo}
+                            </span>
+                            <div style="display:flex; align-items:center;">
+                                <b>${formatBani(f.valoare)}</b>
+                                ${(!isPrintMode && !isTotalView) ? `<button class="btn-delete no-print" title="Șterge factura" onclick="stergeFactura('${f.id}')">🗑️</button>` : ''}
+                            </div>
+                        </div>`;
+                    }).join('');
+
+                    const cTvaInfo = (contract.val_tva > 0 || contract.val_fara_tva > 0) ? `<div class="tva-details">(Fără TVA: ${formatBani(contract.val_fara_tva)} | TVA: ${formatBani(contract.val_tva)})</div>` : '';
+
+                    contracteHtml += `
+                        <div class="contract-box">
+                            <div class="contract-header">
+                                <span>📄 ${contract.titlu} ${isTotalView ? `<small style="color:#888;">(Anul ${contract.an})</small>` : ''}</span>
+                                <div style="display:flex; align-items:center; gap:10px;">
+                                    <span>${formatBani(contract.valoare)} <span class="contract-status ${contract.stare === 'Finalizat' ? 'platit' : 'derulare'}">${contract.stare}</span></span>
+                                    ${(!isPrintMode && !isTotalView) ? `<button class="btn-delete no-print" title="Șterge contractul" onclick="stergeContract('${contract.id}')">🗑️</button>` : ''}
+                                </div>
+                            </div>
+                            ${cTvaInfo}
+                            <div class="factura-list">${facturiHtml}</div>
+                            ${(!isTotalView && !isPrintMode) ? `<button class="btn-add-factura no-print" onclick="deschideModalFactura('${contract.id}', ${anSelectat})">➕ Plătește factură (Tranșă)</button>` : ''}
+                        </div>
+                    `;
+                });
+
+                selTotalCheltuit += bugetCheltuitInAn;
+                const ramasLaFinal = bugetRealDisponibil - bugetCheltuitInAn;
+                
+                const labelCheltuit = isTotalView ? "Total Cheltuit" : `Cheltuit (${anSelectat})`;
+                const labelDisponibil = isTotalView ? "Alocat Total Proiect" : "Disponibil Acum";
+                const labelRamasFin = isTotalView ? "Rămas Total Proiect" : ((anSelectat === 2026) ? "Rămas până la finalul proiectului" : "Rămas pt. Anul Următor");
+
+                containerHtml += `
+                    <div class="buget-row">
+                        <div class="buget-header">
+                            <div class="buget-title-container">
+                                <div class="buget-title">${titluComplet}</div>
+                                <div class="line-financials">
+                                    <div class="fin-block alocat"><span class="fin-label">${labelDisponibil}</span><span class="fin-val">${formatBani(bugetRealDisponibil)}</span></div>
+                                    <div class="fin-block cheltuit"><span class="fin-label">${labelCheltuit}</span><span class="fin-val">${formatBani(bugetCheltuitInAn)}</span></div>
+                                    <div class="fin-block ramas"><span class="fin-label">${labelRamasFin}</span><span class="fin-val">${formatBani(ramasLaFinal)}</span></div>
+                                </div>
+                            </div>
+                            ${timelineHtml}
+                        </div>
+                        <div class="contracte-container">
+                            ${contracteHtml}
+                            ${(!isTotalView && !isPrintMode) ? `<button class="btn-add-contract no-print" onclick="deschideModalContract('${bugetOriginal.id}', ${anSelectat}, '${pilonSelectat}', '${subcat}')">➕ Adaugă Contract / Achiziție în ${anSelectat}</button>` : ''}
+                        </div>
+                    </div>
+                `;
+            });
+
+            if(randate === 0) containerHtml = `<div class="empty-state">Nu există buget disponibil pentru această activitate.</div>`;
+
+            if(!isPrintMode) {
+                document.getElementById('sel-alocat').innerText = formatBani(selTotalDisponibil);
+                document.getElementById('sel-cheltuit').innerText = formatBani(selTotalCheltuit);
+                document.getElementById('sel-ramas').innerText = formatBani(selTotalDisponibil - selTotalCheltuit);
+            }
+
+            return containerHtml;
+        }
+
+        function schimbaAn(an, btn) { anSelectat = an; document.querySelectorAll('.year-btn').forEach(b => b.classList.remove('active')); btn.classList.add('active'); randeazaContinutul(); }
+        function schimbaActivitate(pilon, btn) { pilonSelectat = pilon; document.querySelectorAll('.activity-card').forEach(b => b.classList.remove('active')); btn.classList.add('active'); randeazaContinutul(); }
+        function deschideModalContract(parentId, an, pilon, subcat) { document.getElementById('c-parent-id').value = parentId; document.getElementById('c-an').value = an; document.getElementById('c-pilon').value = pilon; document.getElementById('c-subcategorie').value = subcat; document.getElementById('modal-contract').style.display = 'flex'; }
+        function deschideModalFactura(contractId, an) { document.getElementById('f-parent-id').value = contractId; document.getElementById('f-an').value = an; document.getElementById('modal-factura').style.display = 'flex'; }
+        function inchideModale() { document.getElementById('modal-contract').style.display = 'none'; document.getElementById('modal-factura').style.display = 'none'; document.getElementById('modal-audit-overlay').style.display = 'none'; }
+
+        async function salveazaContract() { const date = { parent_id: document.getElementById('c-parent-id').value, tip_rand: 'CONTRACT', pilon: document.getElementById('c-pilon').value, subcategorie: document.getElementById('c-subcategorie').value, an: document.getElementById('c-an').value, titlu: document.getElementById('c-titlu').value, valoare: parseFloat(document.getElementById('c-valoare').value), val_fara_tva: parseFloat(document.getElementById('c-fara-tva').value) || 0, val_tva: parseFloat(document.getElementById('c-tva').value) || 0, stare: document.getElementById('c-stare').value }; await supabaseClient.from('buget_pnras').insert([date]); inchideModale(); incarcaDatele(); }
+        async function salveazaFactura() { const contractId = document.getElementById('f-parent-id').value; const parent = rawData.find(r => r.id === contractId); const date = { parent_id: contractId, tip_rand: 'FACTURA', pilon: parent.pilon, subcategorie: parent.subcategorie, an: document.getElementById('f-an').value, titlu: document.getElementById('f-titlu').value, valoare: parseFloat(document.getElementById('f-valoare').value), val_fara_tva: parseFloat(document.getElementById('f-fara-tva').value) || 0, val_tva: parseFloat(document.getElementById('f-tva').value) || 0, stare: 'Platit' }; await supabaseClient.from('buget_pnras').insert([date]); inchideModale(); incarcaDatele(); }
+        async function stergeContract(id) { if (!confirm("⚠️ ATENȚIE: Ștergi acest contract? Se vor șterge automat și toate facturile plătite din el!")) return; await supabaseClient.from('buget_pnras').delete().eq('id', id); incarcaDatele(); }
+        async function stergeFactura(id) { if (!confirm("Sigur vrei să ștergi această plată/factură?")) return; await supabaseClient.from('buget_pnras').delete().eq('id', id); incarcaDatele(); }
+    </script>
+</body>
+</html>

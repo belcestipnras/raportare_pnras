@@ -218,7 +218,7 @@
                     <div class="doc-title-container">
                         <h1 class="doc-title-main">Fișa de observație MATE</h1>
                         <p class="doc-title-cat"><b>Categoria I: Activități de identificarea și monitorizare a elevilor în risc de abandon școlar - MATE</b></p>
-                        <p class="doc-title-sub">A I.2. Aplicarea Fișei de observare și a Fișei de evaluare MATE</p>
+                        <p class="doc-title-sub">A I.2. Aplicarea Fișei de observație și a Fișei de evaluare MATE</p>
                     </div>
 
                     <div class="info-card">
@@ -236,8 +236,8 @@
                                     <td>${ind.text}</td>
                                     <td>
                                         <div class="radio-group">
-                                            <label class="radio-label"><input type="radio" name="${s.id}_${ind.col}" value="Da" ${s[ind.col] === 'Da' ? 'checked' : ''} onchange="updateValue(${s.id}, '${ind.col}', 'Da')"> DA</label>
-                                            <label class="radio-label"><input type="radio" name="${s.id}_${ind.col}" value="Nu" ${s[ind.col] !== 'Da' ? 'checked' : ''} onchange="updateValue(${s.id}, '${ind.col}', 'Nu')"> NU</label>
+                                            <label class="radio-label"><input type="radio" name="${s.id}_${ind.col}" value="DA" ${s[ind.col] === 'DA' ? 'checked' : ''} onchange="updateValue(${s.id}, '${ind.col}', 'DA')"> DA</label>
+                                            <label class="radio-label"><input type="radio" name="${s.id}_${ind.col}" value="NU" ${s[ind.col] !== 'DA' ? 'checked' : ''} onchange="updateValue(${s.id}, '${ind.col}', 'NU')"> NU</label>
                                         </div>
                                     </td>
                                 </tr>

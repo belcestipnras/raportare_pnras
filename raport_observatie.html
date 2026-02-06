@@ -162,7 +162,7 @@ async function initRaport(period, year, btn) {
     currentPeriod = period;
     document.getElementById('display-period').innerText = period;
 
-    let targetYear = (period === 'SEPTEMBRIE 2025' || period === 'MARTIE 2026') ? 2026 : year;
+    let targetYear = (period === 'SEPTEMBRIE 2025' || period === 'MARTIE 2026') ? 2026 : 2025;
 
     const { data, error } = await _db.from('mate_pnras').select('*').eq('anul', targetYear);
     if (error) return;

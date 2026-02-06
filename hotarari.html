@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hotărâri MATE</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <style>
+        :root { --pnras-blue: #0056b3; --bg-color: #f4f6f9; --text-dark: #333; --border-color: #d1d9e0; }
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg-color); margin: 0; padding: 40px 20px; display: flex; flex-direction: column; align-items: center; }
+        
+        .back-btn { position: absolute; top: 20px; left: 20px; text-decoration: none; color: var(--pnras-blue); font-weight: 600; background: white; padding: 8px 16px; border-radius: 6px; border: 1px solid #e0e0e0; cursor: pointer; transition: 0.2s; }
+        .back-btn:hover { background-color: #f0f7ff; }
+
+        /* UI Principal */
+        #main-ui { width: 100%; max-width: 900px; display: flex; flex-direction: column; align-items: center; }
+        .header-container { width: 100%; display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+        h1 { color: var(--pnras-blue); margin: 0; font-size: 1.8rem; font-weight: 700; }
+        .add-btn { background-color: #28a745; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 1rem; box-shadow: 0 4px 6px rgba(40, 167, 69, 0.2); transition: 0.2s; }
+        .add-btn:hover { background-color: #218838; transform: translateY(-1px); }
+
+        .grid-hotarari { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; width: 100%; }
+        .hotarare-card { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); border: 1px solid var(--border-color); display: flex; flex-direction: column; transition: 0.2s; position: relative; cursor: pointer; }
+        .hotarare-card:hover { border-color: var(--pnras-blue); box-shadow: 0 6px 15px rgba(0,86,179,0.1); transform: translateY(-2px); }
+        .card-nr { font-size: 1.2rem; font-weight: 700; color: var(--pnras-blue); margin-bottom: 5px; padding-right: 30px; }
+        .card-data { font-size: 0.85rem; color: #666; margin-bottom: 15px; font-weight: 500; display: flex; align-items: center; gap: 5px; }
+        .card-descriere { font-size: 0.95rem; color: var(--text-dark); line-height: 1.5; flex-grow: 1; }
+        .delete-btn { position: absolute; top: 15px; right: 15px; background: none; border: none; font-size: 1.2rem; cursor: pointer; opacity: 0.3; transition: 0.2s; }
+        .delete-btn:hover { opacity: 1; color: red; transform: scale(1.1); }
+
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); display: none; justify-content: center; align-items: center; z-index: 100; backdrop-filter: blur(2px); }
+        .modal { background: white; width: 400px; border-radius: 12px; padding: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); display: flex; flex-direction: column; }
+        .modal h2 { margin: 0 0 20px 0; color: var(--pnras-blue); font-size: 1.4rem; text-align: center; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; font-size: 0.85rem; font-weight: 600; color: #555; margin-bottom: 5px; }
+        .form-group input, .form-group textarea { width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 6px; font-family: 'Inter', sans-serif; font-size: 0.95rem; box-sizing: border-box; }
+        .form-group textarea { resize: vertical; min-height: 80px; }
+        .modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 10px; }
+        .cancel-btn { background: #e0e0e0; color: #333; border: none; padding: 10px 15px; border-radius: 6px; cursor: pointer; font-weight: 600; }
+        .save-btn { background: var(--pnras-blue); color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: 600; }
+
+        /* ========================================= */
+        /* STILIZARE PAGINA A4                       */
+        /* ========================================= */
+        #a4-view { display: none; flex-direction: column; align-items: center; width: 100%; }
+        .controls-a4 { display: flex; gap: 15px; margin-bottom: 20px; align-items: center; }
+        #save-status { font-size: 0.95rem; font-weight: 600; opacity: 0; transition: opacity 0.3s; margin-left: 10px; font-family: 'Inter', sans-serif;}
+        .status-saving { color: #f39c12 !important; } 
+        .status-saved { color: #28a745 !important; }
+
+        .a4-page { background-color: white; width: 210mm; min-height: 297mm; padding: 1.5cm; box-sizing: border-box; box-shadow: 0 8px 25px rgba(0,0,0,0.1); margin-bottom: 40px; color: #000; font-family: 'Times New Roman', Times, serif; display: flex; flex-direction: column; }
+        .antet-img { width: 100%; height: auto; display: block; margin-bottom: 15px; }
+        .doc-titlu { text-align: center; font-size: 1.25rem; font-weight: 700; margin-bottom: 10px; text-transform: uppercase; line-height: 1.2; }
+        .doc-subtitlu { text-align: center; font-size: 1.05rem; font-style: italic; margin-bottom: 15px; }
+        .doc-corp { flex-grow: 1; font-size: 1rem; line-height: 1.1; text-align: justify; }
+        
+        .doc-list { margin-top: 3px; margin-bottom: 10px; padding-left: 20px; }
+        .doc-list li { margin-bottom: 3px; }
+        
+        /* Editabilitate inline (focus galben la click pe date) */
+        [contenteditable="true"]:focus { outline: 1px dashed var(--pnras-blue); background-color: #f8fbff; min-width: 50px; display: inline-block; }
+
+        .doc-decide { text-align: center; font-size: 1.1rem; font-weight: 700; margin-top: 15px; margin-bottom: 10px; letter-spacing: 0.5px; }
+
+        #articole-container { margin-bottom: 20px; width: 100%; }
+        .articol-rand { display: flex; align-items: flex-start; margin-bottom: 6px; position: relative; }
+        .art-label { font-weight: bold; margin-right: 5px; white-space: nowrap; line-height: 1.1; padding-top: 2px;}
+        .art-input { flex-grow: 1; font-family: 'Times New Roman', serif; font-size: 1rem; line-height: 1.1; border: 1px dashed #ccc; outline: none; background: transparent; resize: none; overflow: hidden; min-height: 1.2em; padding: 2px 5px; border-radius: 3px; transition: background-color 0.2s; }
+        .art-input:focus { border-color: var(--pnras-blue); background-color: #f0f7ff; }
+        .btn-add-articol { background: #eef2f5; color: var(--pnras-blue); border: 1px dashed var(--pnras-blue); padding: 5px 15px; border-radius: 4px; font-family: 'Inter', sans-serif; font-size: 0.85rem; font-weight: 600; cursor: pointer; margin-top: 5px; display: block; margin-left: auto; margin-right: auto; }
+        .btn-delete-art { background: none; border: none; color: red; font-size: 1.2rem; cursor: pointer; margin-left: 5px; line-height: 1; padding: 0; opacity: 0.3; }
+        .articol-rand:hover .btn-delete-art { opacity: 1; }
+
+        .doc-signatures { display: flex; justify-content: space-between; margin-top: auto; padding-top: 30px; font-size: 1rem; line-height: 1.3; }
+        .sig-block { text-align: left; }
+
+        @media print {
+            * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+            @page { size: A4 portrait; margin: 1.5cm !important; } 
+            body { margin: 0; padding: 0; background: white; }
+            #main-ui, .controls-a4, .back-btn, .btn-add-articol, .btn-delete-art { display: none !important; }
+            .a4-page { box-shadow: none !important; width: 100% !important; min-height: auto !important; margin: 0 !important; padding: 0 !important; }
+            .art-input { border: none !important; padding: 2px 0 !important; background: transparent !important; }
+            [contenteditable="true"] { outline: none !important; }
+        }
+    </style>
+</head>
+<body>
+
+    <a href="mate.html" class="back-btn" id="btn-inapoi-mate">← Înapoi la MATE</a>
+
+    <div id="main-ui">
+        <div class="header-container">
+            <h1>Hotărâri MATE</h1>
+            <button class="add-btn" onclick="openModal()">➕ Adaugă hotărâre</button>
+        </div>
+
+        <div class="grid-hotarari" id="cards-container">
+            <p style="color: #666; font-style: italic;">Se încarcă hotărârile...</p>
+        </div>
+    </div>
+
+    <div id="a4-view">
+        <div class="controls-a4">
+            <button class="back-btn" style="position: static;" onclick="closeA4()">← Închide Hotărârea</button>
+            <button class="add-btn" onclick="window.print()">🖨️ Printare</button>
+            <span id="save-status">✓ Salvat</span>
+        </div>
+
+        <div class="a4-page" id="document-continut">
+            <img src="antet_pnras.jpeg" class="antet-img" alt="Antet PNRAS">
+            
+            <div class="doc-titlu">
+                HOTĂRÂREA NR. <span id="doc-nr" contenteditable="true" oninput="triggerAutoSave()"></span><br>
+                din data de <span id="doc-data" contenteditable="true" oninput="triggerAutoSave()"></span>
+            </div>
+
+            <div class="doc-subtitlu">
+                Privind: <span id="doc-descriere-titlu" contenteditable="true" oninput="triggerAutoSave()"></span>
+            </div>
+
+            <div class="doc-corp">
+                <p><strong>În temeiul:</strong></p>
+                <ul class="doc-list" id="lista-legi-1" contenteditable="true" oninput="triggerAutoSave()">
+                    <li>Legii Educației Naționale nr. 198/2023, cu modificările și completările ulterioare;</li>
+                    <li>Metodologiei-cadru de organizare și funcționare a consiliului de administrație din unitățile de învățământ preuniversitar aprobată prin OME nr.6223 din 04.09.2023;</li>
+                    <li>Ordinului ministrului educației nr. 5.726/2024 privind aprobarea Regulamentului-cadru de organizare și funcționare a unităților de învățământ preuniversitar;</li>
+                    <li>Ordinului nr. 6000/2021 privind aprobarea Mecanismului de Avertizare Timpurie în Educaţie (MATE) şi a Metodologiei de implementare şi utilizare a modulului informatic MATE pentru prevenirea abandonului şcolar şi a părăsirii timpurii a şcolii, Publicat în Monitorul Oficial nr. 1252 din 30 decembrie 2021;</li>
+                    <li>Regulamentului (UE) 2016/679 al Parlamentului European și al Consiliului din 27 aprilie 2016 privind protecția persoanelor fizice în ceea ce privește prelucrarea datelor cu caracter personal și libera circulație a acestora.</li>
+                </ul>
+
+                <p style="margin-top: 10px;"><strong>Având în vedere:</strong></p>
+                <ul class="doc-list" id="lista-legi-2" contenteditable="true" oninput="triggerAutoSave()">
+                    <li>Decizia nr. 49/17.09.2024 privind stabilirea componenței Consiliului de Administrație al Liceului Tehnologic ”Victor Mihăilescu Craiu” Belcești, județul Iași, pentru anul școlar 2024 - 2025;</li>
+                    <li>Ședința Consiliului de Administrație al Liceului Tehnologic “Victor Mihăilescu Craiu” Belcești, reunit în data de <strong><span id="doc-data-sedinta" contenteditable="true" oninput="triggerAutoSave()"></span></strong>;</li>
+                </ul>
+
+                <div class="doc-decide">CONSILIUL DE ADMINISTRAȚIE HOTĂRĂȘTE:</div>
+                
+                <div id="articole-container"></div>
+                
+                <button class="btn-add-articol" onclick="adaugaArticol()">➕ Adaugă articol</button>
+
+            </div>
+
+            <div class="doc-signatures">
+                <div class="sig-block">
+                    <b>Întocmit,</b><br>
+                    Secretar Consiliu de Administrație<br>
+                    prof. Mihaela MIHĂILĂ
+                </div>
+                <div class="sig-block" style="text-align: right;">
+                    <b>Președinte Consiliu de Administrație,</b><br>
+                    Director,<br>
+                    prof. Cătălin Ionuț BAZILUC
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="add-modal">
+        <div class="modal">
+            <h2>Adaugă Hotărâre Nouă</h2>
+            <div class="form-group"><label>Număr Hotărâre</label><input type="text" id="input-nr" placeholder="Ex: 45"></div>
+            <div class="form-group"><label>Data (zz.ll.aaaa)</label><input type="text" id="input-data" placeholder="Ex: 15.01.2025"></div>
+            <div class="form-group"><label>Descriere</label><textarea id="input-descriere" placeholder="Ex: Aprobarea fișelor..."></textarea></div>
+            <div class="modal-actions">
+                <button class="cancel-btn" onclick="closeModal()">Renunță</button>
+                <button class="save-btn" onclick="saveHotarare()">Salvează</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const supabaseUrl = 'https://aexjrbdgajurxzngfkpx.supabase.co';
+        const supabaseKey = 'sb_publishable_KPV__0BA9z4EvRl5eqC0FQ_hmBLOLYv';
+        const supabaseClient = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+        let currentHotarareId = null; 
+
+        window.onload = loadHotarari;
+
+        function openModal() { document.getElementById('add-modal').style.display = 'flex'; }
+        function closeModal() { document.getElementById('add-modal').style.display = 'none'; }
+
+        // ==========================================
+        // AUTOSAVE LOGIC ACTUALIZAT (Salvează și Datele Principale)
+        // ==========================================
+        let saveTimeout = null;
+
+        function triggerAutoSave() {
+            const status = document.getElementById('save-status');
+            status.innerText = "⏳ Se salvează...";
+            status.className = "status-saving";
+            status.style.opacity = 1;
+
+            clearTimeout(saveTimeout);
+            saveTimeout = setTimeout(() => { saveDocumentContent(); }, 1000); 
+        }
+
+        async function saveDocumentContent() {
+            if (!currentHotarareId) return;
+
+            // 1. Preluăm elementele de BAZĂ (din Titlu) care au fost modificate
+            const newNr = document.getElementById('doc-nr').innerText.trim();
+            const newData = document.getElementById('doc-data').innerText.trim();
+            const newDesc = document.getElementById('doc-descriere-titlu').innerText.trim();
+            
+            // 2. Preluăm elementele din CORPUL DOCUMENTULUI
+            const dataSedinta = document.getElementById('doc-data-sedinta').innerText.trim();
+            const lege1 = document.getElementById('lista-legi-1').innerHTML;
+            const lege2 = document.getElementById('lista-legi-2').innerHTML;
+            const articoleInputs = document.querySelectorAll('.art-input');
+            const articoleTexte = Array.from(articoleInputs).map(input => input.value);
+
+            // Împachetăm conținutul documentului
+            const docBodyData = JSON.stringify({ lege1, lege2, dataSedinta, articole: articoleTexte });
+
+            try {
+                // UPDATE MULTIPLU: Actualizăm și coloanele de bază, și fișierul de date JSON
+                const { error } = await supabaseClient
+                    .from('numere_inregistrare')
+                    .update({ 
+                        nr_c: newNr,            // Noul Număr
+                        nr_d: newData,          // Noua Dată
+                        nr_inreg: newDesc,      // Noua Descriere
+                        document_data: docBodyData // Noul Conținut
+                    })
+                    .eq('id_unique', currentHotarareId);
+
+                if (!error) {
+                    const status = document.getElementById('save-status');
+                    status.innerText = "✓ Salvat";
+                    status.className = "status-saved";
+                    setTimeout(() => status.style.opacity = 0, 2000);
+                }
+            } catch (err) { console.error("Autosave Error:", err); }
+        }
+
+        // ==========================================
+        // ARTICOLE LOGIC
+        // ==========================================
+        let articoleCount = 0;
+
+        function adaugaArticol(textExistent = "") {
+            articoleCount++;
+            const container = document.getElementById('articole-container');
+            const div = document.createElement('div');
+            div.className = 'articol-rand';
+            
+            div.innerHTML = `
+                <span class="art-label">Art. ${articoleCount}.</span>
+                <textarea class="art-input" placeholder="Scrie textul articolului..." oninput="autoResize(this); triggerAutoSave()">${textExistent}</textarea>
+                <button class="btn-delete-art" onclick="stergeArticol(this)" title="Șterge articol">×</button>
+            `;
+            container.appendChild(div);
+            autoResize(div.querySelector('textarea'));
+            if(textExistent === "") triggerAutoSave(); 
+        }
+
+        function autoResize(textarea) {
+            textarea.style.height = 'auto'; 
+            textarea.style.height = textarea.scrollHeight + 'px'; 
+        }
+
+        function stergeArticol(btn) {
+            btn.parentElement.remove();
+            renumereazaArticole();
+            triggerAutoSave(); 
+        }
+
+        function renumereazaArticole() {
+            const etichete = document.querySelectorAll('#articole-container .art-label');
+            articoleCount = etichete.length;
+            etichete.forEach((label, index) => { label.innerText = `Art. ${index + 1}.`; });
+        }
+
+        // ==========================================
+        // ÎNCĂRCARE A4
+        // ==========================================
+        async function openA4(id, nr, data, descriere) {
+            currentHotarareId = id; 
+
+            document.getElementById('main-ui').style.display = 'none';
+            document.getElementById('btn-inapoi-mate').style.display = 'none';
+            document.getElementById('a4-view').style.display = 'flex';
+            
+            document.getElementById('doc-nr').innerText = nr;
+            document.getElementById('doc-data').innerText = data;
+            document.getElementById('doc-descriere-titlu').innerText = descriere;
+            
+            // Setăm o valoare inițială și pentru data ședinței
+            document.getElementById('doc-data-sedinta').innerText = data; 
+            
+            document.getElementById('articole-container').innerHTML = '';
+            articoleCount = 0;
+
+            try {
+                const { data: hotarareDB } = await supabaseClient
+                    .from('numere_inregistrare')
+                    .select('document_data')
+                    .eq('id_unique', currentHotarareId)
+                    .single();
+
+                if (hotarareDB && hotarareDB.document_data) {
+                    const docData = JSON.parse(hotarareDB.document_data);
+                    document.getElementById('lista-legi-1').innerHTML = docData.lege1;
+                    document.getElementById('lista-legi-2').innerHTML = docData.lege2;
+                    
+                    // Restaurăm data ședinței din memorie, dacă a fost modificată
+                    if(docData.dataSedinta) document.getElementById('doc-data-sedinta').innerText = docData.dataSedinta;
+
+                    docData.articole.forEach(artText => adaugaArticol(artText));
+                } else {
+                    adaugaArticol(); 
+                }
+            } catch (err) { adaugaArticol(); }
+        }
+
+        function closeA4() {
+            document.getElementById('a4-view').style.display = 'none';
+            document.getElementById('main-ui').style.display = 'flex';
+            document.getElementById('btn-inapoi-mate').style.display = 'block';
+            
+            // CÂND ÎNCHIDEM FOAIA, REÎNCĂRCĂM GRILA PENTRU A VEDEA MODIFICĂRILE DE TITLU/DATĂ
+            loadHotarari();
+        }
+
+        // ==========================================
+        // CRUD BAZĂ
+        // ==========================================
+        async function saveHotarare() {
+            const nr = document.getElementById('input-nr').value.trim();
+            const data = document.getElementById('input-data').value.trim();
+            const desc = document.getElementById('input-descriere').value.trim();
+
+            if (!nr || !data || !desc) { alert("Completați toate câmpurile!"); return; }
+
+            const idCodificat = `HOT_${new Date().getTime()}`;
+            let anSelectat = parseInt(data.slice(-4)) || new Date().getFullYear();
+
+            try {
+                const { error } = await supabaseClient.from('numere_inregistrare').insert([{ 
+                    id_unique: idCodificat, expert_nume: 'Sistem', tip_registru: 'HOTARARE', 
+                    nr_c: nr, nr_d: data, nr_inreg: desc, an: anSelectat, luna: 1, ultima_modificare: new Date().toISOString()
+                }]);
+                if (error) throw error; closeModal(); loadHotarari(); 
+            } catch (err) { alert(`Eroare: ${err.message}`); }
+        }
+
+        async function deleteHotarare(id) {
+            if (!confirm("Sigur ștergi hotărârea?")) return;
+            await supabaseClient.from('numere_inregistrare').delete().eq('id_unique', id);
+            loadHotarari(); 
+        }
+
+        async function loadHotarari() {
+            const container = document.getElementById('cards-container');
+            const { data: hotarari } = await supabaseClient.from('numere_inregistrare').select('*').eq('tip_registru', 'HOTARARE').order('ultima_modificare', { ascending: false }); 
+            if (!hotarari || !hotarari.length) { container.innerHTML = '<p style="color:#666; font-style:italic;">Nicio hotărâre.</p>'; return; }
+            container.innerHTML = hotarari.map(hot => `
+                <div class="hotarare-card" onclick="openA4('${hot.id_unique}', '${hot.nr_c}', '${hot.nr_d}', '${hot.nr_inreg}')">
+                    <button class="delete-btn" onclick="event.stopPropagation(); deleteHotarare('${hot.id_unique}')">🗑️</button>
+                    <div class="card-nr">Hotărârea Nr. ${hot.nr_c}</div>
+                    <div class="card-data">📅 ${hot.nr_d}</div>
+                    <div class="card-descriere">${hot.nr_inreg}</div>
+                </div>`).join('');
+        }
+    </script>
+</body>
+</html>

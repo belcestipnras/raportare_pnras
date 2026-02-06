@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <title>PNRAS | Dosare de caz</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Montserrat:wght@700;800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        :root {
+            --bg-dark: #0f172a;
+            --glass: rgba(30, 41, 59, 0.95);
+            --text-light: #f1f5f9;
+            --accent-green: #10b981;
+            --accent-blue: #3b82f6;
+            --accent-red: #ef4444;
+            --print-accent: #002266;
+            --print-line: 0.5pt solid var(--print-accent);
+            --w-nr: 45px;
+            --w-dosar: 175px;
+            --w-cnp: 135px;
+        }
+
+        * { box-sizing: border-box; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: var(--bg-dark); margin: 0; color: var(--text-light); }
+        
+        .no-print { 
+            background: var(--glass); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(255,255,255,0.1);
+            padding: 12px 30px; position: sticky; top: 0; z-index: 9999; display: flex; align-items: center; justify-content: space-between;
+        }
+
+        .btn { padding: 8px 16px; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 600; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.05); color: #cbd5e1; transition: 0.2s; }
+        .btn:hover { background: rgba(255,255,255,0.15); transform: translateY(-1px); }
+        .btn-clasa.active { background: var(--accent-green) !important; color: #fff !important; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3); }
+
+        .a4-container { width: 210mm; min-height: 297mm; margin: 40px auto; background: #fff; color: #000; padding: 15mm; display: flex; flex-direction: column; box-shadow: 0 10px 30px rgba(0,0,0,0.3); border-radius: 8px; }
+        .antet-img { width: 100%; margin-bottom: 5mm; }
+        
+        .header-box { background: #f8fafc; border: 1px solid #e2e8f0; padding: 15px; border-radius: 10px; margin-bottom: 20px; }
+        .titlu-principal { text-align: center; font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: 17px; color: var(--print-accent); margin: 5px 0; }
+        .subtitlu { text-align: center; font-size: 10px; font-weight: 600; color: #64748b; text-transform: uppercase; }
+
+        table { width: 100%; border-collapse: collapse; border: var(--print-line); table-layout: fixed; }
+        th { background: #f0f4ff !important; font-weight: 800; font-size: 11px; color: var(--print-accent); border: var(--print-line); padding: 8px; text-transform: uppercase; }
+        td { border: var(--print-line); padding: 6px; font-size: 12px; font-weight: 600; color: #1e293b; overflow: hidden; }
+        
+        .col-nr { width: var(--w-nr); text-align: center; cursor: pointer; }
+        .col-nr:hover { background-color: #fee2e2; color: var(--accent-red); }
+        
+        .row-separator { background: #f1f5f9 !important; color: var(--print-accent); font-weight: 800; padding: 8px 12px; border-top: 1.5pt solid var(--print-accent) !important; }
+        .edit-input { width: 100%; border: none; background: transparent; font-family: inherit; font-size: 12.5px; font-weight: 700; outline: none; }
+        .inreg-input { border: none; font-weight: 800; color: var(--print-accent); font-family: 'JetBrains Mono'; width: 280px; background: transparent; outline: none; border-bottom: 1px dashed #ccc !important; }
+
+        /* LOGICA DE GRUPARE PENTRU PRINT */
+        .keep-together { page-break-inside: avoid !important; display: block; width: 100%; }
+        .footer-document { margin-top: 20px; display: flex; justify-content: space-between; font-weight: 800; font-size: 12px; color: var(--print-accent); }
+
+        @media print {
+            .no-print { display: none !important; } 
+            .a4-container { width: 100%; margin: 0; padding: 0 !important; box-shadow: none; border-radius: 0; }
+            .inreg-input { border-bottom: none !important; }
+            tr { page-break-inside: avoid; }
+            tfoot { display: table-footer-group; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="no-print">
+    <div style="display:flex; gap:15px; align-items:center;">
+        <button class="btn" onclick="window.location.href='mate.html'">← Meniu</button>
+        <div id="selectorClase" style="display:flex; gap:6px;"></div>
+    </div>
+    <div style="display:flex; gap:10px;">
+        <button class="btn" style="border-color:var(--accent-red); color:var(--accent-red);" onclick="resetData()">Resetare Date</button>
+        <button class="btn" style="background:var(--accent-blue); color:white;" onclick="printMod('toate')">Printează Tot</button>
+        <button class="btn" onclick="window.print()">Printează Clasa</button>
+    </div>
+</div>
+
+<div id="documentA4" class="a4-container">
+    <img src="antet_pnras.jpeg" class="antet-img">
+    
+    <div style="display:flex; justify-content: space-between; align-items: flex-start; margin-bottom: 5mm;">
+        <div style="font-size:12px; font-weight:700; color: var(--print-accent);">
+            Nr. înregistrare: <input type="text" id="nrInregInput" placeholder="..." class="inreg-input" onblur="saveCentralInreg(this.value)">
+        </div>
+        <div style="text-align: right; font-size: 11px; font-weight: 800; color: var(--print-accent);">APROBAT,<br>DIRECTOR,<br>prof. Cătălin BAZILUC</div>
+    </div>
+
+    <div class="header-box">
+        <div class="subtitlu">Categoria I: Activități de identificare și monitorizare a elevilor în risc de abandon școlar - MATE</div>
+        <div class="titlu-principal">DOSARE DE CAZ</div>
+    </div>
+    
+    <div style="display:grid; grid-template-columns: 1fr 1fr; border: var(--print-line); font-size:12px; margin-bottom:15px;">
+        <div style="padding:6px; border-right: var(--print-line);">CLASA: <span id="txtClasa" style="font-weight:800">---</span></div>
+        <div style="padding:6px;">AN ȘCOLAR: <span id="txtAnScolar" style="font-weight:800">---</span></div>
+    </div>
+
+    <div id="zonaContinut"></div>
+    
+    <button class="btn no-print" onclick="adaugaRand()" style="margin-top:20px; width:100%; background:var(--accent-green); color:#fff; border:none; padding:12px; font-size:14px;">+ ADĂUGĂ ELEV NOU</button>
+</div>
+
+<script>
+    const SUPABASE_URL = 'https://aexjrbdgajurxzngfkpx.supabase.co';
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFleGpyYmRnYWp1cnh6bmdma3B4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgxMzE3NTYsImV4cCI6MjA4MzcwNzc1Nn0.VUx0QOKgjX4m23HOF2rBpE9vWA3T18KtjLc0w_iXhqA';
+    const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    const params = new URLSearchParams(window.location.search);
+    let anul = params.get('an') || '2025';
+    let dataCache = [];
+    let clasaSelectata = "";
+    let modulPrintGeneral = false;
+
+    async function init() {
+        const { data, error } = await _supabase
+        .from('mate_pnras')
+        .select('*')
+        .eq('anul', parseInt(anul))
+        .not('nr_dosar', 'is', null)
+        .neq('nr_dosar', '')
+        .neq('nr_dosar', '---');
+        if(error) return console.error(error);
+        dataCache = data || [];
+        const claseExistente = [...new Set(dataCache.map(e => e.clasa))].sort();
+        if(claseExistente.length > 0 && !clasaSelectata) clasaSelectata = claseExistente[0];
+        await fetchInreg();
+        renderTabs();
+    }
+
+    async function resetData() {
+        if(!confirm("Reîncarci elevii care au dosar din baza de date?")) return;
+        dataCache = [];
+        clasaSelectata = "";
+        await init();
+    }
+
+    async function fetchInreg() {
+        let id_doc = modulPrintGeneral ? `DOSARE_CAZ_${anul}_GENERAL` : `DOSARE_CAZ_${anul}_${clasaSelectata}`;
+        const { data } = await _supabase.from('registru_numere').select('nr_inreg').eq('id_document', id_doc).maybeSingle();
+        document.getElementById('nrInregInput').value = data ? data.nr_inreg : (modulPrintGeneral ? " / / " : ` /${clasaSelectata}/ `);
+    }
+
+    async function saveCentralInreg(val) {
+        if(!clasaSelectata && !modulPrintGeneral) return;
+        let id_doc = modulPrintGeneral ? `DOSARE_CAZ_${anul}_GENERAL` : `DOSARE_CAZ_${anul}_${clasaSelectata}`;
+        await _supabase.from('registru_numere').upsert({ id_document: id_doc, nr_inreg: val, anul: anul, tip_document: 'dosare_caz' }, { onConflict: 'id_document' });
+    }
+
+    function renderTabs() {
+        const container = document.getElementById('selectorClase');
+        container.innerHTML = '';
+        const clase = [...new Set(dataCache.map(e => e.clasa))].sort();
+        clase.forEach(c => {
+            const btn = document.createElement('button');
+            btn.className = `btn btn-clasa ${c === clasaSelectata ? 'active' : ''}`;
+            btn.innerText = c;
+            btn.onclick = async () => { 
+                clasaSelectata = c; 
+                modulPrintGeneral = false;
+                await fetchInreg();
+                renderTabs(); 
+            };
+            container.appendChild(btn);
+        });
+        updateView();
+    }
+
+    function updateView() {
+        document.getElementById('txtAnScolar').innerText = (anul === '2025') ? "2024-2025" : "2025-2026";
+        const zona = document.getElementById('zonaContinut');
+        
+        if(modulPrintGeneral) {
+            document.getElementById('txtClasa').innerText = "GENERAL";
+            const clase = [...new Set(dataCache.map(e => e.clasa))].sort();
+            let counter = 1;
+            let html = `<table><thead><tr><th style="width:45px">Nr.</th><th style="width:175px">Dosar de caz</th><th>Nume și prenume elev</th><th style="width:135px">CNP</th></tr></thead><tbody>`;
+            
+            clase.forEach(cl => {
+                const elevi = dataCache.filter(e => e.clasa === cl).sort((a,b) => a.nume_elev.localeCompare(b.nume_elev));
+                if(elevi.length > 0) {
+                    html += `<tr><td colspan="4" class="row-separator">CLASA ${cl}</td></tr>`;
+                    elevi.forEach(e => {
+                        html += `<tr><td style="text-align:center">${counter++}</td><td style="text-align:center">${e.nr_dosar}</td><td>${e.nume_elev}</td><td style="text-align:center">${e.cnp || ''}</td></tr>`;
+                    });
+                }
+            });
+            html += `</tbody></table><div class="keep-together"><div class="footer-document" style="justify-content: flex-end;"><div style="width:45%; text-align:right;">ÎNTOCMIT,<br>MANAGER PROIECT,<br><div style="margin-top:8mm; color:#000">prof. dr. Ciprian MIHAI</div></div></div></div>`;
+            zona.innerHTML = html;
+        } else {
+            document.getElementById('txtClasa').innerText = clasaSelectata || "---";
+            const filtered = dataCache.filter(e => e.clasa === clasaSelectata).sort((a,b) => a.nume_elev.localeCompare(b.nume_elev));
+            
+            if (filtered.length === 0) {
+                zona.innerHTML = "<p style='color:black; text-align:center; padding: 20px;'>Nu există elevi cu dosar în această clasă.</p>";
+                return;
+            }
+
+            // Separăm lista: toți în afară de ultimul în tbody, ultimul rând separat
+            const allButLast = filtered.slice(0, -1);
+            const lastRecord = filtered[filtered.length - 1];
+            const lastIdx = filtered.length;
+
+            let html = `<table><thead><tr><th style="width:45px">Nr.</th><th style="width:175px">Dosar de caz</th><th>Nume și prenume elev</th><th style="width:135px">CNP</th></tr></thead><tbody>`;
+            
+            allButLast.forEach((e, i) => {
+                html += `<tr>
+                    <td class="col-nr" onclick="stergeLocal(${e.id})">${i+1}</td>
+                    <td><input class="edit-input" style="text-align:center" value="${e.nr_dosar || ''}" onblur="save(${e.id}, 'nr_dosar', this.value)"></td>
+                    <td><input class="edit-input" value="${e.nume_elev}" onblur="save(${e.id}, 'nume_elev', this.value)"></td>
+                    <td><input class="edit-input" style="text-align:center" value="${e.cnp || ''}" onblur="save(${e.id}, 'cnp', this.value)"></td>
+                </tr>`;
+            });
+            html += `</tbody></table>`;
+
+            // Construim blocul "indisociabil": ultimul rând al tabelului + semnături
+            html += `<div class="keep-together">
+                <table style="border-top: none;">
+                    <tbody>
+                        <tr>
+                            <td class="col-nr" style="width:45px;" onclick="stergeLocal(${lastRecord.id})">${lastIdx}</td>
+                            <td style="width:175px;"><input class="edit-input" style="text-align:center" value="${lastRecord.nr_dosar || ''}" onblur="save(${lastRecord.id}, 'nr_dosar', this.value)"></td>
+                            <td><input class="edit-input" value="${lastRecord.nume_elev}" onblur="save(${lastRecord.id}, 'nume_elev', this.value)"></td>
+                            <td style="width:135px;"><input class="edit-input" style="text-align:center" value="${lastRecord.cnp || ''}" onblur="save(${lastRecord.id}, 'cnp', this.value)"></td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="footer-document">
+                    <div style="width:45%">AVIZAT,<br>MANAGER PROIECT,<br><div style="margin-top:8mm; color:#000">prof. dr. Ciprian MIHAI</div></div>
+                    <div style="width:45%; text-align:right;">ÎNTOCMIT,<br>DIRIGINTE,<br><div style="margin-top:8mm; color:#000">prof. ${filtered[0]?.diriginte || '---'}</div></div>
+                </div>
+            </div>`;
+
+            zona.innerHTML = html;
+        }
+    }
+
+    async function save(id, col, val) {
+        await _supabase.from('mate_pnras').update({ [col]: val }).eq('id', id);
+        const idx = dataCache.findIndex(x => x.id === id);
+        if(idx > -1) dataCache[idx][col] = val;
+    }
+
+    async function adaugaRand() {
+        if(!clasaSelectata) return alert("Selectează o clasă!");
+        const sample = dataCache.find(e => e.clasa === clasaSelectata);
+        const dir = sample ? sample.diriginte : "---";
+        const nou = { nume_elev: "NUME NOU", clasa: clasaSelectata, anul: parseInt(anul), nr_dosar: "---", cnp: "", diriginte: dir };
+        const { data, error } = await _supabase.from('mate_pnras').insert([nou]).select();
+        if (data) { dataCache.push(data[0]); renderTabs(); }
+    }
+
+    async function stergeLocal(id) {
+        if(confirm("Dorești să elimini acest elev din lista de dosare?")) {
+            await _supabase.from('mate_pnras').update({ nr_dosar: "" }).eq('id', id);
+            dataCache = dataCache.filter(x => x.id !== id);
+            renderTabs();
+        }
+    }
+
+    async function printMod(tip) {
+        if(tip === 'toate') {
+            modulPrintGeneral = true;
+            await fetchInreg();
+            updateView();
+            setTimeout(() => { window.print(); modulPrintGeneral = false; renderTabs(); }, 500);
+        }
+    }
+    init();
+</script>
+</body>
+</html>

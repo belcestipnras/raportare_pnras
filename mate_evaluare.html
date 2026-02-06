@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fișa de evaluare MATE</title>
+    
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Montserrat:wght@700;800&display=swap" rel="stylesheet">
+
+    <style>
+        :root { 
+            --primary: #1e3a8a; 
+            --text-main: #1e293b;
+        }
+        @page { size: A4; margin: 1.5cm; }
+        
+        body { font-family: 'Inter', sans-serif; background: #f1f5f9; margin: 0; padding: 0; color: var(--text-main); font-size: 10pt; line-height: 1.4; }
+        
+        @media print { 
+            .no-print { display: none !important; } 
+            body { background: white !important; } 
+            .a4-page { margin: 0 !important; box-shadow: none !important; width: 100% !important; padding: 0 !important; border: none !important; page-break-after: always; }
+            .input-nr-inreg { border-bottom: none !important; }
+        }
+
+        .top-nav { position: sticky; top: 0; background: white; z-index: 1000; border-bottom: 1px solid #e2e8f0; padding: 15px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+        .flex-nav { max-width: 1000px; margin: 0 auto; display: flex; flex-direction: column; gap: 12px; align-items: center; }
+        .tab-container { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+        .btn-tab { padding: 8px 16px; border: 1px solid #e2e8f0; border-radius: 6px; background: white; font-weight: 700; cursor: pointer; color: #64748b; transition: 0.2s; }
+        .btn-tab.active { background: var(--primary); color: white; border-color: var(--primary); }
+
+        .a4-page { width: 210mm; min-height: 297mm; margin: 20px auto; background: white; padding: 1.5cm; box-sizing: border-box; box-shadow: 0 0 20px rgba(0,0,0,0.1); position: relative; border: 1pt solid #eee; }
+        .confidential-tag { text-align: center; font-size: 8pt; font-weight: 700; text-transform: uppercase; color: #64748b; margin-bottom: 5px; border: 1px solid #e2e8f0; padding: 4px; display: block; }
+        .antet-img { width: 100%; height: auto; margin-bottom: 10px; }
+        
+        .nr-inreg-style { text-align: left; font-weight: 700; font-size: 10pt; margin-bottom: 10px; }
+        .input-nr-inreg { border: none; border-bottom: 1px solid #ccc; font-family: inherit; font-size: 10pt; font-weight: 800; width: 250px; outline: none; background: transparent; }
+
+        .titlu-principal { text-align: center; margin: 15px 0 10px 0; }
+        .titlu-principal h1 { margin: 0; font-size: 16pt; font-weight: 800; text-transform: uppercase; color: #000; }
+        .subtitlu-categorie { text-align: center; font-size: 9pt; font-weight: 700; color: #334155; margin-bottom: 20px; }
+
+        .sectiune-header { background: #f1f5f9; padding: 8px 12px; font-weight: 800; font-size: 11pt; border-left: 4px solid var(--primary); margin: 20px 0 10px 0; text-transform: uppercase; }
+        .subsec-title { font-weight: 800; font-size: 10pt; padding: 5px 0; color: var(--primary); margin-top: 10px; border-bottom: 1px solid #e2e8f0; }
+
+        .info-grid { border: 1pt solid #000; display: grid; grid-template-columns: 1fr; margin-bottom: 15px; }
+        .info-row { display: grid; grid-template-columns: 420px 1fr; border-bottom: 0.5pt solid #000; }
+        .info-row:last-child { border-bottom: none; }
+        .info-label { padding: 6px 8px; font-weight: 700; background: #fafafa; border-right: 0.5pt solid #000; font-size: 8.5pt; }
+        .info-value { padding: 6px 8px; font-weight: 800; font-size: 9pt; }
+
+        .checkbox-sim { width: 10pt; height: 10pt; border: 1pt solid #000; display: inline-block; vertical-align: middle; margin-right: 5px; position: relative; }
+        .checked::after { content: 'X'; position: absolute; top: -4px; left: 1px; font-size: 10pt; font-weight: 800; }
+
+/* Stiluri pentru Secțiunea Scor de Risc */
+        .risk-section { margin-top: 20px; border: 1pt solid #000; padding: 10px; background: #fff; }
+        .risk-row { display: grid; grid-template-columns: 3fr 1fr; border-bottom: 0.5pt solid #eee; padding: 4px 0; }
+        .risk-row:last-child { border-bottom: none; }
+        .risk-label { font-weight: 700; font-size: 9pt; }
+        .risk-score { font-weight: 800; text-align: right; }
+        
+        .progress-container { width: 100%; background-color: #e2e8f0; border-radius: 4px; height: 12pt; margin-top: 10px; border: 1px solid #000; overflow: hidden; }
+        .progress-bar { 
+            height: 100%; 
+            transition: width 0.3s;
+            /* Forțează afișarea culorii la printare */
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+        }
+        
+        .status-badge { 
+            display: inline-block; 
+            padding: 4px 12px; 
+            border-radius: 4px; 
+            color: white !important; 
+            font-weight: 800; 
+            text-transform: uppercase; 
+            font-size: 9pt; 
+            margin-top: 10px;
+            /* Forțează afișarea culorii fundalului la printare */
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+        }
+        .risc-scazut { background-color: #16a34a; } /* Verde */
+        .risc-mediu { background-color: #ca8a04; }  /* Galben/Mustar */
+        .risc-ridicat { background-color: #dc2626; } /* Rosu */
+
+.signature-footer {
+            margin-top: 40px;
+            text-align: center;
+            width: 100%;
+            page-break-inside: avoid; /* Împiedică despărțirea semnăturii de restul textului */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+        }
+        .signature-line {
+            margin-top: 30px;
+            width: 200px;
+            border-bottom: 1px solid #000;
+        }    
+</style>
+</head>
+<body>
+
+<div class="top-nav no-print">
+    <div class="flex-nav">
+        <div style="display: flex; gap: 10px;">
+            <select id="select-an" class="btn-tab" onchange="schimbaAnul(this.value)">
+                <option value="2025">An Școlar 2024-2025</option>
+                <option value="2026" selected>An Școlar 2025-2026</option>
+            </select>
+            <button class="btn-tab" style="background:#000; color:white;" onclick="window.print()">Printează Fișele</button>
+        </div>
+<button class="btn-tab no-print" 
+        style="background: #8b5cf6; color: white;" 
+        onclick="completeazaToateObservatiileAI()">
+    ✨ Generare Observații AI (Toți)
+</button>
+<button class="btn-tab no-print" 
+        style="background: #059669; color: white;" 
+        onclick="navigheazaLaRaport()">
+    📊 Generează Raport
+</button>
+        <div id="selector-clase" class="tab-container"></div>
+    </div>
+</div>
+
+<div id="container-fise"></div>
+
+<script>
+const supabaseUrl = 'https://aexjrbdgajurxzngfkpx.supabase.co';
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFleGpyYmRnYWp1cnh6bmdma3B4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgxMzE3NTYsImV4cCI6MjA4MzcwNzc1Nn0.VUx0QOKgjX4m23HOF2rBpE9vWA3T18KtjLc0w_iXhqA';
+const _db = supabase.createClient(supabaseUrl, supabaseKey);
+const params = new URLSearchParams(window.location.search);
+const config = {
+    clasa: params.get('clasa'),
+    an: params.get('an')
+};
+
+let dateleCurente = [];
+let anSelectat = 2026;
+let clasaActiva = "";
+
+async function incarcaDatele() {
+    dateleCurente = []; 
+    document.getElementById('container-fise').innerHTML = "<div style='text-align:center; padding:50px;'>Se încarcă datele...</div>";
+    
+    const { data, error } = await _db
+        .from('mate_pnras')
+        .select('*')
+        .eq('anul', parseInt(anSelectat))
+        .not('nr_dosar', 'is', null)
+        .neq('nr_dosar', '')
+        .neq('nr_dosar', '---');
+
+    if (error) { console.error(error); return; }
+
+    dateleCurente = data || [];
+    renderTabs();
+    
+    if (dateleCurente.length > 0) {
+        const primaClasa = clasaActiva || [...new Set(dateleCurente.map(e => e.clasa))].sort()[0];
+        clasaActiva = primaClasa;
+        renderTabs();
+        renderFise(dateleCurente.filter(e => e.clasa === primaClasa));
+    } else {
+        document.getElementById('container-fise').innerHTML = "Niciun elev găsit.";
+    }
+}
+
+function renderTabs() {
+    const container = document.getElementById('selector-clase');
+    container.innerHTML = "";
+    const claseUnice = [...new Set(dateleCurente.map(e => e.clasa))].sort();
+    
+    claseUnice.forEach(clasa => {
+        const btn = document.createElement('button');
+        btn.className = `btn-tab ${clasa === clasaActiva ? 'active' : ''}`;
+        btn.innerText = `Clasa ${clasa}`;
+        btn.onclick = () => { 
+            clasaActiva = clasa; 
+            renderTabs(); 
+            renderFise(dateleCurente.filter(e => e.clasa === clasa)); 
+        };
+        container.appendChild(btn);
+    });
+}
+
+function renderFise(elevi) {
+    const container = document.getElementById('container-fise');
+    container.innerHTML = "";
+    const eleviSortati = [...elevi].sort((a, b) => a.nume_elev.localeCompare(b.nume_elev));
+
+    eleviSortati.forEach((e, index) => {
+        let varsta = "---";
+        let isM = false, isF = false;
+        
+        if (e.cnp && String(e.cnp).length >= 7) {
+            const sCnp = String(e.cnp).trim();
+            isM = sCnp[0] === '5' || sCnp[0] === '1';
+            isF = sCnp[0] === '6' || sCnp[0] === '2';
+            const prefixAn = (sCnp[0] === '5' || sCnp[0] === '6') ? 2000 : 1900;
+            const an = parseInt(sCnp.substring(1, 3)) + prefixAn;
+            const dataN = new Date(an, parseInt(sCnp.substring(3, 5)) - 1, parseInt(sCnp.substring(5, 7)));
+            const azi = new Date();
+            varsta = azi.getFullYear() - dataN.getFullYear();
+            if (azi.getMonth() < dataN.getMonth() || (azi.getMonth() === dataN.getMonth() && azi.getDate() < dataN.getDate())) varsta--;
+        }
+const mesajeRisc = {
+            p8: "familia nu îşi permite costurile şcolare",
+            p9: "provine dintr-o familie monoparentală sau reorganizată",
+            p10: "părinţii nu acordă importanţă educaţiei",
+            p11: "are fraţi care au abandonat şcoala",
+            p12: "nu are condiţii minimale de studiu acasă",
+            p13: "are dizabilităţi sau CES",
+            p14: "are dificultăţi de învăţare",
+            p15: "a fost plecat din localitate peste 3 luni",
+            p16: "stă în gazdă sau la internat",
+            p17: "este căsătorit(ă) sau are copii",
+            p18: "prezintă lipsă de interes pentru educaţie",
+            p19: "se confruntă cu discriminare sau izolare",
+            p20: "a fost implicat în violenţă la şcoală",
+            p21: "există alte cauze şcolare identificate",
+            p22: "locuieşte într-o zonă marginalizată",
+            p23: "naveta spre şcoală este dificilă"
+        };
+
+        let identificatoriDA = [];
+        let descrieriProbleme = [];
+
+        Object.keys(mesajeRisc).forEach(p => {
+            if ((e[p] || '').toString().toUpperCase() === 'DA') {
+                identificatoriDA.push(p);
+                descrieriProbleme.push(mesajeRisc[p]);
+            }
+        });
+
+        let textObservatii = "";
+        if (identificatoriDA.length > 0) {
+            textObservatii = `Are DA la ${identificatoriDA.join(', ')}. Elevul ${e.nume_elev} ${descrieriProbleme.join(', ')}.`;
+        } else {
+            textObservatii = `Elevul ${e.nume_elev} nu prezintă indicatori de risc majori în secţiunile p8-p23.`;
+        }
+// Funcție internă pentru a verifica dacă o valoare este "DA" (ignora litere mari/mici)
+        const isDA = (val) => (val || '').toString().toUpperCase() === 'DA';
+
+        // Calculăm punctele pe categorii
+        const puncteA = [e.p8, e.p9, e.p10, e.p11, e.p12].filter(isDA).length;
+        const puncteB = [e.p13, e.p14, e.p15, e.p16, e.p17, e.p18].filter(isDA).length;
+        const puncteC = [e.p19, e.p20, e.p21].filter(isDA).length;
+        const puncteD = [e.p22, e.p23].filter(isDA).length;
+
+        const totalDA = puncteA + puncteB + puncteC + puncteD;
+        const procentRisc = Math.round((totalDA / 16) * 100);
+
+        // Stabilim eticheta și culoarea
+        let statusText = "Risc Scăzut";
+        let statusClasa = "risc-scazut";
+        if (procentRisc > 25) {
+            statusText = "Risc Ridicat";
+            statusClasa = "risc-ridicat";
+        } else if (procentRisc >= 10) {
+            statusText = "Risc Mediu";
+            statusClasa = "risc-mediu";
+        }
+        const nrInreg = `___/${e.clasa}/${index + 1}/${anSelectat}`;
+
+        container.innerHTML += `
+            <div class="a4-page">
+                <span class="confidential-tag">Document de uz intern și confidențial</span>
+                <img src="antet_pnras.jpeg" class="antet-img">
+                
+                <div class="nr-inreg-style">
+    Nr. înregistrare: 
+    <input type="text" 
+       class="input-nr-inreg" 
+       data-id="${e.id}" 
+       value="${e.nr_inregistrare || nrInreg}" 
+       onblur="updateCamp(${e.id}, 'nr_inregistrare', this.value)">
+</div>
+
+                <div class="titlu-principal"><h1>Fișa de evaluare MATE</h1></div>
+                <div class="subtitlu-categorie">Categoria I: Activități de identificarea și monitorizare a elevilor în risc de abandon școlar - MATE</div>
+<div class="subtitlu-categorie">I.2. Aplicarea Fișei de observare și a Fișei de evaluare MATE</div>
+                <div class="sectiune-header">Informații despre elev - Partea I</div>
+                <div class="info-grid">
+                    <div class="info-row"><div class="info-label">Nume și prenume elev:</div><div class="info-value">${e.nume_elev}</div></div>
+                    <div class="info-row"><div class="info-label">CNP:</div><div class="info-value">${e.cnp || '---'}</div></div>
+                    <div class="info-row">
+                        <div class="info-label">Genul elevului:</div>
+                        <div class="info-value">
+                            <span style="margin-right:20px;"><span class="checkbox-sim ${isM ? 'checked' : ''}"></span> 1. M</span>
+                            <span><span class="checkbox-sim ${isF ? 'checked' : ''}"></span> 2. F</span>
+                        </div>
+                    </div>
+                    <div class="info-row"><div class="info-label">Vârsta elevului:</div><div class="info-value">${varsta} ani</div></div>
+                    <div class="info-row"><div class="info-label">Clasa:</div><div class="info-value">${e.clasa}</div></div>
+                    <div class="info-row"><div class="info-label">Nr. Dosar Caz:</div><div class="info-value">${e.nr_dosar || '---'}</div></div>
+                </div>
+
+                <div class="sectiune-header">Informații despre elev - Partea a II-a</div>
+                <div class="info-grid">
+                    <div class="info-row"><div class="info-label">1. Elevul/eleva locuieşte în aceeaşi localitate cu unitatea şcolară:</div><div class="info-value">${e.p1 || '---'}</div></div>
+                    <div class="info-row"><div class="info-label">2. Adresa exactă:</div><div class="info-value">${e.fo_adresa || '---'}</div></div>
+                    <div class="info-row">
+                        <div class="info-label">3. În gospodărie cu elevul/eleva locuiesc:</div>
+                        <div class="info-value">
+                            Număr total persoane: ${e.p3_t || '0'}<br>
+                            din care adulţi (18+ ani): ${e.p3_a || '0'}<br>
+                            şi copii (0-17 ani): ${e.p3_c || '0'}
+                        </div>
+                    </div>
+                    <div class="info-row"><div class="info-label">4. Mama este în gospodărie?</div><div class="info-value">${e.p4 || '---'}</div></div>
+                    <div class="info-row"><div class="info-label">5. Ultimul nivel de educaţie absolvit de mamă:</div><div class="info-value">${e.p5 || '---'}</div></div>
+                    <div class="info-row"><div class="info-label">6. Tatăl este în gospodărie?</div><div class="info-value">${e.p6 || '---'}</div></div>
+                    <div class="info-row"><div class="info-label">7. Ultimul nivel de educaţie absolvit de tată:</div><div class="info-value">${e.p7 || '---'}</div></div>
+                </div>
+
+                <div class="subsec-title">(A) Cauze/ factori de risc în relaţie cu sprijinul familial</div>
+                <div class="info-grid">
+                    <div class="info-row"><div class="info-label">8. Familia nu îşi permite costurile şcolare (haine, încălţăminte, materiale şcolare, naveta etc.) pentru că este săracă sau are venituri foarte mici?</div><div class="info-value">${e.p8 || '---'}</div></div>
+                    <div class="info-row"><div class="info-label">9. Părinte minor, familie monoparentală, familie reorganizată (părintele în grija căruia se află s-a recăsătorit), familie cu mai mult de 3 copii, unul sau ambii părinţi nu sunt acasaă, fiind plecaţi la muncă în afara localităţii sau în străinătate, unul sau mai mulţi copii separaţi de familie sau reintegraţi în familie (după ce au fost în regim de protecţie specială)?</div><div class="info-value">${e.p9 || '---'}</div></div>
+                    <div class="info-row"><div class="info-label">10. Părinţii, părintele unic sau îngrijitorul copilului din gospodărie nu acordă importanţă sau au o atitudine negativă faţă de educaţia copiilor/şcoală?</div><div class="info-value">${e.p10 || '---'}</div></div>
+                    <div class="info-row"><div class="info-label">11. Elevul are unul sau mai mulţi fraţi sau surori (de 6-17 ani) care nu au fost niciodată la şcoală, au abandonat sau au părăsit timpuriu şcoala?</div><div class="info-value">${e.p11 || '---'}</div></div>
+                    <div class="info-row"><div class="info-label">12. Copilul nu are condiţii minimale de studiu acasă?</div><div class="info-value">${e.p12 || '---'}</div></div>
+                </div>
+
+                <div class="subsec-title">(B) Factori de risc legaţi de situaţia copilului</div>
+                <div class="info-grid">
+                    <div class="info-row"><div class="info-label">13. Elevul/eleva are dizabilităţi (cu certificat de handicap) sau CES (cu certificat de orientare şcolară)?</div><div class="info-value">${e.p13 || '---'}</div></div>
+                    <div class="info-row"><div class="info-label">14. Elevul are dificultăţi de învăţare, fără certificat de dizabilitate/ orientare şcolară (de ex. învaţă greu legătura între litere şi sunete; nu poate citi sau fac greşeli serioase de citire sau pronunţie; este încet în învăţarea noilor deprinderi; are dificultăţi în planificarea şi organizarea timpului şi/sau în învăţarea alfabetului, etc.)?</div><div class="info-value">${e.p14 || '---'}</div></div>
+                    <div class="info-row"><div class="info-label">15. În ultimul an, elevul/eleva a fost plecat(ă) din ţară sau din localitate o dată sau de mai multe ori pentru o perioadă mai mare de 3 luni, în afara vacanţei de vară?</div><div class="info-value">${e.p15 || '---'}</div></div>
+                    <div class="info-row"><div class="info-label">16. Elevul/eleva stă în gazdă sau la internat?</div><div class="info-value">${e.p16 || '---'}</div></div>
+                    <div class="info-row"><div class="info-label">17. Elevul/eleva este căsătorit(ă), are copil sau eleva e însărcinată?</div><div class="info-value">${e.p17 || '---'}</div></div>
+                    <div class="info-row"><div class="info-label">18. Lipsa interesului sau aspiraţiilor legate de educaţie ale elevului/elevei?</div><div class="info-value">${e.p18 || '---'}</div></div>
+                </div>
+
+                <div class="subsec-title">(C) Cauze/ factori de risc în relaţie cu şcoala</div>
+                <div class="info-grid">
+                    <div class="info-row"><div class="info-label">19. Discriminare sau izolare la şcoală a elevului/elevei?</div><div class="info-value">${e.p19 || '---'}</div></div>
+                    <div class="info-row"><div class="info-label">20. Violenţă la şcoală (elevul a fost implicat in conflicte create de el/ea sau alţi elevi?</div><div class="info-value">${e.p20 || '---'}</div></div>
+                    <div class="info-row"><div class="info-label">21. Alte cauze şcolare identificate:</div><div class="info-value">${e.p21 || '---'}</div></div>
+                </div>
+
+                <div class="subsec-title">(D) Cauze/ factori de risc în relaţie cu comunitatea</div>
+                <div class="info-grid">
+                    <div class="info-row"><div class="info-label">22. Elevul/eleva stă într-o zonă marginalizată sau într-comunitate aflată în evidenţa sistemului de protecţie specială a copilului?</div><div class="info-value">${e.p22 || '---'}</div></div>
+                    <div class="info-row"><div class="info-label">23. Elevul/eleva stă într-un sat/într-o zonă de unde naveta spre şi dinspre şcoală este dificilă sau imposibilă în anumite perioade?</div><div class="info-value">${e.p23 || '---'}</div></div>
+                </div>
+
+<div class="sectiune-header">Observații/Interpretare</div>
+<div id="obs-text-${e.id}" 
+     contenteditable="true" 
+     onblur="updateCamp(${e.id}, 'observatii_evaluare', this.innerText)"
+     style="...">
+    ${e.observatii_evaluare || textObservatii}
+</div>
+
+<div class="sectiune-header">Scor de Risc MATE</div>
+                <div class="risk-section">
+                    <div class="risk-row">
+                        <span class="risk-label">(A) Factori de risc în relaţie cu sprijinul familial</span>
+                        <span class="risk-score">${puncteA} / 5</span>
+                    </div>
+                    <div class="risk-row">
+                        <span class="risk-label">(B) Factori de risc legaţi de situaţia copilului</span>
+                        <span class="risk-score">${puncteB} / 6</span>
+                    </div>
+                    <div class="risk-row">
+                        <span class="risk-label">(C) Factori de risc în relaţie cu şcoala</span>
+                        <span class="risk-score">${puncteC} / 3</span>
+                    </div>
+                    <div class="risk-row">
+                        <span class="risk-label">(D) Factori de risc în relaţie cu comunitatea</span>
+                        <span class="risk-score">${puncteD} / 2</span>
+                    </div>
+
+                    <div style="margin-top:15px; text-align:center;">
+                        <div class="risk-label">SCOR TOTAL DE RISC: ${procentRisc}%</div>
+                        <div class="progress-container">
+                            <div class="progress-bar ${statusClasa}" style="width: ${procentRisc}%"></div>
+                        </div>
+                        <div class="status-badge ${statusClasa}">${statusText}</div>
+                    </div>
+                </div>
+<div class="signature-footer" style="margin-top: 40px; text-align: center; page-break-inside: avoid; display: flex; flex-direction: column; align-items: center;">
+    <div style="font-weight: bold; font-size: 11pt;">Întocmit,</div>
+    <div style="font-size: 11pt;">Diriginte,</div>
+    <div style="font-weight: 800; font-size: 11pt; margin-top: 5px;">
+        ${e.diriginte || '---'}
+    </div>
+    <div style="margin-top: 30px; width: 200px; border-bottom: 1px solid #000;"></div>
+</div>
+            </div> `;
+    });
+}
+
+async function completeazaToateObservatiileAI() {
+    // 1. Definim dicționarul de cuvinte cheie pe care AI-ul trebuie să le folosească
+    const dictionarSemnificatii = {
+        p8: "dificultăți financiare și condiții de locuit precare",
+        p9: "proveniența dintr-o familie monoparentală sau cu părinți plecați la muncă",
+        p10: "lipsa de implicare sau atitudinea pasivă a părinților față de educație",
+        p11: "existența unor frați care au abandonat deja studiile",
+        p12: "lipsa unui spațiu de studiu și a resurselor materiale de bază",
+        p13: "prezența unor dizabilități sau cerințe educaționale speciale (CES)",
+        p14: "dificultăți de învățare nediagnosticate oficial",
+        p15: "istoric de absenteism cauzat de plecări prelungite din localitate",
+        p16: "izolarea cauzată de locuirea în gazdă sau la internat",
+        p17: "responsabilități familiale precoce (căsătorie sau îngrijirea propriilor copii)",
+        p18: "lipsa de motivație, aspirații scăzute și dezinteres față de școală",
+        p19: "sentimente de izolare socială sau discriminare în mediul școlar",
+        p20: "implicarea în conflicte sau acte de violență școlară",
+        p21: "alte probleme de natură școlară identificate",
+        p22: "locuirea într-o zonă marginalizată sau comunitate defavorizată",
+        p23: "naveta dificilă care afectează frecvența școlară"
+    };
+
+    const fiseElemente = document.querySelectorAll('.a4-page');
+    const eleviDeProcesat = dateleCurente.filter(e => e.clasa === clasaActiva).sort((a,b) => a.nume_elev.localeCompare(b.nume_elev));
+    
+    if (!confirm(`Generăm automat observații logice pentru ${eleviDeProcesat.length} elevi?`)) return;
+
+    for (let i = 0; i < eleviDeProcesat.length; i++) {
+        const elev = eleviDeProcesat[i];
+        const boxObservatii = document.getElementById(`obs-text-${elev.id}`);
+        
+        if (!boxObservatii) continue;
+        boxObservatii.innerHTML = "<em>🤖 Se compune textul logic... (" + (i+1) + "/" + eleviDeProcesat.length + ")</em>";
+
+        // Extragem doar cuvintele din dicționar pentru bifele de "DA"
+        const factoriIdentificati = Object.keys(dictionarSemnificatii)
+            .filter(p => (elev[p] || '').toString().toUpperCase() === 'DA')
+            .map(p => dictionarSemnificatii[p])
+            .join(', ');
+
+        if (!factoriIdentificati) {
+            boxObservatii.innerHTML = "Nu au fost identificați factori de risc specifici în secțiunile p8-p23.";
+            continue;
+        }
+
+        const promptCompus = `
+            Ești expert psihopedagog. Analizează următorii factori de risc identificați pentru elevul ${elev.nume_elev}: ${factoriIdentificati}.
+            
+            Sarcina ta:
+            Creează un text logic și cursiv de 3-4 fraze care să descrie situația elevului. 
+            NU folosi expresii de tipul "Are DA la..." sau "Indicatorul p...". 
+            Folosește direct cuvintele extrase din descrieri pentru a construi o interpretare profesională. 
+            Textul trebuie să sune ca o observație oficială într-un dosar educațional.
+            Nu folosi introduceri, scrie direct textul observației.
+        `;
+
+        try {
+            const response = await fetch(`${supabaseUrl}/functions/v1/chatgpt-pnras`, {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/json', 
+                    'Authorization': `Bearer ${supabaseKey}` 
+                },
+                body: JSON.stringify({ prompt: promptCompus })
+            });
+
+            const data = await response.json();
+            const textFinal = data.reply || (data.choices && data.choices[0].message.content) || "Eroare la procesare.";
+
+            boxObservatii.innerHTML = textFinal;
+            
+            // Salvare în coloana dedicată din Supabase
+            await _db.from('mate_pnras').update({ observatii_evaluare: textFinal }).eq('id', elev.id);
+
+            // Pauză mică pentru stabilitate
+            await new Promise(r => setTimeout(r, 1100));
+
+        } catch (err) {
+            console.error(err);
+            boxObservatii.innerHTML = "⚠️ Eroare la comunicarea cu AI-ul.";
+        }
+    }
+    alert("✅ Toate observațiile au fost compuse!");
+}
+
+function schimbaAnul(val) { anSelectat = val; clasaActiva = ""; incarcaDatele(); }
+incarcaDatele();
+
+async function updateCamp(id, coloana, valoare) {
+    if (!id) {
+        console.error("❌ Eroare: ID elev lipsă!");
+        return;
+    }
+
+    try {
+        console.log(`⏳ Încercăm salvarea pentru ${coloana}...`);
+        
+        // 1. Salvarea efectivă în Cloud
+        const { error } = await _db
+            .from('mate_pnras')
+            .update({ [coloana]: valoare })
+            .eq('id', id);
+
+        if (error) throw error;
+
+        // 2. Actualizarea datelor locale (ca să nu dispară la refresh)
+        const elevLocal = dateleCurente.find(el => el.id === id);
+        if (elevLocal) elevLocal[coloana] = valoare;
+
+        // 3. Logica de numerotare automată pentru TOATĂ clasa
+        if (coloana === 'nr_inregistrare' && valoare.includes('/')) {
+            const parti = valoare.split('/');
+            if (parti.length >= 4) {
+                const nrBaza = parti[0];
+                const clasa = parti[1];
+                const an = parti[3];
+
+                const inputs = document.querySelectorAll('.input-nr-inreg');
+                inputs.forEach(async (input, idx) => {
+                    const idElev = input.getAttribute('data-id');
+                    if (idElev && idElev != id) {
+                        const noulNr = `${nrBaza}/${clasa}/${idx + 1}/${an}`;
+                        input.value = noulNr;
+                        // Salvăm silențios pentru restul clasei
+                        await _db.from('mate_pnras').update({ nr_inregistrare: noulNr }).eq('id', idElev);
+                    }
+                });
+            }
+        }
+        console.log(`✅ ${coloana} salvat cu succes!`);
+    } catch (err) {
+        console.error("❌ EROARE SUPABASE:", err.message);
+        alert("Atenție: Datele NU s-au salvat! Eroare: " + err.message);
+    }
+}
+function navigheazaLaRaport() {
+    if (!clasaActiva) {
+        alert("Te rugăm să selectezi o clasă mai întâi.");
+        return;
+    }
+    
+    // Construim URL-ul cu parametrii necesari
+    const url = `raport_evaluare.html?clasa=${clasaActiva}&an=${anSelectat}&expert=${encodeURIComponent(config.expert)}`;
+    
+    // Deschidem raportul într-un tab nou
+    window.open(url, '_blank');
+}
+</script>
+</body>
+</html>
