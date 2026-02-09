@@ -260,7 +260,7 @@ REGULI: NU scrie altceva în afară de aceste 5 secțiuni. Fiecare secțiune pe 
 }
 
     async function incarcaInCloud(inputElement, tip) {
-        const fisier = inputElement.files[0];
+        const fisiere = inputElement.files;
         if (!fisier) return;
         const pagini = document.querySelectorAll('.page');
         const nr = prompt(`Pagină (1-${pagini.length})?`);
@@ -284,4 +284,5 @@ REGULI: NU scrie altceva în afară de aceste 5 secțiuni. Fiecare secțiune pe 
 </script>
 </body>
 </html>
+
 
