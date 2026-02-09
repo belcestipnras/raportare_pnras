@@ -53,7 +53,7 @@
             <button class="btn" style="background: #d97706; color: white;" onclick="document.getElementById('input-foto').click()">📸 Fotografii</button>
             <button class="btn btn-reset" onclick="reseteazaLaPlanificare()">🧹 Reset</button>
             <input type="file" id="input-fise" style="display: none;" accept="application/pdf" onchange="incarcaInCloud(this, 'FISA')">
-            <input type="file" id="input-foto" style="display: none;" accept="image/*" onchange="incarcaInCloud(this, 'FOTO')">
+            <input type="file" id="input-foto" style="display: none;" accept="image/*" onchange="incarcaInCloud(this, 'FOTO')" multiple>
         </div>
     </div>
 
@@ -284,3 +284,4 @@ REGULI: NU scrie altceva în afară de aceste 5 secțiuni. Fiecare secțiune pe 
 </script>
 </body>
 </html>
+
