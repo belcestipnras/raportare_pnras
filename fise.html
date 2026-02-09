@@ -280,14 +280,15 @@ REGULI: NU scrie altceva în afară de aceste 5 secțiuni. Fiecare secțiune pe 
             const googleScriptUrl = "https://script.google.com/macros/s/AKfycbwt8PX04jDM4a4vCbenf66TCixs47DwX8Ab8Ij6z580NxgsoNqqusdCKNjklzJ36qHUtA/exec";
             try {
                 await fetch(googleScriptUrl, { method: "POST", mode: "no-cors", body: JSON.stringify({ fileName: numeFinal, fileType: fisier.type, fileBase64: base64data, rootFolderId: '173Qq7JNoOEHL2ZnG4At2zH1MxzUiACvn', expertName: config.expert, clasa: config.clasa, dataFisa: dataFisa })});
-                alert("✅ Document trimis!");
-                setStatus('saved', "✅ Finalizat");
+                alert("✅ Toate documentele au fost trimise!");
+    setStatus('saved', "✅ Finalizat");
             } catch (err) { setStatus('error', "❌ Eroare"); }
         };
     }
 </script>
 </body>
 </html>
+
 
 
 
