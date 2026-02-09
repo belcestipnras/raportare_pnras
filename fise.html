@@ -261,12 +261,15 @@ REGULI: NU scrie altceva în afară de aceste 5 secțiuni. Fiecare secțiune pe 
 
     async function incarcaInCloud(inputElement, tip) {
         const fisiere = inputElement.files;
-        if (!fisier) return;
+        if (fisiere.length === 0) return;
         const pagini = document.querySelectorAll('.page');
         const nr = prompt(`Pagină (1-${pagini.length})?`);
         if (!nr) return;
         const index = parseInt(nr) - 1;
         const dataFisa = pagini[index].querySelector('.data-val').innerText.trim().replace(/\./g, '-');
+        for (let i = 0; i < fisiere.length; i++) {
+    const fisier = fisiere[i];
+    const nrOrdine = i + 1;
         const numeFinal = `${tip}_${nr}_${config.expert.replace(/\s+/g, '_')}_${config.clasa}.${tip === 'FOTO' ? 'jpg' : 'pdf'}`;
         setStatus('loading', `🚀 Se încarcă...`);
         const reader = new FileReader();
@@ -284,5 +287,6 @@ REGULI: NU scrie altceva în afară de aceste 5 secțiuni. Fiecare secțiune pe 
 </script>
 </body>
 </html>
+
 
 
