@@ -23,7 +23,6 @@
         td { border: 1.5pt solid black; padding: 6px; text-align: center; font-size: 12px; font-family: 'Roboto Mono', monospace; color: #000; }
         .tabel-total { background: #f8fafc; font-weight: bold; text-align: right; }
         .row-data-header { background: #e0e7ff !important; font-weight: bold; text-align: center; }
-        .no-activity { font-style: italic; color: #64748b; font-size: 10px; padding: 8px; text-align: center; border: 1.5pt solid black; }
         .summary-box { margin: 10px 0; padding: 10px; border: 1.5pt solid #000; font-size: 11px; background: #fff; }
         .signatures-grid { margin-top: 15px; display: grid; grid-template-columns: 1fr 1fr; gap: 20px; font-size: 12px; page-break-inside: avoid; }
         .sig-block { break-inside: avoid; }
@@ -67,105 +66,112 @@
     const MAP_CLASE = { '5A': 'Clasa a V-a A', '5B': 'Clasa a V-a B', '5C': 'Clasa a V-a C', '6A': 'Clasa a VI-a A', '6B': 'Clasa a VI-a B', '6C': 'Clasa a VI-a C', '7A': 'Clasa a VII-a A', '7B': 'Clasa a VII-a B', '7C': 'Clasa a VII-a C', '8A': 'Clasa a VIII-a A', '8B': 'Clasa a VIII-a B', '8C': 'Clasa a VIII-a C', 'SG1': 'Grupa 1, Sport', 'SG2': 'Grupa 2, Sport', 'PG1': 'Grupa 1, Pictură', 'PG2': 'Grupa 2, Pictură', 'MG1': 'Grupa 1, Muzică', 'MG2': 'Grupa 2, Muzică', 'DG1': 'Grupa 1, Dansuri', 'StG1': 'Grupa 1, Științe', 'StG2': 'Grupa 1, Științe', 'SG1A': 'Grupa 1A, Sport', 'SG1B': 'Grupa 1B, Sport', 'PG1A': 'Grupa 1A, Pictură', 'PG1B': 'Grupa 1B, Pictură', 'StG1A': 'Grupa 1A, Științe', 'StG1B': 'Grupa 1B, Științe', 'AV5A': 'Clasa a V-a A', 'AV5B': 'Clasa a V-a B', 'AV6A': 'Clasa a VI-a A', 'AV6B': 'Clasa a VI-a B', 'AV7A': 'Clasa a VII-a A', 'AV7B': 'Clasa a VII-a B', 'AV8A1': 'Clasa a VIII-a A, Grupa 1', 'AV8A2': 'Clasa a VIII-a A, Grupa 2', 'AV8B1': 'Clasa a VIII-a B, Grupa 1', 'AV8B2': 'Clasa a VIII-a B, Grupa 2', 'AR5AB': 'Clasele a V-a A, B', 'AR5A': 'Clasa a V-a A', 'AR5B': 'Clasa a V-a B', 'AR6A': 'Clasa a VI-a A', 'AR6B': 'Clasa a VI-a B', 'AR7B': 'Clasa a VII-a B', 'BA6B': 'Clasa a VI-a B', 'BA7A': 'Clasa a VII-a A', 'BA8A1': 'Clasa a VIII-a A, Grupa 1', 'BA8A2': 'Clasa a VIII-a A, Grupa 2', 'BA8B': 'Clasa a VIII-a B', 'AD8B1': 'Clasa a VIII-a B, Grupa 1', 'AD8B2': 'Clasa a VIII-a B, Grupa 2', 'AD8B3': 'Clasa a VIII-a B, Grupa 3', 'PE8A1': 'Clasa a VIII-a A, Grupa 1', 'PE8A2': 'Clasa a VIII-a A, Grupa 2', 'PE6B': 'Clasa a VI-a B', 'PE7A': 'Clasa a VII-a A', 'IA5AB1': 'Clasele a V-a A, B', 'IA5AB2': 'Clasele a V-a A, B', 'IA6A': 'Clasa a VI-a A', 'IA7B': 'Clasa a VII-a B' };
     const MAP_EXPERT_DETALII = { "Angheluș Raluca": { act: "A II.4.", desc: "Activități remediale la limba și literatura română" }, "Baziluc Ana Maria": { act: "A II.4.", desc: "Activități remediale la limba și literatura română" }, "Ghemeș Anca": { act: "A II.4.", desc: "Activități remediale la limba și literatura română" }, "Arotăriței Dănuț": { act: "A II.4.", desc: "Activități remediale la matematică" }, "Boldan Ovidiu": { act: "A II.4.", desc: "Activități remediale la matematică" }, "Popovici Estera": { act: "A II.4.", desc: "Activități remediale la matematică" }, "Iftene Ana Maria": { act: "A II.4.", desc: "Activități remediale la matematică" }, "Albu Ștefan": { act: "A II.5.", desc: "Activități extracurriculare la Clubul de activități sportive și outdoor" }, "Marele Daniela": { act: "A II.5.", desc: "Activități extracurriculare la Clubul de pictură" }, "Tanasă Liliana": { act: "A II.5.", desc: "Activități extracurriculare la Clubul de muzică" }, "Popa Gabriela": { act: "A II.5.", desc: "Activități extracurriculare la Clubul de dansuri" }, "Nohai Iuliana": { act: "A II.5.", desc: "Activități extracurriculare la Clubul de științe" }, "Nohai Vili": { act: "A II.5.", desc: "Activități extracurriculare la Clubul de științe" }, "Aparascăi Vasile": { act: "A II.6.", desc: "Activități extracurriculare la Clubul de lectură și literație" } };
     const DESC_ACTIVITATI_FULL = { "A II.4.": "A II.4. Activități remediale și diverse activități pedagogice și de sprijin", "A II.5.": "A II.5. Activități extracurriculare și/sau extrașcolare", "A II.6.": "A II.6. Activități pentru dezvoltarea literației. Club de lectură" };
-    const ORA_START = (cl) => cl.includes('5') ? "13:00" : "14:00";
+
+    function determinaOraStart(zi, lunaCod, an, clasa) {
+        const ziInt = parseInt(zi);
+        const lunaInt = parseInt(lunaCod);
+        if (lunaInt === 7 || lunaInt === 8 || (lunaInt === 9 && ziInt <= 7)) {
+            return "08:00";
+        }
+        return clasa.includes('5') ? "13:00" : "14:00";
+    }
+
     function adunaTimp(start, ore) { let [h, m] = start.split(':').map(Number); let total = h * 60 + m + (ore * 60); return `${Math.floor(total / 60).toString().padStart(2, '0')}:${(total % 60).toString().padStart(2, '0')}`; }
     function salveazaText(id, val) { localStorage.setItem('PNRAS_ORAR_V2_' + id, val); }
     function incarcaText(id) { return localStorage.getItem('PNRAS_ORAR_V2_' + id) || ""; }
 
     async function genereazaRegistruComplet() {
         const lunaCod = document.getElementById('select-luna').value;
-    const lunaNume = MAP_LUNI[lunaCod];
-    const an = document.getElementById('select-an').value;
-    const container = document.getElementById('master-container');
-    container.innerHTML = "<div style='text-align:center;'>⌛ Se procesează datele...</div>"; 
+        const lunaNume = MAP_LUNI[lunaCod];
+        const an = document.getElementById('select-an').value;
+        const container = document.getElementById('master-container');
+        container.innerHTML = "<div style='text-align:center;'>⌛ Se procesează datele...</div>"; 
 
-    const { data: pontaje } = await _supabase.from('pontaj_detaliat').select('*').eq('luna', lunaNume).eq('an', an).order('zi', { ascending: true });
-    
-    if (!pontaje || pontaje.length === 0) {
-        container.innerHTML = `<div style="margin:50px auto; max-width:600px; padding:30px; border:2px solid #dc2626; background:#fef2f2; color:#991b1b; border-radius:12px; text-align:center;"><h3>⚠️ Atenție!</h3><p>Nu au fost găsite ore înregistrate pentru luna <strong>${lunaNume} ${an}</strong>.</p></div>`;
-        return;
-    }
+        const { data: pontaje } = await _supabase.from('pontaj_detaliat').select('*').eq('luna', lunaNume).eq('an', an).order('zi', { ascending: true });
+        
+        if (!pontaje || pontaje.length === 0) {
+            container.innerHTML = `<div style="margin:50px auto; max-width:600px; padding:30px; border:2px solid #dc2626; background:#fef2f2; color:#991b1b; border-radius:12px; text-align:center;"><h3>⚠️ Atenție!</h3><p>Nu au fost găsite ore înregistrate pentru luna <strong>${lunaNume} ${an}</strong>.</p></div>`;
+            return;
+        }
 
-    container.innerHTML = ""; 
+        container.innerHTML = ""; 
 
-    // --- 1. ORAR GENERAL ---
-    const genId = `GEN_${lunaCod}_${an}`;
-    let totGen = 0; let totActiv = {"A II.4.": 0, "A II.5.": 0, "A II.6.": 0};
-    pontaje.forEach(p => { let act = MAP_EXPERT_DETALII[p.expert]?.act; if(act) totActiv[act] += parseFloat(p.nr_ore); totGen += parseFloat(p.nr_ore); });
+        // --- 1. ORAR GENERAL ---
+        const genId = `GEN_${lunaCod}_${an}`;
+        let totGen = 0; let totActiv = {"A II.4.": 0, "A II.5.": 0, "A II.6.": 0};
+        pontaje.forEach(p => { let act = MAP_EXPERT_DETALII[p.expert]?.act; if(act) totActiv[act] += parseFloat(p.nr_ore); totGen += parseFloat(p.nr_ore); });
 
-    let htmlGen = `<div class="page"><img src="antet_pnras.jpeg" class="antet-img">`;
-    htmlGen += `<div class="nr-inregistrare">Nr. înregistrare: <span class="box-cifre" contenteditable="true" onblur="salveazaText('${genId}_C', this.innerText)">${incarcaText(genId+'_C')}</span><span class="slash">/</span><span class="box-data" contenteditable="true" onblur="salveazaText('${genId}_D', this.innerText)">${incarcaText(genId+'_D')}</span></div>`;
-    htmlGen += `<h2>Orar general activități remediale și extracurriculare</h2><div class="info-box"><b>Activități:</b><br>${DESC_ACTIVITATI_FULL["A II.4."]}<br>${DESC_ACTIVITATI_FULL["A II.5."]}<br>${DESC_ACTIVITATI_FULL["A II.6."]}<br><b>Luna:</b> ${lunaNume} ${an}</div>`;
-    htmlGen += `<div class="summary-box">A II.4.: <b>${totActiv["A II.4."]} ore</b> | A II.5.: <b>${totActiv["A II.5."]} ore</b> | A II.6.: <b>${totActiv["A II.6."]} ore</b></div>`;
-    htmlGen += `<table><thead><tr><th>Expert / Profesor</th><th>Clasa</th><th>Interval Orar</th><th>Ore</th></tr></thead><tbody>`;
-    
-    let nrZ = new Date(an, lunaCod, 0).getDate();
-    for (let i = 1; i <= nrZ; i++) {
-        let rawZi = pontaje.filter(p => parseInt(p.zi) === i);
-        if(rawZi.length > 0) {
-            htmlGen += `<tr class="row-data-header"><td colspan="4">${i.toString().padStart(2,'0')}.${lunaCod}.${an}</td></tr>`;
-            let d = new Date(an, parseInt(lunaCod)-1, i);
-            let startZi = (d.getDay() === 6) ? "08:00" : "14:00"; 
-            
-            let actsZi = [];
-            rawZi.forEach(p => {
-                let ex = actsZi.find(x => x.expert === p.expert && x.clase_grupe === p.clase_grupe);
+        let htmlGen = `<div class="page"><img src="antet_pnras.jpeg" class="antet-img">`;
+        htmlGen += `<div class="nr-inregistrare">Nr. înregistrare: <span class="box-cifre" contenteditable="true" onblur="salveazaText('${genId}_C', this.innerText)">${incarcaText(genId+'_C')}</span><span class="slash">/</span><span class="box-data" contenteditable="true" onblur="salveazaText('${genId}_D', this.innerText)">${incarcaText(genId+'_D')}</span></div>`;
+        htmlGen += `<h2>Orar general activități remediale și extracurriculare</h2><div class="info-box"><b>Activități:</b><br>${DESC_ACTIVITATI_FULL["A II.4."]}<br>${DESC_ACTIVITATI_FULL["A II.5."]}<br>${DESC_ACTIVITATI_FULL["A II.6."]}<br><b>Luna:</b> ${lunaNume} ${an}</div>`;
+        htmlGen += `<div class="summary-box">A II.4.: <b>${totActiv["A II.4."]} ore</b> | A II.5.: <b>${totActiv["A II.5."]} ore</b> | A II.6.: <b>${totActiv["A II.6."]} ore</b></div>`;
+        htmlGen += `<table><thead><tr><th>Expert / Profesor</th><th>Clasa</th><th>Interval Orar</th><th>Ore</th></tr></thead><tbody>`;
+        
+        let nrZ = new Date(an, lunaCod, 0).getDate();
+        for (let i = 1; i <= nrZ; i++) {
+            let rawZi = pontaje.filter(p => parseInt(p.zi) === i);
+            if(rawZi.length > 0) {
+                htmlGen += `<tr class="row-data-header"><td colspan="4">${i.toString().padStart(2,'0')}.${lunaCod}.${an}</td></tr>`;
+                
+                let actsZi = [];
+                rawZi.forEach(p => {
+                    let ex = actsZi.find(x => x.expert === p.expert && x.clase_grupe === p.clase_grupe);
+                    if(ex) ex.nr_ore = parseFloat(ex.nr_ore) + parseFloat(p.nr_ore);
+                    else actsZi.push({...p});
+                });
+
+                let clasaNext = {};
+                actsZi.forEach(a => {
+                    let startZi = determinaOraStart(i, lunaCod, an, a.clase_grupe);
+                    let s = clasaNext[a.clase_grupe] || startZi;
+                    let f = adunaTimp(s, a.nr_ore); 
+                    clasaNext[a.clase_grupe] = f;
+                    htmlGen += `<tr><td style="text-align:left">${a.expert}</td><td>${a.clase_grupe}</td><td>${s} - ${f}</td><td>${a.nr_ore}</td></tr>`;
+                });
+            }
+        }
+        htmlGen += `<tr><td colspan="3" class="tabel-total">TOTAL ORE LUNĂ:</td><td><b>${totGen}</b></td></tr></tbody></table>`;
+        htmlGen += `<div class="signatures-grid"><div class="sig-block"><div class="sig-role">Întocmit,<br>Manager proiect,</div><div class="sig-name">prof. dr. Ciprian MIHAI</div></div><div class="sig-block" style="text-align:right;"><div class="sig-role">Aprobat,<br>Director,</div><div class="sig-name">prof. Cătălin Ionuț BAZILUC</div></div></div></div>`;
+        container.innerHTML += htmlGen;
+
+        // --- 2. ORARE INDIVIDUALE ---
+        let profi = [...new Set(pontaje.map(p => p.expert))].sort();
+        for (const prof of profi) {
+            let pRaw = pontaje.filter(p => p.expert === prof); 
+            let det = MAP_EXPERT_DETALII[prof]; let profId = `${prof.replace(/\s+/g, '')}_${lunaCod}_${an}`;
+            let pgs = [];
+            pRaw.forEach(p => {
+                let ex = pgs.find(x => x.zi === p.zi && x.clase_grupe === p.clase_grupe);
                 if(ex) ex.nr_ore = parseFloat(ex.nr_ore) + parseFloat(p.nr_ore);
-                else actsZi.push({...p});
+                else pgs.push({...p});
             });
 
-            let clasaNext = {};
-            actsZi.forEach(a => {
-                let s = clasaNext[a.clase_grupe] || (a.clase_grupe.includes('5') && d.getDay()!==6 ? "13:00" : startZi);
-                let f = adunaTimp(s, a.nr_ore); clasaNext[a.clase_grupe] = f;
-                htmlGen += `<tr><td style="text-align:left">${a.expert}</td><td>${a.clase_grupe}</td><td>${s} - ${f}</td><td>${a.nr_ore}</td></tr>`;
+            let totP = 0; pgs.forEach(p => totP += parseFloat(p.nr_ore));
+            let htmlP = `<div class="page"><img src="antet_pnras.jpeg" class="antet-img">`;
+            htmlP += `<div class="nr-inregistrare">Nr. înregistrare: <span class="box-cifre" contenteditable="true" onblur="salveazaText('${profId}_C', this.innerText)">${incarcaText(profId+'_C')}</span><span class="slash">/</span><span class="box-data" contenteditable="true" onblur="salveazaText('${profId}_D', this.innerText)">${incarcaText(profId+'_D')}</span></div>`;
+            htmlP += `<h2>Orar individual activități PNRAS</h2><div class="info-box"><b>Activitatea:</b> ${DESC_ACTIVITATI_FULL[det.act]}<br><b>Disciplina:</b> ${det.desc}<br><b>Expert:</b> ${prof} | <b>Luna:</b> ${lunaNume} ${an}</div>`;
+            htmlP += `<table><thead><tr><th>Data</th><th>Clasa / Grupa</th><th>Interval Orar</th><th>Ore</th></tr></thead><tbody>`;
+            
+            let zileP = {}; pgs.forEach(p => { if(!zileP[p.zi]) zileP[p.zi]=[]; zileP[p.zi].push(p); });
+            Object.keys(zileP).sort((a,b)=>a-b).forEach(z => {
+                zileP[z].forEach((act, idx) => {
+                    let currS = determinaOraStart(z, lunaCod, an, act.clase_grupe);
+                    let f = adunaTimp(currS, act.nr_ore);
+                    htmlP += `<tr><td>${z.toString().padStart(2,'0')}.${lunaCod}.${an}</td><td>${act.clase_grupe}</td><td>${currS}-${f}</td><td>${act.nr_ore}</td></tr>`;
+                });
             });
+            htmlP += `<tr><td colspan="3" class="tabel-total">TOTAL ORE EXPERT:</td><td><b>${totP}</b></td></tr></tbody></table>`;
+            htmlP += `<div class="signatures-grid"><div class="sig-block"><div class="sig-role">Întocmit,<br>Expert,</div><div class="sig-name">${prof}</div></div><div class="sig-block" style="text-align:right;"><div class="sig-role">Avizat,<br>Manager proiect,</div><div class="sig-name">prof. dr. Ciprian MIHAI</div></div><div class="centered-sig"><div class="sig-role">Aprobat,<br>Director,</div><div class="sig-name">prof. Cătălin Ionuț BAZILUC</div></div></div></div>`;
+            await salveazaOrarInBazaDeDate(prof, lunaNume, an, htmlP);
+            container.innerHTML += htmlP;
         }
     }
-    htmlGen += `<tr><td colspan="3" class="tabel-total">TOTAL ORE LUNĂ:</td><td><b>${totGen}</b></td></tr></tbody></table>`;
-    htmlGen += `<div class="signatures-grid"><div class="sig-block"><div class="sig-role">Întocmit,<br>Manager proiect,</div><div class="sig-name">prof. dr. Ciprian MIHAI</div></div><div class="sig-block" style="text-align:right;"><div class="sig-role">Aprobat,<br>Director,</div><div class="sig-name">prof. Cătălin Ionuț BAZILUC</div></div></div></div>`;
-    container.innerHTML += htmlGen;
 
-    // --- 2. ORARE INDIVIDUALE ---
-    let profi = [...new Set(pontaje.map(p => p.expert))].sort();
-    for (const prof of profi) {
-        let pRaw = pontaje.filter(p => p.expert === prof); 
-        let det = MAP_EXPERT_DETALII[prof]; let profId = `${prof.replace(/\s+/g, '')}_${lunaCod}_${an}`;
-        let pgs = [];
-        pRaw.forEach(p => {
-            let ex = pgs.find(x => x.zi === p.zi && x.clase_grupe === p.clase_grupe);
-            if(ex) ex.nr_ore = parseFloat(ex.nr_ore) + parseFloat(p.nr_ore);
-            else pgs.push({...p});
-        });
-
-        let totP = 0; pgs.forEach(p => totP += parseFloat(p.nr_ore));
-        let htmlP = `<div class="page"><img src="antet_pnras.jpeg" class="antet-img">`;
-        htmlP += `<div class="nr-inregistrare">Nr. înregistrare: <span class="box-cifre" contenteditable="true" onblur="salveazaText('${profId}_C', this.innerText)">${incarcaText(profId+'_C')}</span><span class="slash">/</span><span class="box-data" contenteditable="true" onblur="salveazaText('${profId}_D', this.innerText)">${incarcaText(profId+'_D')}</span></div>`;
-        htmlP += `<h2>Orar individual activități PNRAS</h2><div class="info-box"><b>Activitatea:</b> ${DESC_ACTIVITATI_FULL[det.act]}<br><b>Disciplina:</b> ${det.desc}<br><b>Expert:</b> ${prof} | <b>Luna:</b> ${lunaNume} ${an}</div>`;
-        htmlP += `<table><thead><tr><th>Data</th><th>Clasa / Grupa</th><th>Interval Orar</th><th>Ore</th></tr></thead><tbody>`;
-        
-        let zileP = {}; pgs.forEach(p => { if(!zileP[p.zi]) zileP[p.zi]=[]; zileP[p.zi].push(p); });
-        Object.keys(zileP).sort((a,b)=>a-b).forEach(z => {
-            let d = new Date(an, parseInt(lunaCod)-1, parseInt(z));
-            let currS = (d.getDay() === 6) ? "08:00" : "";
-            zileP[z].forEach((act, idx) => {
-                if(!currS) currS = act.clase_grupe.includes('5') ? "13:00" : "14:00";
-                let f = adunaTimp(currS, act.nr_ore);
-                htmlP += `<tr><td>${z.toString().padStart(2,'0')}.${lunaCod}.${an}</td><td>${act.clase_grupe}</td><td>${currS}-${f}</td><td>${act.nr_ore}</td></tr>`;
-            });
-        });
-        htmlP += `<tr><td colspan="3" class="tabel-total">TOTAL ORE EXPERT:</td><td><b>${totP}</b></td></tr></tbody></table>`;
-        htmlP += `<div class="signatures-grid"><div class="sig-block"><div class="sig-role">Întocmit,<br>Expert,</div><div class="sig-name">${prof}</div></div><div class="sig-block" style="text-align:right;"><div class="sig-role">Avizat,<br>Manager proiect,</div><div class="sig-name">prof. dr. Ciprian MIHAI</div></div><div class="centered-sig"><div class="sig-role">Aprobat,<br>Director,</div><div class="sig-name">prof. Cătălin Ionuț BAZILUC</div></div></div></div>`;
-        await salveazaOrarInBazaDeDate(prof, lunaNume, an, htmlP);
-        container.innerHTML += htmlP;
+    async function salveazaOrarInBazaDeDate(expert, luna, an, html) {
+        const luna_an = `${luna}_${an}`;
+        const { error } = await _supabase.from('orare_salvate').upsert({ expert: expert, luna_an: luna_an, continut_html: html, ultima_actualizare: new Date() }, { onConflict: 'expert,luna_an' });
+        if (error) console.error("Eroare salvare orar expert:", expert, error);
     }
-    }
-
-async function salveazaOrarInBazaDeDate(expert, luna, an, html) {
-    const luna_an = `${luna}_${an}`;
-    const { error } = await _supabase.from('orare_salvate').upsert({ expert: expert, luna_an: luna_an, continut_html: html, ultima_actualizare: new Date() }, { onConflict: 'expert,luna_an' });
-    if (error) console.error("Eroare salvare orar expert:", expert, error);
-}
 </script>
 </body>
 </html>
