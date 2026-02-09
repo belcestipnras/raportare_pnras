@@ -271,8 +271,9 @@ REGULI: NU scrie altceva în afară de aceste 5 secțiuni. Fiecare secțiune pe 
     const fisier = fisiere[i];
     const nrOrdine = i + 1;
         const numeFinal = `${tip}_${nr}_**${nrOrdine}**_${config.expert.replace(/\s+/g, '_')}_${config.clasa}.${tip === 'FOTO' ? 'jpg' : 'pdf'}`;
-        setStatus('loading', `🚀 Se încarcă...`);
-        const reader = new FileReader();
+        setStatus('loading', `🚀 Se încarcă ${nrOrdine}/${fisiere.length}...`);
+        await new Promise((resolve) => {
+            const reader = new FileReader();
         reader.readAsDataURL(fisier);
         reader.onloadend = async () => {
             const base64data = reader.result.split(',')[1];
@@ -287,6 +288,7 @@ REGULI: NU scrie altceva în afară de aceste 5 secțiuni. Fiecare secțiune pe 
 </script>
 </body>
 </html>
+
 
 
 
