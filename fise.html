@@ -34,7 +34,35 @@
         .caseta { border: 1px solid #cbd5e1; padding: 12px; border-radius: 0 8px 8px 8px; min-height: 1.4em; font-size: 11.5pt; outline: none; white-space: pre-wrap; width: 100%; box-sizing: border-box; background: #fff; color: #000; }
         .signature-block { margin-top: 40px; padding: 20px; border: 1px dashed #cbd5e1; border-radius: 12px; background: #fcfcfc; }
         #save-status { color: #10b981; font-family: sans-serif; font-size: 13px; font-weight: 600; margin-left: 10px; }
-        @media print { body { background: white; padding: 0; } .no-print { display: none; } .page { margin: 0; box-shadow: none; width: 100%; } }
+        @media print {
+    /* Resetăm tot ce ține de corpul paginii */
+    html, body { 
+        margin: 0 !important; 
+        padding: 0 !important; 
+        background: white !important;
+        height: auto !important; /* Permite documentului să fie lung */
+        width: auto !important;
+    }
+
+    .no-print { 
+        display: none !important; 
+    }
+
+    /* Resetăm elementul .page să nu aibă margini proprii, 
+       deoarece marginile vin acum din regula @page */
+    .page { 
+        margin: 0 !important; 
+        padding: 0 !important;
+        border: none !important;
+        box-shadow: none !important;
+        display: block !important;
+        width: 100% !important;
+        
+        /* Forțează trecerea la pagină nouă după fiecare fișă */
+        page-break-after: always !important;
+        page-break-inside: avoid !important;
+    }
+}
     </style>
 </head>
 <body>
@@ -310,6 +338,7 @@ REGULI: NU scrie altceva în afară de aceste 5 secțiuni. Fiecare secțiune pe 
 </script>
 </body>
 </html>
+
 
 
 
