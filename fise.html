@@ -267,27 +267,50 @@ REGULI: NU scrie altceva în afară de aceste 5 secțiuni. Fiecare secțiune pe 
         if (!nr) return;
         const index = parseInt(nr) - 1;
         const dataFisa = pagini[index].querySelector('.data-val').innerText.trim().replace(/\./g, '-');
+
         for (let i = 0; i < fisiere.length; i++) {
-    const fisier = fisiere[i];
-    const nrOrdine = i + 1;
-        const numeFinal = `${tip}_${nr}_**${nrOrdine}**_${config.expert.replace(/\s+/g, '_')}_${config.clasa}.${tip === 'FOTO' ? 'jpg' : 'pdf'}`;
-        setStatus('loading', `🚀 Se încarcă ${nrOrdine}/${fisiere.length}...`);
-        await new Promise((resolve) => {
-            const reader = new FileReader();
-        reader.readAsDataURL(fisier);
-        reader.onloadend = async () => {
-            const base64data = reader.result.split(',')[1];
-            const googleScriptUrl = "https://script.google.com/macros/s/AKfycbwt8PX04jDM4a4vCbenf66TCixs47DwX8Ab8Ij6z580NxgsoNqqusdCKNjklzJ36qHUtA/exec";
-            try {
-                await fetch(googleScriptUrl, { method: "POST", mode: "no-cors", body: JSON.stringify({ fileName: numeFinal, fileType: fisier.type, fileBase64: base64data, rootFolderId: '173Qq7JNoOEHL2ZnG4At2zH1MxzUiACvn', expertName: config.expert, clasa: config.clasa, dataFisa: dataFisa })});
-                alert("✅ Toate documentele au fost trimise!");
-    setStatus('saved', "✅ Finalizat");
-            } catch (err) { setStatus('error', "❌ Eroare"); }
-        };
+            const fisier = fisiere[i];
+            const nrOrdine = i + 1;
+            const numeFinal = `${tip}_${nr}_${nrOrdine}_${config.expert.replace(/\s+/g, '_')}_${config.clasa}.${tip === 'FOTO' ? 'jpg' : 'pdf'}`;
+            
+            setStatus('loading', `🚀 Se încarcă ${nrOrdine}/${fisiere.length}...`);
+
+            await new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(fisier);
+                reader.onloadend = async () => {
+                    const base64data = reader.result.split(',')[1];
+                    const googleScriptUrl = "https://script.google.com/macros/s/AKfycbwt8PX04jDM4a4vCbenf66TCixs47DwX8Ab8Ij6z580NxgsoNqqusdCKNjklzJ36qHUtA/exec";
+                    try {
+                        await fetch(googleScriptUrl, { 
+                            method: "POST", 
+                            mode: "no-cors", 
+                            body: JSON.stringify({ 
+                                fileName: numeFinal, 
+                                fileType: fisier.type, 
+                                fileBase64: base64data, 
+                                rootFolderId: '173Qq7JNoOEHL2ZnG4At2zH1MxzUiACvn', 
+                                expertName: config.expert, 
+                                clasa: config.clasa, 
+                                dataFisa: dataFisa 
+                            })
+                        });
+                        resolve();
+                    } catch (err) { 
+                        setStatus('error', "❌ Eroare la poza " + nrOrdine);
+                        resolve(); 
+                    }
+                };
+            });
+        } // Închidere buclă for
+
+        alert("✅ Toate documentele au fost trimise!");
+        setStatus('saved', "✅ Finalizat");
     }
 </script>
 </body>
 </html>
+
 
 
 
