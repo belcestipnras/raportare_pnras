@@ -53,7 +53,7 @@
             <button class="btn" style="background: #d97706; color: white;" onclick="document.getElementById('input-foto').click()">📸 Fotografii</button>
             <button class="btn btn-reset" onclick="reseteazaLaPlanificare()">🧹 Reset</button>
             <input type="file" id="input-fise" style="display: none;" accept="application/pdf" onchange="incarcaInCloud(this, 'FISA')">
-            <input type="file" id="input-foto" style="display: none;" multiple accept="image/*" onchange="incarcaInCloud(this, 'FOTO')">
+            <input type="file" id="input-foto" style="display: none;" accept="image/*" onchange="incarcaInCloud(this, 'FOTO')">
         </div>
     </div>
 
@@ -260,76 +260,28 @@ REGULI: NU scrie altceva în afară de aceste 5 secțiuni. Fiecare secțiune pe 
 }
 
     async function incarcaInCloud(inputElement, tip) {
-        // 1. Preluăm lista tuturor fișierelor selectate
-        const fisiere = inputElement.files;
-        if (fisiere.length === 0) return;
-
-        // 2. Întrebăm numărul paginii (o singură dată pentru tot grupul)
+        const fisier = inputElement.files[0];
+        if (!fisier) return;
         const pagini = document.querySelectorAll('.page');
-        const nr = prompt(`Pentru ce pagină sunt aceste ${fisiere.length} fișiere? (1-${pagini.length})`);
-        
-        if (!nr) {
-            inputElement.value = ''; // Resetăm dacă dai Cancel
-            return;
-        }
-
-        // --- PRELUARE DATE CRITICE DIN CODUL VECHI (LIPSEAU ÎNAINTE) ---
+        const nr = prompt(`Pagină (1-${pagini.length})?`);
+        if (!nr) return;
         const index = parseInt(nr) - 1;
-        // Avem nevoie de data fișei pentru a crea structura de foldere corectă
         const dataFisa = pagini[index].querySelector('.data-val').innerText.trim().replace(/\./g, '-');
-        const rootFolderId = '173Qq7JNoOEHL2ZnG4At2zH1MxzUiACvn'; // ID-ul folderului principal (CRITIC)
-        const googleScriptUrl = "https://script.google.com/macros/s/AKfycbwt8PX04jDM4a4vCbenf66TCixs47DwX8Ab8Ij6z580NxgsoNqqusdCKNjklzJ36qHUtA/exec";
-
-        // Afișăm mesaj de start
-        setStatus('loading', `🚀 Se pregătesc ${fisiere.length} fișiere...`);
-
-        // 3. Luăm fiecare fișier pe rând și îl trimitem
-        for (let i = 0; i < fisiere.length; i++) {
-            const fisier = fisiere[i];
-            
-            setStatus('loading', `⏳ Se încarcă fișierul ${i + 1} din ${fisiere.length}...`);
-
+        const numeFinal = `${tip}_${nr}_${config.expert.replace(/\s+/g, '_')}_${config.clasa}.${tip === 'FOTO' ? 'jpg' : 'pdf'}`;
+        setStatus('loading', `🚀 Se încarcă...`);
+        const reader = new FileReader();
+        reader.readAsDataURL(fisier);
+        reader.onloadend = async () => {
+            const base64data = reader.result.split(',')[1];
+            const googleScriptUrl = "https://script.google.com/macros/s/AKfycbwt8PX04jDM4a4vCbenf66TCixs47DwX8Ab8Ij6z580NxgsoNqqusdCKNjklzJ36qHUtA/exec";
             try {
-                // Citim fișierul
-                const base64data = await new Promise((resolve) => {
-                    const reader = new FileReader();
-                    reader.onloadend = () => resolve(reader.result.split(',')[1]);
-                    reader.readAsDataURL(fisier);
-                });
-
-                // Generăm nume unic
-                const extensie = tip === 'FOTO' ? 'jpg' : 'pdf';
-                const numeFinal = `${tip}_${nr}_${config.expert.replace(/\s+/g, '_')}_${config.clasa}_${i + 1}.${extensie}`;
-
-                // --- TRIMITERE CĂTRE GOOGLE (CU TOȚI PARAMETRII VECHI) ---
-                await fetch(googleScriptUrl, {
-                    method: "POST",
-                    mode: "no-cors",
-                    body: JSON.stringify({
-                        fileName: numeFinal,
-                        fileType: fisier.type,
-                        fileBase64: base64data, // ATENȚIE: Scriptul așteaptă 'fileBase64', nu 'data'
-                        
-                        // Parametrii pentru crearea folderelor (Lipseau în codul nou):
-                        rootFolderId: rootFolderId,
-                        expertName: config.expert,
-                        clasa: config.clasa,
-                        dataFisa: dataFisa
-                    })
-                });
-
-            } catch (e) {
-                console.error(e);
-                alert(`Eroare la fișierul ${i + 1}.`);
-            }
-        }
-
-        // 4. Gata!
-        inputElement.value = ''; 
-        setStatus('saved', `✅ Succes! ${fisiere.length} fișiere încărcate.`);
+                await fetch(googleScriptUrl, { method: "POST", mode: "no-cors", body: JSON.stringify({ fileName: numeFinal, fileType: fisier.type, fileBase64: base64data, rootFolderId: '173Qq7JNoOEHL2ZnG4At2zH1MxzUiACvn', expertName: config.expert, clasa: config.clasa, dataFisa: dataFisa })});
+                alert("✅ Document trimis!");
+                setStatus('saved', "✅ Finalizat");
+            } catch (err) { setStatus('error', "❌ Eroare"); }
+        };
     }
 </script>
 </body>
 
 </html>
-
