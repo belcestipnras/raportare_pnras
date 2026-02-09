@@ -270,7 +270,7 @@ REGULI: NU scrie altceva în afară de aceste 5 secțiuni. Fiecare secțiune pe 
         for (let i = 0; i < fisiere.length; i++) {
     const fisier = fisiere[i];
     const nrOrdine = i + 1;
-        const numeFinal = `${tip}_${nr}_${config.expert.replace(/\s+/g, '_')}_${config.clasa}.${tip === 'FOTO' ? 'jpg' : 'pdf'}`;
+        const numeFinal = `${tip}_${nr}_**${nrOrdine}**_${config.expert.replace(/\s+/g, '_')}_${config.clasa}.${tip === 'FOTO' ? 'jpg' : 'pdf'}`;
         setStatus('loading', `🚀 Se încarcă...`);
         const reader = new FileReader();
         reader.readAsDataURL(fisier);
@@ -287,6 +287,7 @@ REGULI: NU scrie altceva în afară de aceste 5 secțiuni. Fiecare secțiune pe 
 </script>
 </body>
 </html>
+
 
 
 
