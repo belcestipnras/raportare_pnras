@@ -44,7 +44,22 @@
         input:focus { border-color: var(--accent); background: #fff; outline: none; }
 
         /* SIDEBAR */
-        .sidebar { width: 420px; background: var(--panel); border-left: 1px solid var(--border-color); padding: 24px; overflow-y: auto; }
+        .sidebar { 
+    width: 420px; 
+    background: var(--panel); 
+    border-left: 1px solid var(--border-color); 
+    padding: 15px; /* Redus de la 24px */
+    display: flex;
+    flex-direction: column;
+    height: calc(100vh - 75px); /* Fixează înălțimea sub top-bar */
+    box-sizing: border-box;
+    overflow: hidden; /* Împiedică scroll-ul pe întreg sidebar-ul */
+}
+
+#sertar-content {
+    flex: 1;
+    overflow-y: hidden; /* Eliminăm scroll-ul și de aici */
+}
         .doc-category { background: #f9fafb; border: 1px solid var(--border-color); border-radius: 10px; margin-bottom: 20px; padding: 16px; }
         .cat-title { font-weight: 700; color: var(--text-main); display: block; margin-bottom: 12px; font-size: 0.8rem; text-transform: uppercase; }
         .cat-count { float: right; color: var(--accent); font-weight: 900; background: #dbeafe; padding: 2px 8px; border-radius: 10px; font-size: 0.7rem; }
@@ -479,54 +494,53 @@
     }
 
     function genereazaSertar() {
-        const container = document.getElementById('sertar-content');
-        
-        // Versiune compactă pentru a evita scroll-ul
-        let h = `
-            <div style="background: #fff7ed; border: 1px solid #fed7aa; padding: 10px; border-radius: 8px; margin-bottom: 12px;">
-                <h4 style="margin: 0 0 5px 0; color: #9a3412; font-size: 0.75rem; font-weight: 900;">⚠️ DOCUMENTE OBLIGATORII:</h4>
-                <ol style="margin: 0; padding-left: 15px; font-size: 0.7rem; color: #4b5563; font-weight: 600; line-height: 1.2; display: grid; grid-template-columns: 1fr 1fr; gap: 2px 10px;">
-                    <li>Planificări</li>
-                    <li>Orar general</li>
-                    <li>Orare experți</li>
-                    <li>Notă comandă</li>
-                    <li>Avize masă</li>
-                    <li>Raport masă</li>
-                    <li>PV recepție</li>
-                    <li>Raport experți</li>
-                    <li>Pontaje</li>
-                    <li>Stat plată</li>
-                </ol>
-            </div>
-        `;
+    const container = document.getElementById('sertar-content');
+    
+    // Design ultra-compact pe o singură coloană
+    let h = `
+        <div style="background: #fff7ed; border: 1px solid #fed7aa; padding: 10px; border-radius: 8px; margin-bottom: 10px;">
+            <h4 style="margin: 0 0 5px 0; color: #9a3412; font-size: 0.7rem; font-weight: 900;">⚠️ DOCUMENTE OBLIGATORII:</h4>
+            <ol style="margin: 0; padding-left: 18px; font-size: 0.75rem; color: #4b5563; font-weight: 600; line-height: 1.3;">
+                <li>Planificări</li>
+                <li>Orar general</li>
+                <li>Orare experți</li>
+                <li>Notă comandă masă</li>
+                <li>Avize masă caldă</li>
+                <li>Raport activitate masă</li>
+                <li>PV recepție masă</li>
+                <li>Rapoarte experți</li>
+                <li>Pontaje individuale</li>
+                <li>Stat de plată</li>
+            </ol>
+        </div>
+    `;
 
-        const list = [ 
-            {id:'PLAN', t:'Planificări', z:'01', count: dateExpertiClean.length}, 
-            {id:'ORAR', t:'Orare', z:'01', count: expertiUnici.length}, 
-            {id:'RAPORT', t:'Rapoarte', z:'28', count: expertiUnici.length},
-            {id:'PONT', t:'Pontaje', z:'28', count: expertiUnici.length}
-        ];
-        
-        list.forEach(c => {
-            // Am redus margin-bottom de la 20px la 8px pentru compactare
-            h += `
-            <div class="doc-category" style="margin-bottom: 8px; padding: 10px;">
-                <span class="cat-title" style="margin-bottom: 6px; font-size: 0.7rem;">${c.t} <span class="cat-count">${c.count}</span></span>
-                <div style="display:flex; align-items:center; gap:8px; font-size: 0.75rem;">
-                    Zi: <input type="text" id="zi-${c.id}" value="${c.count > 0 ? c.z : ''}" style="width:40px; border:1px solid #ddd; text-align:center; border-radius:4px; padding: 4px; font-weight:bold;">
-                    <button class="btn-add-group" style="margin-top:0; padding: 6px;" onclick="adaugaGrup('${c.id}', document.getElementById('zi-${c.id}').value)">Generare</button>
-                </div>
-            </div>`;
-        });
-
+    const list = [ 
+        {id:'PLAN', t:'Planificări', z:'01', count: dateExpertiClean.length}, 
+        {id:'ORAR', t:'Orare', z:'01', count: expertiUnici.length}, 
+        {id:'RAPORT', t:'Rapoarte', z:'28', count: expertiUnici.length},
+        {id:'PONT', t:'Pontaje', z:'28', count: expertiUnici.length}
+    ];
+    
+    list.forEach(c => {
         h += `
-        <div class="doc-category" style="margin-bottom: 8px; padding: 10px;">
-            <span class="cat-title" style="margin-bottom: 6px; font-size: 0.7rem;">Masă Caldă <span class="cat-count">${window.zileMasa ? window.zileMasa.length : 0}</span></span>
-            <button class="btn-add-group" style="background:#4f46e5; margin-top:0; padding: 6px;" onclick="adaugaGrup('AVIZ')">Generare toate Avizele</button>
+        <div class="doc-category" style="margin-bottom: 6px; padding: 8px;">
+            <span class="cat-title" style="margin-bottom: 5px; font-size: 0.7rem;">${c.t} <span class="cat-count">${c.count}</span></span>
+            <div style="display:flex; align-items:center; gap:8px; font-size: 0.75rem;">
+                Zi: <input type="text" id="zi-${c.id}" value="${c.count > 0 ? c.z : ''}" style="width:45px; border:1px solid #ddd; text-align:center; border-radius:4px; padding: 4px; font-weight:bold; background:white;">
+                <button class="btn-add-group" style="margin:0; padding: 5px 10px; font-size:0.7rem;" onclick="adaugaGrup('${c.id}', document.getElementById('zi-${c.id}').value)">Generare</button>
+            </div>
         </div>`;
-        
-        container.innerHTML = h;
-    }
+    });
+
+    h += `
+    <div class="doc-category" style="margin-bottom: 6px; padding: 8px;">
+        <span class="cat-title" style="margin-bottom: 5px; font-size: 0.7rem;">Masă Caldă <span class="cat-count">${window.zileMasa ? window.zileMasa.length : 0}</span></span>
+        <button class="btn-add-group" style="background:#4f46e5; margin:0; padding: 8px; font-size:0.7rem;" onclick="adaugaGrup('AVIZ')">Generare toate Avizele</button>
+    </div>`;
+    
+    container.innerHTML = h;
+}
 
     init();
 </script>
