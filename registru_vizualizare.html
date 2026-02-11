@@ -208,10 +208,17 @@
         tbody.innerHTML = '';
         const startNr = parseInt(document.getElementById('start-nr').value);
         const active = localRows.filter(r => r.stare !== 'sters').sort((a, b) => {
-    if (a.zi_inreg !== b.zi_inreg) {
-        return (parseInt(a.zi_inreg) || 999) - (parseInt(b.zi_inreg) || 999);
+    // 1. Sortăm după zi (numeric)
+    const ziA = parseInt(a.zi_inreg) || 0;
+    const ziB = parseInt(b.zi_inreg) || 0;
+
+    if (ziA !== ziB) {
+        return ziA - ziB;
     }
-    return a.id - b.id; // Dacă ziua e aceeași, cel cu ID mai mare (creat ulterior) apare mai jos
+
+    // 2. Dacă ziua este aceeași, sortăm după ID (ordinea creării)
+    // Astfel, ultimul introdus (Orarul) va sta sub cel anterior (Popovici)
+    return a.id - b.id; 
 });
 
         active.forEach((row, i) => {
@@ -552,3 +559,4 @@
 </body>
 
 </html>
+
