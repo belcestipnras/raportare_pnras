@@ -66,35 +66,34 @@ html, body {
 /* 4. CONTAINER BUTOANE MARI (CARDS) */
 .menu-container {
     display: grid;
-    /* Aceasta este regula magică: creează coloane egale care se adaptează */
-    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-    gap: 20px; /* Spațiu între butoane */
+    /* Forțăm exact 7 coloane egale */
+    grid-template-columns: repeat(7, 1fr); 
+    gap: 12px; 
     padding: 20px;
     width: 100%;
-    max-width: 1000px; /* Lățimea maximă a meniului */
-    margin: 30px auto; /* Centrat pe mijlocul paginii */
+    max-width: 1200px; /* Am mărit puțin lățimea să aibă loc textul */
+    margin: 30px auto;
 }
 
-/* Asigură-te că butoanele ocupă tot spațiul celulei lor */
 .menu-card {
-    background-color: #ffffff; /* Fundal alb */
-    border: none; /* Fără contur urât */
-    border-radius: 16px; /* AICI sunt colțurile rotunjite frumos */
-    padding: 20px;
+    background-color: #ffffff;
+    border: none;
+    border-radius: 16px;
+    padding: 15px 5px; /* Padding mic pe lateral ca să nu rupă textul */
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Umbră fină */
-    transition: transform 0.2s ease, box-shadow 0.2s ease; /* Animație la hover */
-    min-height: 120px; /* Înălțime minimă ca să fie toate egale */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease;
+    min-height: 100px;
 }
 
 .menu-card span {
-    font-size: 18px; /* Redus de la 20px pentru a preveni ruperea textului "Achiziții" */
+    font-size: 0.75rem; /* Text puțin mai mic pentru a încăpea pe un rând */
     font-weight: 600;
-    color: #2d3748;
+    margin-top: 8px;
     text-align: center;
 }
 

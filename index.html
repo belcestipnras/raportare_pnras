@@ -52,6 +52,11 @@
         <div class="icon">🧮</div>
         <span>MATE</span>
     </button>
+
+<button class="menu-card" onclick="verificaParolaRegistru()">
+    <div class="icon">📚</div>
+    <span>Registru</span>
+</button>
 </main>
 
     <script>
@@ -96,6 +101,15 @@ function verificaParolaMate() {
     if (parolaIntrodusaMate === "Mate123") { // Poți schimba parola aici
         window.location.href = 'mate.html';
     } else if (parolaIntrodusaMate !== null) {
+        alert("Parolă incorectă! Accesul a fost refuzat.");
+    }
+}
+
+function verificaParolaRegistru() {
+    const parolaRegistru = prompt("Introduceți parola pentru acces la secțiunea Registru:");
+    if (parolaRegistru === "Registru123") { // Poți schimba parola aici
+        window.location.href = 'registru_vizualizare.html';
+    } else if (parolaRegistru !== null) {
         alert("Parolă incorectă! Accesul a fost refuzat.");
     }
 }

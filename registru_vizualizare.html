@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <title>Registru Master PNRAS - v26 Premium</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #f3f4f6; --panel: #ffffff; --accent: #2563eb; --accent-hover: #1d4ed8;
+            --text-main: #1f2937; --text-muted: #6b7280; --border-color: #e5e7eb;
+            --danger: #ef4444; --success: #10b981; --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+        }
+
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text-main); margin: 0; display: flex; flex-direction: column; height: 100vh; }
+
+        /* HEADER */
+        .top-bar { 
+            background: var(--panel); border-bottom: 1px solid var(--border-color); padding: 0 24px; height: 75px;
+            display: flex; justify-content: space-between; align-items: center; box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05); z-index: 50;
+        }
+
+        .month-btn { padding: 8px 10px; border: 1px solid var(--border-color); background: white; cursor: pointer; font-size: 0.75rem; font-weight: 600; border-radius: 6px; }
+        .month-btn.active { background: var(--accent); color: white; border-color: var(--accent); }
+
+        .main-layout { display: flex; flex: 1; overflow: hidden; }
+        .content-area { flex: 1; padding: 24px; overflow-y: auto; background: #f9fafb; }
+
+        .main-card { background: var(--panel); border-radius: 12px; box-shadow: var(--shadow); border: 1px solid var(--border-color); overflow: hidden; }
+        .card-header { padding: 15px 24px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; background: #fff; }
+
+        /* TABEL */
+        table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+        th { background: #f9fafb; padding: 12px 16px; text-align: left; font-size: 0.7rem; text-transform: uppercase; font-weight: 700; color: var(--text-muted); border-bottom: 1px solid var(--border-color); }
+        td { border-bottom: 1px solid var(--border-color); background: white; }
+        
+        .col-nr { width: 50px; text-align: center; font-weight: 800; color: var(--accent); background: #f8fafc !important; }
+        .col-zi { width: 50px; }
+        .col-nrdata { width: 180px; font-weight: 700; color: #1e40af; background: #eff6ff !important; }
+        .col-continut { width: auto; }
+        .col-del { width: 45px; text-align: center; }
+
+        input { width: 100%; border: 1px solid transparent; padding: 10px; box-sizing: border-box; font-size: 0.85rem; background: transparent; font-weight: 500; }
+        input:focus { border-color: var(--accent); background: #fff; outline: none; }
+
+        /* SIDEBAR */
+        .sidebar { width: 420px; background: var(--panel); border-left: 1px solid var(--border-color); padding: 24px; overflow-y: auto; }
+        .doc-category { background: #f9fafb; border: 1px solid var(--border-color); border-radius: 10px; margin-bottom: 20px; padding: 16px; }
+        .cat-title { font-weight: 700; color: var(--text-main); display: block; margin-bottom: 12px; font-size: 0.8rem; text-transform: uppercase; }
+        .cat-count { float: right; color: var(--accent); font-weight: 900; background: #dbeafe; padding: 2px 8px; border-radius: 10px; font-size: 0.7rem; }
+        
+        .btn-add-group { width: 100%; background: var(--accent); color: white; border: none; padding: 10px 16px; border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 0.8rem; margin-top: 10px; }
+
+        /* PRINT */
+        @media print {
+            @page { size: A4 landscape; margin: 10mm; }
+            .top-bar, .sidebar, .trash-container, .col-del, button, .card-header, .table-toolbar { display: none !important; }
+            .main-layout { display: block; }
+            .content-area { padding: 0; }
+            .main-card { border: none; box-shadow: none; }
+            table { border: 1px solid #000; width: 100%; border-collapse: collapse; table-layout: auto; }
+            th, td { border: 1px solid #000; padding: 6px; font-size: 8pt; color: black !important; }
+            input { border: none; padding: 0; font-size: 8pt; }
+            .col-nr, .col-nrdata { background: transparent !important; }
+        }
+
+        .print-options { display: flex; gap: 8px; }
+        .btn-p { padding: 8px 14px; border-radius: 6px; border: none; font-weight: 700; cursor: pointer; font-size: 0.75rem; display: flex; align-items: center; gap: 6px; }
+    </style>
+</head>
+<body>
+
+<div class="top-bar">
+    <div style="display:flex; gap:10px; align-items:center;">
+        <span style="font-weight:900; color:var(--accent)">2025</span>
+        <div id="m-2025" style="display:flex; gap:4px;"></div>
+        <span style="font-weight:900; color:var(--accent); margin-left:10px;">2026</span>
+        <div id="m-2026" style="display:flex; gap:4px;"></div>
+    </div>
+    
+    <div class="print-options">
+        <button class="btn-p" style="background:#4b5563; color:white;" onclick="printMod('luna')">🖨️ Print Lună</button>
+        <button class="btn-p" style="background:#1f2937; color:white;" onclick="printMod('registru')">📚 Print Registru</button>
+    </div>
+</div>
+
+<div class="main-layout">
+    <div class="content-area">
+        <div class="main-card">
+            <div class="card-header">
+                <h2 id="titlu-luna" style="margin:0; font-weight:900; font-size: 1.2rem;">Selectați luna</h2>
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <span style="font-size:0.7rem; font-weight:700; color:var(--text-muted);">PORNIRE NR:</span>
+                    <input type="number" id="start-nr" value="1" style="width:60px; border:1px solid var(--border-color); border-radius:6px; padding:6px; font-weight:800;" readonly>
+                </div>
+            </div>
+            
+            <table id="tabel-principal">
+                <thead>
+                    <tr>
+                        <th class="col-nr">#</th>
+                        <th class="col-zi">Zi</th>
+                        <th class="col-nrdata">Nr. Înreg. / Dată</th>
+                        <th class="col-continut">Conținut Document (Cuprins)</th>
+                        <th class="col-del"></th>
+                    </tr>
+                </thead>
+                <tbody id="tabel-body"></tbody>
+            </table>
+        </div>
+
+        <div id="trash-container" class="doc-category" style="margin-top:30px; border: 1px dashed var(--danger); background: #fffafa;">
+            <button onclick="golesteCosDefinitiv()" style="float:right; background:var(--danger); color:white; border:none; padding:6px 12px; border-radius:6px; font-size:0.7rem; cursor:pointer; font-weight:bold;">🗑️ Golește Coș</button>
+            <h3 style="margin:0 0 10px 0; color:var(--danger); font-size:0.8rem;">ARHIVĂ ȘTERGERI</h3>
+            <div id="trash-list"></div>
+        </div>
+    </div>
+
+    <div class="sidebar">
+        <h3 style="font-weight:900; font-size:1.1rem; margin-top:0;">Sertar Generare</h3>
+        <div id="sertar-content"></div>
+        <button onclick="adaugaRandManual()" style="width:100%; margin-top:20px; padding:12px; border-radius:8px; border:1px solid var(--border-color); cursor:pointer; font-weight:700; background:white;">+ Adaugă rând manual</button>
+    </div>
+</div>
+
+<script>
+    const _U = "https://aexjrbdgajurxzngfkpx.supabase.co";
+    const _K = "sb_publishable_KPV__0BA9z4EvRl5eqC0FQ_hmBLOLYv";
+    const _SB = supabase.createClient(_U, _K);
+
+    const luniText = ["Ianuarie", "Februarie", "Martie", "Aprilie", "Mai", "Iunie", "Iulie", "August", "Septembrie", "Octombrie", "Noiembrie", "Decembrie"];
+    let currentAn = "", currentLuna = "", localRows = [];
+    let dateExpertiClean = []; 
+    let expertiUnici = [];
+
+    function init() {
+        [2025, 2026].forEach(an => {
+            const div = document.getElementById(`m-${an}`);
+            luniText.forEach(l => {
+                const b = document.createElement('button');
+                b.className = 'month-btn'; b.id = `btn-${an}-${l}`;
+                b.innerText = l.substring(0,3);
+                b.onclick = () => schimbaLuna(l, an);
+                div.appendChild(b);
+            });
+        });
+    }
+
+    async function schimbaLuna(luna, an) {
+        document.querySelectorAll('.month-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById(`btn-${an}-${luna}`).classList.add('active');
+        currentAn = an; currentLuna = luna;
+        document.getElementById('titlu-luna').innerText = `Registru Master PNRAS: ${luna} ${an}`;
+        await refreshDate();
+    }
+
+    async function refreshDate() {
+        const indexLuna = luniText.indexOf(currentLuna);
+        const { data: toate } = await _SB.from('registru_master').select('luna_inreg').eq('an_inreg', currentAn).eq('stare', 'activ');
+        let countAnt = toate ? toate.filter(r => luniText.indexOf(r.luna_inreg) < indexLuna).length : 0;
+        document.getElementById('start-nr').value = countAnt + 1;
+
+        const { data: rows } = await _SB.from('registru_master').select('*').eq('luna_inreg', currentLuna).eq('an_inreg', currentAn);
+        localRows = rows || [];
+        
+        const { data: p } = await _SB.from('pontaj_detaliat').select('expert, clase_grupe').eq('luna', currentLuna).eq('an', currentAn);
+        let tempData = [];
+        if(p) {
+            p.forEach(item => {
+                const claseSplit = (item.clase_grupe || "").split(',').map(s => s.trim()).filter(s => s !== "");
+                claseSplit.forEach(cls => tempData.push({ expert: item.expert, clasa: cls }));
+            });
+        }
+        dateExpertiClean = [];
+        const uniqueSet = new Set();
+        tempData.forEach(obj => {
+            const key = `${obj.expert}|${obj.clasa}`;
+            if(!uniqueSet.has(key)) { uniqueSet.add(key); dateExpertiClean.push(obj); }
+        });
+        dateExpertiClean.sort((a,b) => a.expert.localeCompare(b.expert) || a.clasa.localeCompare(b.clasa));
+        expertiUnici = [...new Set(dateExpertiClean.map(i => i.expert))].sort();
+
+        const { data: m } = await _SB.from('setari_pontaj').select('zi').eq('luna', currentLuna).eq('an', currentAn).gt('valoare_aviz', 0);
+        window.zileMasa = [...new Set(m?.map(d => d.zi))].sort((a,b) => a-b);
+
+        renderTabel();
+        renderTrash();
+        genereazaSertar();
+    }
+
+    function renderTabel() {
+        const tbody = document.getElementById('tabel-body');
+        tbody.innerHTML = '';
+        const startNr = parseInt(document.getElementById('start-nr').value);
+        const active = localRows.filter(r => r.stare !== 'sters').sort((a,b) => (parseInt(a.zi_inreg) || 999) - (parseInt(b.zi_inreg) || 999));
+
+        active.forEach((row, i) => {
+            const nr = startNr + i;
+            const lunaNr = (luniText.indexOf(currentLuna)+1).toString().padStart(2,'0');
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td class="col-nr">${nr}</td>
+                <td class="col-zi"><input type="text" value="${row.zi_inreg || ''}" onchange="updateRow(${row.id}, 'zi_inreg', this.value)"></td>
+                <td class="col-nrdata">${nr} / ${row.zi_inreg || '..'}.${lunaNr}.${currentAn}</td>
+                <td class="col-continut"><input type="text" value="${row.cuprins_act || ''}" onchange="updateRow(${row.id}, 'cuprins_act', this.value)"></td>
+                <td class="col-del"><button onclick="deleteRow(${row.id})" style="color:var(--danger); background:none; border:none; cursor:pointer;">✕</button></td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    async function adaugaGrup(tip, zi) {
+        let payload = [];
+        const lunaNr = (luniText.indexOf(currentLuna)+1).toString().padStart(2,'0');
+        
+        if(tip === 'PLAN') {
+            dateExpertiClean.forEach((item, i) => {
+                const cls = item.clasa;
+                const prefixClasa = cls.includes('Grupa') ? cls : 'clasa ' + cls;
+                payload.push({
+                    zi_inreg: zi, luna_inreg: currentLuna, an_inreg: currentAn,
+                    cuprins_act: `${item.expert}. Planificare ${currentLuna.toLowerCase()} ${currentAn}, ${prefixClasa}`,
+                    stare: 'activ', doc_id: `PLAN_${Date.now()}_${i}`
+                });
+            });
+        } else if(tip === 'ORAR') {
+            expertiUnici.forEach((nume, i) => {
+                payload.push({
+                    zi_inreg: zi, luna_inreg: currentLuna, an_inreg: currentAn,
+                    cuprins_act: `${nume}. Orar ${currentLuna.toLowerCase()} ${currentAn}`,
+                    stare: 'activ', doc_id: `ORAR_${Date.now()}_${i}`
+                });
+            });
+        } else if(tip === 'RAPORT') {
+            expertiUnici.forEach((nume, i) => {
+                payload.push({
+                    zi_inreg: zi, luna_inreg: currentLuna, an_inreg: currentAn,
+                    cuprins_act: `${nume}. Raport de activitate, ${currentLuna.toLowerCase()} ${currentAn}`,
+                    stare: 'activ', doc_id: `RAP_${Date.now()}_${i}`
+                });
+            });
+        } else if(tip === 'PONT') {
+            expertiUnici.forEach((nume, i) => {
+                payload.push({
+                    zi_inreg: zi, luna_inreg: currentLuna, an_inreg: currentAn,
+                    cuprins_act: `${nume}. Fișă individuală de pontaj, ${currentLuna.toLowerCase()} ${currentAn}`,
+                    stare: 'activ', doc_id: `PONT_${Date.now()}_${i}`
+                });
+            });
+        } else if(tip === 'AVIZ') {
+            window.zileMasa.forEach((z, i) => {
+                const zFmt = z.toString().padStart(2,'0');
+                payload.push({
+                    zi_inreg: zFmt, luna_inreg: currentLuna, an_inreg: currentAn,
+                    cuprins_act: `Aviz de însoțire a mărfii. Masă caldă ${zFmt}.${lunaNr}.${currentAn}`,
+                    stare: 'activ', doc_id: `A_${Date.now()}_${i}`
+                });
+            });
+        }
+        await _SB.from('registru_master').insert(payload);
+        await refreshDate();
+    }
+
+    async function printMod(tip) {
+    if (tip === 'registru') {
+        const { data: totRegistrul } = await _SB.from('registru_master')
+            .select('*')
+            .eq('an_inreg', currentAn)
+            .eq('stare', 'activ');
+
+        if (!totRegistrul || totRegistrul.length === 0) {
+            alert("Nu există date!");
+            return;
+        }
+
+        totRegistrul.sort((a, b) => {
+            const lA = luniText.indexOf(a.luna_inreg), lB = luniText.indexOf(b.luna_inreg);
+            if (lA !== lB) return lA - lB;
+            return (parseInt(a.zi_inreg) || 0) - (parseInt(b.zi_inreg) || 0);
+        });
+
+        const totalPozitii = totRegistrul.length;
+        const printWindow = window.open('', '_blank');
+
+        let rowsHtml = "";
+        let ultimaLuna = "";
+        totRegistrul.forEach((row, i) => {
+            const nr = i + 1;
+            const lunaNr = (luniText.indexOf(row.luna_inreg) + 1).toString().padStart(2, '0');
+            
+            if (row.luna_inreg !== ultimaLuna) {
+                rowsHtml += `
+                    <tr>
+                        <td colspan="4" style="background:#e2e8f0 !important; font-weight:900; text-align:center; padding:10px; border:1px solid black; text-transform:uppercase;">
+                            LUNA ${row.luna_inreg.toUpperCase()}
+                        </td>
+                    </tr>`;
+                ultimaLuna = row.luna_inreg;
+            }
+
+            rowsHtml += `
+                <tr>
+                    <td style="text-align:center; border:1px solid black; padding:8px;">${nr}</td>
+                    <td style="text-align:center; border:1px solid black; padding:8px;" contenteditable="true">${row.zi_inreg || ''}</td>
+                    <td style="text-align:center; border:1px solid black; padding:8px;">${nr} / ${row.zi_inreg || '..'}.${lunaNr}.${currentAn}</td>
+                    <td style="border:1px solid black; padding:8px; text-align:left;" contenteditable="true">${row.cuprins_act || ''}</td>
+                </tr>`;
+        });
+
+        printWindow.document.write(`
+            <html>
+            <head>
+                <title>Registru PNRAS</title>
+                <style>
+                    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
+                    
+                    @page { 
+                        size: A4 portrait; 
+                        margin: 1.5cm; 
+                    }
+
+                    body { 
+                        font-family: 'Inter', sans-serif; 
+                        margin: 0; 
+                        padding: 0; 
+                    }
+
+                    /* Numerotare - Resetam dupa coperta */
+                    .content-wrapper { counter-reset: p-idx 0; }
+
+                    thead { display: table-header-group; }
+                    tr { page-break-inside: avoid; }
+
+                    /* Coperta - Fortata sa fie exact o pagina */
+                    .page-coperta { 
+                        width: 100%;
+                        height: 26.5cm; /* Margini incluse */
+                        page-break-after: always; 
+                        overflow: hidden; 
+                        display: flex; 
+                        flex-direction: column; 
+                        justify-content: space-between; 
+                        text-align: center; 
+                        border: 8px double #1e40af; 
+                        padding: 30px;
+                        box-sizing: border-box;
+                        background: linear-gradient(180deg, #ffffff 0%, #f0f4ff 100%);
+                    }
+
+                    .antet { width: 100%; display: block; margin-bottom: 20px; }
+                    .titlu-coperta { font-size: 28pt; font-weight: 900; color: #1e3a8a; text-transform: uppercase; margin: 40px 0; }
+                    .cat-box { border: 2px solid #1e40af; padding: 25px; margin: 0 auto; width: 90%; text-align: left; font-size: 14pt; background: white; box-shadow: 8px 8px 0px #1e40af; }
+
+                    /* Tabel */
+                    table { width: 100%; border-collapse: collapse; border: 1.5px solid black; }
+                    th { border: 1px solid black; background: #1e40af !important; color: white !important; padding: 10px; font-size: 9pt; text-transform: uppercase; }
+                    td { border: 1px solid black; font-size: 10pt; }
+
+                    /* NUMEROTARE SIMPLA JOS DREAPTA */
+                    .footer-number {
+                        position: fixed;
+                        bottom: -1cm;
+                        right: 0cm;
+                        font-size: 11pt;
+                        font-weight: bold;
+                        color: #1e40af;
+                        text-align: right;
+                    }
+
+                    .footer-number::after {
+                        counter-increment: p-idx;
+                        content: counter(p-idx);
+                    }
+
+                    /* Sectiuni */
+                    .section { page-break-after: always; position: relative; }
+                    .pv-box { border: 2px solid black; padding: 40px; background: white; }
+                    .semnaturi { display: flex; justify-content: space-between; margin-top: 60px; }
+                    .semn-box { text-align: center; width: 45%; }
+
+                    @media print {
+                        body { -webkit-print-color-adjust: exact; }
+                        /* Nu numerotam prima pagina (coperta) */
+                        .page-coperta ~ .footer-number { display: block; }
+                        body > .footer-number:first-of-type { display: none; }
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="page-coperta">
+                    <img src="antet_pnras.jpeg" class="antet">
+                    <div class="titlu-coperta">REGISTRU de evidență<br>a documentelor</div>
+                    <div style="flex-grow:1; display:flex; flex-direction:column; justify-content:center; gap:30px;">
+                        <div class="cat-box">
+                            <strong style="color:#1e40af;">Categoria I:</strong><br>
+                            Activități de identificarea și monitorizare a elevilor în risc de abandon școlar - MATE
+                        </div>
+                        <div class="cat-box">
+                            <strong style="color:#1e40af;">Categoria II:</strong><br>
+                            Activități de prevenire, intervenție și compensare
+                        </div>
+                    </div>
+                    <div style="font-weight:bold; color:#1e40af;">PROGRAMUL NAȚIONAL PENTRU REDUCEREA ABANDONULUI ȘCOLAR</div>
+                </div>
+
+                <div class="content-wrapper">
+                    <div class="footer-number"></div>
+
+                    <div class="section">
+                        <img src="antet_pnras.jpeg" class="antet">
+                        <h2 style="text-align:center; text-transform:uppercase; color:#1e40af; font-size:14pt; margin: 0 0 10px 0;">Registrul General de Documente</h2>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th style="width:50px;">Nr. crt.</th>
+                                    <th style="width:50px;">Zi</th>
+                                    <th style="width:160px;">Nr. înregistrare / Dată</th>
+                                    <th>Conținut document (Cuprins)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${rowsHtml}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="section" style="page-break-after: auto;">
+                        <img src="antet_pnras.jpeg" class="antet">
+                        <div class="pv-box">
+                            <h2 style="text-align:center; text-decoration: underline; font-weight: 900; color:#1e40af; margin-bottom:30px;">PROCES-VERBAL</h2>
+                            <p style="font-size: 12pt; line-height: 2;">
+                                Încheiat astăzi, <span style="border-bottom: 1px dashed black; padding: 0 20px;" contenteditable="true">/ / ${currentAn}</span>,<br>
+                                Prezentul registru conține un număr de <strong id="pg-final">...</strong> pagini, numerotate de la 1 la <strong id="pg-final-2">...</strong>, 
+                                cu un total de <strong>${totalPozitii}</strong> poziții (numere de înregistrare).
+                            </p>
+                            <div class="semnaturi">
+                                <div class="semn-box">
+                                    <strong>DIRECTOR,</strong><br>prof. Cătălin Ionuț BAZILUC<br><br><br>_________________
+                                </div>
+                                <div class="semn-box">
+                                    <strong>MANAGER PROIECT,</strong><br>prof. dr. Ciprian MIHAI<br><br><br>_________________
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <script>
+                    window.onload = function() {
+                        const hTabel = document.querySelector('.content-wrapper').offsetHeight;
+                        const pgs = Math.ceil(hTabel / 930); 
+                        document.getElementById('pg-final').innerText = pgs;
+                        document.getElementById('pg-final-2').innerText = pgs;
+                        setTimeout(() => { window.print(); }, 1000);
+                    };
+                <\/script>
+            </body>
+            </html>
+        `);
+        printWindow.document.close();
+    } else {
+        window.print();
+    }
+}
+
+    async function updateRow(id, c, v) { await _SB.from('registru_master').update({ [c]: v }).eq('id', id); refreshDate(); }
+    async function deleteRow(id) { await _SB.from('registru_master').update({ stare: 'sters' }).eq('id', id); refreshDate(); }
+    async function restoreRow(id) { await _SB.from('registru_master').update({ stare: 'activ' }).eq('id', id); refreshDate(); }
+    async function adaugaRandManual() { await _SB.from('registru_master').insert([{ zi_inreg: "", luna_inreg: currentLuna, an_inreg: currentAn, stare: 'activ', doc_id: `M_${Date.now()}` }]); refreshDate(); }
+    async function golesteCosDefinitiv() { if(confirm("Ștergeți definitiv arhiva lunii?")) { await _SB.from('registru_master').delete().eq('luna_inreg', currentLuna).eq('an_inreg', currentAn).eq('stare', 'sters'); await refreshDate(); } }
+
+    function renderTrash() {
+        const list = document.getElementById('trash-list');
+        const sterse = localRows.filter(r => r.stare === 'sters');
+        list.innerHTML = sterse.length ? '' : 'Arhivă goală';
+        sterse.forEach(r => {
+            list.innerHTML += `<div style="display:flex; justify-content:space-between; padding:5px 0; border-bottom:1px solid #fecaca; font-size:0.75rem;"><span>${r.cuprins_act}</span> <button onclick="restoreRow(${r.id})" style="color:var(--success); border:none; background:none; cursor:pointer; font-weight:800;">Restaurare</button></div>`;
+        });
+    }
+
+    function genereazaSertar() {
+        const container = document.getElementById('sertar-content');
+        
+        // Versiune compactă pentru a evita scroll-ul
+        let h = `
+            <div style="background: #fff7ed; border: 1px solid #fed7aa; padding: 10px; border-radius: 8px; margin-bottom: 12px;">
+                <h4 style="margin: 0 0 5px 0; color: #9a3412; font-size: 0.75rem; font-weight: 900;">⚠️ DOCUMENTE OBLIGATORII:</h4>
+                <ol style="margin: 0; padding-left: 15px; font-size: 0.7rem; color: #4b5563; font-weight: 600; line-height: 1.2; display: grid; grid-template-columns: 1fr 1fr; gap: 2px 10px;">
+                    <li>Planificări</li>
+                    <li>Orar general</li>
+                    <li>Orare experți</li>
+                    <li>Notă comandă</li>
+                    <li>Avize masă</li>
+                    <li>Raport masă</li>
+                    <li>PV recepție</li>
+                    <li>Raport experți</li>
+                    <li>Pontaje</li>
+                    <li>Stat plată</li>
+                </ol>
+            </div>
+        `;
+
+        const list = [ 
+            {id:'PLAN', t:'Planificări', z:'01', count: dateExpertiClean.length}, 
+            {id:'ORAR', t:'Orare', z:'01', count: expertiUnici.length}, 
+            {id:'RAPORT', t:'Rapoarte', z:'28', count: expertiUnici.length},
+            {id:'PONT', t:'Pontaje', z:'28', count: expertiUnici.length}
+        ];
+        
+        list.forEach(c => {
+            // Am redus margin-bottom de la 20px la 8px pentru compactare
+            h += `
+            <div class="doc-category" style="margin-bottom: 8px; padding: 10px;">
+                <span class="cat-title" style="margin-bottom: 6px; font-size: 0.7rem;">${c.t} <span class="cat-count">${c.count}</span></span>
+                <div style="display:flex; align-items:center; gap:8px; font-size: 0.75rem;">
+                    Zi: <input type="text" id="zi-${c.id}" value="${c.count > 0 ? c.z : ''}" style="width:40px; border:1px solid #ddd; text-align:center; border-radius:4px; padding: 4px; font-weight:bold;">
+                    <button class="btn-add-group" style="margin-top:0; padding: 6px;" onclick="adaugaGrup('${c.id}', document.getElementById('zi-${c.id}').value)">Generare</button>
+                </div>
+            </div>`;
+        });
+
+        h += `
+        <div class="doc-category" style="margin-bottom: 8px; padding: 10px;">
+            <span class="cat-title" style="margin-bottom: 6px; font-size: 0.7rem;">Masă Caldă <span class="cat-count">${window.zileMasa ? window.zileMasa.length : 0}</span></span>
+            <button class="btn-add-group" style="background:#4f46e5; margin-top:0; padding: 6px;" onclick="adaugaGrup('AVIZ')">Generare toate Avizele</button>
+        </div>`;
+        
+        container.innerHTML = h;
+    }
+
+    init();
+</script>
+</body>
+</html>
