@@ -207,7 +207,12 @@
         const tbody = document.getElementById('tabel-body');
         tbody.innerHTML = '';
         const startNr = parseInt(document.getElementById('start-nr').value);
-        const active = localRows.filter(r => r.stare !== 'sters').sort((a,b) => (parseInt(a.zi_inreg) || 999) - (parseInt(b.zi_inreg) || 999));
+        const active = localRows.filter(r => r.stare !== 'sters').sort((a, b) => {
+    if (a.zi_inreg !== b.zi_inreg) {
+        return (parseInt(a.zi_inreg) || 999) - (parseInt(b.zi_inreg) || 999);
+    }
+    return a.id - b.id; // Dacă ziua e aceeași, cel cu ID mai mare (creat ulterior) apare mai jos
+});
 
         active.forEach((row, i) => {
             const nr = startNr + i;
@@ -545,4 +550,5 @@
     init();
 </script>
 </body>
+
 </html>
