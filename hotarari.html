@@ -68,7 +68,23 @@
         #articole-container { margin-bottom: 20px; width: 100%; }
         .articol-rand { display: flex; align-items: flex-start; margin-bottom: 6px; position: relative; }
         .art-label { font-weight: bold; margin-right: 5px; white-space: nowrap; line-height: 1.1; padding-top: 2px;}
-        .art-input { flex-grow: 1; font-family: 'Times New Roman', serif; font-size: 1rem; line-height: 1.1; border: 1px dashed #ccc; outline: none; background: transparent; resize: none; overflow: hidden; min-height: 1.2em; padding: 2px 5px; border-radius: 3px; transition: background-color 0.2s; }
+        .art-input { 
+    flex-grow: 1; 
+    font-family: 'Times New Roman', serif; 
+    font-size: 1rem; 
+    line-height: 1.1; 
+    border: 1px dashed #ccc; 
+    outline: none; 
+    background: transparent; 
+    resize: none; 
+    overflow: hidden; 
+    min-height: 1.2em; 
+    padding: 2px 5px; 
+    border-radius: 3px; 
+    transition: background-color 0.2s;
+    /* Linia de adăugat: */
+    text-align: justify; 
+}
         .art-input:focus { border-color: var(--pnras-blue); background-color: #f0f7ff; }
         .btn-add-articol { background: #eef2f5; color: var(--pnras-blue); border: 1px dashed var(--pnras-blue); padding: 5px 15px; border-radius: 4px; font-family: 'Inter', sans-serif; font-size: 0.85rem; font-weight: 600; cursor: pointer; margin-top: 5px; display: block; margin-left: auto; margin-right: auto; }
         .btn-delete-art { background: none; border: none; color: red; font-size: 1.2rem; cursor: pointer; margin-left: 5px; line-height: 1; padding: 0; opacity: 0.3; }
@@ -99,14 +115,19 @@
         .sig-block { text-align: left; }
 
         @media print {
-            * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-            @page { size: A4 portrait; margin: 1.5cm !important; } 
-            body { margin: 0; padding: 0; background: white; }
-            #main-ui, .controls-a4, .back-btn, .btn-add-articol, .btn-delete-art { display: none !important; }
-            .a4-page { box-shadow: none !important; width: 100% !important; min-height: auto !important; margin: 0 !important; padding: 0 !important; }
-            .art-input { border: none !important; padding: 2px 0 !important; background: transparent !important; }
-            [contenteditable="true"] { outline: none !important; }
-        }
+    * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+    @page { size: A4 portrait; margin: 1.5cm !important; } 
+    body { margin: 0; padding: 0; background: white; }
+    
+    /* Adaugă .btn-add-articol-inline în lista de mai jos */
+    #main-ui, .controls-a4, .back-btn, .btn-add-articol, .btn-delete-art, .btn-add-articol-inline { 
+        display: none !important; 
+    }
+    
+    .a4-page { box-shadow: none !important; width: 100% !important; min-height: auto !important; margin: 0 !important; padding: 0 !important; }
+    .art-input { border: none !important; padding: 2px 0 !important; background: transparent !important; }
+    [contenteditable="true"] { outline: none !important; }
+}
     </style>
 </head>
 <body>
