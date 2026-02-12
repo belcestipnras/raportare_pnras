@@ -14,13 +14,13 @@
     </div>
 
     <section class="hero-section">
-        <h1>Platformă de raportare a activităților PNRAS</h1>
-        <p class="motto">
-            Fii unul dintre <span class="crai-acronim">C.R.A.I.</span>! 
-            <br>
-            <span class="crai-detaliu">(Creativitate, Reziliență, Adaptabilitate, Incluziune)</span>
-        </p>
-    </section>
+    <h1>Platformă de raportare a activităților PNRAS</h1>
+    <p class="motto">
+        Fii unul dintre <span class="crai-acronim">C.R.A.I.</span>! 
+        <br>
+        <span class="crai-detaliu">(Creativitate, Reziliență, Adaptabilitate, Incluziune)</span>
+    </p>
+</section>
 
     <main class="menu-container">
     <button class="menu-card" onclick="location.href='activitati.html'">
@@ -57,6 +57,11 @@
     <div class="icon">📚</div>
     <span>Registru</span>
 </button>
+
+<button class="menu-card" onclick="verificaParolaGrafic()">
+        <div class="icon">📊</div>
+        <span>Grafic activități</span>
+    </button>
 </main>
 
     <script>
@@ -113,6 +118,15 @@ function verificaParolaRegistru() {
         alert("Parolă incorectă! Accesul a fost refuzat.");
     }
 }
+
+function verificaParolaGrafic() {
+        const parolaGrafic = prompt("Introduceți parola pentru acces la Grafic activități:");
+        if (parolaGrafic === "Grafic123") {
+            window.location.href = 'grafic_activitati.html';
+        } else if (parolaGrafic !== null) {
+            alert("Parolă incorectă! Accesul a fost refuzat.");
+        }
+    }
 </script>
 
 </body>

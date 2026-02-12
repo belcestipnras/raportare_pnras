@@ -32,9 +32,9 @@ html, body {
 
 /* 3. SECȚIUNE TEXT (PLATFORMĂ ȘI MOTTO) */
 .hero-section {
-    text-align: center;
-    margin: 40px 20px 10px 20px;
-    max-width: 900px;
+    text-align: center; /* Centrează tot conținutul secțiunii */
+    padding: 10px 0;
+    margin-bottom: 5px;
 }
 
 .hero-section h1 {
@@ -66,28 +66,30 @@ html, body {
 /* 4. CONTAINER BUTOANE MARI (CARDS) */
 .menu-container {
     display: grid;
-    /* Forțăm exact 7 coloane egale */
-    grid-template-columns: repeat(7, 1fr); 
-    gap: 12px; 
+    /* Forțăm toate cele 8 elemente pe un singur rând */
+    grid-template-columns: repeat(8, 1fr); 
+    gap: 12px;           /* Spațiu mic între butoane */
     padding: 20px;
-    width: 100%;
-    max-width: 1200px; /* Am mărit puțin lățimea să aibă loc textul */
-    margin: 30px auto;
+    width: 75%;         /* Ocupă aproape toată lățimea */
+    margin: 0 auto;     /* Centrează containerul */
 }
 
 .menu-card {
-    background-color: #ffffff;
-    border: none;
-    border-radius: 16px;
-    padding: 15px 5px; /* Padding mic pe lateral ca să nu rupă textul */
+    background: #ffffff;      /* Fundal alb pentru a evidenția umbra */
+    border: none;             /* Scoatem bordura standard */
+    border-radius: 12px;      /* Colțuri rotunjite (corner) */
+    padding: 15px 5px;
+    min-height: 110px;
+    
+    /* Efect de umbră (shadow) */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); 
+    
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    transition: transform 0.2s ease;
-    min-height: 100px;
+    transition: transform 0.2s, box-shadow 0.2s; /* Animație fină la hover */
 }
 
 .menu-card span {
@@ -99,20 +101,19 @@ html, body {
 
 /* Efect Interactiv */
 .menu-card:hover {
-    transform: translateY(-5px); /* Se ridică puțin */
-    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.15); /* Umbra devine mai puternică */
-    background-color: #f8f9fa; /* Se deschide puțin la culoare */
+    transform: translateY(-3px); /* Se ridică puțin */
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15); /* Umbra devine mai intensă */
+    background-color: #f8f9fa;
 }
 
 .menu-card .icon {
-    font-size: 2.5rem;
-    margin-bottom: 10px;
+    font-size: 1.8rem;
+    margin-bottom: 8px;
 }
 
 .menu-card span {
-    font-family: 'Inter', sans-serif;
+    font-size: 0.85rem;
     font-weight: 600;
-    font-size: 1rem;
     color: #333;
     text-align: center;
 }
