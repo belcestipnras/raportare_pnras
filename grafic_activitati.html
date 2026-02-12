@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PNRAS Dashboard - Contrast Maxim</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --p: #4f46e5; /* Albastru Indigo */
+            --bg: #f0f7ff; /* Fundal albastru foarte pal */
+            --text-main: #000000; /* Negru pur pentru text principal */
+            --text-blue: #1e40af; /* Albastru închis pentru text secundar (în loc de gri) */
+            --border: #bfdbfe; /* Borduri albastre */
+            --success: #10b981;
+            --complete: #f59e0b;
+            --bg-cat1: #dbeafe; 
+            --bg-cat2: #ffedd5; 
+            --bg-cat3: #d1fae5; 
+            --bg-cat4: #ede9fe;
+        }
+
+        * { box-sizing: border-box; }
+        html, body { height: 100vh; width: 100vw; margin: 0; padding: 0; overflow: hidden; font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--text-main); }
+        
+        .app-container { display: flex; flex-direction: column; height: 100vh; }
+
+        /* HEADER */
+        .header { 
+            height: 10%; background: white; border-bottom: 2px solid var(--p);
+            display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; padding: 8px 20px; flex-shrink: 0;
+        }
+        .cat-btn {
+            border: 2px solid var(--border); padding: 10px; border-radius: 12px; cursor: pointer; 
+            display: flex; align-items: center; transition: all 0.2s ease;
+        }
+        .cat-btn#c1 { background: var(--bg-cat1); } .cat-btn#c2 { background: var(--bg-cat2); }
+        .cat-btn#c3 { background: var(--bg-cat3); } .cat-btn#c4 { background: var(--bg-cat4); }
+        .cat-btn.active { border-color: var(--p); box-shadow: 0 0 0 2px var(--p); }
+        .cat-btn p { margin: 0; font-size: 0.8rem; font-weight: 800; line-height: 1.2; color: var(--text-main); }
+
+        /* MAIN SPLIT */
+        .main { display: grid; grid-template-columns: 320px 1fr; height: 90vh; overflow: hidden; }
+
+        /* SIDEBAR */
+        .sidebar { background: white; border-right: 2px solid var(--border); display: flex; flex-direction: column; overflow: hidden; }
+        .sidebar-h { padding: 12px 20px; font-size: 0.8rem; font-weight: 900; color: var(--p); text-transform: uppercase; border-bottom: 1px solid var(--border); }
+        .sidebar-list { overflow-y: auto; padding: 10px; flex-grow: 1; }
+        .act-item { 
+            padding: 12px; border-radius: 10px; margin-bottom: 8px; cursor: pointer;
+            font-size: 0.85rem; line-height: 1.3; border: 2px solid var(--border); transition: 0.2s; background: #fff; color: var(--text-main);
+        }
+        .act-item:hover { border-color: var(--p); background: var(--bg-cat1); }
+        .act-item.active { background: var(--p); color: white; border-color: var(--p); }
+        .act-item b { font-size: 0.75rem; font-weight: 900; display: block; margin-bottom: 2px; color: inherit; }
+
+        /* CONTENT */
+        .content { display: grid; grid-template-rows: 65% 35%; overflow: hidden; }
+        
+        /* CALENDAR - ANI ALBAȘTRI ȘI MARI */
+        .calendar-section { padding: 20px 30px; background: white; border-bottom: 2px solid var(--p); overflow-y: auto; }
+        .act-meta h2 { margin: 0; font-size: 1.5rem; font-weight: 900; color: var(--p); }
+        .act-meta p { margin: 5px 0 15px 0; font-size: 1rem; color: var(--text-blue); font-weight: 600; }
+
+        .year-block { margin-bottom: 20px; }
+        .year-label { 
+            font-size: 1rem; font-weight: 900; color: var(--p); /* ANII SUNT ALBAȘTRI ACUM */
+            margin-bottom: 10px; display: block; border-bottom: 2px solid var(--bg-cat1); padding-bottom: 4px;
+        }
+        .month-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(85px, 1fr)); gap: 10px; }
+        .cell { 
+            aspect-ratio: 1.4; border: 2px solid var(--border); border-radius: 10px;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            background: #fff; cursor: pointer; font-size: 1.1rem; font-weight: 900; transition: 0.2s; color: var(--text-main);
+        }
+        .cell.active { background: var(--success); color: white; border-color: var(--success); }
+        .cell.finished { background: var(--complete) !important; color: white; border-color: var(--complete); }
+        .cell.sel { outline: 4px solid var(--p); outline-offset: 2px; }
+        .cell span { font-size: 0.7rem; color: var(--text-blue); font-weight: 700; margin-top: 4px; }
+        .cell.active span, .cell.finished span { color: white; opacity: 0.9; }
+
+        /* DOCUMENTE */
+        .docs-section { padding: 15px 30px; background: var(--bg-cat1); display: flex; flex-direction: column; overflow: hidden; }
+        .docs-h { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .docs-h h3 { margin: 0; font-size: 1rem; font-weight: 900; color: var(--p); text-transform: uppercase; }
+        
+        .docs-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; overflow-y: auto; padding-right: 5px; flex-grow: 1; }
+
+        .doc-card { 
+            background: white; border: 2px solid var(--border); border-radius: 12px;
+            padding: 10px 15px; display: flex; flex-direction: column; gap: 6px; box-shadow: 0 2px 4px rgba(30, 64, 175, 0.1);
+        }
+        .doc-card.done { border-left: 8px solid var(--complete); border-color: var(--complete); background: #fffcf5; }
+        .doc-title { font-size: 0.85rem; font-weight: 800; color: var(--text-main); }
+        .doc-reg { width: 100px; font-size: 0.8rem; border: 2px solid var(--border); border-radius: 8px; padding: 4px; font-weight: 900; text-align: center; color: var(--p); }
+
+        .tag { background: var(--bg-cat1); padding: 2px 8px; border-radius: 12px; font-size: 0.65rem; font-weight: 800; color: var(--p); border: 1px solid var(--p); }
+
+        .btn-add { background: var(--p); color: white; border: none; padding: 10px 20px; border-radius: 10px; font-size: 0.8rem; font-weight: 800; cursor: pointer; }
+        .btn-tag { background: white; border: 2px dashed var(--p); color: var(--p); border-radius: 12px; padding: 2px 10px; font-size: 0.65rem; font-weight: 800; cursor: pointer; }
+
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-thumb { background: var(--p); border-radius: 10px; }
+
+        .empty-hint { text-align:center; padding-top:40px; color: var(--text-blue); font-weight: 800; font-size: 1rem; }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    <header class="header">
+        <div class="cat-btn active" onclick="loadCat(1)" id="c1"><p>I. MATE: Monitorizare</p></div>
+        <div class="cat-btn" onclick="loadCat(2)" id="c2"><p>II. Intervenție & Prevenire</p></div>
+        <div class="cat-btn" onclick="loadCat(3)" id="c3"><p>III. Achiziții & Bunuri</p></div>
+        <div class="cat-btn" onclick="loadCat(4)" id="c4"><p>IV. Digitalizare</p></div>
+    </header>
+<div style="background: white; padding: 10px 20px; border-bottom: 2px solid var(--border); display: flex; gap: 15px; align-items: center;">
+    <div style="display: flex; gap: 8px; align-items: center;">
+        <label style="font-size: 0.7rem; font-weight: 800; color: var(--p);">INTERVAL RAPORT:</label>
+        <select id="start-month" style="padding: 5px; border-radius: 8px; border: 2px solid var(--border); font-family: inherit; font-weight: 700;"></select>
+        <span style="font-weight: 900;">→</span>
+        <select id="end-month" style="padding: 5px; border-radius: 8px; border: 2px solid var(--border); font-family: inherit; font-weight: 700;"></select>
+    </div>
+    <button class="btn-add" style="background: #059669;" onclick="printRaportComplet()">📊 Generare Raport COMPLET Proiect</button>
+</div>
+    <div class="main">
+        <aside class="sidebar">
+            <div class="sidebar-h">Subactivități Proiect</div>
+            <div id="list" class="sidebar-list"></div>
+        </aside>
+
+        <main class="content">
+            <section id="view" class="calendar-section">
+                <div class="empty-hint">SELECTAȚI O ACTIVITATE PENTRU A VEDEA CALENDARUL.</div>
+            </section>
+
+            <section class="docs-section">
+                <div class="docs-h">
+                    <h3 id="d-title">Registru Livrabile</h3>
+                    <button class="btn-add" onclick="addD()">+ Adaugă Document</button>
+                </div>
+                <div id="d-list" class="docs-grid">
+                    <div class="empty-hint" style="grid-column: span 2;">Selectați o lună din calendar.</div>
+                </div>
+            </section>
+        </main>
+    </div>
+</div>
+
+<script>
+const SB_URL = "https://aexjrbdgajurxzngfkpx.supabase.co"; 
+const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFleGpyYmRnYWp1cnh6bmdma3B4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgxMzE3NTYsImV4cCI6MjA4MzcwNzc1Nn0.VUx0QOKgjX4m23HOF2rBpE9vWA3T18KtjLc0w_iXhqA";
+const sb = supabase.createClient(SB_URL, SB_KEY);
+
+const project = {
+    timeline: [
+        {"year": "2024", "id": "L1", "name": "Mai"}, {"year": "2024", "id": "L2", "name": "Iun"}, {"year": "2024", "id": "L3", "name": "Iul"}, {"year": "2024", "id": "L4", "name": "Aug"}, {"year": "2024", "id": "L5", "name": "Sep"}, {"year": "2024", "id": "L6", "name": "Oct"}, {"year": "2024", "id": "L7", "name": "Noi"}, {"year": "2024", "id": "L8", "name": "Dec"},
+        {"year": "2025", "id": "L9", "name": "Ian"}, {"year": "2025", "id": "L10", "name": "Feb"}, {"year": "2025", "id": "L11", "name": "Mar"}, {"year": "2025", "id": "L12", "name": "Apr"}, {"year": "2025", "id": "L13", "name": "Mai"}, {"year": "2025", "id": "L14", "name": "Iun"}, {"year": "2025", "id": "L15", "name": "Iul"}, {"year": "2025", "id": "L16", "name": "Aug"}, {"year": "2025", "id": "L17", "name": "Sep"}, {"year": "2025", "id": "L18", "name": "Oct"}, {"year": "2025", "id": "L19", "name": "Noi"}, {"year": "2025", "id": "L20", "name": "Dec"},
+        {"year": "2026", "id": "L21", "name": "Ian"}, {"year": "2026", "id": "L22", "name": "Feb"}, {"year": "2026", "id": "L23", "name": "Mar"}, {"year": "2026", "id": "L24", "name": "Apr"}, {"year": "2026", "id": "L25", "name": "Mai"}, {"year": "2026", "id": "L26", "name": "Iun"}
+    ],
+    acts: {
+        "I.1.": { cat: 1, name: "Aplicarea chestionarului SASAT, de evaluare a succesului școlar, în rândul elevilor de gimnaziu", schedule: [], docs: {} },
+        "I.2.": { cat: 1, name: "Aplicarea Fișei de observare și a Fișei de evaluare MATE", schedule: [], duration: "", schedule: [], docs: {} },
+        "I.3.": { cat: 1, name: "Completarea și validarea Observatorului  Școlii", schedule: [], docs: {} },
+        "I.4.": { cat: 1, name: "Introducerea datelor în SIIIR, actualizarea periodică a datelor în SIIIR", schedule: [], docs: {} },
+        "II.1.": { cat: 2, name: "Activități de prevenire și combatere a violenței și bullying-ului", schedule: [], docs: {} },
+        "II.2.": { cat: 2, name: "Activități de formare a profesorilor online/fizic", schedule: [], docs: {} },
+        "II.3.": { cat: 2, name: "Servicii de masă caldă/rece pentru elevi", schedule: [], docs: {} },
+        "II.4.": { cat: 2, name: "Activități remediale și sprijin pedagogic", schedule: [], docs: {} },
+        "II.5.": { cat: 2, name: "Activități extracurriculare în parteneriat ONG", schedule: [], docs: {} },
+        "II.6.": { cat: 2, name: "Club de lectură - dezvoltarea literației", schedule: [], docs: {} },
+        "II.7.": { cat: 2, name: "Subvenții, ajutoare și premii beneficiari", schedule: [], docs: {} },
+        "III.1.": { cat: 3, name: "Amenajări minore și achiziție bunuri", schedule: [], docs: {} },
+        "III.2.": { cat: 3, name: "Realizarea materialelor de promovare", schedule: [], docs: {} },
+        "IV.1.": { cat: 4, name: "Achiziție echipamente hardware", schedule: [], docs: {} },
+        "IV.2.": { cat: 4, name: "Achiziție licențe software și resurse digitale", schedule: [], docs: {} },
+        "IV.3.": { cat: 4, name: "Cursuri training utilizare hardware/software", schedule: [], docs: {} }
+    }
+};
+
+const templates = { 
+    "I.1.": [
+        "Decizia directorului privind implementarea activității SASAT în cadrul PNRAS", 
+        "Planul activităților pentru implementarea MATE", 
+        "Chestionarele SASAT aplicate", 
+        "Raport interpretarea chestionare SASAT"
+    ],
+    "I.2.": [
+        "Decizia directorului privind implementarea MATE în unitate",
+        "Decizia de constituire a echipei MATE (sau includerea în Comisia PNRAS)",
+        "Calendarul aplicării fișelor",
+        "Adeverințe de apartenență la grupul-țintă",
+        "Declarații GDPR",
+        "Declarații evitare dublă finanțare",
+        "Fișele de observație completate (semnate, datate)",
+        "Registru centralizator Fișe de observație MATE",
+        "Raport strategic Fișe de observație",
+        "Fișele de evaluare MATE completate",
+        "Raport pe clase Fișe de evaluare",
+        "Raport General Fișe de evaluare",
+        "Liste dosare de caz/clase",
+        "Registru centralizator dosare de caz",
+        "Decizie aprobare dosare de caz",
+        "Planuri de servicii educaționale",
+        "Angajamente de remediere"
+    ],
+    "I.3.": [
+        "Decizia directorului privind implementarea MATE și utilizarea Observatorului Școlii",
+        "Constituirea echipei MATE (componență nominală)",
+        "Calendarul actualizării Observatorului",
+        "Observatorul Școlii (completat)",
+        "Hotărâre CA aprobare a Observatorului Școlii"
+    ],
+    "I.4.": [
+        "Decizia directorului de desemnare a responsabilului SIIIR",
+        "Fișa postului (unde apare atribuția de operare în SIIIR)",
+        "Procedură internă privind operarea și actualizarea datelor",
+        "Calendar intern de actualizare",
+        "Print/export rapoarte din SIIIR"
+    ],
+"II.3.": [
+        "Notă comandă",
+        "Avize",
+        "Liste de primire a pachetului alimentar",
+        "Raport de activitate",
+        "Proces-verbal de recepție",
+        "Factură"
+    ],
+"II.4.": [
+        "Planificări",
+        "Orare",
+        "Fișe de activitate",
+        "Liste de prezență",
+        "Rapoarte de activitate",
+        "Fișe individuale de pontaj",
+        "Stat de plată"
+    ],
+"II.5.": [
+        "Planificări",
+        "Orare",
+        "Fișe de activitate",
+        "Liste de prezență",
+        "Rapoarte de activitate",
+        "Fișe individuale de pontaj",
+        "Stat de plată"
+    ],
+"II.6.": [
+        "Planificări",
+        "Orare",
+        "Fișe de activitate",
+        "Liste de prezență",
+        "Rapoarte de activitate",
+        "Fișe individuale de pontaj",
+        "Stat de plată"
+    ],
+"II.7.": [
+        "Proces-verbal de recepție",
+        "Proces-verbal de distribuție",
+        "Fotografii"
+    ]
+};
+
+let cAct = null, cMon = null;
+
+function getBlockKey(code, mid) {
+    // Lista activităților care trebuie să fie INDIVIDUALE (lună de lună)
+    const separateActs = ["II.3.", "II.4.", "II.5.", "II.6."];
+    
+    // Dacă activitatea este în listă, dezactivăm gruparea și returnăm doar luna curentă
+    if (separateActs.includes(code)) {
+        return mid;
+    }
+
+    // --- LOGICA ORIGINALĂ PENTRU RESTUL ACTIVITĂȚILOR (Grupare pe blocuri) ---
+    const a = project.acts[code]; 
+    if (!a.schedule.includes(mid)) return mid;
+    
+    const sorted = [...a.schedule].sort((x, y) => parseInt(x.substring(1)) - parseInt(y.substring(1)));
+    let blockStart = mid; 
+    let currVal = parseInt(mid.substring(1));
+    
+    while (sorted.includes("L" + (currVal - 1))) { 
+        currVal--; 
+        blockStart = "L" + currVal; 
+    }
+    return blockStart;
+}
+
+async function init() {
+    const { data } = await sb.from('grafic_activitati').select('*');
+    if (data) data.forEach(r => { 
+        const act = project.acts[r.activity_code];
+        if(act) { 
+            act.schedule = r.schedule || []; 
+            const rawData = r.documents || {}; 
+
+            // EXTRAGEM folosind aceeași cheie: _justificari
+            act.justificari = rawData._justificari || {};
+
+            // Curățăm documentele pentru a nu randa justificările ca pe o lună
+            const cleanDocs = { ...rawData };
+            delete cleanDocs._justificari; 
+            act.docs = cleanDocs;
+        } 
+    });
+    loadCat(1);
+    if (typeof populateIntervals === 'function') populateIntervals();
+}
+
+async function sync(code) {
+    const a = project.acts[code];
+    // "Împachetăm" justificările în obiectul de documente
+    const payload = { 
+        ...a.docs, 
+        _justificari: a.justificari || {} // <-- Aici folosim cheia _justificari
+    };
+
+    await sb.from('grafic_activitati').upsert({ 
+        activity_code: code, 
+        schedule: a.schedule, 
+        documents: payload, 
+        updated_at: new Date() 
+    }, { onConflict: 'activity_code' });
+    
+    updateCellColors();
+}
+
+function updateCellColors() {
+    if (!cAct) return;
+    project.timeline.forEach(m => {
+        const cell = document.getElementById(`m-${m.id}`); if (!cell) return;
+        const key = getBlockKey(cAct, m.id); const ds = project.acts[cAct].docs[key] || [];
+        if (ds.length > 0 && ds.every(d => d.done)) cell.classList.add('finished'); else cell.classList.remove('finished');
+    });
+}
+
+function loadCat(id) {
+    const l = document.getElementById('list'); l.innerHTML = '';
+    document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById(`c${id}`).classList.add('active');
+    Object.keys(project.acts).forEach(code => {
+        const a = project.acts[code];
+        if (a.cat === id) {
+            const d = document.createElement('div'); d.className = 'act-item ' + (code===cAct?'active':'');
+            d.innerHTML = `<b>${code}</b> ${a.name}`; d.onclick = () => { renderAct(code); }; l.appendChild(d);
+        }
+    });
+}
+
+function renderAct(code) {
+    cAct = code; cMon = null; loadCat(project.acts[code].cat);
+    const v = document.getElementById('view'); const a = project.acts[code];
+    let h = `<div class="act-meta"><h2>Activitatea ${code}</h2><p>${a.name}</p></div>`;
+    ["2024", "2025", "2026"].forEach(y => {
+        h += `<div class="year-label">ANUL ${y}</div><div class="month-grid">`;
+        project.timeline.filter(t => t.year === y).forEach(m => {
+            const actv = a.schedule.includes(m.id) ? 'active' : '';
+            const key = getBlockKey(code, m.id), ds = a.docs[key] || [], fin = ds.length > 0 && ds.every(d => d.done) ? 'finished' : '';
+            h += `<div id="m-${m.id}" class="cell ${actv} ${fin}" onclick="selM('${m.id}')">${m.name}<span>${m.id}</span></div>`;
+        });
+        h += `</div><br>`;
+    });
+    v.innerHTML = h; document.getElementById('d-list').innerHTML = '<div class="empty-hint" style="grid-column: span 2;">SELECTAȚI O LUNĂ DIN CALENDAR.</div>';
+}
+
+function selM(mid) {
+    if (cMon === mid) {
+        cMon = null; document.querySelectorAll('.cell').forEach(c => c.classList.remove('sel'));
+        document.getElementById('d-list').innerHTML = '<div class="empty-hint" style="grid-column: span 2;">SELECTAȚI O LUNĂ DIN CALENDAR.</div>';
+        return;
+    }
+    cMon = mid; document.querySelectorAll('.cell').forEach(c => c.classList.remove('sel'));
+    document.getElementById(`m-${mid}`).classList.add('sel');
+    const key = getBlockKey(cAct, mid);
+    if (templates[cAct] && (!project.acts[cAct].docs[key] || project.acts[cAct].docs[key].length === 0)) {
+        project.acts[cAct].docs[key] = templates[cAct].map(t => ({ title: t, done: false, reg: "", sub: [] }));
+        sync(cAct);
+    }
+    renderD();
+}
+
+function renderD() {
+    const l = document.getElementById('d-list'); l.innerHTML = '';
+    const key = getBlockKey(cAct, cMon); 
+    const docs = project.acts[cAct].docs[key] || [];
+
+    // --- START LOGICĂ NOUĂ: JUSTIFICARE ---
+    // Verificăm dacă există justificări; dacă nu, inițializăm un obiect gol
+    if (!project.acts[cAct].justificari) project.acts[cAct].justificari = {};
+    const justValue = project.acts[cAct].justificari[key] || "";
+
+    const justDiv = document.createElement('div');
+    justDiv.style = "grid-column: span 2; margin-bottom: 15px; background: #fffbeb; border: 2px dashed #f59e0b; padding: 10px; border-radius: 12px;";
+    justDiv.innerHTML = `
+        <label style="display:block; font-size:0.7rem; font-weight:900; color:#b45309; margin-bottom:5px; text-transform:uppercase;">
+            ⚠️ Justificare nerealizare activitate (dacă este cazul):
+        </label>
+        <textarea style="width:100%; border:1px solid #fcd34d; border-radius:8px; padding:8px; font-family:inherit; font-size:0.85rem;" 
+            placeholder="Scrie aici motivul dacă activitatea nu a avut loc în această lună..."
+            onchange="upJust('${key}', this.value)">${justValue}</textarea>
+    `;
+    l.appendChild(justDiv);
+    // --- SFÂRȘIT LOGICĂ NOUĂ ---
+
+    if (docs.length === 0 && cMon) { 
+        l.innerHTML += '<div class="empty-hint" style="grid-column: span 2;">NICIUN DOCUMENT. FOLOSIȚI BUTONUL "ADĂUGĂ".</div>'; 
+        return; 
+    }
+
+    docs.forEach((d, i) => {
+        const div = document.createElement('div'); div.className = `doc-card ${d.done ? 'done' : ''}`;
+        
+        // LOGICĂ DINAMICĂ PENTRU AVVIZE (Păstrează structura originală)
+        const isAvize = d.title.toLowerCase().includes("avize");
+        const placeholderText = isAvize ? "Nr. avize" : "Nr. Reg.";
+
+        let subs = (d.sub || []).map((s, si) => `<div class="tag">${s} <button onclick="remSub(${i},${si})" style="border:none;background:none;color:red;cursor:pointer;font-weight:900;">&times;</button></div>`).join('');
+        
+        div.innerHTML = `
+            <div style="display:flex; align-items:center; gap:10px;">
+                <input type="checkbox" ${d.done?'checked':''} onchange="upD(${i},'done',this.checked)" style="width:22px; height:22px; accent-color:#f59e0b; cursor:pointer;">
+                <div class="doc-title">${d.title}</div>
+                <input type="text" class="doc-reg" value="${d.reg||''}" onchange="upD(${i},'reg',this.value)" placeholder="${placeholderText}">
+                <button onclick="remD(${i})" style="border:none;background:none;color:red;cursor:pointer;font-size:1.5rem;font-weight:900;">&times;</button>
+            </div>
+            <div style="display:flex; flex-wrap:wrap; gap:5px; padding-left:32px;">${subs}<button class="btn-tag" onclick="addSub(${i})">+ CLASĂ</button></div>`;
+        l.appendChild(div);
+    });
+}
+
+// Funcția de ajutor pentru salvarea textului din justificare
+async function upJust(key, val) {
+    project.acts[cAct].justificari[key] = val;
+    await sync(cAct);
+}
+function addSub(i) {
+    const val = prompt("Sub-registru (ex: 5A):");
+    if(val) { const key = getBlockKey(cAct, cMon); if(!project.acts[cAct].docs[key][i].sub) project.acts[cAct].docs[key][i].sub = []; project.acts[cAct].docs[key][i].sub.push(val); renderD(); sync(cAct); }
+}
+function remSub(i, si) { const key = getBlockKey(cAct, cMon); project.acts[cAct].docs[key][i].sub.splice(si,1); renderD(); sync(cAct); }
+function addD() { if(!cMon) return; const key = getBlockKey(cAct, cMon); if(!project.acts[cAct].docs[key]) project.acts[cAct].docs[key] = []; project.acts[cAct].docs[key].push({title:"DOCUMENT NOU", done:false, reg:"", sub:[]}); renderD(); sync(cAct); }
+function upD(i, f, v) { const key = getBlockKey(cAct, cMon); project.acts[cAct].docs[key][i][f] = v; if(f==='done') renderD(); sync(cAct); }
+function remD(i) { const key = getBlockKey(cAct, cMon); project.acts[cAct].docs[key].splice(i,1); renderD(); sync(cAct); }
+window.onload = init;
+
+function printRaportComplet() {
+    const startId = document.getElementById('start-month').value;
+    const endId = document.getElementById('end-month').value;
+    const startIndex = project.timeline.findIndex(t => t.id === startId);
+    const endIndex = project.timeline.findIndex(t => t.id === endId);
+    const selectedMonths = project.timeline.slice(startIndex, endIndex + 1);
+
+    const perioadaText = `${selectedMonths[0].name} ${selectedMonths[0].year} — ${selectedMonths[selectedMonths.length-1].name} ${selectedMonths[selectedMonths.length-1].year}`;
+
+    let iframe = document.createElement('iframe');
+    iframe.style.position = 'fixed';
+    iframe.style.width = '0';
+    iframe.style.height = '0';
+    iframe.style.border = '0';
+    document.body.appendChild(iframe);
+
+    let html = `
+    <html>
+    <head>
+        <style>
+            @page { size: A4 portrait; margin: 15mm 10mm; }
+            body { 
+                font-family: 'Plus Jakarta Sans', Arial, sans-serif; 
+                font-size: 10pt; color: #1a1a1a; line-height: 1.4; margin: 0;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+            .antet-wrapper { width: 100%; text-align: center; margin-bottom: 20px; }
+            .antet-img { width: 100%; height: auto; object-fit: contain; }
+            h1 { text-align: center; font-size: 12pt; color: #1e40af; margin: 15px 0; text-transform: uppercase; font-weight: 800; padding: 0 5%; }
+            .perioada-box { text-align: center; font-weight: 700; font-size: 11pt; margin-bottom: 25px; color: #334155; }
+            
+            table { width: 100%; border-collapse: collapse; margin-bottom: 30px; table-layout: fixed; border: 1px solid #000; page-break-inside: auto; }
+            tr { page-break-inside: avoid; page-break-after: auto; }
+            
+            .cat-header { background: #1e40af !important; color: white !important; padding: 10px; font-size: 11pt; font-weight: 800; border: 1px solid #000; text-transform: uppercase; }
+            .sub-title-row { background: #f1f5f9 !important; }
+            .sub-title-text { padding: 8px; font-weight: 700; color: #1e40af; font-size: 10pt; border: 1px solid #000; }
+            
+            th { background: #e2e8f0 !important; font-weight: 700; text-transform: uppercase; font-size: 8pt; border: 1px solid #000; padding: 8px; color: #334155; }
+            td { border: 1px solid #000; padding: 8px; vertical-align: middle; font-size: 9pt; }
+            
+            .status-cell { text-align: center; width: 110px; }
+            .status-box { display: block; padding: 4px 0; border-radius: 3px; color: white !important; font-weight: 800; font-size: 7.5pt; text-transform: uppercase; }
+            .realizat { background-color: #10b981 !important; }
+            .partial { background-color: #f59e0b !important; }
+            .nerealizat { background-color: #ef4444 !important; }
+            
+            .obs-text { color: #1a1a1a; font-style: italic; font-size: 8.5pt; line-height: 1.3; background: #fff; }
+            .footer { margin-top: 50px; display: flex; justify-content: space-between; page-break-inside: avoid; }
+            .sign-box { text-align: center; width: 40%; }
+            .sign-line { border-top: 1px solid #000; margin-top: 45px; padding-top: 5px; font-weight: 700; font-size: 9pt; }
+        </style>
+    </head>
+    <body>
+        <div class="antet-wrapper"><img src="antet_pnras.jpeg" class="antet-img"></div>
+        <h1>Raport de progres privind implementarea activităților în cadrul proiectului ”FII UNUL DINTRE C.R.A.I.! (Creativitate, Reziliență, Adaptabilitate, Incluziune)”</h1>
+        <div class="perioada-box">Interval raportat: ${perioadaText}</div>
+    `;
+
+    const fullMonths = { "Ian": "Ianuarie", "Feb": "Februarie", "Mar": "Martie", "Apr": "Aprilie", "Mai": "Mai", "Iun": "Iunie", "Iul": "Iulie", "Aug": "August", "Sep": "Septembrie", "Oct": "Octombrie", "Noi": "Noiembrie", "Dec": "Decembrie" };
+    
+    // Numele complete pentru categorii
+    const fullCatNames = {
+        1: "CATEGORIA 1: Prevenirea abandonului școlar prin utilizarea mecanismului de avertizare timpurie (MATE)",
+        2: "CATEGORIA 2: Intervenții educaționale, activități pedagogice și de sprijin pentru elevi",
+        3: "CATEGORIA 3: Dotări, achiziții de bunuri și servicii pentru sprijinirea procesului educațional",
+        4: "CATEGORIA 4: Digitalizarea proceselor educaționale și dezvoltarea competențelor digitale"
+    };
+
+    for (let c = 1; c <= 4; c++) {
+        let catHtml = ""; 
+        let hasContentInCat = false;
+
+        Object.keys(project.acts).forEach(code => {
+            const act = project.acts[code];
+            if (act.cat === c) {
+                const relevantMonths = selectedMonths.filter(m => {
+                    const key = getBlockKey(code, m.id);
+                    const hasDocs = act.docs[key] && act.docs[key].length > 0;
+                    const hasJust = act.justificari && act.justificari[key];
+                    const isScheduled = act.schedule.includes(m.id);
+                    return isScheduled || hasDocs || hasJust;
+                });
+
+                if (relevantMonths.length === 0) return;
+                
+                if (!hasContentInCat) { 
+                    catHtml += `<table><thead><tr><th colspan="3" class="cat-header">${fullCatNames[c]}</th></tr></thead>`; 
+                    hasContentInCat = true; 
+                }
+
+                catHtml += `<tr class="sub-title-row"><td colspan="3" class="sub-title-text">Subactivitatea ${code}: ${act.name}</td></tr>
+                            <tr><th style="width: 25%;">Lună și An calendaristic</th><th style="width: 20%;">Status implementare</th><th style="width: 55%;">Observații / Justificări privind progresul</th></tr>`;
+
+                let processedInSub = new Set();
+
+                relevantMonths.forEach(m => {
+                    if (processedInSub.has(m.id)) return;
+
+                    const currentKey = getBlockKey(code, m.id);
+                    const blockMonths = relevantMonths.filter(rm => getBlockKey(code, rm.id) === currentKey);
+                    const span = blockMonths.length;
+
+                    blockMonths.forEach((bm, idx) => {
+                        processedInSub.add(bm.id);
+                        
+                        const docs = act.docs[currentKey] || [];
+                        const doneCount = docs.filter(d => d.done).length;
+                        const isScheduled = act.schedule.includes(bm.id);
+                        
+                        let cls = "nerealizat", txt = "Nerealizat";
+                        if (doneCount > 0) {
+                            if (doneCount === docs.length) { cls = "realizat"; txt = "Realizat"; }
+                            else { cls = "partial"; txt = "Parțial"; }
+                        }
+                        
+                        let notaExtra = !isScheduled && (doneCount > 0) ? "<strong>[Activitate suplimentară neplanificată]</strong> " : "";
+                        const obs = act.justificari ? act.justificari[currentKey] : "";
+
+                        catHtml += `<tr>
+                            <td><b>${fullMonths[bm.name] || bm.name} ${bm.year}</b></td>
+                            <td class="status-cell"><span class="status-box ${cls}">${txt}</span></td>
+                            ${idx === 0 ? `<td class="obs-text" rowspan="${span}">${notaExtra}${obs || "-"}</td>` : ""}
+                        </tr>`;
+                    });
+                });
+            }
+        });
+        if (hasContentInCat) html += catHtml + `</table>`;
+    }
+
+    html += `<div class="footer"><div class="sign-box"><div class="sign-line">Director Unitate de Învățământ</div></div><div class="sign-box"><div class="sign-line">Responsabil Implementare Proiect</div></div></div></body></html>`;
+    
+    iframe.contentWindow.document.open(); 
+    iframe.contentWindow.document.write(html); 
+    iframe.contentWindow.document.close();
+    
+    iframe.onload = () => { 
+        iframe.contentWindow.focus(); 
+        iframe.contentWindow.print(); 
+        setTimeout(() => document.body.removeChild(iframe), 1000); 
+    };
+}
+
+function populateIntervals() {
+    const start = document.getElementById('start-month');
+    const end = document.getElementById('end-month');
+    if(!start || !end) return;
+    
+    start.innerHTML = ''; end.innerHTML = '';
+    project.timeline.forEach(m => {
+        start.add(new Option(`${m.name} ${m.year}`, m.id));
+        end.add(new Option(`${m.name} ${m.year}`, m.id));
+    });
+    // Setăm automat pe ultima lună disponibilă
+    end.value = project.timeline[project.timeline.length - 1].id;
+}
+</script>
+</body>
+</html>
