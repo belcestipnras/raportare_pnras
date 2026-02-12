@@ -114,50 +114,48 @@
             <img src="antet_pnras.jpeg" class="antet-img" alt="Antet PNRAS">
             
             <div class="doc-titlu">
-                HOTĂRÂREA NR. <span id="doc-nr" contenteditable="true" oninput="triggerAutoSave()"></span><br>
-                din data de <span id="doc-data" contenteditable="true" oninput="triggerAutoSave()"></span>
-            </div>
+    <span id="doc-tip-document" contenteditable="true" oninput="triggerAutoSave()">HOTĂRÂREA</span> NR. <span id="doc-nr" contenteditable="true" oninput="triggerAutoSave()"></span><br>
+    din data de <span id="doc-data" contenteditable="true" oninput="triggerAutoSave()"></span>
+</div>
 
-            <div class="doc-subtitlu">
-                Privind: <span id="doc-descriere-titlu" contenteditable="true" oninput="triggerAutoSave()"></span>
-            </div>
+<div class="doc-subtitlu">
+    Privind: <span id="doc-descriere-titlu" contenteditable="true" oninput="triggerAutoSave()"></span>
+</div>
 
             <div class="doc-corp">
-                <p><strong>În temeiul:</strong></p>
-                <ul class="doc-list" id="lista-legi-1" contenteditable="true" oninput="triggerAutoSave()">
-                    <li>Legii Educației Naționale nr. 198/2023, cu modificările și completările ulterioare;</li>
-                    <li>Metodologiei-cadru de organizare și funcționare a consiliului de administrație din unitățile de învățământ preuniversitar aprobată prin OME nr.6223 din 04.09.2023;</li>
-                    <li>Ordinului ministrului educației nr. 5.726/2024 privind aprobarea Regulamentului-cadru de organizare și funcționare a unităților de învățământ preuniversitar;</li>
-                    <li>Ordinului nr. 6000/2021 privind aprobarea Mecanismului de Avertizare Timpurie în Educaţie (MATE) şi a Metodologiei de implementare şi utilizare a modulului informatic MATE pentru prevenirea abandonului şcolar şi a părăsirii timpurii a şcolii, Publicat în Monitorul Oficial nr. 1252 din 30 decembrie 2021;</li>
-                    <li>Regulamentului (UE) 2016/679 al Parlamentului European și al Consiliului din 27 aprilie 2016 privind protecția persoanelor fizice în ceea ce privește prelucrarea datelor cu caracter personal și libera circulație a acestora.</li>
-                </ul>
+    <p contenteditable="true" oninput="triggerAutoSave()"><strong>În temeiul:</strong></p>
+    <ul class="doc-list" id="lista-legi-1" contenteditable="true" oninput="triggerAutoSave()">
+        <li>Legii Educației Naționale nr. 198/2023, cu modificările și completările ulterioare;</li>
+        <li>Metodologiei-cadru de organizare și funcționare a consiliului de administrație din unitățile de învățământ preuniversitar aprobată prin OME nr.6223 din 04.09.2023;</li>
+        <li>Ordinului ministrului educației nr. 5.726/2024 privind aprobarea Regulamentului-cadru de organizare și funcționare a unităților de învățământ preuniversitar;</li>
+        <li>Ordinului nr. 6000/2021 privind aprobarea Mecanismului de Avertizare Timpurie în Educaţie (MATE) şi a Metodologiei de implementare şi utilizare a modulului informatic MATE pentru prevenirea abandonului şcolar şi a părăsirii timpurii a şcolii, Publicat în Monitorul Oficial nr. 1252 din 30 decembrie 2021;</li>
+        <li>Regulamentului (UE) 2016/679 al Parlamentului European și al Consiliului din 27 aprilie 2016 privind protecția persoanelor fizice în ceea ce privește prelucrarea datelor cu caracter personal și libera circulație a acestora.</li>
+    </ul>
 
-                <p style="margin-top: 10px;"><strong>Având în vedere:</strong></p>
-                <ul class="doc-list" id="lista-legi-2" contenteditable="true" oninput="triggerAutoSave()">
-                    <li>Decizia nr. 49/17.09.2024 privind stabilirea componenței Consiliului de Administrație al Liceului Tehnologic ”Victor Mihăilescu Craiu” Belcești, județul Iași, pentru anul școlar 2024 - 2025;</li>
-                    <li>Ședința Consiliului de Administrație al Liceului Tehnologic “Victor Mihăilescu Craiu” Belcești, reunit în data de <strong><span id="doc-data-sedinta" contenteditable="true" oninput="triggerAutoSave()"></span></strong>;</li>
-                </ul>
+    <p style="margin-top: 10px;" contenteditable="true" oninput="triggerAutoSave()"><strong>Având în vedere:</strong></p>
+    <ul class="doc-list" id="lista-legi-2" contenteditable="true" oninput="triggerAutoSave()">
+        <li>Decizia nr. 49/17.09.2024 privind stabilirea componenței Consiliului de Administrație al Liceului Tehnologic ”Victor Mihăilescu Craiu” Belcești, județul Iași, pentru anul școlar 2024 - 2025;</li>
+        <li>Ședința Consiliului de Administrație al Liceului Tehnologic “Victor Mihăilescu Craiu” Belcești, reunit în data de <strong><span id="doc-data-sedinta" contenteditable="true" oninput="triggerAutoSave()"></span></strong>;</li>
+    </ul>
 
-                <div class="doc-decide">CONSILIUL DE ADMINISTRAȚIE HOTĂRĂȘTE:</div>
-                
-                <div id="articole-container"></div>
-                
-                <button class="btn-add-articol" onclick="adaugaArticol()">➕ Adaugă articol</button>
-
-            </div>
+    <div id="doc-titlu-decide" class="doc-decide" contenteditable="true" oninput="triggerAutoSave()">CONSILIUL DE ADMINISTRAȚIE HOTĂRĂȘTE:</div>
+    
+    <div id="articole-container"></div>
+    <button class="btn-add-articol" onclick="adaugaArticol()">➕ Adaugă articol</button>
+</div>
 
             <div class="doc-signatures">
-                <div class="sig-block">
-                    <b>Întocmit,</b><br>
-                    Secretar Consiliu de Administrație<br>
-                    prof. Mihaela MIHĂILĂ
-                </div>
-                <div class="sig-block" style="text-align: right;">
-                    <b>Președinte Consiliu de Administrație,</b><br>
-                    Director,<br>
-                    prof. Cătălin Ionuț BAZILUC
-                </div>
-            </div>
+    <div class="sig-block">
+        <b contenteditable="true" oninput="triggerAutoSave()" id="sig-titlu-1">Întocmit,</b><br>
+        <span contenteditable="true" oninput="triggerAutoSave()" id="sig-functie-1">Secretar Consiliu de Administrație</span><br>
+        <span contenteditable="true" oninput="triggerAutoSave()" id="sig-nume-1">prof. Mihaela MIHĂILĂ</span>
+    </div>
+    <div class="sig-block" style="text-align: right;">
+        <b contenteditable="true" oninput="triggerAutoSave()" id="sig-titlu-2">Președinte Consiliu de Administrație,</b><br>
+        <span contenteditable="true" oninput="triggerAutoSave()" id="sig-functie-2">Director</span>,<br>
+        <span contenteditable="true" oninput="triggerAutoSave()" id="sig-nume-2">prof. Cătălin Ionuț BAZILUC</span>
+    </div>
+</div>
         </div>
     </div>
 
@@ -202,43 +200,61 @@
         }
 
         async function saveDocumentContent() {
-            if (!currentHotarareId) return;
+    if (!currentHotarareId) return;
 
-            // 1. Preluăm elementele de BAZĂ (din Titlu) care au fost modificate
-            const newNr = document.getElementById('doc-nr').innerText.trim();
-            const newData = document.getElementById('doc-data').innerText.trim();
-            const newDesc = document.getElementById('doc-descriere-titlu').innerText.trim();
-            
-            // 2. Preluăm elementele din CORPUL DOCUMENTULUI
-            const dataSedinta = document.getElementById('doc-data-sedinta').innerText.trim();
-            const lege1 = document.getElementById('lista-legi-1').innerHTML;
-            const lege2 = document.getElementById('lista-legi-2').innerHTML;
-            const articoleInputs = document.querySelectorAll('.art-input');
-            const articoleTexte = Array.from(articoleInputs).map(input => input.value);
+    // 1. Citim valorile din antet și text
+    const tipDoc = document.getElementById('doc-tip-document').innerText.trim();
+    const newNr = document.getElementById('doc-nr').innerText.trim();
+    const newData = document.getElementById('doc-data').innerText.trim();
+    const newDesc = document.getElementById('doc-descriere-titlu').innerText.trim();
+    
+    const lege1 = document.getElementById('lista-legi-1').innerHTML;
+    const lege2 = document.getElementById('lista-legi-2').innerHTML;
+    const titluDecide = document.getElementById('doc-titlu-decide').innerHTML;
+    const dataSedinta = document.getElementById('doc-data-sedinta').innerText.trim();
+    
+    // 2. Citim datele din semnături (ID-urile create anterior)
+    const sigT1 = document.getElementById('sig-titlu-1').innerText;
+    const sigF1 = document.getElementById('sig-functie-1').innerText;
+    const sigN1 = document.getElementById('sig-nume-1').innerText;
+    const sigT2 = document.getElementById('sig-titlu-2').innerText;
+    const sigF2 = document.getElementById('sig-functie-2').innerText;
+    const sigN2 = document.getElementById('sig-nume-2').innerText;
 
-            // Împachetăm conținutul documentului
-            const docBodyData = JSON.stringify({ lege1, lege2, dataSedinta, articole: articoleTexte });
+    const articoleInputs = document.querySelectorAll('.art-input');
+    const articoleTexte = Array.from(articoleInputs).map(input => input.value);
 
-            try {
-                // UPDATE MULTIPLU: Actualizăm și coloanele de bază, și fișierul de date JSON
-                const { error } = await supabaseClient
-                    .from('numere_inregistrare')
-                    .update({ 
-                        nr_c: newNr,            // Noul Număr
-                        nr_d: newData,          // Noua Dată
-                        nr_inreg: newDesc,      // Noua Descriere
-                        document_data: docBodyData // Noul Conținut
-                    })
-                    .eq('id_unique', currentHotarareId);
+    // 3. Împachetăm TOTUL în JSON pentru baza de date
+    const docBodyData = JSON.stringify({ 
+        tipDoc, 
+        lege1, 
+        lege2, 
+        titluDecide, 
+        dataSedinta, 
+        articole: articoleTexte,
+        sigT1, sigF1, sigN1, sigT2, sigF2, sigN2 // Am adăugat semnăturile aici
+    });
 
-                if (!error) {
-                    const status = document.getElementById('save-status');
-                    status.innerText = "✓ Salvat";
-                    status.className = "status-saved";
-                    setTimeout(() => status.style.opacity = 0, 2000);
-                }
-            } catch (err) { console.error("Autosave Error:", err); }
+    try {
+        const { error } = await supabaseClient
+            .from('numere_inregistrare')
+            .update({ 
+                nr_c: newNr,            
+                nr_d: newData,          
+                nr_inreg: newDesc,      
+                document_data: docBodyData 
+            })
+            .eq('id_unique', currentHotarareId);
+
+        if (!error) {
+            const status = document.getElementById('save-status');
+            status.innerText = "✓ Salvat";
+            status.className = "status-saved";
+            status.style.opacity = 1;
+            setTimeout(() => status.style.opacity = 0, 2000);
         }
+    } catch (err) { console.error("Autosave Error:", err); }
+}
 
         // ==========================================
         // ARTICOLE LOGIC
@@ -282,43 +298,70 @@
         // ÎNCĂRCARE A4
         // ==========================================
         async function openA4(id, nr, data, descriere) {
-            currentHotarareId = id; 
+    currentHotarareId = id; 
 
-            document.getElementById('main-ui').style.display = 'none';
-            document.getElementById('btn-inapoi-mate').style.display = 'none';
-            document.getElementById('a4-view').style.display = 'flex';
+    // Schimbăm vizibilitatea interfeței
+    document.getElementById('main-ui').style.display = 'none';
+    document.getElementById('btn-inapoi-mate').style.display = 'none';
+    document.getElementById('a4-view').style.display = 'flex';
+    
+    // Setăm valorile de bază primite din card
+    document.getElementById('doc-nr').innerText = nr;
+    document.getElementById('doc-data').innerText = data;
+    document.getElementById('doc-descriere-titlu').innerText = descriere;
+    
+    // Curățăm containerul de articole înainte de încărcare
+    document.getElementById('articole-container').innerHTML = '';
+    articoleCount = 0;
+
+    try {
+        const { data: hotarareDB, error } = await supabaseClient
+            .from('numere_inregistrare')
+            .select('document_data')
+            .eq('id_unique', currentHotarareId)
+            .single();
+
+        if (hotarareDB && hotarareDB.document_data) {
+            const docData = JSON.parse(hotarareDB.document_data);
             
-            document.getElementById('doc-nr').innerText = nr;
-            document.getElementById('doc-data').innerText = data;
-            document.getElementById('doc-descriere-titlu').innerText = descriere;
+            // 1. Restaurăm Tipul (Hotărâre/Decizie)
+            document.getElementById('doc-tip-document').innerText = docData.tipDoc || "HOTĂRÂREA";
             
-            // Setăm o valoare inițială și pentru data ședinței
-            document.getElementById('doc-data-sedinta').innerText = data; 
+            // 2. Restaurăm Corpul textului (Legi și Temei)
+            // Folosim innerHTML pentru a păstra formatarea listelor
+            if(docData.lege1) document.getElementById('lista-legi-1').innerHTML = docData.lege1;
+            if(docData.lege2) document.getElementById('lista-legi-2').innerHTML = docData.lege2;
             
-            document.getElementById('articole-container').innerHTML = '';
-            articoleCount = 0;
+            // 3. Restaurăm titlul de decizie și data ședinței
+            if(docData.titluDecide) document.getElementById('doc-titlu-decide').innerHTML = docData.titluDecide;
+            document.getElementById('doc-data-sedinta').innerText = docData.dataSedinta || data;
 
-            try {
-                const { data: hotarareDB } = await supabaseClient
-                    .from('numere_inregistrare')
-                    .select('document_data')
-                    .eq('id_unique', currentHotarareId)
-                    .single();
+            // 4. Restaurăm Semnăturile (Dacă există salvate)
+            if(docData.sigT1) document.getElementById('sig-titlu-1').innerText = docData.sigT1;
+            if(docData.sigF1) document.getElementById('sig-functie-1').innerText = docData.sigF1;
+            if(docData.sigN1) document.getElementById('sig-nume-1').innerText = docData.sigN1;
+            if(docData.sigT2) document.getElementById('sig-titlu-2').innerText = docData.sigT2;
+            if(docData.sigF2) document.getElementById('sig-functie-2').innerText = docData.sigF2;
+            if(docData.sigN2) document.getElementById('sig-nume-2').innerText = docData.sigN2;
 
-                if (hotarareDB && hotarareDB.document_data) {
-                    const docData = JSON.parse(hotarareDB.document_data);
-                    document.getElementById('lista-legi-1').innerHTML = docData.lege1;
-                    document.getElementById('lista-legi-2').innerHTML = docData.lege2;
-                    
-                    // Restaurăm data ședinței din memorie, dacă a fost modificată
-                    if(docData.dataSedinta) document.getElementById('doc-data-sedinta').innerText = docData.dataSedinta;
-
-                    docData.articole.forEach(artText => adaugaArticol(artText));
-                } else {
-                    adaugaArticol(); 
-                }
-            } catch (err) { adaugaArticol(); }
+            // 5. Restaurăm Articolele
+            if (docData.articole && docData.articole.length > 0) {
+                docData.articole.forEach(artText => adaugaArticol(artText));
+            } else {
+                adaugaArticol();
+            }
+        } else {
+            // Dacă nu avem date salvate în document_data, inițializăm cu valori default
+            document.getElementById('doc-tip-document').innerText = "HOTĂRÂREA";
+            document.getElementById('doc-data-sedinta').innerText = data;
+            adaugaArticol(); 
         }
+    } catch (err) { 
+        console.error("Eroare la încărcare:", err);
+        document.getElementById('doc-data-sedinta').innerText = data;
+        adaugaArticol(); 
+    }
+}
 
         function closeA4() {
             document.getElementById('a4-view').style.display = 'none';
@@ -371,4 +414,5 @@
         }
     </script>
 </body>
+
 </html>
