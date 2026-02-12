@@ -521,56 +521,57 @@ function printRaportComplet() {
         Object.keys(project.acts).forEach(code => {
             const act = project.acts[code];
             if (act.cat === c) {
-                const relevantMonths = selectedMonths.filter(m => {
-                    const key = getBlockKey(code, m.id);
-                    const hasDocs = act.docs[key] && act.docs[key].length > 0;
-                    const hasJust = act.justificari && act.justificari[key];
-                    const isScheduled = act.schedule.includes(m.id);
-                    return isScheduled || hasDocs || hasJust;
-                });
+                // 1. Filtrare strictă: doar lunile care au bifa pusă în grafic
+const relevantMonths = selectedMonths.filter(m => {
+    return act.schedule && act.schedule.includes(m.id);
+});
 
-                if (relevantMonths.length === 0) return;
-                
-                if (!hasContentInCat) { 
-                    catHtml += `<table><thead><tr><th colspan="3" class="cat-header">${fullCatNames[c]}</th></tr></thead>`; 
-                    hasContentInCat = true; 
-                }
+if (relevantMonths.length === 0) return;
 
-                catHtml += `<tr class="sub-title-row"><td colspan="3" class="sub-title-text">Subactivitatea ${code}: ${act.name}</td></tr>
-                            <tr><th style="width: 25%;">Lună și An calendaristic</th><th style="width: 20%;">Status implementare</th><th style="width: 55%;">Observații / Justificări privind progresul</th></tr>`;
+// 2. Antetul categoriei și titlul activității
+if (!hasContentInCat) { 
+    catHtml += `<table><thead><tr><th colspan="3" class="cat-header">${fullCatNames[c]}</th></tr></thead>`; 
+    hasContentInCat = true; 
+}
 
-                let processedInSub = new Set();
+catHtml += `<tr class="sub-title-row"><td colspan="3" class="sub-title-text">Subactivitatea ${code}: ${act.name}</td></tr>
+            <tr><th style="width: 25%;">Lună și An calendaristic</th><th style="width: 20%;">Status implementare</th><th style="width: 55%;">Observații / Justificări privind progresul</th></tr>`;
 
-                relevantMonths.forEach(m => {
-                    if (processedInSub.has(m.id)) return;
+let processedInSub = new Set();
 
-                    const currentKey = getBlockKey(code, m.id);
-                    const blockMonths = relevantMonths.filter(rm => getBlockKey(code, rm.id) === currentKey);
-                    const span = blockMonths.length;
+relevantMonths.forEach(m => {
+    if (processedInSub.has(m.id)) return;
 
-                    blockMonths.forEach((bm, idx) => {
-                        processedInSub.add(bm.id);
-                        
-                        const docs = act.docs[currentKey] || [];
-                        const doneCount = docs.filter(d => d.done).length;
-                        const isScheduled = act.schedule.includes(bm.id);
-                        
-                        let cls = "nerealizat", txt = "Nerealizat";
-                        if (doneCount > 0) {
-                            if (doneCount === docs.length) { cls = "realizat"; txt = "Realizat"; }
-                            else { cls = "partial"; txt = "Parțial"; }
-                        }
-                        
-                        let notaExtra = !isScheduled && (doneCount > 0) ? "<strong>[Activitate suplimentară neplanificată]</strong> " : "";
-                        const obs = act.justificari ? act.justificari[currentKey] : "";
+    const currentKey = getBlockKey(code, m.id);
+    
+    // Luăm din grup doar lunile care sunt efectiv în schedule
+    const blockMonths = relevantMonths.filter(rm => 
+        getBlockKey(code, rm.id) === currentKey && act.schedule.includes(rm.id)
+    );
+    
+    const span = blockMonths.length;
 
-                        catHtml += `<tr>
-                            <td><b>${fullMonths[bm.name] || bm.name} ${bm.year}</b></td>
-                            <td class="status-cell"><span class="status-box ${cls}">${txt}</span></td>
-                            ${idx === 0 ? `<td class="obs-text" rowspan="${span}">${notaExtra}${obs || "-"}</td>` : ""}
-                        </tr>`;
-                    });
-                });
+    blockMonths.forEach((bm, idx) => {
+        processedInSub.add(bm.id);
+        
+        const docs = act.docs[currentKey] || [];
+        const doneCount = docs.filter(d => d.done).length;
+        
+        let cls = "nerealizat", txt = "Nerealizat";
+        if (doneCount > 0) {
+            if (doneCount === docs.length) { cls = "realizat"; txt = "Realizat"; }
+            else { cls = "partial"; txt = "Parțial"; }
+        }
+        
+        const obs = act.justificari ? act.justificari[currentKey] : "";
+
+        catHtml += `<tr>
+            <td><b>${fullMonths[bm.name] || bm.name} ${bm.year}</b></td>
+            <td class="status-cell"><span class="status-box ${cls}">${txt}</span></td>
+            ${idx === 0 ? `<td class="obs-text" rowspan="${span}">${obs || "-"}</td>` : ""}
+        </tr>`;
+    });
+});
             }
         });
         if (hasContentInCat) html += catHtml + `</table>`;
