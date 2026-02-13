@@ -53,7 +53,23 @@
 
         .a4-page { background-color: white; width: 210mm; min-height: 297mm; padding: 1.5cm; box-sizing: border-box; box-shadow: 0 8px 25px rgba(0,0,0,0.1); margin-bottom: 40px; color: #000; font-family: 'Times New Roman', Times, serif; display: flex; flex-direction: column; }
         .antet-img { width: 100%; height: auto; display: block; margin-bottom: 15px; }
-        .doc-titlu { text-align: center; font-size: 1.25rem; font-weight: 700; margin-bottom: 10px; text-transform: uppercase; line-height: 1.2; }
+        .doc-titlu { 
+    text-align: center; 
+    font-family: 'Times New Roman', Times, serif;
+    font-size: 1.25rem; /* Aceasta este dimensiunea de 20px, similară cu ce aveai */
+    font-weight: bold;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+    line-height: 1.5; /* Oferă puțin spațiu între cele două rânduri de titlu */
+}
+
+.doc-titlu span {
+    font-size: inherit; 
+    font-family: inherit;
+    font-weight: inherit;
+    display: inline; /* Revenim la inline pentru a permite curgerea textului */
+    outline: none;
+}
         .doc-subtitlu { text-align: center; font-size: 1.05rem; font-style: italic; margin-bottom: 15px; }
         .doc-corp { flex-grow: 1; font-size: 1rem; line-height: 1.1; text-align: justify; }
         
@@ -115,7 +131,10 @@
         .sig-block { text-align: left; }
 
         @media print {
-    * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+#main-ui, .controls-a4, .back-btn, .btn-add-articol, .btn-delete-art, .btn-add-articol-inline, .edit-sidebar { 
+        display: none !important; 
+    }    
+* { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
     @page { size: A4 portrait; margin: 1.5cm !important; } 
     body { margin: 0; padding: 0; background: white; }
     
@@ -128,9 +147,99 @@
     .art-input { border: none !important; padding: 2px 0 !important; background: transparent !important; }
     [contenteditable="true"] { outline: none !important; }
 }
+
+/* Bara Laterală de Editare */
+.edit-sidebar {
+    position: fixed;
+    right: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 60px;
+    background: white;
+    border: 1px solid #d1d9e0;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    display: none; /* Ascunsă implicit */
+    flex-direction: column;
+    padding: 10px 5px;
+    gap: 8px;
+    z-index: 1000;
+}
+
+.edit-btn {
+    width: 100%;
+    height: 40px;
+    background: #f8f9fa;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: bold;
+    transition: 0.2s;
+}
+
+.edit-btn:hover { background: #eef2f5; border-color: #0056b3; color: #0056b3; }
+.btn-group-label { font-size: 9px; text-align: center; color: #888; text-transform: uppercase; margin-top: 5px; }
+
+/* Elimină spațiul de deasupra și de dedesubtul listei în articole */
+.art-input ul, .art-input ol {
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+    padding-left: 20px; /* Doar cât să aibă loc bulina */
+}
+
+/* Elimină spațiul dintre punctele listei */
+.art-input li {
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+    line-height: 1.1; /* Sincronizat cu restul documentului */
+}
     </style>
 </head>
 <body>
+
+<div class="edit-sidebar" id="edit-sidebar">
+    <div class="btn-group-label">Text</div>
+    <button class="edit-btn" onclick="formatDoc('bold')">B</button>
+    <button class="edit-btn" onclick="formatDoc('italic')"><i>I</i></button>
+    <button class="edit-btn" onclick="formatDoc('underline')"><u>U</u></button>
+    
+    <div class="btn-group-label">Mărime Font</div>
+    <div id="font-indicator" style="font-size: 11px; color: red; font-weight: bold; text-align: center; margin-bottom: 5px;">16px</div>
+    <div style="display: flex; gap: 2px;">
+        <button class="edit-btn" onclick="adjustFontSize(1)">A+</button>
+        <button class="edit-btn" onclick="adjustFontSize(-1)">a-</button>
+    </div>
+
+    <div class="btn-group-label">Aliniere</div>
+    <button class="edit-btn" onclick="formatDoc('justifyLeft')">←</button>
+    <button class="edit-btn" onclick="formatDoc('justifyCenter')">↔</button>
+    <button class="edit-btn" onclick="formatDoc('justifyFull')">≡</button>
+
+    <div class="btn-group-label">Spațiu Paragraf</div>
+    <div style="display: flex; gap: 2px;">
+        <button class="edit-btn" onclick="adjustPadding('marginTop', 5)">↑+</button>
+        <button class="edit-btn" onclick="adjustPadding('marginTop', -5)">↑-</button>
+    </div>
+    <div style="display: flex; gap: 2px; margin-top: 2px;">
+        <button class="edit-btn" onclick="adjustPadding('marginBottom', 5)">↓+</button>
+        <button class="edit-btn" onclick="adjustPadding('marginBottom', -5)">↓-</button>
+    </div>
+
+    <div class="btn-group-label">Liste</div>
+    <div style="display: flex; gap: 2px;">
+        <button class="edit-btn" onclick="formatDoc('insertUnorderedList')">•</button>
+        <button class="edit-btn" onclick="formatDoc('insertOrderedList')">1.</button>
+    </div>
+
+<div class="btn-group-label">Acțiuni</div>
+<button class="edit-btn" onclick="resetDocumentComplet()" title="Resetare totală text" style="color: #d93025; font-size: 18px;">🔄</button>
+</div>
 
     <a href="mate.html" class="back-btn" id="btn-inapoi-mate">← Înapoi la MATE</a>
 
@@ -156,8 +265,11 @@
             <img src="antet_pnras.jpeg" class="antet-img" alt="Antet PNRAS">
             
             <div class="doc-titlu">
-    <span id="doc-tip-document" contenteditable="true" oninput="triggerAutoSave()">HOTĂRÂREA</span> NR. <span id="doc-nr" contenteditable="true" oninput="triggerAutoSave()"></span><br>
-    din data de <span id="doc-data" contenteditable="true" oninput="triggerAutoSave()"></span>
+    <span id="doc-tip-document" contenteditable="true" oninput="triggerAutoSave()">HOTĂRÂREA</span> 
+    <span contenteditable="true" oninput="triggerAutoSave()"> NR. </span>
+    <span id="doc-nr" contenteditable="true" oninput="triggerAutoSave()"></span>
+    <br> <span contenteditable="true" oninput="triggerAutoSave()">din data de </span>
+    <span id="doc-data" contenteditable="true" oninput="triggerAutoSave()"></span>
 </div>
 
 <div class="doc-subtitlu">
@@ -263,8 +375,10 @@
     const sigF2 = document.getElementById('sig-functie-2').innerText;
     const sigN2 = document.getElementById('sig-nume-2').innerText;
 
-    const articoleInputs = document.querySelectorAll('.art-input');
-    const articoleTexte = Array.from(articoleInputs).map(input => input.value);
+    // În interiorul funcției saveDocumentContent, modifică linia pentru articole:
+const articoleInputs = document.querySelectorAll('.art-input');
+// Folosim .innerHTML pentru a salva listele și formatarea
+const articoleTexte = Array.from(articoleInputs).map(input => input.innerHTML);
 
     // 3. Împachetăm TOTUL în JSON pentru baza de date
     const docBodyData = JSON.stringify({ 
@@ -309,22 +423,24 @@
     const div = document.createElement('div');
     div.className = 'articol-rand';
     
+    // Am înlocuit <textarea> cu <div class="art-input">
     div.innerHTML = `
         <span class="art-label">Art. ${articoleCount}.</span>
-        <textarea class="art-input" placeholder="Scrie textul articolului..." oninput="autoResize(this); triggerAutoSave()">${textExistent}</textarea>
+        <div class="art-input" 
+             contenteditable="true" 
+             oninput="triggerAutoSave()" 
+             style="min-height: 1.2em; text-align: justify; font-size: 16px; font-family: 'Times New Roman', serif; border: 1px dashed #ccc; padding: 2px 5px; border-radius: 3px; outline: none;">${textExistent}</div>
         <button class="btn-add-articol-inline" onclick="adaugaArticol('', this.parentElement)" title="Adaugă articol după acesta">➕</button>
         <button class="btn-delete-art" onclick="stergeArticol(this)" title="Șterge articol">×</button>
     `;
 
-    // Dacă am specificat un element după care să inserăm
     if (dupaElement) {
         dupaElement.after(div);
     } else {
         container.appendChild(div);
     }
 
-    renumereazaArticole(); // Reordonăm numerele imediat
-    autoResize(div.querySelector('textarea'));
+    renumereazaArticole();
     if(textExistent === "") triggerAutoSave(); 
 }
 
@@ -361,9 +477,9 @@
     document.getElementById('doc-data').innerText = data;
     document.getElementById('doc-descriere-titlu').innerText = descriere;
     
-    // Curățăm containerul de articole înainte de încărcare
-    document.getElementById('articole-container').innerHTML = '';
-    articoleCount = 0;
+    // În interiorul funcției openA4 (în jurul rândului 300)
+document.getElementById('articole-container').innerHTML = ''; // Golește vizual
+articoleCount = 0; // Resetează contorul intern
 
     try {
         const { data: hotarareDB, error } = await supabaseClient
@@ -463,6 +579,141 @@
                     <div class="card-descriere">${hot.nr_inreg}</div>
                 </div>`).join('');
         }
+
+// Constante pentru monitorizare
+const DEFAULT_FONT_SIZE = 16;
+
+// --- FUNCȚII DE FORMATARE ---
+
+// 1. Formatare text (Bold, Italic, Liste, Aliniere)
+function formatDoc(cmd) {
+    // Forțăm focusul înapoi pe document dacă s-a pierdut
+    document.execCommand(cmd, false, null);
+    triggerAutoSave();
+}
+
+// 2. Ajustare dimensiune font cu indicator
+function adjustFontSize(delta) {
+    const selection = window.getSelection();
+    if (selection.rangeCount > 0) {
+        let el = selection.anchorNode.parentElement;
+        // Căutăm cel mai apropiat element editabil (inclusiv textarea pentru articole)
+        let target = el.closest('p, .art-input, li, span, div[contenteditable="true"]');
+        
+        if (target) {
+            let currentSize = parseFloat(window.getComputedStyle(target).fontSize);
+            let newSize = Math.round(currentSize + delta);
+            target.style.fontSize = newSize + "px";
+            
+            // Actualizăm indicatorul vizual
+            updateFontIndicator(newSize);
+            triggerAutoSave();
+        }
+    }
+}
+
+// 3. Funcție pentru culoarea roșie la 16px
+function updateFontIndicator(size) {
+    const indicator = document.getElementById('font-indicator');
+    if (!indicator) return;
+    
+    const roundedSize = Math.round(size);
+    indicator.innerText = roundedSize + "px";
+    
+    if (roundedSize === DEFAULT_FONT_SIZE) {
+        indicator.style.color = "red";
+    } else {
+        indicator.style.color = "#0056b3";
+    }
+}
+
+// 4. Spațiere Sus/Jos (Margini)
+function adjustPadding(marginProp, amount) {
+    const selection = window.getSelection();
+    if (selection.rangeCount > 0) {
+        let el = selection.anchorNode.parentElement;
+        let target = el.closest('p, .articol-rand, li, .doc-titlu, .doc-subtitlu');
+        
+        if (target) {
+            let currentMargin = parseInt(window.getComputedStyle(target)[marginProp]) || 0;
+            let newMargin = currentMargin + amount;
+            target.style[marginProp] = (newMargin < 0 ? 0 : newMargin) + 'px';
+            triggerAutoSave();
+        }
+    }
+}
+
+// 5. Sincronizare indicator la click
+document.addEventListener('click', function(e) {
+    const target = e.target.closest('[contenteditable="true"], .art-input');
+    if (target) {
+        let size = parseFloat(window.getComputedStyle(target).fontSize);
+        updateFontIndicator(size);
+    }
+});
+
+// --- LOGICA DE AFIȘARE BARA LATERALĂ ---
+// Re-declarăm funcțiile globale pentru a evita conflictele
+const originalOpenA4 = openA4;
+openA4 = async function(id, nr, data, descriere) {
+    await originalOpenA4(id, nr, data, descriere);
+    document.getElementById('edit-sidebar').style.display = 'flex';
+    // Resetăm indicatorul la deschidere
+    updateFontIndicator(DEFAULT_FONT_SIZE);
+};
+
+const originalCloseA4 = closeA4;
+closeA4 = function() {
+    originalCloseA4();
+    document.getElementById('edit-sidebar').style.display = 'none';
+};
+
+function resetDocumentComplet() {
+    if (!confirm("Sigur vrei să resetezi tot documentul? Vei pierde textul scris și formatările.")) return;
+
+    // 1. Resetăm textele din antet
+    document.getElementById('doc-tip-document').innerText = "HOTĂRÂREA";
+    document.getElementById('doc-descriere-titlu').innerText = "";
+    document.getElementById('doc-data-sedinta').innerText = document.getElementById('doc-data').innerText;
+    document.getElementById('doc-titlu-decide').innerText = "CONSILIUL DE ADMINISTRAȚIE HOTĂRĂȘTE:";
+
+    // 2. Resetăm Temeiul Legal (Legile) - Textul complet
+    document.getElementById('lista-legi-1').innerHTML = `
+        <li>Legii Educației Naționale nr. 198/2023, cu modificările și completările ulterioare;</li>
+        <li>Metodologiei-cadru de organizare și funcționare a consiliului de administrație din unitățile de învățământ preuniversitar aprobată prin OME nr.6223 din 04.09.2023;</li>
+        <li>Ordinului ministrului educației nr. 5.726/2024 privind aprobarea Regulamentului-cadru de organizare și funcționare a unităților de învățământ preuniversitar;</li>
+        <li>Ordinului nr. 6000/2021 privind aprobarea Mecanismului de Avertizare Timpurie în Educaţie (MATE) şi a Metodologiei de implementare şi utilizare a modulului informatic MATE pentru prevenirea abandonului şcolar şi a părăsirii timpurii a şcolii, Publicat în Monitorul Oficial nr. 1252 din 30 decembrie 2021;</li>
+        <li>Regulamentului (UE) 2016/679 al Parlamentului European și al Consiliului din 27 aprilie 2016 privind protecția persoanelor fizice în ceea ce privește prelucrarea datelor cu caracter personal și libera circulație a acestora.</li>
+    `;
+    document.getElementById('lista-legi-2').innerHTML = `
+        <li>Decizia nr. 49/17.09.2024 privind stabilirea componenței Consiliului de Administrație al Liceului Tehnologic ”Victor Mihăilescu Craiu” Belcești, județul Iași, pentru anul școlar 2024 - 2025;</li>
+        <li>Ședința Consiliului de Administrație al Liceului Tehnologic “Victor Mihăilescu Craiu” Belcești, reunit în data de <strong><span id="doc-data-sedinta" contenteditable="true" oninput="triggerAutoSave()"></span></strong>;</li>
+    `;
+
+    // 3. Resetăm Semnăturile la valorile implicite
+    document.getElementById('sig-titlu-1').innerText = "Întocmit,";
+    document.getElementById('sig-functie-1').innerText = "Secretar Consiliu de Administrație";
+    document.getElementById('sig-nume-1').innerText = "prof. Mihaela MIHĂILĂ";
+    document.getElementById('sig-titlu-2').innerText = "Președinte Consiliu de Administrație,";
+    document.getElementById('sig-functie-2').innerText = "Director,";
+    document.getElementById('sig-nume-2').innerText = "prof. Cătălin Ionuț BAZILUC";
+
+    // 4. Resetăm articolele
+    document.getElementById('articole-container').innerHTML = '';
+    articoleCount = 0;
+    adaugaArticol("");
+
+    // 5. Resetăm stilurile vizuale (opțional, dar recomandat)
+    const allEditable = document.querySelectorAll('[contenteditable="true"]');
+    allEditable.forEach(el => {
+        el.style.fontSize = "16px";
+        el.style.marginTop = "";
+        el.style.marginBottom = "";
+    });
+
+    updateFontIndicator(DEFAULT_FONT_SIZE);
+    triggerAutoSave();
+}
     </script>
 </body>
 
