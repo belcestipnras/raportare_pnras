@@ -171,12 +171,17 @@
 
     async function refreshDate() {
         const indexLuna = luniText.indexOf(currentLuna);
-        const { data: toate } = await _SB.from('registru_master').select('luna_inreg').eq('an_inreg', currentAn).eq('stare', 'activ');
-        let countAnt = toate ? toate.filter(r => luniText.indexOf(r.luna_inreg) < indexLuna).length : 0;
-        document.getElementById('start-nr').value = countAnt + 1;
+    // 1. Preluăm datele de pornire pentru numerotare
+    const { data: toate } = await _SB.from('registru_master').select('luna_inreg').eq('an_inreg', currentAn).eq('stare', 'activ');
+    let countAnt = toate ? toate.filter(r => luniText.indexOf(r.luna_inreg) < indexLuna).length : 0;
+    document.getElementById('start-nr').value = countAnt + 1;
 
         const { data: rows } = await _SB.from('registru_master').select('*').eq('luna_inreg', currentLuna).eq('an_inreg', currentAn);
-        localRows = rows || [];
+    localRows = rows || [];
+
+window.numereOcupate = localRows
+        .filter(r => r.blocat === true)
+        .map(r => parseInt(r.numar_fix));
         
         const { data: p } = await _SB.from('pontaj_detaliat').select('expert, clase_grupe').eq('luna', currentLuna).eq('an', currentAn);
         let tempData = [];
@@ -204,37 +209,100 @@
     }
 
     function renderTabel() {
-        const tbody = document.getElementById('tabel-body');
-        tbody.innerHTML = '';
-        const startNr = parseInt(document.getElementById('start-nr').value);
-        const active = localRows.filter(r => r.stare !== 'sters').sort((a, b) => {
-    // 1. Sortăm după zi (numeric)
-    const ziA = parseInt(a.zi_inreg) || 0;
-    const ziB = parseInt(b.zi_inreg) || 0;
+    const tbody = document.getElementById('tabel-body');
+    tbody.innerHTML = '';
+    const startNr = parseInt(document.getElementById('start-nr').value);
+    
+    // 1. Sortare inițială cronologică pentru a atribui numerele corect
+    // Rândurile fără zi (cele noi) primesc valoarea 999 pentru a sta la final
+    let rowsToDisplay = localRows.filter(r => r.stare !== 'sters').sort((a, b) => {
+        const ziA = parseInt(a.zi_inreg) || 999;
+        const ziB = parseInt(b.zi_inreg) || 999;
+        return ziA !== ziB ? ziA - ziB : a.id - b.id;
+    });
 
-    if (ziA !== ziB) {
-        return ziA - ziB;
-    }
+    // 2. Calculăm numerele de înregistrare (afisNr)
+    let currentAutoNr = startNr;
+    const numereBlocateInLuna = rowsToDisplay.filter(r => r.blocat).map(r => parseInt(r.numar_fix));
 
-    // 2. Dacă ziua este aceeași, sortăm după ID (ordinea creării)
-    // Astfel, ultimul introdus (Orarul) va sta sub cel anterior (Popovici)
-    return a.id - b.id; 
-});
+    rowsToDisplay.forEach(row => {
+        if (row.blocat) {
+            row.tempNr = parseInt(row.numar_fix);
+        } else {
+            // Sărim peste numerele ocupate de rânduri blocate
+            while (numereBlocateInLuna.includes(currentAutoNr)) {
+                currentAutoNr++; 
+            }
+            row.tempNr = currentAutoNr;
+            currentAutoNr++;
+        }
+    });
 
-        active.forEach((row, i) => {
-            const nr = startNr + i;
-            const lunaNr = (luniText.indexOf(currentLuna)+1).toString().padStart(2,'0');
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td class="col-nr">${nr}</td>
-                <td class="col-zi"><input type="text" value="${row.zi_inreg || ''}" onchange="updateRow(${row.id}, 'zi_inreg', this.value)"></td>
-                <td class="col-nrdata">${nr} / ${row.zi_inreg || '..'}.${lunaNr}.${currentAn}</td>
-                <td class="col-continut"><input type="text" value="${row.cuprins_act || ''}" onchange="updateRow(${row.id}, 'cuprins_act', this.value)"></td>
-                <td class="col-del"><button onclick="deleteRow(${row.id})" style="color:var(--danger); background:none; border:none; cursor:pointer;">✕</button></td>
-            `;
-            tbody.appendChild(tr);
+    // 3. RE-SORTARE finală după numărul de înregistrare calculat
+    // Această sortare asigură succesiunea corectă: 524, 525, 526, 527...
+    rowsToDisplay.sort((a, b) => a.tempNr - b.tempNr);
+
+    // 4. Generarea propriu-zisă a rândurilor în tabel
+    rowsToDisplay.forEach((row) => {
+        const afisNr = row.tempNr;
+        const dataCurenta = parseInt(row.zi_inreg) || 0;
+        
+        // Verificăm dacă există conflict cronologic (Cod Roșu)
+        let esteConflict = false;
+        rowsToDisplay.forEach(altRow => {
+            if (altRow.blocat) {
+                const dataBlocata = parseInt(altRow.zi_inreg) || 0;
+                const nrBlocat = altRow.tempNr;
+                // Conflict dacă nr mai mare are dată mai mică decât un blocat (sau invers)
+                if (afisNr > nrBlocat && dataCurenta < dataBlocata) esteConflict = true;
+                if (afisNr < nrBlocat && dataCurenta > dataBlocata) esteConflict = true;
+            }
         });
-    }
+
+        // Verificăm dacă este Duminică
+        const lunaIdx = luniText.indexOf(currentLuna);
+        const dataVerif = new Date(currentAn, lunaIdx, dataCurenta);
+        const esteDuminica = dataVerif.getDay() === 0;
+        const lunaNr = (lunaIdx + 1).toString().padStart(2, '0');
+
+        const tr = document.createElement('tr');
+        if (esteConflict) {
+            tr.style.backgroundColor = "#fee2e2"; // Fundal roșu pentru erori de cronologie
+        }
+
+        tr.innerHTML = `
+            <td class="col-nr" style="${row.blocat ? 'background:#d1fae5 !important; color:#065f46; font-weight:800;' : ''}">
+                ${afisNr} ${row.blocat ? '🔒' : ''}
+            </td>
+            <td class="col-zi">
+                <input type="text" value="${row.zi_inreg || ''}" 
+                       style="${esteDuminica ? 'color: red; font-weight: 900;' : ''}"
+                       onchange="proceseazaSchimbareData(${row.id}, this.value)">
+            </td>
+            <td class="col-nrdata" style="${esteConflict ? 'color: red; font-weight: 900;' : ''}">
+                ${afisNr} / ${row.zi_inreg || '..'}.${lunaNr}.${currentAn}
+            </td>
+            <td class="col-continut">
+                <input type="text" value="${row.cuprins_act || ''}" onchange="updateRow(${row.id}, 'cuprins_act', this.value)">
+            </td>
+            <td class="col-del">
+                <div style="display: flex; gap: 10px; justify-content: center; align-items: center;">
+                    <button onclick="toggleLock(${row.id}, ${afisNr}, ${row.blocat ? 'false' : 'true'})" 
+                            title="${row.blocat ? 'Deblochează' : 'Blochează numărul'}"
+                            style="cursor:pointer; border:none; background:none; font-size:1.1rem; padding:0;">
+                        ${row.blocat ? '🔒' : '🔓'}
+                    </button>
+                    <button onclick="deleteRow(${row.id})" 
+                            title="Șterge"
+                            style="color:var(--danger); background:none; border:none; cursor:pointer; font-size:1.1rem; padding:0;">
+                        ✕
+                    </button>
+                </div>
+            </td>
+        `;
+        tbody.appendChild(tr);
+    });
+}
 
     async function adaugaGrup(tip, zi) {
         let payload = [];
@@ -494,6 +562,39 @@
     async function deleteRow(id) { await _SB.from('registru_master').update({ stare: 'sters' }).eq('id', id); refreshDate(); }
     async function restoreRow(id) { await _SB.from('registru_master').update({ stare: 'activ' }).eq('id', id); refreshDate(); }
     async function adaugaRandManual() { await _SB.from('registru_master').insert([{ zi_inreg: "", luna_inreg: currentLuna, an_inreg: currentAn, stare: 'activ', doc_id: `M_${Date.now()}` }]); refreshDate(); }
+// 1. Funcția care blochează/deblochează un număr
+async function toggleLock(id, numar, stare) {
+    // Salvăm starea în Supabase
+    const { error } = await _SB.from('registru_master')
+        .update({ 
+            blocat: stare, 
+            numar_fix: stare ? numar : null 
+        })
+        .eq('id', id);
+    
+    if (error) {
+        console.error("Eroare la blocare:", error);
+    } else {
+        await refreshDate(); // Reîmprospătăm datele pentru a vedea modificarea
+    }
+}
+
+// 2. Funcția care verifică data și duminica
+async function proceseazaSchimbareData(id, ziNoua) {
+    const zi = parseInt(ziNoua) || 0;
+    if (zi > 0) {
+        // Verificăm dacă este duminică
+        const lunaIdx = luniText.indexOf(currentLuna);
+        const dataObj = new Date(currentAn, lunaIdx, zi);
+        
+        if (dataObj.getDay() === 0) {
+            alert("⚠️ Atenție! Ziua de " + zi + " " + currentLuna + " este Duminică.");
+        }
+    }
+    
+    // Salvăm data în baza de date
+    await updateRow(id, 'zi_inreg', ziNoua);
+}
     async function golesteCosDefinitiv() { if(confirm("Ștergeți definitiv arhiva lunii?")) { await _SB.from('registru_master').delete().eq('luna_inreg', currentLuna).eq('an_inreg', currentAn).eq('stare', 'sters'); await refreshDate(); } }
 
     function renderTrash() {
@@ -557,6 +658,4 @@
     init();
 </script>
 </body>
-
 </html>
-
