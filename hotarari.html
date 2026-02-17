@@ -243,11 +243,13 @@
 
     <a href="mate.html" class="back-btn" id="btn-inapoi-mate">← Înapoi la MATE</a>
 
-    <div id="main-ui">
-        <div class="header-container">
-            <h1>Hotărâri MATE</h1>
-            <button class="add-btn" onclick="openModal()">➕ Adaugă hotărâre</button>
-        </div>
+    <div class="header-container">
+    <h1>Hotărâri, Decizii și alte documente</h1>
+    <div style="display: flex; gap: 10px;">
+        <button class="add-btn" style="background-color: #4b5563;" onclick="deschideRegistruMaster()">📚 Registru de evidență</button>
+        <button class="add-btn" onclick="openModal()">➕ Adaugă document</button>
+    </div>
+</div>
 
         <div class="grid-hotarari" id="cards-container">
             <p style="color: #666; font-style: italic;">Se încarcă hotărârile...</p>
@@ -315,10 +317,26 @@
 
     <div class="modal-overlay" id="add-modal">
         <div class="modal">
-            <h2>Adaugă Hotărâre Nouă</h2>
+            <h2>Adaugă Document Nou</h2>
             <div class="form-group"><label>Număr Hotărâre</label><input type="text" id="input-nr" placeholder="Ex: 45"></div>
             <div class="form-group"><label>Data (zz.ll.aaaa)</label><input type="text" id="input-data" placeholder="Ex: 15.01.2025"></div>
             <div class="form-group"><label>Descriere</label><textarea id="input-descriere" placeholder="Ex: Aprobarea fișelor..."></textarea></div>
+
+<div class="form-group">
+  <label>Tip document</label>
+  <select id="input-tip" style="width:100%; padding:10px; border:1px solid var(--border-color); border-radius:6px; font-family:'Inter', sans-serif; font-size:0.95rem; box-sizing:border-box;">
+    <option value="1_HOTARARE">Hotărâre</option>
+    <option value="1_DECIZIE">Decizie</option>
+    <option value="1_PROCES_VERBAL">Proces-verbal</option>
+    <option value="1_ALT">Alt document</option>
+  </select>
+</div>
+
+<div class="form-group" id="group-alt-tip" style="display:none;">
+  <label>Denumire document (ex: Referat, Notă de justificare)</label>
+  <input type="text" id="input-alt-tip" placeholder="Ex: Referat">
+</div>
+
             <div class="modal-actions">
                 <button class="cancel-btn" onclick="closeModal()">Renunță</button>
                 <button class="save-btn" onclick="saveHotarare()">Salvează</button>
@@ -335,8 +353,34 @@
 
         window.onload = loadHotarari;
 
-        function openModal() { document.getElementById('add-modal').style.display = 'flex'; }
-        function closeModal() { document.getElementById('add-modal').style.display = 'none'; }
+document.addEventListener('DOMContentLoaded', () => {
+  const tipSelect = document.getElementById('input-tip');
+  const altGroup = document.getElementById('group-alt-tip');
+  const altInput = document.getElementById('input-alt-tip');
+
+  if (tipSelect) {
+    tipSelect.addEventListener('change', () => {
+      const isAlt = tipSelect.value === '1_ALT';
+      altGroup.style.display = isAlt ? 'block' : 'none';
+      if (!isAlt) altInput.value = '';
+    });
+  }
+});
+
+        function openModal() {
+  document.getElementById('add-modal').style.display = 'flex';
+  // reset câmpuri tip/alt la deschidere
+  const tip = document.getElementById('input-tip');
+  const altGroup = document.getElementById('group-alt-tip');
+  const altInput = document.getElementById('input-alt-tip');
+  if (tip) tip.value = '1_HOTARARE';
+  if (altGroup) altGroup.style.display = 'none';
+  if (altInput) altInput.value = '';
+}
+
+function closeModal() {
+  document.getElementById('add-modal').style.display = 'none';
+}
 
         // ==========================================
         // AUTOSAVE LOGIC ACTUALIZAT (Salvează și Datele Principale)
@@ -464,18 +508,31 @@ const articoleTexte = Array.from(articoleInputs).map(input => input.innerHTML);
         // ==========================================
         // ÎNCĂRCARE A4
         // ==========================================
-        async function openA4(id, nr, data, descriere) {
+        async function openA4(id, nr, data, descriere, tipRegistru) {
     currentHotarareId = id; 
 
-    // Schimbăm vizibilitatea interfeței
-    document.getElementById('main-ui').style.display = 'none';
-    document.getElementById('btn-inapoi-mate').style.display = 'none';
-    document.getElementById('a4-view').style.display = 'flex';
+    // Verificăm dacă elementele există înainte de a le schimba stilul
+    const mainUi = document.getElementById('main-ui');
+    const btnInapoi = document.getElementById('btn-inapoi-mate');
+    const a4View = document.getElementById('a4-view');
+
+    if (mainUi) mainUi.style.display = 'none';
+    if (btnInapoi) btnInapoi.style.display = 'none';
+    if (a4View) a4View.style.display = 'flex';
     
     // Setăm valorile de bază primite din card
     document.getElementById('doc-nr').innerText = nr;
     document.getElementById('doc-data').innerText = data;
     document.getElementById('doc-descriere-titlu').innerText = descriere;
+
+// Setăm tipul mare (titlul) din tipRegistru (va putea fi suprascris ulterior din document_data dacă există)
+const tipEl = document.getElementById('doc-tip-document');
+if (tipEl) {
+  if (tipRegistru === '1_HOTARARE') tipEl.innerText = 'HOTĂRÂREA';
+  else if (tipRegistru === '1_DECIZIE') tipEl.innerText = 'DECIZIA';
+  else if (tipRegistru === '1_PROCES_VERBAL') tipEl.innerText = 'PROCES-VERBAL';
+  else tipEl.innerText = 'DOCUMENT';
+}
     
     // În interiorul funcției openA4 (în jurul rândului 300)
 document.getElementById('articole-container').innerHTML = ''; // Golește vizual
@@ -543,23 +600,63 @@ articoleCount = 0; // Resetează contorul intern
         // CRUD BAZĂ
         // ==========================================
         async function saveHotarare() {
-            const nr = document.getElementById('input-nr').value.trim();
-            const data = document.getElementById('input-data').value.trim();
-            const desc = document.getElementById('input-descriere').value.trim();
+    const nr = document.getElementById('input-nr').value.trim();
+    const data = document.getElementById('input-data').value.trim();
+    const desc = document.getElementById('input-descriere').value.trim();
 
-            if (!nr || !data || !desc) { alert("Completați toate câmpurile!"); return; }
+    const tip = document.getElementById('input-tip').value;
+    const altTip = (document.getElementById('input-alt-tip')?.value || '').trim();
 
-            const idCodificat = `HOT_${new Date().getTime()}`;
-            let anSelectat = parseInt(data.slice(-4)) || new Date().getFullYear();
+    if (!nr || !data || !desc) {
+        alert("Completați toate câmpurile!");
+        return;
+    }
 
-            try {
-                const { error } = await supabaseClient.from('numere_inregistrare').insert([{ 
-                    id_unique: idCodificat, expert_nume: 'Sistem', tip_registru: 'HOTARARE', 
-                    nr_c: nr, nr_d: data, nr_inreg: desc, an: anSelectat, luna: 1, ultima_modificare: new Date().toISOString()
-                }]);
-                if (error) throw error; closeModal(); loadHotarari(); 
-            } catch (err) { alert(`Eroare: ${err.message}`); }
-        }
+    if (tip === '1_ALT' && !altTip) {
+        alert("Scrie denumirea documentului (ex: Referat)!");
+        return;
+    }
+
+    const idCodificat = `HOT_${new Date().getTime()}`;
+    let anSelectat = parseInt(data.slice(-4)) || new Date().getFullYear();
+
+    // Stabilim titlul documentului (pentru A4)
+    let tipDocText = "HOTĂRÂREA";
+    if (tip === '1_DECIZIE') tipDocText = "DECIZIA";
+    if (tip === '1_PROCES_VERBAL') tipDocText = "PROCES-VERBAL";
+    if (tip === '1_ALT') tipDocText = altTip.toUpperCase();
+
+    const documentInitial = {
+        tipDoc: tipDocText,
+        altTip: (tip === '1_ALT') ? altTip : ""
+    };
+
+    try {
+        const { error } = await supabaseClient
+            .from('numere_inregistrare')
+            .insert([{
+                id_unique: idCodificat,
+                expert_nume: 'Sistem',
+                tip_registru: tip,              // 🔵 cheia sistemului nou
+                nr_c: nr,
+                nr_d: data,
+                nr_inreg: desc,
+                an: anSelectat,
+                luna: 1,
+                ultima_modificare: new Date().toISOString(),
+                document_data: JSON.stringify(documentInitial)
+            }]);
+
+        if (error) throw error;
+
+        closeModal();
+        loadHotarari();
+
+    } catch (err) {
+        alert("Eroare salvare: " + err.message);
+    }
+}
+
 
         async function deleteHotarare(id) {
             if (!confirm("Sigur ștergi hotărârea?")) return;
@@ -568,17 +665,53 @@ articoleCount = 0; // Resetează contorul intern
         }
 
         async function loadHotarari() {
-            const container = document.getElementById('cards-container');
-            const { data: hotarari } = await supabaseClient.from('numere_inregistrare').select('*').eq('tip_registru', 'HOTARARE').order('ultima_modificare', { ascending: false }); 
-            if (!hotarari || !hotarari.length) { container.innerHTML = '<p style="color:#666; font-style:italic;">Nicio hotărâre.</p>'; return; }
-            container.innerHTML = hotarari.map(hot => `
-                <div class="hotarare-card" onclick="openA4('${hot.id_unique}', '${hot.nr_c}', '${hot.nr_d}', '${hot.nr_inreg}')">
-                    <button class="delete-btn" onclick="event.stopPropagation(); deleteHotarare('${hot.id_unique}')">🗑️</button>
-                    <div class="card-nr">Hotărârea Nr. ${hot.nr_c}</div>
-                    <div class="card-data">📅 ${hot.nr_d}</div>
-                    <div class="card-descriere">${hot.nr_inreg}</div>
-                </div>`).join('');
+    const container = document.getElementById('cards-container');
+
+    const { data: docs, error } = await supabaseClient
+        .from('numere_inregistrare')
+        .select('*')
+        .like('tip_registru', '1_%')   // 🔵 doar MATE
+        .order('nr_d', { ascending: false });
+
+    if (error) {
+        container.innerHTML = `<p style="color:red">Eroare: ${error.message}</p>`;
+        return;
+    }
+
+    if (!docs || !docs.length) {
+        container.innerHTML = '<p style="color:#666; font-style:italic;">Niciun document.</p>';
+        return;
+    }
+
+    function tipAfisaj(doc) {
+        if (doc.tip_registru === '1_HOTARARE') return 'HOTĂRÂRE';
+        if (doc.tip_registru === '1_DECIZIE') return 'DECIZIE';
+        if (doc.tip_registru === '1_PROCES_VERBAL') return 'PROCES-VERBAL';
+
+        if (doc.tip_registru === '1_ALT') {
+            try {
+                const d = doc.document_data ? JSON.parse(doc.document_data) : null;
+                return (d?.altTip || d?.tipDoc || 'DOCUMENT');
+            } catch {
+                return 'DOCUMENT';
+            }
         }
+
+        return 'DOCUMENT';
+    }
+
+    container.innerHTML = docs.map(doc => `
+        <div class="hotarare-card" 
+            onclick="openA4('${doc.id_unique}', '${doc.nr_c}', '${doc.nr_d}', '${doc.nr_inreg}', '${doc.tip_registru}')">
+            
+            <button class="delete-btn" onclick="event.stopPropagation(); deleteHotarare('${doc.id_unique}')">🗑️</button>
+            
+            <div class="card-nr">${tipAfisaj(doc)} Nr. ${doc.nr_c}</div>
+            <div class="card-data">📅 ${doc.nr_d}</div>
+            <div class="card-descriere">${doc.nr_inreg}</div>
+        </div>
+    `).join('');
+}
 
 // Constante pentru monitorizare
 const DEFAULT_FONT_SIZE = 16;
@@ -655,10 +788,10 @@ document.addEventListener('click', function(e) {
 // --- LOGICA DE AFIȘARE BARA LATERALĂ ---
 // Re-declarăm funcțiile globale pentru a evita conflictele
 const originalOpenA4 = openA4;
-openA4 = async function(id, nr, data, descriere) {
-    await originalOpenA4(id, nr, data, descriere);
+
+openA4 = async function(id, nr, data, descriere, tipRegistru) {
+    await originalOpenA4(id, nr, data, descriere, tipRegistru);
     document.getElementById('edit-sidebar').style.display = 'flex';
-    // Resetăm indicatorul la deschidere
     updateFontIndicator(DEFAULT_FONT_SIZE);
 };
 
@@ -713,6 +846,182 @@ function resetDocumentComplet() {
 
     updateFontIndicator(DEFAULT_FONT_SIZE);
     triggerAutoSave();
+}
+
+async function deschideRegistruMaster() {
+    const regWin = window.open('', '_blank');
+    
+    regWin.document.write(`
+        <!DOCTYPE html>
+        <html lang="ro">
+        <head>
+            <meta charset="UTF-8">
+            <title>Registru General 25 Poziții</title>
+            <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+            <style>
+                @page { size: A4; margin: 0; }
+                body { margin: 0; padding: 0; background: #525659; font-family: 'Inter', sans-serif; }
+                
+                .page { 
+                    width: 210mm; height: 297mm; 
+                    padding: 10mm 15mm; margin: 10mm auto; 
+                    background: white; box-sizing: border-box; 
+                    page-break-after: always; overflow: hidden;
+                    display: flex; flex-direction: column; position: relative;
+                }
+
+                /* PAGINA 1: COPERTA (REPRODUCERE IDENTICĂ) */
+                .page-coperta { 
+                    border: 2px solid #1e40af; 
+                    background: linear-gradient(135deg, #f0f7ff 0%, #ffffff 100%); 
+                    justify-content: center; align-items: center; text-align: center;
+                }
+                .antet-img { width: 100%; max-width: 650px; margin-bottom: 50px; }
+                .titlu-registru { font-size: 56pt; font-weight: 900; color: #1e40af; margin: 0; letter-spacing: -2px; text-transform: uppercase; }
+                .linie-decor { width: 120px; height: 8px; background: #1e40af; margin: 25px auto; border-radius: 4px; }
+                .subtitlu-registru { font-size: 24pt; font-weight: 700; color: #334155; text-transform: uppercase; line-height: 1.2; }
+                .footer-coperta { margin-top: auto; font-size: 14pt; font-weight: 600; color: #475569; border-top: 2px solid #e2e8f0; padding-top: 30px; width: 80%; margin-bottom: 20mm; }
+
+                /* PAGINA 2: TABELUL (MAXIM 25 RÂNDURI PENTRU A4) */
+                .header-tabel { text-align: center; text-transform: uppercase; font-weight: 800; margin-bottom: 10px; color: #1e40af; font-size: 14pt; }
+                table { width: 100%; border-collapse: collapse; border: 1.5px solid black; table-layout: fixed; }
+                th, td { border: 1px solid black; padding: 0 5px; font-size: 10pt; }
+                th { background: #f1f5f9; text-transform: uppercase; font-size: 8pt; text-align: center; height: 25px; }
+                .col-nr { width: 35px; text-align: center; font-weight: bold; background: #f8fafc; }
+                .col-data { width: 95px; text-align: center; }
+                .col-tip { width: 110px; text-align: center; }
+                td { height: 9.4mm; overflow: hidden; }
+
+                /* PAGINA 3: PROCES VERBAL (IDENTIC DIN SURSĂ) */
+                .pv-outer { border: 2px solid #1e40af; padding: 25mm 20mm; flex-grow: 1; background: #fcfdfe; display: flex; flex-direction: column; }
+                .pv-titlu { text-align: center; color: #1e40af; font-weight: 900; font-size: 22pt; text-decoration: underline; margin-bottom: 40px; text-transform: uppercase; }
+                .pv-text { font-size: 13pt; line-height: 1.8; text-align: justify; margin-bottom: 25px; }
+                .semnaturi { display: flex; justify-content: space-between; margin-top: auto; text-align: center; padding-bottom: 30px; }
+                .semn-box { width: 45%; font-size: 11pt; }
+
+                .no-print { position: fixed; top: 15px; right: 15px; z-index: 9999; }
+                .btn-p { padding: 12px 25px; cursor: pointer; font-weight: bold; background: #1e40af; color: white; border: none; border-radius: 6px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+
+                @media print {
+                    body { background: none; }
+                    .page { margin: 0; box-shadow: none; border: none; width: 210mm; height: 297mm; }
+                    .page-coperta, .pv-outer { border: 2px solid #1e40af !important; -webkit-print-color-adjust: exact; }
+                    .no-print { display: none !important; }
+                }
+            </style>
+        </head>
+        <body>
+            <div class="no-print">
+                <button class="btn-p" onclick="window.print()">🖨️ PRINTARE REGISTRU COMPLET</button>
+            </div>
+
+            <div class="page page-coperta">
+                <img src="antet_pnras.jpeg" class="antet-img" onerror="this.style.display='none'">
+                <div class="titlu-container">
+                    <div class="titlu-registru">REGISTRU</div>
+                    <div class="linie-decor"></div>
+                    <div class="subtitlu-registru">DE EVIDENȚĂ A<br>HOTĂRÂRILOR ȘI DECIZIILOR</div>
+                </div>
+                <div class="footer-coperta">
+                    LICEUL TEHNOLOGIC ”VICTOR MIHĂILESCU CRAIU” BELCEȘTI<br>
+                    JUDEȚUL IAȘI
+                </div>
+            </div>
+
+            <div class="page">
+                <div class="header-tabel">EVIDENȚA CRONOLOGICĂ A DOCUMENTELOR</div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th class="col-nr">Nr.</th>
+                            <th class="col-data">Data emiterii</th>
+                            <th class="col-tip">Tip Document</th>
+                            <th>Conținut Document (Obiectul înregistrării)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="reg-body"></tbody>
+                </table>
+            </div>
+
+            <div class="page">
+                <div class="pv-outer">
+                    <h2 class="pv-titlu">PROCES-VERBAL</h2>
+                    <p class="pv-text">
+                        Prezentul registru de evidență a Hotărârilor și Deciziilor conține un număr de <strong>25 (douăzeci și cinci) de poziții</strong> numerotate cronologic.
+                    </p>
+                    <p class="pv-text">
+                        La data generării, în registru sunt înscrise un număr de <strong id="total-doc">...</strong> documente oficiale. 
+                        Numerotarea și integritatea documentelor au fost verificate conform procedurilor Liceului Tehnologic ”Victor Mihăilescu Craiu” Belcești.
+                    </p>
+                    <div class="semnaturi">
+                        <div class="semn-box">
+                            <strong>DIRECTOR,</strong><br>prof. Cătălin Ionuț BAZILUC<br><br><br>_________________
+                        </div>
+                        <div class="semn-box">
+                            <strong>MANAGER PROIECT,</strong><br>prof. dr. Ciprian MIHAI<br><br><br>_________________
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </body>
+        </html>
+    `);
+
+    try {
+        const { data: documente } = await supabaseClient
+            .from('numere_inregistrare')
+            .select('*'); // Luăm tot pentru a nu bloca funcțiile de deschidere
+
+        const docMap = {};
+        let countReal = 0;
+
+        if (documente) {
+            documente.forEach(d => { 
+                // Detectăm numărul curat pentru plasarea în tabel, dar păstrăm restul datelor intacte
+                const nrString = String(d.nr_c || "");
+                const nrCurat = parseInt(nrString.replace(/[^0-9]/g, ''));
+                const esteTipValid = (typeof d.tip_registru === 'string' && d.tip_registru.startsWith('1_'));
+                
+                if (nrCurat >= 1 && nrCurat <= 25 && esteTipValid) {
+                    docMap[nrCurat] = d;
+                    countReal++;
+                }
+            });
+        }
+
+        const tbody = regWin.document.getElementById('reg-body');
+        regWin.document.getElementById('total-doc').innerText = countReal;
+
+        for (let i = 1; i <= 25; i++) {
+            const doc = docMap[i];
+            const tr = regWin.document.createElement('tr');
+            if (doc) {
+                let tip = 'DOCUMENT';
+
+if (doc.tip_registru === '1_HOTARARE') tip = 'HOTĂRÂRE';
+else if (doc.tip_registru === '1_DECIZIE') tip = 'DECIZIE';
+else if (doc.tip_registru === '1_PROCES_VERBAL') tip = 'PROCES-VERBAL';
+else if (doc.tip_registru === '1_ALT') {
+    try {
+        const dd = doc.document_data ? JSON.parse(doc.document_data) : null;
+        tip = (dd?.altTip || dd?.tipDoc || 'ALT DOCUMENT').toUpperCase();
+    } catch {
+        tip = 'ALT DOCUMENT';
+    }
+}
+                tr.innerHTML = `
+                    <td class="col-nr">${i}</td>
+                    <td class="col-data">${doc.nr_d || ''}</td>
+                    <td class="col-tip"><strong>${tip}</strong></td>
+                    <td style="font-size: 9pt;">${doc.nr_inreg || ''}</td>
+                `;
+            } else {
+                // Rând gol FĂRĂ TEXT conform cerinței
+                tr.innerHTML = `<td class="col-nr">${i}</td><td></td><td></td><td></td>`;
+            }
+            tbody.appendChild(tr);
+        }
+    } catch (err) { console.error(err); }
 }
     </script>
 </body>
