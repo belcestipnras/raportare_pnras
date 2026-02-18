@@ -1083,8 +1083,14 @@
                                 <span>${titluContract}</span>
                                 <div style="display:flex; align-items:center; gap:10px;">
                                     <span>${formatBani(contract.valoare)} <span class="contract-status ${clasaStare}">${displayStare}</span></span>
-                                    ${(!isPrintMode && !isTotalView) ? `<button class="btn-action-small btn-edit no-print" onclick="deschideEditareContract('${contract.id}')">✏️</button><button class="btn-action-small btn-delete no-print" onclick="stergeContract('${contract.id}')">🗑️</button>` : ''}
-                                </div>
+${(!isPrintMode && !isTotalView) ? `
+<button class="btn-action-small no-print"
+onclick="deschideDosarDinTitlu('${contract.id}', this)"
+title="Dosar contract">📁</button>
+<button class="btn-action-small btn-edit no-print" onclick="deschideEditareContract('${contract.id}')">✏️</button>
+<button class="btn-action-small btn-delete no-print" onclick="stergeContract('${contract.id}')">🗑️</button>
+` : ''}
+</div>
                             </div>
                             ${cTvaInfo}
                             <div class="factura-list">${facturiHtml}</div>
@@ -1257,6 +1263,19 @@
 
         async function stergeContract(id) { if (!confirm("⚠️ Ștergi contractul și facturile sale?")) return; await supabaseClient.from('buget_pnras').delete().eq('id', id); await supabaseClient.from('buget_pnras').delete().eq('parent_id', id); incarcaDatele(); }
         async function stergeFactura(id) { if (!confirm("Ștergi această plată?")) return; await supabaseClient.from('buget_pnras').delete().eq('id', id); incarcaDatele(); }
+
+function deschideDosarContract(id, denumire, furnizor){
+    const url = `dosar_contract.html?id=${id}&den=${encodeURIComponent(denumire)}&furn=${encodeURIComponent(furnizor)}`;
+    window.open(url, '_blank');
+}
+
+function deschideDosarDinTitlu(id, btn){
+    const header = btn.closest('.contract-header');
+    const titlu = header.querySelector('span').innerText.trim();
+
+    const url = `dosar_contract.html?id=${id}&den=${encodeURIComponent(titlu)}&furn=${encodeURIComponent(titlu)}`;
+    window.open(url,'_blank');
+}
     </script>
 </body>
 </html>
