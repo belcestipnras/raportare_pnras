@@ -1,0 +1,1092 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registru Inventar</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', 'Segoe UI', sans-serif; background: #f8f9fa; color: #444; }
+
+        /* ===== HEADER / NAVIGARE ===== */
+        .top-bar {
+            display: flex; align-items: center; gap: 8px; padding: 12px 16px;
+            background: #fff; border-bottom: 1px solid #e0e4e8;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04); flex-wrap: wrap;
+        }
+        .btn-top {
+            padding: 7px 14px; border: none; border-radius: 8px;
+            cursor: pointer; font-size: 12px; font-weight: 500;
+            transition: all 0.2s; color: #444;
+        }
+        .btn-back { background: #c5ccd6; color: #2a2f36; }
+        .btn-back:hover { background: #b0b8c4; }
+        .btn-registru { background: #2b7de9; color: #fff; }
+        .btn-registru:hover { background: #1f6ad4; }
+        .btn-export-qr { background: #d48806; color: #fff; }
+        .btn-export-qr:hover { background: #b87305; }
+
+        /* ===== CONTAINER ===== */
+        .container { display: flex; height: calc(100vh - 56px); }
+
+        /* ===== STÂNGA - FACTURI ===== */
+        .facturi {
+            width: 20%; border-right: 1px solid #e0e4e8; padding: 16px;
+            overflow-y: auto; background: #fff;
+        }
+        .facturi h2 {
+            margin-bottom: 12px; font-size: 15px; color: #5b9bd5; font-weight: 600;
+            padding-bottom: 8px; border-bottom: 2px solid #5b9bd5;
+        }
+        .an-grup { margin-bottom: 14px; }
+        .an-titlu {
+            font-weight: 600; font-size: 13px; color: #5b9bd5;
+            margin-bottom: 6px; padding: 5px 8px; background: #eef5fc;
+            border-radius: 6px;
+        }
+        .factura-item {
+            padding: 8px 10px; font-size: 12px; color: #444; cursor: pointer;
+            border-radius: 6px; margin-bottom: 3px;
+            transition: all 0.2s; display: flex; align-items: center; gap: 8px;
+        }
+        .factura-item:hover { background: #f0f6ff; }
+        .factura-item.activ { background: #ddeaf8; font-weight: 600; }
+        .factura-item.blocata { background: #f0f0f0; color: #aaa; cursor: not-allowed; }
+        .factura-item.blocata:hover { background: #f0f0f0; }
+        .factura-info { flex: 1; }
+        .factura-numar { font-size: 10px; color: #999; margin-top: 2px; }
+        .lacat-btn {
+            background: none; border: none; cursor: pointer; font-size: 15px;
+            padding: 2px; opacity: 0.7; transition: opacity 0.2s;
+        }
+        .lacat-btn:hover { opacity: 1; }
+
+        /* ===== DREAPTA - REGISTRU ===== */
+        .registru {
+            width: 80%; padding: 20px; overflow-y: auto; background: #f8f9fa;
+        }
+        .registru h2 {
+            margin-bottom: 12px; font-size: 15px; color: #5b9bd5; font-weight: 600;
+            padding-bottom: 8px; border-bottom: 2px solid #5b9bd5;
+        }
+        .registru-placeholder { color: #aaa; font-style: italic; margin-top: 30px; text-align: center; }
+
+        .factura-header {
+            display: flex; align-items: center; gap: 16px; padding: 12px 16px;
+            background: #fff; border-radius: 10px; font-size: 13px; margin-bottom: 12px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.06); border: 1px solid #e8ecf1;
+        }
+        .factura-header .titlu { font-weight: 600; flex: 1; color: #333; }
+        .factura-header .data { color: #777; font-size: 12px; }
+        .factura-header .valoare { font-weight: 700; color: #2b7de9; }
+
+        /* ===== BUTOANE ACȚIUNI ===== */
+        .butoane-actiuni { display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; }
+        .btn-actiune {
+            padding: 7px 13px; border: none; border-radius: 8px;
+            cursor: pointer; font-size: 12px; font-weight: 500; color: #fff;
+            transition: all 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+        }
+        .btn-actiune:hover { transform: translateY(-1px); box-shadow: 0 2px 6px rgba(0,0,0,0.12); }
+
+        .btn-importa { background: #1e8a5e; }
+        .btn-vezi-factura { background: #178272; }
+        .btn-extrage { background: #c77a1a; }
+        .btn-vezi { background: #2878b8; }
+        .btn-trimite { background: #7b4ea0; }
+        .btn-istoric { background: #6b7480; }
+
+        /* ===== TABEL PRODUSE ===== */
+        .tabel-produse {
+            width: 100%; border-collapse: separate; border-spacing: 0;
+            font-size: 12px; margin-top: 10px;
+            background: #fff; border-radius: 8px; overflow: hidden;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.06); border: 1px solid #e8ecf1;
+        }
+        .tabel-produse th {
+            background: #eef5fc; color: #5b9bd5; padding: 10px 8px;
+            text-align: left; font-size: 11px; font-weight: 600;
+            border-bottom: 2px solid #d4e5f7;
+        }
+        .tabel-produse td {
+            padding: 8px 6px; border-bottom: 1px solid #f0f2f5; vertical-align: middle;
+        }
+        .tabel-produse tbody tr:nth-child(even) { background: #fafbfc; }
+        .tabel-produse tbody tr:hover { background: #f0f6ff; }
+
+        .tabel-produse input[type="text"],
+        .tabel-produse input[type="number"] {
+            width: 100%; padding: 5px 6px; border: 1px solid #dde2e8; border-radius: 6px;
+            font-size: 11px; font-family: inherit; color: #444;
+            transition: border-color 0.2s;
+        }
+        .tabel-produse input:focus { border-color: #5b9bd5; outline: none; }
+        .tabel-produse select {
+            padding: 5px 4px; border: 1px solid #dde2e8; border-radius: 6px;
+            font-size: 11px; width: 100%; font-family: inherit; color: #444;
+        }
+        .tabel-produse select:focus { border-color: #5b9bd5; outline: none; }
+
+        /* ===== BUTOANE SUB TABEL ===== */
+        .btn-sub {
+            margin-top: 10px; margin-right: 8px; padding: 8px 14px;
+            border: none; border-radius: 8px; cursor: pointer;
+            font-size: 12px; font-weight: 500; color: #fff;
+            transition: all 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+        }
+        .btn-salvare { background: #1e8a5e; }
+        .btn-salvare:hover { background: #167a50; }
+        .btn-inventar { background: #2e4a6e; }
+        .btn-inventar:hover { background: #243c5a; }
+        .btn-blocheaza { background: #c0392b; }
+        .btn-blocheaza:hover { background: #a33025; }
+        .btn-deblocheaza { background: #c77a1a; }
+        .btn-deblocheaza:hover { background: #ab6815; }
+
+        .btn-qr {
+            font-size: 10px; padding: 4px 10px;
+            background: #4a6fa5; color: white; border: none; border-radius: 6px;
+            cursor: pointer; transition: all 0.2s;
+        }
+        .btn-qr:hover { background: #3d5d8a; }
+
+        /* ===== STATUS ===== */
+        .loading { color: #aaa; font-style: italic; padding: 20px; }
+        .status-msg {
+            margin-top: 10px; padding: 10px 14px; border-radius: 8px;
+            font-size: 13px; font-weight: 500;
+        }
+        .status-ok { background: #e6f7ed; color: #1a7a3a; border: 1px solid #b8e6c8; }
+        .status-err { background: #fde8e8; color: #b33a3a; border: 1px solid #f5c6c6; }
+
+        #file-input { display: none; }
+
+        /* ===== PREVIEW FACTURĂ ===== */
+        .preview-container { margin-top: 10px; }
+        .preview-container iframe {
+            width: 100%; height: 500px; border: 1px solid #e0e4e8; border-radius: 8px;
+        }
+        .preview-container img {
+            max-width: 100%; border: 1px solid #e0e4e8; border-radius: 8px;
+        }
+        .fisier-item {
+            display: inline-flex; align-items: center; gap: 6px;
+            padding: 6px 12px; margin: 4px;
+            background: #fff; border: 1px solid #dde2e8; border-radius: 8px;
+            cursor: pointer; font-size: 12px; transition: all 0.2s;
+        }
+        .fisier-item:hover { background: #f0f6ff; border-color: #5b9bd5; }
+        .fisier-item.activ-fisier { background: #eef5fc; border-color: #5b9bd5; }
+        .btn-sterge-fisier {
+            background: #e07a7a; color: #fff; border: none; border-radius: 5px;
+            padding: 3px 7px; font-size: 10px; cursor: pointer; margin-left: 4px;
+        }
+        .btn-sterge-fisier:hover { background: #c55; }
+
+        /* ===== ISTORIC ===== */
+        .istoric-row { background: #fef8f0 !important; }
+        .btn-restaureaza {
+            font-size: 10px; padding: 4px 10px;
+            background: #66bb9b; color: white; border: none; border-radius: 6px;
+            cursor: pointer;
+        }
+        .btn-restaureaza:hover { background: #52a386; }
+
+        /* ===== DIALOG SUPRAPUNERE ===== */
+        .overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.3); display: flex; align-items: center;
+            justify-content: center; z-index: 1000;
+        }
+        .dialog {
+            background: #fff; border-radius: 12px; padding: 24px;
+            max-width: 440px; width: 90%; box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+        }
+        .dialog h3 { margin-bottom: 10px; color: #333; font-size: 15px; }
+        .dialog p { margin-bottom: 16px; font-size: 13px; color: #666; line-height: 1.5; }
+        .dialog-btns { display: flex; gap: 8px; justify-content: flex-end; }
+        .dialog-btn {
+            padding: 8px 16px; border: none; border-radius: 8px;
+            cursor: pointer; font-size: 12px; font-weight: 500;
+            transition: all 0.2s;
+        }
+        .dialog-btn-primary { background: #5b9bd5; color: #fff; }
+        .dialog-btn-primary:hover { background: #4a8ac4; }
+        .dialog-btn-secondary { background: #66bb9b; color: #fff; }
+        .dialog-btn-secondary:hover { background: #52a386; }
+        .dialog-btn-cancel { background: #e8ecf1; color: #444; }
+        .dialog-btn-cancel:hover { background: #d0d5dd; }
+    </style>
+</head>
+<body>
+
+<!-- ===== TOP BAR ===== -->
+<div class="top-bar">
+    <button class="btn-top btn-back" onclick="window.location.href='index.html'">&#8592; Înapoi</button>
+    <div class="separator"></div>
+    <button class="btn-top btn-registru" onclick="deschideRegistru('general')">&#128218; Registru general</button>
+    <button class="btn-top btn-registru" onclick="deschideRegistru('Obiect de inventar')">&#128230; Obiecte de inventar</button>
+    <button class="btn-top btn-registru" onclick="deschideRegistru('Mijloc fix')">&#127970; Mijloace fixe</button>
+    <button class="btn-top btn-registru" onclick="deschideRegistru('Serviciu')">&#128736; Servicii</button>
+    <button class="btn-top btn-registru" onclick="deschideRegistru('Consumabil')">&#128230; Consumabile</button>
+    <div class="separator"></div>
+    <button class="btn-top btn-export-qr" onclick="exportaCodurileQR()">&#128246; Exportă coduri QR</button>
+</div>
+
+<!-- ===== MAIN ===== -->
+<div class="container">
+    <div class="facturi">
+        <h2>&#128209; Facturi</h2>
+        <div id="lista-facturi"><span class="loading">Se încarcă...</span></div>
+    </div>
+    <div class="registru">
+        <h2>&#128203; Registru</h2>
+        <div id="continut-registru">
+            <p class="registru-placeholder">Selectează o factură din stânga pentru a vedea detaliile.</p>
+        </div>
+    </div>
+</div>
+
+<input type="file" id="file-input" accept=".jpg,.jpeg,.png,.pdf,.xlsx,.xls">
+<div id="dialog-container"></div>
+
+<script>
+    const SUPABASE_URL = 'https://aexjrbdgajurxzngfkpx.supabase.co';
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFleGpyYmRnYWp1cnh6bmdma3B4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgxMzE3NTYsImV4cCI6MjA4MzcwNzc1Nn0.VUx0QOKgjX4m23HOF2rBpE9vWA3T18KtjLc0w_iXhqA';
+    const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    let facturiData = [];
+    let facturaSelectata = null;
+
+    // ===================== DIALOG PERSONALIZAT =====================
+    function arataDialog(titlu, mesaj, butoane) {
+        return new Promise(resolve => {
+            const container = document.getElementById('dialog-container');
+            let btnsHtml = '';
+            butoane.forEach(b => {
+                btnsHtml += `<button class="dialog-btn ${b.clasa || 'dialog-btn-cancel'}" data-val="${b.valoare}">${b.text}</button>`;
+            });
+            container.innerHTML = `
+                <div class="overlay" id="overlay-dialog">
+                    <div class="dialog">
+                        <h3>${titlu}</h3>
+                        <p>${mesaj}</p>
+                        <div class="dialog-btns">${btnsHtml}</div>
+                    </div>
+                </div>`;
+            container.querySelectorAll('.dialog-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    container.innerHTML = '';
+                    resolve(btn.dataset.val);
+                });
+            });
+        });
+    }
+
+    // ===================== ÎNCARCĂ FACTURI =====================
+    async function incarcaFacturi() {
+        const { data, error } = await db
+            .from('buget_pnras').select('*')
+            .eq('tip_rand', 'FACTURA')
+            .order('data_document', { ascending: true });
+
+        if (error) {
+            document.getElementById('lista-facturi').innerHTML = '<span style="color:red;">Eroare: ' + error.message + '</span>';
+            return;
+        }
+        facturiData = data;
+        afiseazaFacturi(data);
+    }
+
+    function afiseazaFacturi(facturi) {
+        const container = document.getElementById('lista-facturi');
+        const grupe = {};
+        facturi.forEach(f => {
+            const an = f.an || 'Fără an';
+            if (!grupe[an]) grupe[an] = [];
+            grupe[an].push(f);
+        });
+        const aniSortati = Object.keys(grupe).sort();
+        let html = '';
+        aniSortati.forEach(an => {
+            html += '<div class="an-grup">';
+            html += '<div class="an-titlu">&#128197; ' + an + '</div>';
+            grupe[an].forEach(f => {
+                const blocata = f.blocat === true;
+                const clasa = blocata ? 'factura-item blocata' : 'factura-item';
+                html += '<div class="' + clasa + '" id="f-' + f.id + '">';
+                html += '<button class="lacat-btn" onclick="event.stopPropagation(); toggleBlocare(\'' + f.id + '\')">' + (blocata ? '&#128274;' : '&#128275;') + '</button>';
+                html += '<div class="factura-info" onclick="' + (blocata ? '' : 'selecteazaFactura(\'' + f.id + '\')') + '">';
+                html += '<div>' + (f.titlu || 'Fără titlu') + '</div>';
+                html += '<div class="factura-numar">Nr. ' + (f.numar || '-') + ' &middot; ' + (f.data_document || '-') + '</div>';
+                html += '</div></div>';
+            });
+            html += '</div>';
+        });
+        container.innerHTML = html || '<span class="loading">Nu s-au găsit facturi.</span>';
+    }
+
+    // ===================== TOGGLE BLOCARE =====================
+    async function toggleBlocare(id) {
+        const factura = facturiData.find(f => f.id === id);
+        if (!factura) return;
+        const nouaValoare = !factura.blocat;
+        const { error } = await db.from('buget_pnras').update({ blocat: nouaValoare }).eq('id', id);
+        if (error) { alert('Eroare: ' + error.message); return; }
+        factura.blocat = nouaValoare;
+        if (nouaValoare && facturaSelectata === id) {
+            facturaSelectata = null;
+            document.getElementById('continut-registru').innerHTML =
+                '<p class="registru-placeholder">Selectează o factură din stânga pentru a vedea detaliile.</p>';
+        }
+        afiseazaFacturi(facturiData);
+    }
+
+    // ===================== SELECTEAZĂ FACTURĂ =====================
+    function selecteazaFactura(id) {
+        const factura = facturiData.find(f => f.id === id);
+        if (!factura || factura.blocat) return;
+        facturaSelectata = id;
+        document.querySelectorAll('.factura-item').forEach(el => el.classList.remove('activ'));
+        const elem = document.getElementById('f-' + id);
+        if (elem) elem.classList.add('activ');
+
+        document.getElementById('continut-registru').innerHTML = `
+            <div class="factura-header">
+                <span class="titlu">${factura.titlu || '-'}</span>
+                <span class="data">${factura.data_document || '-'}</span>
+                <span class="valoare">${formatValoare(factura.valoare)} lei</span>
+            </div>
+            <div class="butoane-actiuni">
+                <button class="btn-actiune btn-importa" onclick="importaFactura()">&#128194; Importă factură</button>
+                <button class="btn-actiune btn-vezi-factura" onclick="veziFactura()">&#128196; Vezi factură</button>
+                <button class="btn-actiune btn-extrage" onclick="extrageProduse()">&#9881; Extrage produse</button>
+                <button class="btn-actiune btn-vezi" onclick="veziProduse()">&#128065; Vezi produse</button>
+                <button class="btn-actiune btn-trimite" onclick="trimiteRegistru()">&#128228; Trimite către registru</button>
+                <button class="btn-actiune btn-istoric" onclick="veziIstoric()">&#128337; Vezi istoric</button>
+            </div>
+            <div id="zona-continut"></div>
+        `;
+    }
+
+    // ===================== IMPORTĂ FACTURĂ =====================
+    function importaFactura() {
+        if (!facturaSelectata) return;
+        document.getElementById('file-input').click();
+    }
+
+    document.getElementById('file-input').addEventListener('change', async function (e) {
+        const file = e.target.files[0];
+        if (!file || !facturaSelectata) return;
+        const zona = document.getElementById('zona-continut');
+        zona.innerHTML = '<p class="loading">Se încarcă fișierul...</p>';
+
+        const filePath = `${facturaSelectata}/${file.name}`;
+        const { error } = await db.storage.from('arhiva_pnras').upload(filePath, file, { upsert: true });
+
+        if (error) {
+            zona.innerHTML = '<div class="status-msg status-err">Eroare la încărcare: ' + error.message + '</div>';
+        } else {
+            zona.innerHTML = '<div class="status-msg status-ok">&#9989; Fișierul <b>' + file.name + '</b> a fost încărcat cu succes.</div>';
+        }
+        e.target.value = '';
+    });
+
+    // ===================== VEZI FACTURĂ =====================
+    async function veziFactura() {
+        if (!facturaSelectata) return;
+        const zona = document.getElementById('zona-continut');
+        zona.innerHTML = '<p class="loading">Se încarcă fișierele...</p>';
+
+        const { data: files, error } = await db.storage.from('arhiva_pnras').list(facturaSelectata);
+
+        if (error || !files || files.length === 0) {
+            zona.innerHTML = '<div class="status-msg status-err">Nu s-au găsit fișiere importate.</div>';
+            return;
+        }
+
+        let html = '<div class="preview-container">';
+        html += '<p style="margin-bottom:8px; font-weight:600; font-size:13px;">Fișiere importate (' + files.length + '):</p>';
+        files.forEach(f => {
+            html += '<span class="fisier-item" onclick="previzualizeazaFisier(\'' + f.name + '\')">';
+            html += f.name;
+            html += '<button class="btn-sterge-fisier" onclick="event.stopPropagation(); stergeFisier(\'' + f.name + '\')">&#10005;</button>';
+            html += '</span>';
+        });
+        html += '<div id="preview-zona" style="margin-top:12px;"></div></div>';
+        zona.innerHTML = html;
+
+        if (files.length > 0) previzualizeazaFisier(files[0].name);
+    }
+
+    function previzualizeazaFisier(fileName) {
+        const { data } = db.storage.from('arhiva_pnras').getPublicUrl(`${facturaSelectata}/${fileName}`);
+        const url = data.publicUrl;
+        const ext = fileName.split('.').pop().toLowerCase();
+        const previewZona = document.getElementById('preview-zona');
+
+        document.querySelectorAll('.fisier-item').forEach(el => {
+            el.classList.toggle('activ-fisier', el.textContent.replace('✕', '').trim() === fileName);
+        });
+
+        if (['jpg', 'jpeg', 'png'].includes(ext)) {
+            previewZona.innerHTML = '<img src="' + url + '" alt="' + fileName + '">';
+        } else if (ext === 'pdf') {
+            previewZona.innerHTML = '<iframe src="' + url + '"></iframe>';
+        } else {
+            previewZona.innerHTML = '<div class="status-msg status-err">Previzualizare indisponibilă. <a href="' + url + '" target="_blank" style="color:#2b7de9;">Descarcă fișierul</a></div>';
+        }
+    }
+
+    // ===================== ȘTERGE FIȘIER =====================
+    async function stergeFisier(fileName) {
+        const raspuns = await arataDialog(
+            '&#9888; Ștergere fișier',
+            'Vei șterge fișierul <b>' + fileName + '</b>, produsele extrase și înregistrările din registru.<br><br>Produsele vor fi mutate în istoric și pot fi recuperate.',
+            [
+                { text: 'Șterge', valoare: 'da', clasa: 'dialog-btn-primary' },
+                { text: 'Anulează', valoare: 'nu', clasa: 'dialog-btn-cancel' }
+            ]
+        );
+
+        if (raspuns !== 'da') return;
+
+        const zona = document.getElementById('zona-continut');
+        zona.innerHTML = '<p class="loading">Se șterge...</p>';
+
+        // Mutăm fișierul în istoric
+        const oldPath = `${facturaSelectata}/${fileName}`;
+        const newPath = `istoric/${facturaSelectata}/${fileName}`;
+        const { data: fileData } = await db.storage.from('arhiva_pnras').download(oldPath);
+        if (fileData) {
+            await db.storage.from('arhiva_pnras').upload(newPath, fileData, { upsert: true });
+            await db.storage.from('arhiva_pnras').remove([oldPath]);
+        }
+
+        // Marcăm produsele ca șterse
+        await db.from('produse_factura').update({ sters: true }).eq('factura_id', facturaSelectata).eq('sters', false);
+
+        // Ștergem din registru
+        await db.from('registru_inventar').delete().eq('factura_id', facturaSelectata);
+
+        zona.innerHTML = '<div class="status-msg status-ok">&#9989; Fișierul a fost mutat în istoric. Produsele pot fi recuperate din Vezi istoric.</div>';
+    }
+
+    // ===================== EXTRAGE PRODUSE =====================
+    async function extrageProduse() {
+        if (!facturaSelectata) return;
+        const zona = document.getElementById('zona-continut');
+        zona.innerHTML = '<p class="loading">&#9203; Se extrag produsele din factură... Așteaptă.</p>';
+
+        try {
+            const response = await fetch(SUPABASE_URL + '/functions/v1/proceseaza-factura', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + SUPABASE_KEY,
+                },
+                body: JSON.stringify({ invoiceId: facturaSelectata }),
+            });
+            const result = await response.json();
+
+            if (result.error) {
+                zona.innerHTML = '<div class="status-msg status-err">Eroare: ' + result.error + '</div>';
+                return;
+            }
+            if (!result.produse || result.produse.length === 0) {
+                zona.innerHTML = '<div class="status-msg status-err">Nu s-au găsit produse în factură.</div>';
+                return;
+            }
+            afiseazaTabelEditabil(result.produse);
+        } catch (err) {
+            zona.innerHTML = '<div class="status-msg status-err">Eroare: ' + err.message + '</div>';
+        }
+    }
+
+    // ===================== TABEL EDITABIL (EXTRAGERE) =====================
+    function afiseazaTabelEditabil(produse) {
+        const zona = document.getElementById('zona-continut');
+        let html = '<table class="tabel-produse"><thead><tr>';
+        html += '<th>Nr.</th><th>Denumire</th><th>UM</th><th>Cantitate</th><th>Preț unitar</th><th>Valoare</th>';
+        html += '</tr></thead><tbody>';
+
+        produse.forEach((p, i) => {
+            html += `<tr>
+                <td>${i + 1}</td>
+                <td><input type="text" id="den_${i}" value="${(p.denumire || '').replace(/"/g, '&quot;')}"></td>
+                <td><input type="text" id="um_${i}" value="${(p.um || 'BUC').replace(/"/g, '&quot;')}" style="width:60px"></td>
+                <td><input type="number" id="cant_${i}" value="${p.cantitate || 0}" step="any"></td>
+                <td><input type="number" id="pret_${i}" value="${p.pret_unitar || 0}" step="any"></td>
+                <td><input type="number" id="val_${i}" value="${p.valoare || 0}" step="any"></td>
+            </tr>`;
+        });
+
+        html += '</tbody></table>';
+        html += '<input type="hidden" id="nr_produse" value="' + produse.length + '">';
+        html += '<button class="btn-sub btn-salvare" onclick="salveazaProduseNoi()" style="margin-top:12px;">&#128190; Salvează produsele</button>';
+        zona.innerHTML = html;
+    }
+
+    // ===================== SALVEAZĂ PRODUSE NOI =====================
+    async function salveazaProduseNoi() {
+        const nr = parseInt(document.getElementById('nr_produse').value);
+        const produseNoi = [];
+        for (let i = 0; i < nr; i++) {
+            produseNoi.push({
+                factura_id: facturaSelectata,
+                denumire: document.getElementById('den_' + i).value,
+                um: document.getElementById('um_' + i).value,
+                cantitate: parseFloat(document.getElementById('cant_' + i).value) || 0,
+                pret_unitar: parseFloat(document.getElementById('pret_' + i).value) || 0,
+                valoare: parseFloat(document.getElementById('val_' + i).value) || 0,
+            });
+        }
+
+        // Verificăm dacă există produse existente
+        const { data: existente } = await db.from('produse_factura').select('*')
+            .eq('factura_id', facturaSelectata).eq('sters', false);
+
+        if (existente && existente.length > 0) {
+            const cuInventar = existente.filter(p => p.numar_inventar).length;
+            const raspuns = await arataDialog(
+                '&#9888; Produse existente',
+                'Există deja <b>' + existente.length + ' produse</b> salvate pentru această factură' +
+                (cuInventar > 0 ? ' (<b>' + cuInventar + ' cu numere de inventar</b>)' : '') + '.<br><br>Ce vrei să faci?',
+                [
+                    { text: 'Înlocuiește', valoare: 'inlocuieste', clasa: 'dialog-btn-primary' },
+                    { text: 'Adaugă', valoare: 'adauga', clasa: 'dialog-btn-secondary' },
+                    { text: 'Anulează', valoare: 'anuleaza', clasa: 'dialog-btn-cancel' }
+                ]
+            );
+
+            if (raspuns === 'anuleaza') return;
+            if (raspuns === 'inlocuieste') {
+                await db.from('produse_factura').update({ sters: true })
+                    .eq('factura_id', facturaSelectata).eq('sters', false);
+            }
+            // 'adauga' — nu facem nimic cu cele existente
+        }
+
+        const { error } = await db.from('produse_factura').insert(produseNoi);
+
+        if (error) {
+            document.getElementById('zona-continut').innerHTML += '<div class="status-msg status-err">Eroare: ' + error.message + '</div>';
+        } else {
+            veziProduse();
+        }
+    }
+
+    // ===================== VEZI PRODUSE =====================
+    async function veziProduse() {
+        if (!facturaSelectata) return;
+        const zona = document.getElementById('zona-continut');
+        zona.innerHTML = '<p class="loading">Se încarcă produsele...</p>';
+
+        const { data, error } = await db.from('produse_factura').select('*')
+            .eq('factura_id', facturaSelectata).eq('sters', false)
+            .order('numar_inventar', { ascending: true, nullsFirst: false });
+
+        if (error) {
+            zona.innerHTML = '<div class="status-msg status-err">Eroare: ' + error.message + '</div>';
+            return;
+        }
+        if (!data || data.length === 0) {
+            zona.innerHTML = '<div class="status-msg status-err">Nu există produse. Importă factura și extrage produsele mai întâi.</div>';
+            return;
+        }
+        afiseazaTabelProduse(data);
+    }
+
+    function afiseazaTabelProduse(produse) {
+        const zona = document.getElementById('zona-continut');
+
+        let html = '<table class="tabel-produse"><thead><tr>';
+        html += '<th>Nr.</th><th>Denumire</th><th>UM</th><th>Cant.</th><th>Preț</th><th>Valoare</th>';
+        html += '<th>Tip</th><th>Locație</th><th>Nr. inventar</th><th>QR</th>';
+        html += '</tr></thead><tbody>';
+
+        produse.forEach((p, i) => {
+            const blocat = p.blocat === true;
+            html += `<tr>
+                <td>${i + 1}</td>
+                <td><input type="text" class="edit-den" data-id="${p.id}" value="${(p.denumire || '').replace(/"/g, '&quot;')}" ${blocat ? 'disabled' : ''}></td>
+                <td><input type="text" class="edit-um" data-id="${p.id}" value="${(p.um || '').replace(/"/g, '&quot;')}" style="width:50px" ${blocat ? 'disabled' : ''}></td>
+                <td><input type="number" class="edit-cant" data-id="${p.id}" value="${p.cantitate || 0}" step="any" style="width:55px" ${blocat ? 'disabled' : ''}></td>
+                <td><input type="number" class="edit-pret" data-id="${p.id}" value="${p.pret_unitar || 0}" step="any" style="width:75px" ${blocat ? 'disabled' : ''}></td>
+                <td><input type="number" class="edit-val" data-id="${p.id}" value="${p.valoare || 0}" step="any" style="width:75px" ${blocat ? 'disabled' : ''}></td>
+                <td>
+                    <select class="edit-tip" data-id="${p.id}" ${blocat ? 'disabled' : ''}>
+                        <option value="">-- Alege --</option>
+                        <option value="Serviciu" ${p.tip === 'Serviciu' ? 'selected' : ''}>Serviciu</option>
+                        <option value="Consumabil" ${p.tip === 'Consumabil' ? 'selected' : ''}>Consumabil</option>
+                        <option value="Obiect de inventar" ${p.tip === 'Obiect de inventar' ? 'selected' : ''}>Obiect de inventar</option>
+                        <option value="Mijloc fix" ${p.tip === 'Mijloc fix' ? 'selected' : ''}>Mijloc fix</option>
+                    </select>
+                </td>
+                <td>
+                    <select class="edit-loc" data-id="${p.id}" ${blocat ? 'disabled' : ''}>
+                        <option value="">-- Alege --</option>
+                        <option value="PNRAS1" ${p.locatie === 'PNRAS1' ? 'selected' : ''}>PNRAS1</option>
+                        <option value="PNRAS2" ${p.locatie === 'PNRAS2' ? 'selected' : ''}>PNRAS2</option>
+                        <option value="Atelier pictură" ${p.locatie === 'Atelier pictură' ? 'selected' : ''}>Atelier pictură</option>
+                        <option value="Atelier sport" ${p.locatie === 'Atelier sport' ? 'selected' : ''}>Atelier sport</option>
+                        <option value="Spațiu relaxare" ${p.locatie === 'Spațiu relaxare' ? 'selected' : ''}>Spațiu relaxare</option>
+                        <option value="Alt spațiu" ${p.locatie === 'Alt spațiu' ? 'selected' : ''}>Alt spațiu</option>
+                    </select>
+                </td>
+                <td style="font-weight:600; font-size:11px; white-space:nowrap;">${p.numar_inventar || '-'}</td>
+                <td>${p.numar_inventar ? '<button class="btn-qr" data-prodid="' + p.id + '">&#128424; Print</button>' : '-'}</td>
+            </tr>`;
+        });
+
+        html += '</tbody></table>';
+        html += '<div style="margin-top:14px; display:flex; gap:8px; flex-wrap:wrap;">';
+        html += '<button class="btn-sub btn-salvare" onclick="salveazaModificari()">&#128190; Salvează modificările</button>';
+        html += '<button class="btn-sub btn-inventar" onclick="adaugaNumereInventar()">&#128290; Adaugă numere de inventar</button>';
+        html += '<button class="btn-sub btn-blocheaza" onclick="blocheazaInventar()">&#128274; Blochează inventar</button>';
+        html += '<button class="btn-sub btn-deblocheaza" onclick="deblocheazaInventar()">&#128275; Deblochează inventar</button>';
+        html += '</div>';
+        zona.innerHTML = html;
+
+        // Atașăm event listeners pentru butoanele QR
+        document.querySelectorAll('.btn-qr').forEach(btn => {
+            btn.addEventListener('click', function() {
+                printQR(this.dataset.prodid);
+            });
+        });
+    }
+
+    // ===================== SALVEAZĂ MODIFICĂRI =====================
+    async function salveazaModificari() {
+        const rows = document.querySelectorAll('.edit-den');
+        let count = 0;
+        for (const input of rows) {
+            const id = input.dataset.id;
+            await db.from('produse_factura').update({
+                denumire: document.querySelector(`.edit-den[data-id="${id}"]`).value,
+                um: document.querySelector(`.edit-um[data-id="${id}"]`).value,
+                cantitate: parseFloat(document.querySelector(`.edit-cant[data-id="${id}"]`).value) || 0,
+                pret_unitar: parseFloat(document.querySelector(`.edit-pret[data-id="${id}"]`).value) || 0,
+                valoare: parseFloat(document.querySelector(`.edit-val[data-id="${id}"]`).value) || 0,
+                tip: document.querySelector(`.edit-tip[data-id="${id}"]`).value,
+                locatie: document.querySelector(`.edit-loc[data-id="${id}"]`).value,
+            }).eq('id', id);
+            count++;
+        }
+        alert(count + ' produse actualizate!');
+        veziProduse();
+    }
+
+    // ===================== ADAUGĂ NUMERE INVENTAR =====================
+    async function adaugaNumereInventar() {
+        const { data: toate } = await db.from('produse_factura')
+            .select('numar_inventar')
+            .not('numar_inventar', 'is', null).neq('numar_inventar', '')
+            .eq('sters', false)
+            .order('numar_inventar', { ascending: false }).limit(1);
+
+        let ultimulNr = 0;
+        if (toate && toate.length > 0 && toate[0].numar_inventar) {
+            const match = toate[0].numar_inventar.match(/(\d+)$/);
+            if (match) ultimulNr = parseInt(match[1]);
+        }
+
+        const { data: produse } = await db.from('produse_factura').select('*')
+            .eq('factura_id', facturaSelectata).eq('sters', false)
+            .order('created_at', { ascending: true });
+
+        if (!produse) return;
+
+        for (const p of produse) {
+            if (p.blocat || p.numar_inventar) continue;
+            if (p.tip === 'Obiect de inventar' || p.tip === 'Mijloc fix') {
+                const cant = Math.max(1, Math.floor(p.cantitate || 1));
+                for (let i = 0; i < cant; i++) {
+                    ultimulNr++;
+                    const nrInv = 'PNRAS-' + String(ultimulNr).padStart(3, '0');
+                    if (i === 0) {
+                        await db.from('produse_factura').update({
+                            numar_inventar: nrInv, cantitate: 1, valoare: p.pret_unitar
+                        }).eq('id', p.id);
+                    } else {
+                        await db.from('produse_factura').insert({
+                            factura_id: p.factura_id, denumire: p.denumire, um: p.um,
+                            cantitate: 1, pret_unitar: p.pret_unitar, valoare: p.pret_unitar,
+                            tip: p.tip, locatie: p.locatie, numar_inventar: nrInv,
+                        });
+                    }
+                }
+            }
+        }
+        veziProduse();
+    }
+
+    // ===================== BLOCHEAZĂ / DEBLOCHEAZĂ =====================
+    async function blocheazaInventar() {
+        const { error } = await db.from('produse_factura')
+            .update({ blocat: true }).eq('factura_id', facturaSelectata)
+            .eq('sters', false).not('numar_inventar', 'is', null).neq('numar_inventar', '');
+        if (error) alert('Eroare: ' + error.message);
+        else { alert('Inventarul a fost blocat!'); veziProduse(); }
+    }
+
+    async function deblocheazaInventar() {
+        const raspuns = await arataDialog('&#128275; Deblocare inventar',
+            'Ești sigur că vrei să deblochezi inventarul? Vei putea modifica din nou toate câmpurile.',
+            [
+                { text: 'Deblochează', valoare: 'da', clasa: 'dialog-btn-primary' },
+                { text: 'Anulează', valoare: 'nu', clasa: 'dialog-btn-cancel' }
+            ]);
+        if (raspuns !== 'da') return;
+        const { error } = await db.from('produse_factura')
+            .update({ blocat: false }).eq('factura_id', facturaSelectata).eq('sters', false);
+        if (error) alert('Eroare: ' + error.message);
+        else { alert('Inventarul a fost deblocat!'); veziProduse(); }
+    }
+
+    // ===================== PRINT QR (PDF) =====================
+    function printQR(produsId) {
+        db.from('produse_factura').select('*').eq('id', produsId).single().then(({ data: produs }) => {
+            if (!produs) { alert('Produsul nu a fost găsit.'); return; }
+
+            const qrData = [
+                produs.numar_inventar || '',
+                produs.denumire || '',
+                produs.tip || '',
+                produs.locatie || '',
+                produs.valoare || 0
+            ].join('|');
+
+            genereazaPdfQR(produs, qrData);
+        });
+    }
+
+    function genereazaPdfQR(produs, qrData) {
+        // Creăm un div temporar invizibil
+        const tempDiv = document.createElement('div');
+        tempDiv.style.position = 'fixed';
+        tempDiv.style.left = '-9999px';
+        document.body.appendChild(tempDiv);
+
+        try {
+            const qr = new QRCode(tempDiv, {
+                text: qrData,
+                width: 300,
+                height: 300,
+                correctLevel: QRCode.CorrectLevel.M
+            });
+
+            // Așteptăm puțin ca QR-ul să se genereze
+            setTimeout(() => {
+                const canvas = tempDiv.querySelector('canvas');
+                if (!canvas) {
+                    const img = tempDiv.querySelector('img');
+                    if (img) {
+                        // Desenăm imaginea pe un canvas
+                        const c = document.createElement('canvas');
+                        c.width = 300; c.height = 300;
+                        const ctx = c.getContext('2d');
+                        ctx.drawImage(img, 0, 0, 300, 300);
+                        genereazaPdfDinCanvas(c, produs);
+                    } else {
+                        alert('Eroare la generarea QR.');
+                    }
+                } else {
+                    genereazaPdfDinCanvas(canvas, produs);
+                }
+                document.body.removeChild(tempDiv);
+            }, 200);
+        } catch (err) {
+            alert('Eroare QR: ' + err.message);
+            document.body.removeChild(tempDiv);
+        }
+    }
+
+    function genereazaPdfDinCanvas(canvas, produs) {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF({ unit: 'mm', format: [80, 80] });
+        const imgData = canvas.toDataURL('image/png');
+        doc.addImage(imgData, 'PNG', 10, 5, 60, 60);
+        doc.setFontSize(7);
+        doc.setFont(undefined, 'normal');
+        doc.text(produs.denumire || '-', 40, 68, { align: 'center', maxWidth: 70 });
+        doc.setFontSize(9);
+        doc.setFont(undefined, 'bold');
+        doc.text(produs.numar_inventar || '-', 40, 74, { align: 'center' });
+        doc.save('QR_' + (produs.numar_inventar || 'produs') + '.pdf');
+    }
+
+    // ===================== TRIMITE CĂTRE REGISTRU =====================
+    async function trimiteRegistru() {
+        if (!facturaSelectata) return;
+        const zona = document.getElementById('zona-continut');
+        zona.innerHTML = '<p class="loading">Se trimit produsele către registru...</p>';
+
+        const factura = facturiData.find(f => f.id === facturaSelectata);
+        const { data: produse, error } = await db.from('produse_factura').select('*')
+            .eq('factura_id', facturaSelectata).eq('sters', false);
+
+        if (error || !produse || produse.length === 0) {
+            zona.innerHTML = '<div class="status-msg status-err">Nu există produse de trimis.</div>';
+            return;
+        }
+
+        const items = produse.map(p => ({
+            produs_id: p.id, factura_id: p.factura_id,
+            denumire: p.denumire, um: p.um, cantitate: p.cantitate,
+            pret_unitar: p.pret_unitar, valoare: p.valoare,
+            tip: p.tip, locatie: p.locatie, numar_inventar: p.numar_inventar,
+            data_document: factura ? factura.data_document : null,
+            titlu_factura: factura ? factura.titlu : null,
+        }));
+
+        await db.from('registru_inventar').delete().eq('factura_id', facturaSelectata);
+        const { error: insertErr } = await db.from('registru_inventar').insert(items);
+
+        if (insertErr) {
+            zona.innerHTML = '<div class="status-msg status-err">Eroare: ' + insertErr.message + '</div>';
+        } else {
+            zona.innerHTML = '<div class="status-msg status-ok">&#9989; ' + items.length + ' articole trimise către registru!</div>';
+        }
+    }
+
+    // ===================== VEZI ISTORIC =====================
+    async function veziIstoric() {
+        if (!facturaSelectata) return;
+        const zona = document.getElementById('zona-continut');
+        zona.innerHTML = '<p class="loading">Se încarcă istoricul...</p>';
+
+        const { data: produse } = await db.from('produse_factura').select('*')
+            .eq('factura_id', facturaSelectata).eq('sters', true)
+            .order('created_at', { ascending: true });
+
+        const { data: fisiere } = await db.storage.from('arhiva_pnras').list(`istoric/${facturaSelectata}`);
+
+        let html = '<h3 style="margin-bottom:12px; color:#333;">&#128337; Istoric factură</h3>';
+
+        html += '<p style="font-weight:600; font-size:13px; margin-bottom:6px;">Fișiere arhivate:</p>';
+        if (fisiere && fisiere.length > 0) {
+            fisiere.forEach(f => {
+                const { data } = db.storage.from('arhiva_pnras').getPublicUrl(`istoric/${facturaSelectata}/${f.name}`);
+                html += '<span class="fisier-item"><a href="' + data.publicUrl + '" target="_blank" style="color:#2b7de9; text-decoration:none;">' + f.name + '</a></span> ';
+            });
+        } else {
+            html += '<p style="color:#aaa; font-style:italic; font-size:12px;">Nu există fișiere arhivate.</p>';
+        }
+
+        html += '<p style="font-weight:600; font-size:13px; margin-top:16px; margin-bottom:6px;">Produse șterse:</p>';
+        if (produse && produse.length > 0) {
+            html += '<table class="tabel-produse"><thead><tr>';
+            html += '<th>Nr.</th><th>Denumire</th><th>UM</th><th>Cant.</th><th>Preț</th><th>Valoare</th>';
+            html += '<th>Tip</th><th>Locație</th><th>Nr. inv.</th><th>Acțiune</th>';
+            html += '</tr></thead><tbody>';
+            produse.forEach((p, i) => {
+                html += `<tr class="istoric-row">
+                    <td>${i + 1}</td><td>${p.denumire || '-'}</td><td>${p.um || '-'}</td>
+                    <td>${p.cantitate || 0}</td><td>${formatValoare(p.pret_unitar)}</td>
+                    <td>${formatValoare(p.valoare)}</td><td>${p.tip || '-'}</td>
+                    <td>${p.locatie || '-'}</td><td>${p.numar_inventar || '-'}</td>
+                    <td><button class="btn-restaureaza" onclick="restaureazaProdus('${p.id}')">&#128260; Restaurează</button></td>
+                </tr>`;
+            });
+            html += '</tbody></table>';
+            html += '<button class="btn-sub btn-inventar" onclick="restaureazaToate()" style="margin-top:12px;">&#128260; Restaurează toate</button>';
+        } else {
+            html += '<p style="color:#aaa; font-style:italic; font-size:12px;">Nu există produse șterse.</p>';
+        }
+        zona.innerHTML = html;
+    }
+
+    async function restaureazaProdus(id) {
+        await db.from('produse_factura').update({ sters: false }).eq('id', id);
+        veziIstoric();
+    }
+
+    async function restaureazaToate() {
+        const raspuns = await arataDialog('&#128260; Restaurare',
+            'Restaurezi toate produsele șterse pentru această factură?',
+            [
+                { text: 'Restaurează', valoare: 'da', clasa: 'dialog-btn-secondary' },
+                { text: 'Anulează', valoare: 'nu', clasa: 'dialog-btn-cancel' }
+            ]);
+        if (raspuns !== 'da') return;
+        await db.from('produse_factura').update({ sters: false })
+            .eq('factura_id', facturaSelectata).eq('sters', true);
+        veziProduse();
+    }
+
+    // ===================== REGISTRE (about:blank) =====================
+    async function deschideRegistru(tip) {
+        let query = db.from('registru_inventar').select('*').order('created_at', { ascending: true });
+        let titlu = 'Registru General';
+
+        if (tip !== 'general') {
+            query = query.eq('tip', tip);
+            const titluri = {
+                'Obiect de inventar': 'Registru Obiecte de Inventar',
+                'Mijloc fix': 'Registru Mijloace Fixe',
+                'Serviciu': 'Registru Servicii',
+                'Consumabil': 'Registru Consumabile'
+            };
+            titlu = titluri[tip] || 'Registru';
+        }
+
+        const { data, error } = await query;
+        if (error) { alert('Eroare: ' + error.message); return; }
+
+        const win = window.open('about:blank', '_blank');
+        const hasInventar = tip === 'Obiect de inventar' || tip === 'Mijloc fix' || tip === 'general';
+
+        let html = `<!DOCTYPE html><html><head><meta charset="UTF-8">
+        <title>${titlu}</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"><\/script>
+        <style>
+            @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+            * { margin: 0; padding: 0; box-sizing: border-box; }
+            body { font-family: 'Inter', sans-serif; padding: 20px; color: #444; }
+            h1 { font-size: 18px; color: #5b9bd5; margin-bottom: 16px; }
+            table { width: 100%; border-collapse: collapse; font-size: 11px; }
+            th { background: #eef5fc; color: #5b9bd5; padding: 8px 6px; text-align: left; font-weight: 600; border-bottom: 2px solid #d4e5f7; }
+            td { padding: 6px; border-bottom: 1px solid #f0f2f5; }
+            tr:nth-child(even) { background: #fafbfc; }
+            .qr-cell { text-align: center; }
+            .qr-cell canvas { max-width: 80px; }
+            .btn-print { margin-bottom: 16px; padding: 8px 20px; background: #5b9bd5; color: #fff; border: none; border-radius: 8px; cursor: pointer; font-size: 13px; }
+            @media print { .btn-print { display: none; } }
+        </style></head><body>
+        <button class="btn-print" onclick="window.print()">&#128424; Printează</button>
+        <h1>${titlu}</h1>
+        <table><thead><tr>
+        <th>Nr.</th><th>Denumire</th><th>UM</th><th>Cant.</th><th>Preț</th><th>Valoare</th>
+        <th>Tip</th><th>Locație</th>`;
+
+        if (hasInventar) html += '<th>Nr. inventar</th><th>QR</th>';
+        html += '<th>Factură</th><th>Data</th></tr></thead><tbody>';
+
+        if (data) {
+            data.forEach((p, i) => {
+                html += `<tr>
+                    <td>${i + 1}</td><td>${p.denumire || '-'}</td><td>${p.um || '-'}</td>
+                    <td>${p.cantitate || 0}</td><td>${p.pret_unitar || 0}</td><td>${p.valoare || 0}</td>
+                    <td>${p.tip || '-'}</td><td>${p.locatie || '-'}</td>`;
+
+                if (hasInventar) {
+                    html += `<td style="font-weight:600;">${p.numar_inventar || '-'}</td>`;
+                    html += `<td class="qr-cell">${p.numar_inventar ? '<canvas id="qr_' + i + '" data-qr="' + encodeURIComponent(JSON.stringify({
+                        nr_inventar: p.numar_inventar, denumire: p.denumire,
+                        tip: p.tip, locatie: p.locatie, um: p.um,
+                        cantitate: p.cantitate, pret_unitar: p.pret_unitar, valoare: p.valoare,
+                        factura: p.titlu_factura, data: p.data_document
+                    })) + '"></canvas>' : '-'}</td>`;
+                }
+
+                html += `<td>${p.titlu_factura || '-'}</td><td>${p.data_document || '-'}</td></tr>`;
+            });
+        }
+
+        html += `</tbody></table>
+        <script>
+            document.querySelectorAll('canvas[data-qr]').forEach(c => {
+                const data = JSON.parse(decodeURIComponent(c.dataset.qr));
+                new QRCode(c.parentElement, { text: JSON.stringify(data), width: 80, height: 80, correctLevel: QRCode.CorrectLevel.L });
+                c.remove();
+            });
+        <\/script></body></html>`;
+
+        win.document.write(html);
+        win.document.close();
+    }
+
+    // ===================== EXPORTĂ CODURI QR (PDF) =====================
+    async function exportaCodurileQR() {
+        const { data: produse } = await db.from('produse_factura').select('*')
+            .not('numar_inventar', 'is', null).neq('numar_inventar', '')
+            .eq('sters', false).order('numar_inventar', { ascending: true });
+
+        if (!produse || produse.length === 0) {
+            alert('Nu există produse cu numere de inventar.');
+            return;
+        }
+
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF({ unit: 'mm', format: 'a4' });
+
+        const perRow = 3;
+        const perPage = 12;
+        const qrSize = 45;
+        const startX = 15;
+        const startY = 15;
+        const gapX = 65;
+        const gapY = 65;
+
+        let idx = 0;
+
+        for (const p of produse) {
+            if (idx > 0 && idx % perPage === 0) doc.addPage();
+
+            const posOnPage = idx % perPage;
+            const col = posOnPage % perRow;
+            const row = Math.floor(posOnPage / perRow);
+            const x = startX + col * gapX;
+            const y = startY + row * gapY;
+
+            const qrData = [
+                p.numar_inventar || '',
+                p.denumire || '',
+                p.tip || '',
+                p.locatie || '',
+                p.valoare || 0
+            ].join('|');
+
+            const tempDiv = document.createElement('div');
+            tempDiv.style.position = 'fixed';
+            tempDiv.style.left = '-9999px';
+            document.body.appendChild(tempDiv);
+
+            const qr = new QRCode(tempDiv, {
+                text: qrData, width: 300, height: 300,
+                correctLevel: QRCode.CorrectLevel.M
+            });
+
+            await new Promise(resolve => setTimeout(resolve, 200));
+            const tempCanvas = tempDiv.querySelector('canvas') || (() => {
+                const c = document.createElement('canvas');
+                c.width = 300; c.height = 300;
+                const ctx = c.getContext('2d');
+                const img = tempDiv.querySelector('img');
+                if (img) ctx.drawImage(img, 0, 0, 300, 300);
+                return c;
+            })();
+
+            const imgData = tempCanvas.toDataURL('image/png');
+            document.body.removeChild(tempDiv);
+            doc.addImage(imgData, 'PNG', x, y, qrSize, qrSize);
+            doc.setFontSize(6);
+            doc.setFont(undefined, 'normal');
+            doc.text((p.denumire || '').substring(0, 35), x + qrSize / 2, y + qrSize + 4, { align: 'center', maxWidth: qrSize + 10 });
+            doc.setFontSize(8);
+            doc.setFont(undefined, 'bold');
+            doc.text(p.numar_inventar || '', x + qrSize / 2, y + qrSize + 9, { align: 'center' });
+
+            idx++;
+        }
+
+        doc.save('Coduri_QR_PNRAS.pdf');
+    }
+
+    // ===================== UTILITAR =====================
+    function formatValoare(val) {
+        if (val === null || val === undefined) return '0.00';
+        return parseFloat(val).toLocaleString('ro-RO', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    incarcaFacturi();
+</script>
+
+</body>
+</html>
