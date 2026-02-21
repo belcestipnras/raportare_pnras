@@ -750,17 +750,13 @@
     }
 
     // ===================== PRINT QR (PDF) =====================
+    const BASE_URL = 'https://belcestipnras.github.io/raportare_pnras';
+
     function printQR(produsId) {
         db.from('produse_factura').select('*').eq('id', produsId).single().then(({ data: produs }) => {
             if (!produs) { alert('Produsul nu a fost găsit.'); return; }
 
-            const qrData = [
-                produs.numar_inventar || '',
-                produs.denumire || '',
-                produs.tip || '',
-                produs.locatie || '',
-                produs.valoare || 0
-            ].join('|');
+            const qrData = BASE_URL + '/produs.html?id=' + produs.id;
 
             genereazaPdfQR(produs, qrData);
         });
@@ -1035,13 +1031,7 @@
             const x = startX + col * gapX;
             const y = startY + row * gapY;
 
-            const qrData = [
-                p.numar_inventar || '',
-                p.denumire || '',
-                p.tip || '',
-                p.locatie || '',
-                p.valoare || 0
-            ].join('|');
+            const qrData = BASE_URL + '/produs.html?id=' + p.id;
 
             const tempDiv = document.createElement('div');
             tempDiv.style.position = 'fixed';

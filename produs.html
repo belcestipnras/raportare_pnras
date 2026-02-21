@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalii Produs</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif; background: #f8f9fa; color: #444;
+            display: flex; justify-content: center; padding: 20px;
+        }
+        .card {
+            background: #fff; border-radius: 12px; padding: 24px;
+            max-width: 500px; width: 100%;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.08); border: 1px solid #e8ecf1;
+        }
+        .card h1 {
+            font-size: 18px; color: #5b9bd5; margin-bottom: 6px;
+        }
+        .nr-inventar {
+            font-size: 22px; font-weight: 700; color: #2b7de9;
+            margin-bottom: 16px; padding-bottom: 12px; border-bottom: 2px solid #eef5fc;
+        }
+        .rand {
+            display: flex; justify-content: space-between;
+            padding: 10px 0; border-bottom: 1px solid #f0f2f5;
+            font-size: 14px;
+        }
+        .rand:last-child { border-bottom: none; }
+        .eticheta { color: #888; font-weight: 500; }
+        .valoarea { font-weight: 600; color: #333; text-align: right; }
+        .badge {
+            display: inline-block; padding: 4px 10px; border-radius: 6px;
+            font-size: 12px; font-weight: 600;
+        }
+        .badge-tip { background: #eef5fc; color: #2b7de9; }
+        .badge-locatie { background: #e6f7ed; color: #1a7a3a; }
+        .loading { text-align: center; padding: 40px; color: #aaa; }
+        .eroare { text-align: center; padding: 40px; color: #c0392b; }
+        .footer {
+            margin-top: 16px; text-align: center; font-size: 11px; color: #bbb;
+        }
+    </style>
+</head>
+<body>
+
+<div class="card" id="continut">
+    <div class="loading">Se încarcă datele...</div>
+</div>
+
+<script>
+    const SUPABASE_URL = 'https://aexjrbdgajurxzngfkpx.supabase.co';
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFleGpyYmRnYWp1cnh6bmdma3B4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgxMzE3NTYsImV4cCI6MjA4MzcwNzc1Nn0.VUx0QOKgjX4m23HOF2rBpE9vWA3T18KtjLc0w_iXhqA';
+    const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    async function incarca() {
+        const params = new URLSearchParams(window.location.search);
+        const id = params.get('id');
+        const continut = document.getElementById('continut');
+
+        if (!id) {
+            continut.innerHTML = '<div class="eroare">ID produs lipsă.</div>';
+            return;
+        }
+
+        const { data: produs, error } = await db
+            .from('produse_factura').select('*').eq('id', id).single();
+
+        if (error || !produs) {
+            continut.innerHTML = '<div class="eroare">Produsul nu a fost găsit.</div>';
+            return;
+        }
+
+        // Luăm și datele facturii
+        let factura = null;
+        if (produs.factura_id) {
+            const { data } = await db.from('buget_pnras').select('*').eq('id', produs.factura_id).single();
+            factura = data;
+        }
+
+        const formatVal = (v) => {
+            if (v === null || v === undefined) return '0,00';
+            return parseFloat(v).toLocaleString('ro-RO', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        };
+
+        continut.innerHTML = `
+            <h1>${produs.denumire || '-'}</h1>
+            <div class="nr-inventar">${produs.numar_inventar || '-'}</div>
+
+            <div class="rand">
+                <span class="eticheta">Tip</span>
+                <span class="valoarea"><span class="badge badge-tip">${produs.tip || '-'}</span></span>
+            </div>
+            <div class="rand">
+                <span class="eticheta">Locație</span>
+                <span class="valoarea"><span class="badge badge-locatie">${produs.locatie || '-'}</span></span>
+            </div>
+            <div class="rand">
+                <span class="eticheta">Unitate de măsură</span>
+                <span class="valoarea">${produs.um || '-'}</span>
+            </div>
+            <div class="rand">
+                <span class="eticheta">Cantitate</span>
+                <span class="valoarea">${produs.cantitate || 0}</span>
+            </div>
+            <div class="rand">
+                <span class="eticheta">Preț unitar</span>
+                <span class="valoarea">${formatVal(produs.pret_unitar)} lei</span>
+            </div>
+            <div class="rand">
+                <span class="eticheta">Valoare</span>
+                <span class="valoarea">${formatVal(produs.valoare)} lei</span>
+            </div>
+
+            ${factura ? `
+            <div style="margin-top:16px; padding-top:12px; border-top:2px solid #eef5fc;">
+                <div class="rand">
+                    <span class="eticheta">Factură</span>
+                    <span class="valoarea">${factura.titlu || '-'}</span>
+                </div>
+                <div class="rand">
+                    <span class="eticheta">Nr. document</span>
+                    <span class="valoarea">${factura.numar || '-'}</span>
+                </div>
+                <div class="rand">
+                    <span class="eticheta">Data document</span>
+                    <span class="valoarea">${factura.data_document || '-'}</span>
+                </div>
+                <div class="rand">
+                    <span class="eticheta">Valoare factură</span>
+                    <span class="valoarea">${formatVal(factura.valoare)} lei</span>
+                </div>
+            </div>
+            ` : ''}
+
+            <div class="footer">PNRAS &middot; Liceul Tehnologic V.M. Craiu Belcești</div>
+        `;
+    }
+
+    incarca();
+</script>
+
+</body>
+</html>
