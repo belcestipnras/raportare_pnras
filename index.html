@@ -62,6 +62,12 @@
         <div class="icon">📊</div>
         <span>Grafic activități</span>
     </button>
+
+<button class="menu-card" onclick="verificaParolaInventar()">
+        <div class="icon">📦</div>
+        <span>Inventar</span>
+    </button>
+</main>
 </main>
 
     <script>
@@ -119,14 +125,14 @@ function verificaParolaRegistru() {
     }
 }
 
-function verificaParolaGrafic() {
-        const parolaGrafic = prompt("Introduceți parola pentru acces la Grafic activități:");
-        if (parolaGrafic === "Grafic123") {
-            window.location.href = 'grafic_activitati.html';
-        } else if (parolaGrafic !== null) {
-            alert("Parolă incorectă! Accesul a fost refuzat.");
-        }
+function verificaParolaInventar() {
+    const parolaInventar = prompt("Introduceți parola pentru acces la secțiunea Inventar:");
+    if (parolaInventar === "Inventar123") {
+        window.location.href = 'registru_inventar.html';
+    } else if (parolaInventar !== null) {
+        alert("Parolă incorectă! Accesul a fost refuzat.");
     }
+}
 </script>
 
 </body>

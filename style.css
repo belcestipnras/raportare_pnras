@@ -66,12 +66,11 @@ html, body {
 /* 4. CONTAINER BUTOANE MARI (CARDS) */
 .menu-container {
     display: grid;
-    /* Forțăm toate cele 8 elemente pe un singur rând */
-    grid-template-columns: repeat(8, 1fr); 
-    gap: 12px;           /* Spațiu mic între butoane */
+    grid-template-columns: repeat(5, 1fr); 
+    gap: 14px;
     padding: 20px;
-    width: 75%;         /* Ocupă aproape toată lățimea */
-    margin: 0 auto;     /* Centrează containerul */
+    width: 70%;
+    margin: 0 auto;
 }
 
 .menu-card {
