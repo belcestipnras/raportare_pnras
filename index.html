@@ -67,6 +67,11 @@
         <div class="icon">📦</div>
         <span>Inventar</span>
     </button>
+
+<button class="menu-card" onclick="verificaParolaAudit()">
+        <div class="icon">🔍</div>
+        <span>Audit</span>
+    </button>
 </main>
 
     <script>
@@ -138,6 +143,15 @@ function verificaParolaGrafic() {
     if (parolaGrafic === "Grafic123") {
         window.location.href = 'grafic_activitati.html';
     } else if (parolaGrafic !== null) {
+        alert("Parolă incorectă! Accesul a fost refuzat.");
+    }
+}
+
+function verificaParolaAudit() {
+    const parolaAudit = prompt("Introduceți parola pentru acces la secțiunea Audit:");
+    if (parolaAudit === "Audit123") {
+        window.location.href = 'audit.html';
+    } else if (parolaAudit !== null) {
         alert("Parolă incorectă! Accesul a fost refuzat.");
     }
 }
