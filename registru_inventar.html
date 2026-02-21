@@ -607,7 +607,7 @@
 
         let html = '<table class="tabel-produse"><thead><tr>';
         html += '<th>Nr.</th><th>Denumire</th><th>UM</th><th>Cant.</th><th>Preț</th><th>Valoare</th>';
-        html += '<th>Tip</th><th>Locație</th><th>Nr. inventar</th><th>QR</th>';
+        html += '<th>Tip</th><th>Locație</th><th>Nr. inventar</th><th>QR</th><th>&#128465;</th>';
         html += '</tr></thead><tbody>';
 
         produse.forEach((p, i) => {
@@ -629,23 +629,29 @@
                     </select>
                 </td>
                 <td>
-                    <select class="edit-loc" data-id="${p.id}" ${blocat ? 'disabled' : ''}>
+                    <select class="edit-loc" data-id="${p.id}" onchange="toggleAltSpatiu(this)" ${blocat ? 'disabled' : ''}>
                         <option value="">-- Alege --</option>
                         <option value="PNRAS1" ${p.locatie === 'PNRAS1' ? 'selected' : ''}>PNRAS1</option>
                         <option value="PNRAS2" ${p.locatie === 'PNRAS2' ? 'selected' : ''}>PNRAS2</option>
                         <option value="Atelier pictură" ${p.locatie === 'Atelier pictură' ? 'selected' : ''}>Atelier pictură</option>
                         <option value="Atelier sport" ${p.locatie === 'Atelier sport' ? 'selected' : ''}>Atelier sport</option>
                         <option value="Spațiu relaxare" ${p.locatie === 'Spațiu relaxare' ? 'selected' : ''}>Spațiu relaxare</option>
-                        <option value="Alt spațiu" ${p.locatie === 'Alt spațiu' ? 'selected' : ''}>Alt spațiu</option>
+                        <option value="Alt spațiu" ${!['','PNRAS1','PNRAS2','Atelier pictură','Atelier sport','Spațiu relaxare'].includes(p.locatie) && p.locatie ? 'selected' : ''}>Alt spațiu</option>
                     </select>
+                    <input type="text" class="edit-loc-alt" data-id="${p.id}" placeholder="Scrie locația..." 
+                        value="${!['','PNRAS1','PNRAS2','Atelier pictură','Atelier sport','Spațiu relaxare','Alt spațiu'].includes(p.locatie) && p.locatie ? p.locatie : ''}"
+                        style="margin-top:3px; display:${!['','PNRAS1','PNRAS2','Atelier pictură','Atelier sport','Spațiu relaxare'].includes(p.locatie) && p.locatie ? 'block' : 'none'}" 
+                        ${blocat ? 'disabled' : ''}>
                 </td>
                 <td style="font-weight:600; font-size:11px; white-space:nowrap;">${p.numar_inventar || '-'}</td>
                 <td>${p.numar_inventar ? '<button class="btn-qr" data-prodid="' + p.id + '">&#128424; Print</button>' : '-'}</td>
+                <td>${!blocat ? '<button class="btn-sterge-rand" data-id="' + p.id + '" style="background:#e07a7a;color:#fff;border:none;border-radius:5px;padding:3px 7px;font-size:10px;cursor:pointer;">&#10005;</button>' : ''}</td>
             </tr>`;
         });
 
         html += '</tbody></table>';
         html += '<div style="margin-top:14px; display:flex; gap:8px; flex-wrap:wrap;">';
+        html += '<button class="btn-sub btn-salvare" onclick="adaugaRand()">&#10133; Adaugă rând</button>';
         html += '<button class="btn-sub btn-salvare" onclick="salveazaModificari()">&#128190; Salvează modificările</button>';
         html += '<button class="btn-sub btn-inventar" onclick="adaugaNumereInventar()">&#128290; Adaugă numere de inventar</button>';
         html += '<button class="btn-sub btn-blocheaza" onclick="blocheazaInventar()">&#128274; Blochează inventar</button>';
@@ -659,6 +665,48 @@
                 printQR(this.dataset.prodid);
             });
         });
+
+        // Atașăm event listeners pentru butoanele Șterge
+        document.querySelectorAll('.btn-sterge-rand').forEach(btn => {
+            btn.addEventListener('click', async function() {
+                const id = this.dataset.id;
+                const raspuns = await arataDialog('&#128465; Șterge rând',
+                    'Ești sigur că vrei să ștergi acest produs?',
+                    [
+                        { text: 'Șterge', valoare: 'da', clasa: 'dialog-btn-primary' },
+                        { text: 'Anulează', valoare: 'nu', clasa: 'dialog-btn-cancel' }
+                    ]);
+                if (raspuns !== 'da') return;
+                await db.from('produse_factura').update({ sters: true }).eq('id', id);
+                veziProduse();
+            });
+        });
+    }
+
+function toggleAltSpatiu(select) {
+        const id = select.dataset.id;
+        const altInput = document.querySelector(`.edit-loc-alt[data-id="${id}"]`);
+        if (select.value === 'Alt spațiu') {
+            altInput.style.display = 'block';
+            altInput.focus();
+        } else {
+            altInput.style.display = 'none';
+            altInput.value = '';
+        }
+    }
+
+async function adaugaRand() {
+        if (!facturaSelectata) return;
+        const { error } = await db.from('produse_factura').insert({
+            factura_id: facturaSelectata,
+            denumire: 'Produs nou',
+            um: 'BUC',
+            cantitate: 1,
+            pret_unitar: 0,
+            valoare: 0,
+        });
+        if (error) alert('Eroare: ' + error.message);
+        else veziProduse();
     }
 
     // ===================== SALVEAZĂ MODIFICĂRI =====================
@@ -674,7 +722,9 @@
                 pret_unitar: parseFloat(document.querySelector(`.edit-pret[data-id="${id}"]`).value) || 0,
                 valoare: parseFloat(document.querySelector(`.edit-val[data-id="${id}"]`).value) || 0,
                 tip: document.querySelector(`.edit-tip[data-id="${id}"]`).value,
-                locatie: document.querySelector(`.edit-loc[data-id="${id}"]`).value,
+locatie: document.querySelector(`.edit-loc[data-id="${id}"]`).value === 'Alt spațiu' 
+                    ? (document.querySelector(`.edit-loc-alt[data-id="${id}"]`).value || 'Alt spațiu')
+                    : document.querySelector(`.edit-loc[data-id="${id}"]`).value,
             }).eq('id', id);
             count++;
         }
@@ -839,6 +889,7 @@
             tip: p.tip, locatie: p.locatie, numar_inventar: p.numar_inventar,
             data_document: factura ? factura.data_document : null,
             titlu_factura: factura ? factura.titlu : null,
+            numar_factura: factura ? factura.numar : null,
         }));
 
         await db.from('registru_inventar').delete().eq('factura_id', facturaSelectata);
@@ -891,11 +942,35 @@
                 </tr>`;
             });
             html += '</tbody></table>';
-            html += '<button class="btn-sub btn-inventar" onclick="restaureazaToate()" style="margin-top:12px;">&#128260; Restaurează toate</button>';
+html += '<button class="btn-sub btn-inventar" onclick="restaureazaToate()" style="margin-top:12px;">&#128260; Restaurează toate</button>';
+            html += '<button class="btn-sub btn-blocheaza" onclick="golesteIstoric()" style="margin-top:12px;">&#128465; Golește istoric</button>';
         } else {
             html += '<p style="color:#aaa; font-style:italic; font-size:12px;">Nu există produse șterse.</p>';
         }
         zona.innerHTML = html;
+    }
+
+async function golesteIstoric() {
+        const raspuns = await arataDialog('&#128465; Golire istoric',
+            'Ești sigur? Produsele șterse vor fi eliminate definitiv și <b>nu mai pot fi recuperate</b>.',
+            [
+                { text: 'Șterge definitiv', valoare: 'da', clasa: 'dialog-btn-primary' },
+                { text: 'Anulează', valoare: 'nu', clasa: 'dialog-btn-cancel' }
+            ]);
+        if (raspuns !== 'da') return;
+
+        await db.from('produse_factura').delete()
+            .eq('factura_id', facturaSelectata).eq('sters', true);
+
+        // Ștergem și fișierele din Storage istoric
+        const { data: fisiere } = await db.storage.from('arhiva_pnras').list(`istoric/${facturaSelectata}`);
+        if (fisiere && fisiere.length > 0) {
+            const paths = fisiere.map(f => `istoric/${facturaSelectata}/${f.name}`);
+            await db.storage.from('arhiva_pnras').remove(paths);
+        }
+
+        alert('Istoricul a fost golit!');
+        veziIstoric();
     }
 
     async function restaureazaProdus(id) {
@@ -918,81 +993,264 @@
 
     // ===================== REGISTRE (about:blank) =====================
     async function deschideRegistru(tip) {
-        let query = db.from('registru_inventar').select('*').order('created_at', { ascending: true });
-        let titlu = 'Registru General';
+        let query = db.from('registru_inventar').select('*').order('data_document', { ascending: true });
+        let titlu = 'GENERAL';
+        let subtitlu = 'Registru General';
 
         if (tip !== 'general') {
             query = query.eq('tip', tip);
             const titluri = {
-                'Obiect de inventar': 'Registru Obiecte de Inventar',
-                'Mijloc fix': 'Registru Mijloace Fixe',
-                'Serviciu': 'Registru Servicii',
-                'Consumabil': 'Registru Consumabile'
+                'Obiect de inventar': { titlu: 'OBIECTE DE INVENTAR', subtitlu: 'Registru Obiecte de Inventar' },
+                'Mijloc fix': { titlu: 'MIJLOACE FIXE', subtitlu: 'Registru Mijloace Fixe' },
+                'Serviciu': { titlu: 'SERVICII', subtitlu: 'Registru Servicii' },
+                'Consumabil': { titlu: 'CONSUMABILE', subtitlu: 'Registru Consumabile' }
             };
-            titlu = titluri[tip] || 'Registru';
+            if (titluri[tip]) { titlu = titluri[tip].titlu; subtitlu = titluri[tip].subtitlu; }
         }
 
         const { data, error } = await query;
         if (error) { alert('Eroare: ' + error.message); return; }
 
-        const win = window.open('about:blank', '_blank');
+        const tipRegistru = tip === 'general' ? 'general' : tip;
+        const { data: setare } = await db.from('setari_registre').select('*').eq('tip_registru', tipRegistru).single();
+        const nrInregistrare = setare ? setare.nr_inregistrare || '' : '';
+
+        const { data: urlAntet } = db.storage.from('arhiva_pnras').getPublicUrl('antet_pnras.jpeg');
+        const antetUrl = urlAntet.publicUrl;
+
         const hasInventar = tip === 'Obiect de inventar' || tip === 'Mijloc fix' || tip === 'general';
 
-        let html = `<!DOCTYPE html><html><head><meta charset="UTF-8">
-        <title>${titlu}</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"><\/script>
-        <style>
-            @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-            * { margin: 0; padding: 0; box-sizing: border-box; }
-            body { font-family: 'Inter', sans-serif; padding: 20px; color: #444; }
-            h1 { font-size: 18px; color: #5b9bd5; margin-bottom: 16px; }
-            table { width: 100%; border-collapse: collapse; font-size: 11px; }
-            th { background: #eef5fc; color: #5b9bd5; padding: 8px 6px; text-align: left; font-weight: 600; border-bottom: 2px solid #d4e5f7; }
-            td { padding: 6px; border-bottom: 1px solid #f0f2f5; }
-            tr:nth-child(even) { background: #fafbfc; }
-            .qr-cell { text-align: center; }
-            .qr-cell canvas { max-width: 80px; }
-            .btn-print { margin-bottom: 16px; padding: 8px 20px; background: #5b9bd5; color: #fff; border: none; border-radius: 8px; cursor: pointer; font-size: 13px; }
-            @media print { .btn-print { display: none; } }
-        </style></head><body>
-        <button class="btn-print" onclick="window.print()">&#128424; Printează</button>
-        <h1>${titlu}</h1>
-        <table><thead><tr>
-        <th>Nr.</th><th>Denumire</th><th>UM</th><th>Cant.</th><th>Preț</th><th>Valoare</th>
-        <th>Tip</th><th>Locație</th>`;
-
-        if (hasInventar) html += '<th>Nr. inventar</th><th>QR</th>';
-        html += '<th>Factură</th><th>Data</th></tr></thead><tbody>';
-
+        // Grupăm pe ani
+        const grupe = {};
         if (data) {
-            data.forEach((p, i) => {
-                html += `<tr>
-                    <td>${i + 1}</td><td>${p.denumire || '-'}</td><td>${p.um || '-'}</td>
-                    <td>${p.cantitate || 0}</td><td>${p.pret_unitar || 0}</td><td>${p.valoare || 0}</td>
-                    <td>${p.tip || '-'}</td><td>${p.locatie || '-'}</td>`;
-
-                if (hasInventar) {
-                    html += `<td style="font-weight:600;">${p.numar_inventar || '-'}</td>`;
-                    html += `<td class="qr-cell">${p.numar_inventar ? '<canvas id="qr_' + i + '" data-qr="' + encodeURIComponent(JSON.stringify({
-                        nr_inventar: p.numar_inventar, denumire: p.denumire,
-                        tip: p.tip, locatie: p.locatie, um: p.um,
-                        cantitate: p.cantitate, pret_unitar: p.pret_unitar, valoare: p.valoare,
-                        factura: p.titlu_factura, data: p.data_document
-                    })) + '"></canvas>' : '-'}</td>`;
-                }
-
-                html += `<td>${p.titlu_factura || '-'}</td><td>${p.data_document || '-'}</td></tr>`;
+            data.forEach(p => {
+                const an = p.data_document ? p.data_document.substring(0, 4) : 'Fără an';
+                if (!grupe[an]) grupe[an] = [];
+                grupe[an].push(p);
             });
         }
+        const aniSortati = Object.keys(grupe).sort();
 
-        html += `</tbody></table>
-        <script>
-            document.querySelectorAll('canvas[data-qr]').forEach(c => {
-                const data = JSON.parse(decodeURIComponent(c.dataset.qr));
-                new QRCode(c.parentElement, { text: JSON.stringify(data), width: 80, height: 80, correctLevel: QRCode.CorrectLevel.L });
-                c.remove();
+        const win = window.open('about:blank', '_blank');
+
+        let html = `<!DOCTYPE html><html><head><meta charset="UTF-8">
+        <title>${subtitlu}</title>
+        <style>
+            @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+            @page { size: A4; margin: 1.5cm; }
+            * { margin: 0; padding: 0; box-sizing: border-box; }
+            body { font-family: 'Inter', sans-serif; color: #333; }
+
+            /* COPERTĂ */
+            .coperta {
+                page-break-after: always;
+                display: flex; flex-direction: column; align-items: center;
+                justify-content: flex-start; min-height: 100vh; padding-top: 30px;
+            }
+            .coperta img {
+                max-width: 90%; height: auto; margin-bottom: 30px;
+            }
+            .nr-inreg {
+                font-size: 13px; color: #555; margin-bottom: 40px;
+            }
+            .nr-inreg input {
+                border: none; border-bottom: 1px solid #999; font-size: 13px;
+                font-family: inherit; text-align: center; width: 200px; padding: 2px 4px;
+                color: #333;
+            }
+            .titlu-box {
+                background: #fff; border-radius: 14px; padding: 40px 60px;
+                box-shadow: 0 6px 24px rgba(0,0,0,0.1); border: 1px solid #e0e4e8;
+                text-align: center; margin-top: 20px;
+            }
+            .titlu-box h1 {
+                font-size: 28px; font-weight: 700; color: #2b7de9;
+                letter-spacing: 2px; margin-bottom: 12px;
+            }
+            .titlu-box h2 {
+                font-size: 18px; font-weight: 500; color: #666;
+                letter-spacing: 1px;
+            }
+
+            /* TABEL */
+            .pagina-tabel { page-break-before: always; padding-top: 10px; }
+            .pagina-tabel:first-of-type { page-break-before: avoid; }
+
+            .an-header {
+                font-size: 15px; font-weight: 700; color: #2b7de9;
+                padding: 10px 0 6px 0; margin-top: 16px;
+                border-bottom: 2px solid #d4e5f7;
+            }
+
+            table {
+                width: 100%; border-collapse: collapse; font-size: 10px; margin-top: 6px;
+            }
+            th {
+                background: #eef5fc; color: #2b7de9; padding: 7px 5px;
+                text-align: left; font-weight: 600; font-size: 9px;
+                border-bottom: 2px solid #d4e5f7; white-space: nowrap;
+            }
+            td {
+                padding: 5px 4px; border-bottom: 1px solid #eee; font-size: 10px;
+            }
+            tr:nth-child(even) { background: #fafbfc; }
+
+            /* PAGINI */
+            .numar-pagina {
+                text-align: center; font-size: 10px; color: #aaa;
+                margin-top: 10px; padding-top: 6px; border-top: 1px solid #eee;
+            }
+
+            /* PROCES VERBAL */
+            .proces-verbal {
+                page-break-before: always; padding-top: 30px;
+            }
+            .proces-verbal h2 {
+                text-align: center; font-size: 18px; font-weight: 700;
+                color: #333; margin-bottom: 24px;
+            }
+            .pv-text {
+                font-size: 13px; line-height: 2; color: #333;
+            }
+            .pv-text input {
+                border: none; border-bottom: 1px solid #999;
+                font-size: 13px; font-family: inherit; padding: 2px 4px;
+                text-align: center; color: #333;
+            }
+            .pv-semnaturi {
+                display: flex; justify-content: space-between;
+                margin-top: 50px; font-size: 13px;
+            }
+            .pv-semnatura { text-align: center; }
+            .pv-semnatura .functie { font-weight: 600; margin-bottom: 4px; }
+            .pv-semnatura .nume { margin-bottom: 20px; }
+            .pv-semnatura .linie { border-bottom: 1px solid #999; width: 200px; margin: 0 auto; }
+
+            .btn-print {
+                position: fixed; top: 15px; right: 15px; z-index: 100;
+                padding: 10px 24px; background: #2b7de9; color: #fff;
+                border: none; border-radius: 8px; cursor: pointer; font-size: 14px;
+                font-weight: 600; box-shadow: 0 3px 10px rgba(0,0,0,0.15);
+            }
+            .btn-print:hover { background: #1f6ad4; }
+            .btn-save-nr {
+                padding: 4px 12px; background: #66bb9b; color: #fff;
+                border: none; border-radius: 6px; cursor: pointer; font-size: 11px;
+                margin-left: 8px;
+            }
+            @media print {
+                .btn-print, .btn-save-nr { display: none; }
+                .nr-inreg input, .pv-text input { border-bottom: 1px solid #999; }
+            }
+        </style>
+        </head><body>
+
+        <button class="btn-print" onclick="window.print()">&#128424; Printează</button>
+
+        <!-- COPERTĂ -->
+        <div class="coperta">
+            <img src="${antetUrl}" alt="Antet PNRAS">
+            <div class="nr-inreg">
+                Nr. de înregistrare: <input type="text" id="nrInreg" value="${nrInregistrare}" placeholder="...">
+                <button class="btn-save-nr" onclick="salveazaNr()">Salvează</button>
+            </div>
+            <div class="titlu-box">
+                <h1>REGISTRU DE INVENTAR</h1>
+                <h2>${titlu}</h2>
+            </div>
+        </div>
+
+        <!-- TABEL -->
+        <div class="pagina-tabel">`;
+
+        let nrCrt = 0;
+
+        aniSortati.forEach(an => {
+            html += `<div class="an-header">&#128197; ${an}</div>`;
+            html += `<table><thead><tr>
+                <th>Nr. crt.</th><th>Denumire</th><th>UM</th><th>Cant.</th>
+                <th>Preț unitar</th><th>Valoare</th><th>Locație</th>`;
+            if (hasInventar) html += '<th>Nr. inventar</th>';
+            html += '<th>Factură</th></tr></thead><tbody>';
+
+            grupe[an].forEach(p => {
+                nrCrt++;
+                html += `<tr>
+                    <td>${nrCrt}</td>
+                    <td>${p.denumire || '-'}</td>
+                    <td>${p.um || '-'}</td>
+                    <td>${p.cantitate || 0}</td>
+                    <td>${p.pret_unitar || 0}</td>
+                    <td>${p.valoare || 0}</td>
+                    <td>${p.locatie || '-'}</td>`;
+                if (hasInventar) html += `<td style="font-weight:600;">${p.numar_inventar || '-'}</td>`;
+                let dataFmt = p.data_document || '-';
+                if (dataFmt && dataFmt.includes('-')) {
+                    const parti = dataFmt.split('-');
+                    dataFmt = parti[2] + '.' + parti[1] + '.' + parti[0];
+                }
+                const factInfo = (p.numar_factura || '-') + '/' + dataFmt;	
+                html += `<td>${factInfo}</td></tr>`;
             });
-        <\/script></body></html>`;
+
+            html += '</tbody></table>';
+        });
+
+        if (!data || data.length === 0) {
+            html += '<p style="padding:20px; color:#aaa; font-style:italic;">Nu există înregistrări în acest registru.</p>';
+        }
+
+        // Calculăm paginile (aproximativ 30 rânduri per pagină)
+        const totalPozitii = nrCrt;
+        const totalPagini = Math.max(1, Math.ceil(totalPozitii / 30));
+        const dataAzi = new Date().toLocaleDateString('ro-RO');
+
+        html += `</div>
+
+        <!-- PROCES VERBAL -->
+        <div class="proces-verbal">
+            <h2>PROCES-VERBAL</h2>
+            <div class="pv-text">
+                <p>Încheiat astăzi, <input type="text" id="pvData" value="${dataAzi}" style="width:140px;">,</p>
+                <br>
+                <p>Prezentul registru conține un număr de 
+                    <input type="text" id="pvPagini" value="${totalPagini}" style="width:40px;"> pagini, 
+                    numerotate de la 1 la 
+                    <input type="text" id="pvPaginiLa" value="${totalPagini}" style="width:40px;">, 
+                    cu un total de 
+                    <input type="text" id="pvPozitii" value="${totalPozitii}" style="width:50px;"> poziții 
+                    (numere de înregistrare).
+                </p>
+            </div>
+
+            <div class="pv-semnaturi">
+                <div class="pv-semnatura">
+                    <div class="functie">DIRECTOR,</div>
+                    <div class="nume">prof. Cătălin Ionuț BAZILUC</div>
+                    <div class="linie">&nbsp;</div>
+                </div>
+                <div class="pv-semnatura">
+                    <div class="functie">MANAGER PROIECT,</div>
+                    <div class="nume">prof. dr. Ciprian MIHAI</div>
+                    <div class="linie">&nbsp;</div>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            const SUPABASE_URL = '${SUPABASE_URL}';
+            const SUPABASE_KEY = '${SUPABASE_KEY}';
+
+            async function salveazaNr() {
+                const val = document.getElementById('nrInreg').value;
+                const dbLocal = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+                await dbLocal.from('setari_registre').update({ nr_inregistrare: val }).eq('tip_registru', '${tipRegistru}');
+                alert('Nr. de înregistrare salvat!');
+            }
+        <\/script>
+        <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"><\/script>
+
+        </body></html>`;
 
         win.document.write(html);
         win.document.close();
