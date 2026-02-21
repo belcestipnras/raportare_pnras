@@ -68,7 +68,6 @@
         <span>Inventar</span>
     </button>
 </main>
-</main>
 
     <script>
     function verificaParola() {
@@ -130,6 +129,15 @@ function verificaParolaInventar() {
     if (parolaInventar === "Inventar123") {
         window.location.href = 'registru_inventar.html';
     } else if (parolaInventar !== null) {
+        alert("Parolă incorectă! Accesul a fost refuzat.");
+    }
+}
+
+function verificaParolaGrafic() {
+    const parolaGrafic = prompt("Introduceți parola pentru acces la Grafic activități:");
+    if (parolaGrafic === "Grafic123") {
+        window.location.href = 'grafic_activitati.html';
+    } else if (parolaGrafic !== null) {
         alert("Parolă incorectă! Accesul a fost refuzat.");
     }
 }
