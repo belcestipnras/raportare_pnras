@@ -205,9 +205,9 @@
     let uploadTargetParentId = null;
 
     const CARDURI_FIXE = [
-        { id: 'dosare_achizitii', titlu: 'DOSARE ACHIZIȚII', icon: '📁', tip: 'special_dosare' },
-        { id: 'raport_financiar', titlu: 'RAPORT FINANCIAR', icon: '💰', tip: 'folder' },
-        { id: 'raport_tehnic', titlu: 'RAPORT TEHNIC', icon: '📋', tip: 'folder' },
+        { id: '00000000-0000-0000-0000-000000000001', titlu: 'DOSARE ACHIZIȚII', icon: '📁', tip: 'special_dosare' },
+        { id: '00000000-0000-0000-0000-000000000002', titlu: 'RAPORT FINANCIAR', icon: '💰', tip: 'folder' },
+        { id: '00000000-0000-0000-0000-000000000003', titlu: 'RAPORT TEHNIC', icon: '📋', tip: 'folder' },
     ];
 
     const DOCUMENTE_OBLIGATORII = [
@@ -292,7 +292,7 @@
 
         if (currentView.type === 'root') {
             await afiseazaCarduri();
-        } else if (currentView.type === 'card' && currentView.id === 'dosare_achizitii') {
+        } else if (currentView.type === 'card' && currentView.id === '00000000-0000-0000-0000-000000000001') {
             await afiseazaDosareAchizitii();
         } else if (currentView.type === 'contract') {
             await afiseazaChecklistContract(currentView.contractId, currentView.titlu);
@@ -379,13 +379,13 @@
         const { data: documente } = await db.from('documente_contract').select('contract_id, tip_document');
 
         const { data: manual } = await db.from('audit_continut').select('*')
-            .eq('card_id', 'dosare_achizitii').is('parent_id', null).eq('sters', false)
+            .eq('card_id', '00000000-0000-0000-0000-000000000001').is('parent_id', null).eq('sters', false)
             .order('ordine', { ascending: true });
 
         let html = '<div class="actions-bar">' +
-            '<button class="btn-action btn-folder" onclick="adaugaSubfolder(\'dosare_achizitii\', null)">&#128193; Adaugă subfolder</button>' +
-            '<button class="btn-action btn-file" onclick="adaugaFisier(\'dosare_achizitii\', null)">&#128196; Adaugă fișier</button>' +
-            '<button class="btn-action btn-history" onclick="veziIstoricCard(\'dosare_achizitii\')">&#128337; Istoric</button>' +
+            '<button class="btn-action btn-folder" onclick="adaugaSubfolder(\'00000000-0000-0000-0000-000000000001\', null)">&#128193; Adaugă subfolder</button>' +
+            '<button class="btn-action btn-file" onclick="adaugaFisier(\'00000000-0000-0000-0000-000000000001\', null)">&#128196; Adaugă fișier</button>' +
+            '<button class="btn-action btn-history" onclick="veziIstoricCard(\'00000000-0000-0000-0000-000000000001\')">&#128337; Istoric</button>' +
             '</div>';
 
         // Conținut manual
@@ -498,6 +498,8 @@
     // ===================== FOLDER GENERIC =====================
     async function afiseazaFolder(cardId, parentId) {
         const cont = document.getElementById('continut');
+        // Normalizează parentId — poate veni ca string 'null' din onclick HTML
+        if (parentId === 'null' || parentId === null || parentId === undefined) parentId = null;
 
         let query = db.from('audit_continut').select('*')
             .eq('card_id', cardId).eq('sters', false)
@@ -564,9 +566,22 @@
         ], true, 'Ex: Dosare 2025');
         if (r.actiune !== 'da' || !r.text.trim()) return;
 
-        await db.from('audit_continut').insert({
-            card_id: cardId, parent_id: parentId, tip: 'folder', titlu: r.text.trim(), icon: '📁'
-        });
+        const insertData = {
+            card_id: cardId,
+            parent_id: parentId || null,
+            tip: 'folder',
+            titlu: r.text.trim(),
+            icon: '📁',
+            sters: false
+        };
+
+        const { data, error } = await db.from('audit_continut').insert(insertData).select();
+        if (error) {
+                     const msg = error.message || error.details || error.hint || JSON.stringify(error);
+            alert('Eroare la salvare:\n' + msg + '\nCod: ' + (error.code||'?') + '\nDetalii: ' + (error.details||'-') + '\nHint: ' + (error.hint||'-'));
+            console.error('Insert error full:', JSON.stringify(error));
+            return;
+        }
         incarcaVizualizare();
     }
 
@@ -590,7 +605,8 @@
                 const { data: urlData } = db.storage.from('audit').getPublicUrl(fileName);
                 await db.from('audit_continut').insert({
                     card_id: uploadTargetCardId, parent_id: uploadTargetParentId,
-                    tip: 'fisier', titlu: file.name, fisier_url: urlData.publicUrl, fisier_nume: file.name
+                    tip: 'fisier', titlu: file.name, fisier_url: urlData.publicUrl, fisier_nume: file.name,
+                    sters: false
                 });
             }
         }
