@@ -178,7 +178,7 @@
 <body>
 
 <div class="top-bar">
-    <button class="btn-back" onclick="window.location.href='index.html'">&#8592; Înapoi</button>
+    <button class="btn-back" onclick="inapoi()">&#8592; Înapoi</button>
     <span class="top-title">&#128270; Audit PNRAS</span>
 </div>
 
@@ -283,6 +283,14 @@
         currentView = item;
         actualizeazaBreadcrumb();
         incarcaVizualizare();
+    }
+
+    function inapoi() {
+        if (navigationStack.length === 0) {
+            window.location.href = 'index.html';
+        } else {
+            navigheaza(navigationStack.length - 1);
+        }
     }
 
     // ===================== ROUTER =====================
