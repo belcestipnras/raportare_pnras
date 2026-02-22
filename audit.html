@@ -125,10 +125,11 @@
         }
 
         /* ===== CONTRACTE BLOCATE ===== */
-        .contract-item.blocat {
-            cursor: not-allowed; background: #f5f5f5; border-color: #ddd;
+        .contract-item.blocat { display: none; }
+        .arata-blocate .contract-item.blocat {
+            display: flex; cursor: not-allowed; background: #f5f5f5; border-color: #ddd;
         }
-        .contract-item.blocat:hover { border-color: #ddd !important; background: #f5f5f5 !important; box-shadow: none !important; transform: none !important; }
+        .arata-blocate .contract-item.blocat:hover { border-color: #ddd !important; background: #f5f5f5 !important; box-shadow: none !important; transform: none !important; }
         .btn-lacat {
             background: none; border: none; font-size: 18px; cursor: pointer;
             padding: 2px 4px; border-radius: 6px; transition: all 0.2s; flex-shrink: 0;
@@ -214,6 +215,7 @@
     let currentView = { type: 'root' };
     let uploadTargetCardId = null;
     let uploadTargetParentId = null;
+    let arataBlocate = false;
 
     const CARDURI_FIXE = [
         { id: '00000000-0000-0000-0000-000000000001', titlu: 'DOSARE ACHIZIȚII', icon: '📁', tip: 'special_dosare' },
@@ -410,6 +412,12 @@
             '<button class="btn-action btn-folder" onclick="adaugaSubfolder(\'00000000-0000-0000-0000-000000000001\', null)">&#128193; Adaugă subfolder</button>' +
             '<button class="btn-action btn-file" onclick="adaugaFisier(\'00000000-0000-0000-0000-000000000001\', null)">&#128196; Adaugă fișier</button>' +
             '<button class="btn-action btn-history" onclick="veziIstoricCard(\'00000000-0000-0000-0000-000000000001\')">&#128337; Istoric</button>' +
+            '<button id="btn-arata-blocate" class="btn-action" style="background:#9ca3af;" onclick="toggleArataBlocate(this)">&#128274; Afișează dosare blocate</button>' +
+            '</div>';
+
+        // Mesaj informativ
+        html += '<div style="margin-bottom:16px;padding:12px 16px;background:#f0f4ff;border-left:4px solid #1a56db;border-radius:8px;font-size:12px;color:#444;line-height:1.6;">' +
+            '&#8505;&#65039; Dacă vreți să vizualizați dosarele încărcate, care au fost blocate, sau cele care nu fac obiectul prezentei raportări, dați click pe <b>"Afișează dosare blocate"</b> și acestea vor apărea la finalul paginii.' +
             '</div>';
 
         // Conținut manual
@@ -421,68 +429,111 @@
             html += '</div>';
         }
 
-        // Contracte
-        if (contracte && contracte.length > 0) {
-            html += '<h3 style="margin-top:20px;font-size:15px;color:#1a56db;font-weight:700;">&#128196; Contracte</h3>';
-
-            const grupe = {};
-            contracte.forEach(c => { const an = c.an || '-'; if (!grupe[an]) grupe[an] = []; grupe[an].push(c); });
-
-            const docPer = {};
-            if (documente) {
-                documente.forEach(d => {
-                    if (!docPer[d.contract_id]) docPer[d.contract_id] = [];
-                    if (!docPer[d.contract_id].includes(d.tip_document)) docPer[d.contract_id].push(d.tip_document);
-                });
-            }
-
-            Object.keys(grupe).sort().forEach(an => {
-                html += '<div class="an-header">&#128197; ' + an + '</div>';
-                grupe[an].forEach(c => {
-                    const ex = docPer[c.id] || [];
-                    const complet = DOCUMENTE_OBLIGATORII.every(o => ex.includes(o));
-                    const totalOk = LISTA_DOCUMENTE.filter(d => ex.includes(d)).length;
-                    const esteBlockat = blocateSet.has(c.id);
-
-                    let st = '';
-                    if (complet) st = '<span class="contract-status" style="background:#dcfce7;color:#166534;">COMPLET ✔</span>';
-                    else if (totalOk > 0) st = '<span class="contract-status" style="background:#fef3c7;color:#92400e;">' + totalOk + '/' + LISTA_DOCUMENTE.length + '</span>';
-                    else st = '<span class="contract-status" style="background:#fee2e2;color:#991b1b;">GOL</span>';
-
-                    const val = c.valoare ? parseFloat(c.valoare).toLocaleString('ro-RO', { minimumFractionDigits: 2 }) + ' lei' : '';
-
-                    // Titlu cu număr și dată
-                    let titluAfisat = c.titlu || 'Fără titlu';
-                    if (c.numar) titluAfisat += ' | Nr. ' + c.numar;
-                    if (c.data_document) {
-                        const d = new Date(c.data_document);
-                        if (!isNaN(d)) titluAfisat += ' | ' + d.toLocaleDateString('ro-RO');
-                    }
-                    const idSafe = c.id;
-                    const titluSafe = titluAfisat.replace(/"/g, '&quot;');
-                    const lacatIcon = esteBlockat ? '🔒' : '🔓';
-
-                    html += '<div class="contract-item' + (esteBlockat ? ' blocat' : '') + '" ' +
-                        (esteBlockat ? '' : 'data-cid="' + idSafe + '" data-ctitlu="' + titluSafe + '" onclick="deschideContractFromEl(this)"') +
-                        ' style="display:flex;align-items:center;gap:12px;">' +
-                        '<div style="display:flex;align-items:center;gap:12px;flex:1;min-width:0;' + (esteBlockat ? 'opacity:0.3;filter:grayscale(100%);' : '') + '">' +
-                            '<span style="font-size:20px;">📄</span>' +
-                            '<div style="flex:1;min-width:0;"><div class="contract-title">' + titluAfisat + '</div></div>' +
-                            '<span class="contract-val">' + val + '</span>' +
-                            st +
-                        '</div>' +
-                        '<div style="display:flex;flex-direction:column;align-items:center;gap:2px;margin-left:8px;flex-shrink:0;">' +
-                            '<button class="btn-lacat" onclick="event.stopPropagation(); toggleBlocat(\'' + idSafe + '\', ' + (esteBlockat ? 'true' : 'false') + ')" title="' + (esteBlockat ? 'Deblochează' : 'Blochează') + '">' + lacatIcon + '</button>' +
-                            (esteBlockat ? '<div style="font-size:9px;color:#111;font-weight:700;text-align:center;white-space:nowrap;">Apasă pt.<br>deblocare</div>' : '') +
-                        '</div>' +
-                        '</div>';
-                });
+        const docPer = {};
+        if (documente) {
+            documente.forEach(d => {
+                if (!docPer[d.contract_id]) docPer[d.contract_id] = [];
+                if (!docPer[d.contract_id].includes(d.tip_document)) docPer[d.contract_id].push(d.tip_document);
             });
         }
 
+        function genContractItem(c, esteBlockat) {
+            const ex = docPer[c.id] || [];
+            const complet = DOCUMENTE_OBLIGATORII.every(o => ex.includes(o));
+            const totalOk = LISTA_DOCUMENTE.filter(d => ex.includes(d)).length;
+            let st = '';
+            if (complet) st = '<span class="contract-status" style="background:#dcfce7;color:#166534;">COMPLET ✔</span>';
+            else if (totalOk > 0) st = '<span class="contract-status" style="background:#fef3c7;color:#92400e;">' + totalOk + '/' + LISTA_DOCUMENTE.length + '</span>';
+            else st = '<span class="contract-status" style="background:#fee2e2;color:#991b1b;">GOL</span>';
+
+            const val = c.valoare ? parseFloat(c.valoare).toLocaleString('ro-RO', { minimumFractionDigits: 2 }) + ' lei' : '';
+            let titluAfisat = c.titlu || 'Fără titlu';
+            if (c.numar) titluAfisat += ' | Nr. ' + c.numar;
+            if (c.data_document) {
+                const d = new Date(c.data_document);
+                if (!isNaN(d)) titluAfisat += ' | ' + d.toLocaleDateString('ro-RO');
+            }
+            const idSafe = c.id;
+            const titluSafe = titluAfisat.replace(/"/g, '&quot;');
+            const lacatIcon = esteBlockat ? '🔒' : '🔓';
+
+            return '<div class="contract-item" ' +
+                (esteBlockat ? '' : 'data-cid="' + idSafe + '" data-ctitlu="' + titluSafe + '" onclick="deschideContractFromEl(this)"') +
+                ' style="display:flex;align-items:center;gap:12px;cursor:' + (esteBlockat ? 'not-allowed' : 'pointer') + ';">' +
+                '<div style="display:flex;align-items:center;gap:12px;flex:1;min-width:0;">' +
+                    '<span style="font-size:20px;">📄</span>' +
+                    '<div style="flex:1;min-width:0;"><div class="contract-title">' + titluAfisat + '</div></div>' +
+                    '<span class="contract-val">' + val + '</span>' +
+                    st +
+                '</div>' +
+                '<div style="display:flex;flex-direction:column;align-items:center;gap:2px;margin-left:8px;flex-shrink:0;">' +
+                    '<button class="btn-lacat" onclick="event.stopPropagation(); toggleBlocat(\'' + idSafe + '\', ' + (esteBlockat ? 'true' : 'false') + ')">' + lacatIcon + '</button>' +
+                    (esteBlockat ? '<div style="font-size:9px;color:#111;font-weight:700;text-align:center;white-space:nowrap;margin-top:2px;">Apasă pt.<br>deblocare</div>' : '') +
+                '</div>' +
+                '</div>';
+        }
+
+        // Contracte ACTIVE (neblocate)
+        if (contracte && contracte.length > 0) {
+            const active = contracte.filter(c => !blocateSet.has(c.id));
+            const blocateList = contracte.filter(c => blocateSet.has(c.id));
+
+            if (active.length > 0) {
+                html += '<h3 style="margin-top:20px;font-size:15px;color:#1a56db;font-weight:700;">&#128196; Contracte</h3>';
+                const grupe = {};
+                active.forEach(c => { const an = c.an || '-'; if (!grupe[an]) grupe[an] = []; grupe[an].push(c); });
+                Object.keys(grupe).sort().forEach(an => {
+                    html += '<div class="an-header">&#128197; ' + an + '</div>';
+                    grupe[an].forEach(c => { html += genContractItem(c, false); });
+                });
+            }
+
+            // Contracte BLOCATE - separate, vizibile doar când arataBlocate=true
+
+            if (blocateList.length > 0 && arataBlocate) {
+                html += '<div style="margin-top:32px;border:2px dashed #d1d5db;border-radius:14px;padding:20px;background:#fafafa;">' +
+                    '<div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">' +
+                        '<span style="font-size:22px;">&#128274;</span>' +
+                        '<div>' +
+                            '<div style="font-size:15px;font-weight:700;color:#6b7280;">Facturi blocate</div>' +
+                            '<div style="font-size:11px;color:#9ca3af;margin-top:2px;">Acestea nu fac obiectul prezentei raportări</div>' +
+                        '</div>' +
+                    '</div>';
+                const grupeB = {};
+                blocateList.forEach(c => { const an = c.an || '-'; if (!grupeB[an]) grupeB[an] = []; grupeB[an].push(c); });
+                Object.keys(grupeB).sort().forEach(an => {
+                    html += '<div class="an-header" style="color:#9ca3af;border-color:#e5e7eb;">&#128197; ' + an + '</div>';
+                    grupeB[an].forEach(c => { html += genContractItem(c, true); });
+                });
+                html += '</div>';
+            }
+        }
+
         cont.innerHTML = html;
+        // Update button text
+        const btn = document.getElementById('btn-arata-blocate');
+        if (btn) btn.innerHTML = arataBlocate ? '&#128274; Ascunde dosare blocate' : '&#128274; Afișează dosare blocate';
+        // Show/hide "no blocked" message next to button
+        let msgExistent = document.getElementById('msg-no-blocate');
+        if (arataBlocate && blocateList.length === 0) {
+            if (!msgExistent) {
+                const msg = document.createElement('span');
+                msg.id = 'msg-no-blocate';
+                msg.style.cssText = 'font-size:12px;color:#9ca3af;font-style:italic;align-self:center;margin-left:4px;';
+                msg.textContent = 'Nu există dosare blocate.';
+                btn.parentNode.appendChild(msg);
+            }
+        } else {
+            if (msgExistent) msgExistent.remove();
+        }
     }
 
+
+
+    function toggleArataBlocate(btn) {
+        arataBlocate = !arataBlocate;
+        incarcaVizualizare();
+    }
 
     async function toggleBlocat(contractId, esteBlockat) {
         if (esteBlockat) {
