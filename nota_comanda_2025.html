@@ -44,6 +44,7 @@
         .btn-ui { padding: 12px 20px; border-radius: 10px; border: none; cursor: pointer; font-weight: bold; font-family: 'Inter'; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
         .btn-reset { background: #ef4444; color: white; }
         .btn-print { background: var(--primary); color: white; }
+        .btn-comunicare { background: #7c3aed; color: white; }
         .status-notif { position: fixed; bottom: 20px; right: 20px; background: white; padding: 10px 20px; border-radius: 30px; border: 2px solid var(--save-color); font-weight: bold; display: none; z-index: 9999; }
 
         @media print {
@@ -65,6 +66,7 @@
         <button class="btn-ui" style="background:white; border:2px solid var(--primary);" onclick="goBack()">⬅️ Înapoi</button>
         <button class="btn-ui btn-reset" onclick="resetLaPontaj()">🔄 Revenire la datele din pontaj</button>
         <button id="print-btn" class="btn-ui btn-print" style="display:none;" onclick="window.print()">🖨️ Printează</button>
+        <button id="comunicare-btn" class="btn-ui btn-comunicare" style="display:none;" onclick="genereazaComunicari()">📄 Comunicări nelivrare</button>
     </div>
 
     <div id="selection-view" class="selection-container">
@@ -184,6 +186,7 @@
                 document.getElementById('document-view').style.display = 'none';
                 document.getElementById('selection-view').style.display = 'flex';
                 document.getElementById('print-btn').style.display = 'none';
+                document.getElementById('comunicare-btn').style.display = 'none';
             } else {
                 // Altfel mergem la pagina principală a meniului
                 window.location.href = 'nota_comanda_masa.html';
@@ -191,8 +194,16 @@
         };
 
         async function incarcaDocument() {
+            // Golim campurile inainte de incarcare ca sa nu ramana valori din luna anterioara
+            document.getElementById('db-nr').value = '';
+            document.getElementById('db-data-nr').value = '';
+            document.getElementById('corp-tabel-nota').innerHTML = '';
+            document.getElementById('total-final').innerText = '0';
+
             const docId = `NOTA_COM_2025_${currentLuna}`;
             const { data: savedDoc } = await supabase.from('planificari_documente').select('continut_json').eq('tip_document', docId).maybeSingle();
+
+            await verificaComunicari();
 
             if (savedDoc && savedDoc.continut_json) {
                 const j = savedDoc.continut_json;
@@ -209,10 +220,50 @@
             }
         }
 
+        // Ratii elevi per clasa/grupa
+        const ratii = {
+            "5A": 10, "5B": 7, "6A": 11, "6B": 12, "6C": 12, "7A": 10, "7B": 8, "8A": 10, "8B": 8, "8C": 12,
+            "SG1": 8, "SG2": 8, "PG1": 12, "PG2": 12, "MG1": 11, "MG2": 11, "DG1": 11, "StG1": 16, "StG2": 14,
+            "SG1A": 8, "SG1B": 8, "PG1A": 10, "PG2A": 10, "StG1A": 13, "StG1B": 10,
+            "AV5A": 8, "AV5B": 8, "AV6A": 13, "AV6B": 8, "AV7A": 12, "AV7B": 9, "AV8A1": 10, "AV8A2": 10, "AV8B1": 8, "AV8B2": 6,
+            "AR5AB": 11, "AR5A": 8, "AR5B": 8, "AR6A": 12, "AR6B": 8, "AR7B": 9,
+            "BA6B": 8, "BA7A": 12, "BA8A1": 10, "BA8A2": 10, "BA8B": 8,
+            "5C": 14, "7C": 8, "AD8B1": 7, "AD8B2": 6, "AD8B3": 8,
+            "PE8A1": 10, "PE8A2": 10, "PE6B1": 8, "PE6B2": 12, "PE7A": 12,
+            "IA5AB1": 11, "IA5AB2": 12, "IA6A": 13, "IA7B": 10
+        };
+
+        async function preiaDatePontaj() {
+            const { data: pontajData } = await supabase
+                .from('pontaj_detaliat')
+                .select('zi, clase_grupe, fara_masa')
+                .eq('an', 2025)
+                .eq('luna', currentLuna);
+
+            if (!pontajData || pontajData.length === 0) return [];
+
+            // Grupeaza pe zi, toate clasele indiferent de fara_masa
+            const zileMap = {};
+            pontajData.forEach(r => {
+                if (!zileMap[r.zi]) zileMap[r.zi] = new Set();
+                r.clase_grupe.split(',').forEach(c => zileMap[r.zi].add(c.trim()));
+            });
+
+            return Object.entries(zileMap)
+                .map(([zi, clase]) => {
+                    let qty = 0;
+                    clase.forEach(c => qty += (ratii[c] || 0));
+                    return {
+                        data: zi.toString().padStart(2,'0') + '.' + luniMap[currentLuna] + '.2025',
+                        qty
+                    };
+                })
+                .sort((a, b) => parseInt(a.data.split('.')[0]) - parseInt(b.data.split('.')[0]));
+        }
+
         window.resetLaPontaj = async (confirmare = true) => {
             if(confirmare && !confirm("Sigur vrei să ștergi modificările manuale și să revii la datele din baza de date?")) return;
-            const { data } = await supabase.from('setari_pontaj').select('zi, valoare_aviz').match({ an: 2025, luna: currentLuna }).gt('valoare_aviz', 0);
-            const initRows = (data || []).sort((a,b) => a.zi - b.zi).map(r => ({ data: `${r.zi.toString().padStart(2,'0')}.${luniMap[currentLuna]}.2025`, qty: r.valoare_aviz }));
+            const initRows = await preiaDatePontaj();
             renderTabel(initRows);
             if(confirmare) {
                 await supabase.from('planificari_documente').delete().eq('tip_document', `NOTA_COM_2025_${currentLuna}`);
@@ -276,6 +327,200 @@
             st.innerText = '✅ Salvat în Cloud';
             setTimeout(() => st.style.display = 'none', 1500);
         }
+
+        // ============================================================
+        // COMUNICARI NELIVRARE
+        // ============================================================
+
+        function suntConsecutive(zi1, zi2, luna, an) {
+            let d = new Date(an, luniNames.indexOf(luna), zi1);
+            d.setDate(d.getDate() + 1);
+            while (d.getDay() === 0) d.setDate(d.getDate() + 1);
+            return d.getDate() === zi2;
+        }
+
+        function grupeazaZile(zile, luna, an) {
+            if (zile.length === 0) return [];
+            const grupuri = [];
+            let grupCurent = [zile[0]];
+            for (let i = 1; i < zile.length; i++) {
+                if (suntConsecutive(grupCurent[grupCurent.length-1], zile[i], luna, an)) {
+                    grupCurent.push(zile[i]);
+                } else {
+                    grupuri.push([...grupCurent]);
+                    grupCurent = [zile[i]];
+                }
+            }
+            grupuri.push([...grupCurent]);
+            return grupuri;
+        }
+
+        function formatData(zi, luna) {
+            return zi.toString().padStart(2,'0') + '.' + luniMap[luna] + '.2025';
+        }
+
+        async function verificaComunicari() {
+            const { data } = await supabase
+                .from('pontaj_detaliat')
+                .select('zi').eq('an', 2025).eq('luna', currentLuna).eq('fara_masa', true).limit(1);
+            document.getElementById('comunicare-btn').style.display = (data && data.length > 0) ? 'block' : 'none';
+        }
+
+        window.genereazaComunicari = async () => {
+            const { data: pontajData } = await supabase
+                .from('pontaj_detaliat')
+                .select('zi').eq('an', 2025).eq('luna', currentLuna).eq('fara_masa', true);
+
+            const zileFaraMasa = [...new Set((pontajData || []).map(r => r.zi))].sort((a,b) => a-b);
+
+            if (zileFaraMasa.length === 0) { alert('Nu exista zile fara masa.'); return; }
+
+            const grupuri = grupeazaZile(zileFaraMasa, currentLuna, 2025);
+
+            const docId = 'COMUNICARE_2025_' + currentLuna;
+            const { data: savedCom } = await supabase.from('planificari_documente')
+                .select('continut_json').eq('tip_document', docId).maybeSingle();
+
+            let comunicariData = grupuri.map((grup, idx) => ({
+                idx,
+                dataStart: formatData(grup[0], currentLuna),
+                dataEnd: grup.length > 1 ? formatData(grup[grup.length-1], currentLuna) : null,
+                nr: '', dataNr: ''
+            }));
+
+            if (savedCom && savedCom.continut_json && savedCom.continut_json.comunicari) {
+                savedCom.continut_json.comunicari.forEach(saved => {
+                    if (comunicariData[saved.idx]) {
+                        comunicariData[saved.idx].nr = saved.nr || '';
+                        comunicariData[saved.idx].dataNr = saved.dataNr || '';
+                    }
+                });
+            }
+
+            deschideFereastaComunicari(comunicariData, currentLuna);
+        };
+
+        function deschideFereastaComunicari(comunicariData, luna) {
+            const win = window.open('', '_blank');
+            const URL_S = 'https://aexjrbdgajurxzngfkpx.supabase.co';
+            const KEY_S = 'sb_publishable_KPV__0BA9z4EvRl5eqC0FQ_hmBLOLYv';
+
+            // Construim paginile ca string concatenat (fara template literals imbricate)
+            let pagesHtml = '';
+            for (let i = 0; i < comunicariData.length; i++) {
+                const com = comunicariData[i];
+                const perioada = com.dataEnd ? (com.dataStart + ' &ndash; ' + com.dataEnd) : com.dataStart;
+                const nrVal = com.nr || '';
+                const dataNrVal = com.dataNr || '';
+                pagesHtml += '<div class="page">';
+                pagesHtml += '<div class="antet-box">';
+                pagesHtml += '<div class="firma-nume">SC PROCONS SRL</div>';
+                pagesHtml += '<div class="firma-detalii">CIF: 34138254</div>';
+                pagesHtml += '<div class="firma-detalii">Sediul: SAT BELCESTI COM. BELCESTI, NR. 370 MANSARDA</div>';
+                pagesHtml += '<div class="nr-inreg">Nr. <input type="text" class="inp-nr" data-idx="' + i + '" data-field="nr" value="' + nrVal + '" placeholder=""> / <input type="text" class="inp-data" data-idx="' + i + '" data-field="dataNr" value="' + dataNrVal + '" placeholder=""></div>';
+                pagesHtml += '</div>';
+                pagesHtml += '<hr class="separator">';
+                pagesHtml += '<div class="destinatar"><div>C&#259;tre: Liceul Tehnologic &bdquo;Victor Mih&#259;ilescu Craiu&rdquo; Belce&#537;ti</div><div>&Icirc;n aten&#539;ia: Domnului Director</div></div>';
+                pagesHtml += '<div class="titlu">COMUNICARE</div>';
+                pagesHtml += '<div class="corp">';
+                pagesHtml += '<p>Stimate Domnule Director,</p>';
+                pagesHtml += '<p>Subscrisa, SC PROCONS SRL, reprezentat&#259; legal prin doamna Mirela MURARIU, &icirc;n calitate de administrator, v&#259; aducem la cuno&#351;tin&#539;&#259; faptul c&#259;, din motive obiective, societatea noastr&#259; nu poate asigura livrarea serviciului de mas&#259; cald&#259; &icirc;n perioada <strong>' + perioada + '</strong>.</p>';
+                pagesHtml += '<p>Men&#539;ion&#259;m c&#259; aceast&#259; situa&#539;ie este independent&#259; de voin&#539;a societ&#259;&#539;ii noastre &#351;i depunem toate diligen&#539;ele necesare pentru remedierea &icirc;n cel mai scurt timp a situa&#539;iei ap&#259;rute, astfel &icirc;nc&acirc;t activitatea s&#259; fie reluat&#259; &icirc;n condi&#539;ii normale.</p>';
+                pagesHtml += '<p>Ne cer&#259;m scuze pentru eventualele inconveniente create &#351;i v&#259; asigur&#259;m de &icirc;ntreaga noastr&#259; disponibilitate pentru identificarea unor solu&#539;ii temporare, dac&#259; se consider&#259; necesar.</p>';
+                pagesHtml += '<p>V&#259; mul&#539;umim pentru &icirc;n&#539;elegere.</p>';
+                pagesHtml += '</div>';
+                pagesHtml += '<div class="semnatura-bloc"><div class="cu-stima">Cu stim&#259;,</div><div>Administrator, Mirela MURARIU</div><div>SC PROCONS SRL</div><div class="data-semn"><span>Data: <span id="data-auto-' + i + '"></span></span><span>Semn&#259;tura &#351;i &#351;tampila: ___________________</span></div></div>';
+                pagesHtml += '</div>';
+            }
+
+            const docId = 'COMUNICARE_2025_' + luna;
+
+            // Transmitem datele prin window.name (evitam probleme de sintaxa)
+            win.name = JSON.stringify({
+                comunicariData: comunicariData,
+                luna: luna,
+                docId: docId,
+                URL_S: 'https://aexjrbdgajurxzngfkpx.supabase.co',
+                KEY_S: 'sb_publishable_KPV__0BA9z4EvRl5eqC0FQ_hmBLOLYv'
+            });
+
+            let html = '<!DOCTYPE html><html lang="ro"><head><meta charset="UTF-8">';
+            html += '<title>Comunicari Nelivrare - ' + luna + ' 2025</title>';
+            html += '<style>';
+            html += '* { box-sizing: border-box; margin: 0; padding: 0; }';
+            html += 'body { font-family: "Times New Roman", Times, serif; font-size: 12pt; background: #475569; }';
+            html += '.controls-print { position: fixed; top: 15px; right: 15px; z-index: 1000; display: flex; gap: 10px; }';
+            html += '.controls-print button { padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 13px; }';
+            html += '.btn-print { background: #1e40af; color: white; }';
+            html += '.btn-close { background: #ef4444; color: white; }';
+            html += '.save-status { position: fixed; bottom: 15px; right: 15px; background: white; padding: 8px 16px; border-radius: 20px; border: 2px solid #10b981; font-weight: bold; font-size: 12px; display: none; z-index: 999; }';
+            html += '.page { background: white; width: 210mm; min-height: 297mm; margin: 20px auto; padding: 2cm 2.5cm; box-shadow: 0 0 20px rgba(0,0,0,0.3); page-break-after: always; }';
+            html += '.antet-box { margin-bottom: 15px; }';
+            html += '.firma-nume { font-size: 15pt; font-weight: bold; margin-bottom: 4px; }';
+            html += '.firma-detalii { font-size: 10pt; color: #333; }';
+            html += '.nr-inreg { margin-top: 8px; font-weight: bold; font-size: 12pt; }';
+            html += '.inp-nr { border: none; border-bottom: 1px solid #000; font-family: inherit; font-size: inherit; font-weight: bold; width: 50px; text-align: center; outline: none; background: transparent; }';
+            html += '.inp-data { border: none; border-bottom: 1px solid #000; font-family: inherit; font-size: inherit; font-weight: bold; width: 120px; text-align: center; outline: none; background: transparent; }';
+            html += '.separator { border: none; border-top: 1px solid #1e40af; margin: 15px 0; }';
+            html += '.destinatar { margin-bottom: 20px; font-size: 11pt; line-height: 1.8; }';
+            html += '.titlu { text-align: center; font-size: 16pt; font-weight: bold; text-transform: uppercase; margin: 20px 0; letter-spacing: 2px; }';
+            html += '.corp p { text-indent: 1.25cm; text-align: justify; margin-bottom: 10px; line-height: 1.6; }';
+            html += '.corp p:first-child { text-indent: 0; }';
+            html += '.semnatura-bloc { margin-top: 40px; text-align: right; line-height: 1.8; font-weight: bold; }';
+            html += '.cu-stima { margin-bottom: 5px; }';
+            html += '.data-semn { display: flex; justify-content: space-between; margin-top: 50px; font-weight: normal; font-size: 10pt; }';
+            html += '@media print { body { background: white; } .controls-print, .save-status { display: none !important; } .page { margin: 0; box-shadow: none; padding: 1.5cm 2cm; } }';
+            html += '</style></head><body>';
+            html += '<div class="controls-print">';
+            html += '<button class="btn-print" onclick="window.print()">&#128424;&#65039; Printeaza</button>';
+            html += '<button class="btn-close" onclick="window.close()">&#10006; Inchide</button>';
+            html += '</div>';
+            html += '<div class="save-status" id="save-status">Se salveaza...</div>';
+            html += pagesHtml;
+            html += '<script>';
+            html += 'var _d = JSON.parse(window.name);';
+            html += 'var URL_S = _d.URL_S;';
+            html += 'var KEY_S = _d.KEY_S;';
+            html += 'var docId = _d.docId;';
+            html += 'var luna = _d.luna;';
+            html += 'var comData = _d.comunicariData;';
+            html += 'var saveTimer = null;';
+            html += 'async function saveCloud() {';
+            html += '  var st = document.getElementById("save-status");';
+            html += '  st.style.display = "block"; st.innerText = "Se salveaza...";';
+            html += '  try {';
+            html += '    await fetch(URL_S + "/rest/v1/planificari_documente?on_conflict=tip_document", {';
+            html += '      method: "POST",';
+            html += '      headers: { "Content-Type": "application/json", "apikey": KEY_S, "Authorization": "Bearer " + KEY_S, "Prefer": "return=minimal,resolution=merge-duplicates" },';
+            html += '      body: JSON.stringify({ tip_document: docId, an: 2025, luna: luna, continut_json: { comunicari: comData }, expert: "AUTOSAVE" })';
+            html += '    });';
+            html += '    st.innerText = "Salvat in Cloud";';
+            html += '    setTimeout(function() { st.style.display = "none"; }, 1500);';
+            html += '  } catch(e) { st.innerText = "Eroare salvare"; }';
+            html += '}';
+            html += 'document.querySelectorAll(".inp-nr,.inp-data").forEach(function(inp) {';
+            html += '  inp.addEventListener("input", function() {';
+            html += '    comData[parseInt(inp.dataset.idx)][inp.dataset.field] = inp.value;';
+            html += '    if (inp.dataset.field === "dataNr") {';
+            html += '      var el = document.getElementById("data-auto-" + inp.dataset.idx);';
+            html += '      if (el) el.innerText = inp.value;';
+            html += '    }';
+            html += '    clearTimeout(saveTimer);';
+            html += '    saveTimer = setTimeout(saveCloud, 1500);';
+            html += '  });';
+            html += '});';
+            html += '// Populate initial data-auto values';
+            html += 'document.querySelectorAll(".inp-data").forEach(function(inp) {';
+            html += '  var el = document.getElementById("data-auto-" + inp.dataset.idx);';
+            html += '  if (el && inp.value) el.innerText = inp.value;';
+            html += '});';
+            html += '<' + '/script>';
+            html += '</body></html>';
+
+            win.document.write(html);
+            win.document.close();
+        }
+
     </script>
 </body>
 </html>
