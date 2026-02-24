@@ -23,6 +23,8 @@
             body { background: white !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; } 
             .a4-page { margin: 0; box-shadow: none; width: 100%; padding: 1cm; }
             .card, .main-header, .prog-fill, .badge, .lvl-tag { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+            #display-period { border-bottom: none !important; }
+        #display-period[contenteditable]:focus { background: #eff6ff; border-radius: 4px; }
         }
 
         .antet-full { width: 100%; margin-bottom: 5px; }
@@ -104,7 +106,7 @@
     <div class="nr-inreg-row">NR. ÎNREG: <span class="edit-line" id="nr-inreg-field" contenteditable="true">........ / ................</span></div>
 
     <div class="header-center">
-        <h1>Raport SASAT - <span id="display-period">Nesetat</span></h1>
+        <h1>Raport SASAT - <span id="display-period" contenteditable="true" title="Click pentru a edita luna" style="cursor:text; border-bottom: 2px dashed #3b82f6; padding: 0 4px; min-width: 80px; display:inline-block; outline:none;">IANUARIE 2025</span></h1>
         <h2>Categoria I: Activități de identificarea și monitorizare a elevilor în risc de abandon școlar - MATE</h2>
         <h3>A I.1. Aplicarea chestionarului SASAT, de evaluare a succesului școlar, în rândul elevilor de gimnaziu</h3>
     </div>
