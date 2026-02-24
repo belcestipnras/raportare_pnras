@@ -672,9 +672,7 @@
 
         const { data: items } = await query;
 
-        // Căutăm notița curentă (tip='notita') pentru acest folder
-        let notitaItem = null;
-        if (items) notitaItem = items.find(i => i.tip === 'notita');
+        let notitaItem = items ? items.find(i => i.tip === 'notita') : null;
         const notiteCurente = notitaItem ? (notitaItem.titlu || '') : '';
         const areNotite = notiteCurente.trim().length > 0;
         const itemsFiltrate = items ? items.filter(i => i.tip !== 'notita') : [];
@@ -711,6 +709,15 @@
 
         cont.innerHTML = html;
     }
+    function aratToast(msg, tip) {
+        const t = document.getElementById('toast');
+        if (!t) return;
+        t.textContent = msg;
+        t.className = 'toast ' + (tip || 'success');
+        t.classList.add('show');
+        clearTimeout(t._timer);
+        t._timer = setTimeout(() => t.classList.remove('show'), 3000);
+    }
 
     function toggleNotite(cardId, parentId, notitaId) {
         const box = document.getElementById('notite-box');
@@ -731,13 +738,12 @@
         if (box) box.remove();
         const btn = document.getElementById('btn-notite');
         if (btn) btn.innerHTML = '&#128221; Notițe';
-        aratToast('🗑️ Notițe șterse (pot fi restaurate din Istoric)', 'success');
+        aratToast('🗑️ Notițe șterse (restaurabile din Istoric)', 'success');
     }
 
     const _notiteTimer = { t: null };
 
     function scheduleazaSalvareNotite(cardId, parentId, notitaId) {
-        const ta = document.getElementById('notite-ta');
         const s = document.getElementById('notite-status');
         clearTimeout(_notiteTimer.t);
         if (s) { s.textContent = 'Se salvează...'; s.className = 'notite-status'; }
@@ -754,23 +760,16 @@
         const s = document.getElementById('notite-status');
         if (!ta) return;
         const text = ta.value;
-
         let error;
         if (notitaId && notitaId !== 'null') {
-            // Actualizează notița existentă
             ({ error } = await db.from('audit_continut').update({ titlu: text }).eq('id', notitaId));
         } else {
-            // Creează notița nouă
             const { data: nd, error: insertErr } = await db.from('audit_continut').insert({
-                card_id: cardId,
-                parent_id: parentId || null,
-                tip: 'notita',
-                titlu: text,
-                sters: false
+                card_id: cardId, parent_id: parentId || null,
+                tip: 'notita', titlu: text, sters: false
             }).select().single();
             error = insertErr;
             if (nd) {
-                // Actualizează butonul cu noul id
                 const btn = document.getElementById('btn-notite');
                 if (btn) btn.setAttribute('onclick', "toggleNotite('" + cardId + "', " + (parentId ? "'" + parentId + "'" : 'null') + ", '" + nd.id + "')");
                 const closeBtn = document.querySelector('.notite-box-close');
@@ -780,13 +779,10 @@
                     ta2.setAttribute('oninput', "scheduleazaSalvareNotite('" + cardId + "', " + (parentId ? "'" + parentId + "'" : 'null') + ", '" + nd.id + "')");
                     ta2.setAttribute('onblur', "salveazaNotiteImmediat('" + cardId + "', " + (parentId ? "'" + parentId + "'" : 'null') + ", '" + nd.id + "')");
                 }
-                notitaId = nd.id;
             }
         }
-
         const btn = document.getElementById('btn-notite');
         if (btn) btn.innerHTML = '&#128221; Notițe' + (text.trim() ? ' ●' : '');
-
         if (s) {
             if (error) { s.textContent = 'Eroare: ' + (error.message || JSON.stringify(error)); s.className = 'notite-status eroare'; }
             else {
@@ -797,14 +793,28 @@
         }
     }
 
-        function genFolderItem(item) {
-        const titluSafe = (item.titlu || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+    function genFolderItem(item) {
+        const titluSafe = (item.titlu || '').replace(/'/g, "\'").replace(/"/g, '&quot;');
         return '<div class="file-item" style="cursor:pointer;" onclick="deschideSubfolder(\'' + item.id + '\', \'' + item.card_id + '\', \'' + titluSafe + '\')">' +
             '<span class="file-icon">&#128193;</span>' +
             '<div class="file-info"><div class="file-name">' + item.titlu + '</div><div class="file-date">Folder</div></div>' +
-            '<div class="file-actions"><button class="btn-small btn-del" onclick="event.stopPropagation(); stergeItem(\'' + item.id + '\')">&#10005;</button></div></div>';
+            '<div class="file-actions">' +
+            '<button class="btn-small btn-rename" onclick="event.stopPropagation(); redenumesteFolderul(\'' + item.id + '\', \'' + titluSafe + '\')">&#9998;</button>' +
+            '<button class="btn-small btn-del" onclick="event.stopPropagation(); stergeItem(\'' + item.id + '\')">&#10005;</button>' +
+            '</div></div>';
     }
 
+    async function redenumesteFolderul(id, numeVechi) {
+        const r = await arataDialog('&#9998; Redenumire folder', 'Noul nume al folderului:', [
+            { text: 'Salvează', valoare: 'da', clasa: 'dialog-btn-primary' },
+            { text: 'Anulează', valoare: 'nu', clasa: 'dialog-btn-cancel' }
+        ], true, numeVechi);
+        if (r.actiune !== 'da' || !r.text.trim()) return;
+        const { error } = await db.from('audit_continut').update({ titlu: r.text.trim() }).eq('id', id);
+        if (error) { aratToast('❌ Eroare la redenumire!', 'error'); return; }
+        aratToast('✓ Folder redenumit', 'success');
+        incarcaVizualizare();
+    }
     function genFisierItem(item) {
         const ext = (item.fisier_nume || '').split('.').pop().toLowerCase();
         let icon = '📄';
@@ -867,19 +877,31 @@
 
         document.getElementById('continut').innerHTML = '<div class="loading">Se încarcă fișierele...</div>';
 
+        let uploadErrors = [];
         for (const file of files) {
-            const fileName = Date.now() + '_' + file.name;
-            const { error } = await db.storage.from('audit').upload(fileName, file, { upsert: true });
-            if (!error) {
-                const { data: urlData } = db.storage.from('audit').getPublicUrl(fileName);
-                await db.from('audit_continut').insert({
-                    card_id: uploadTargetCardId, parent_id: uploadTargetParentId,
-                    tip: 'fisier', titlu: file.name, fisier_url: urlData.publicUrl, fisier_nume: file.name,
-                    sters: false
-                });
+            const uniqueId = Math.random().toString(36).substring(2, 10) + '_' + Date.now();
+            const fileName = uniqueId + '_' + file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+            console.log('[UPLOAD] Încerc upload:', fileName);
+            const { data: storageData, error: storageError } = await db.storage.from('audit').upload(fileName, file, { upsert: false });
+            console.log('[UPLOAD] Storage result:', storageData, storageError);
+            if (storageError) {
+                uploadErrors.push(file.name + ': ' + (storageError.message || JSON.stringify(storageError)));
+                continue;
             }
+            const { data: urlData } = db.storage.from('audit').getPublicUrl(fileName);
+            console.log('[UPLOAD] URL:', urlData.publicUrl);
+            const { error: dbError } = await db.from('audit_continut').insert({
+                card_id: uploadTargetCardId, parent_id: uploadTargetParentId,
+                tip: 'fisier', titlu: file.name, fisier_url: urlData.publicUrl, fisier_nume: file.name,
+                sters: false
+            });
+            console.log('[UPLOAD] DB insert error:', dbError);
+            if (dbError) uploadErrors.push(file.name + ' (DB): ' + (dbError.message || JSON.stringify(dbError)));
         }
         e.target.value = '';
+        if (uploadErrors.length > 0) {
+            alert('Erori la upload:\n' + uploadErrors.join('\n'));
+        }
         incarcaVizualizare();
     });
 
