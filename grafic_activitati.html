@@ -8,185 +8,212 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         :root {
-            --p: #4f46e5; /* Albastru Indigo */
-            --bg: #f0f7ff; /* Fundal albastru foarte pal */
-            --text-main: #000000; /* Negru pur pentru text principal */
-            --text-blue: #1e40af; /* Albastru închis pentru text secundar (în loc de gri) */
-            --border: #bfdbfe; /* Borduri albastre */
+            --p: #4f46e5;
+            --bg: #f0f7ff;
+            --text-main: #000000;
+            --text-blue: #1e40af;
+            --border: #bfdbfe;
             --success: #10b981;
             --complete: #f59e0b;
-            --bg-cat1: #dbeafe; 
-            --bg-cat2: #ffedd5; 
-            --bg-cat3: #d1fae5; 
+            --bg-cat1: #dbeafe;
+            --bg-cat2: #ffedd5;
+            --bg-cat3: #d1fae5;
             --bg-cat4: #ede9fe;
         }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        html, body { height: 100vh; width: 100vw; overflow: hidden; font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--text-main); }
 
-        * { box-sizing: border-box; }
-        html, body { height: 100vh; width: 100vw; margin: 0; padding: 0; overflow: hidden; font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--text-main); }
-        
-        .app-container { display: flex; flex-direction: column; height: 100vh; }
+        /* ── APP: header | topbar | main ── */
+        .app { display: grid; grid-template-rows: auto auto 1fr; height: 100vh; }
 
-        /* HEADER */
-        .header { 
-            height: 10%; background: white; border-bottom: 2px solid var(--p);
-            display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; padding: 8px 20px; flex-shrink: 0;
+        /* ── ROW 1: CATEGORII — mai mari ── */
+        .header {
+            display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;
+            padding: 10px 16px; background: white; border-bottom: 2px solid var(--p);
         }
         .cat-btn {
-            border: 2px solid var(--border); padding: 10px; border-radius: 12px; cursor: pointer; 
-            display: flex; align-items: center; transition: all 0.2s ease;
+            border: 2px solid var(--border); padding: 12px 14px; border-radius: 10px;
+            cursor: pointer; display: flex; align-items: center; transition: 0.2s;
+            font-size: 0.88rem; font-weight: 800; color: var(--text-main); line-height: 1.3;
         }
-        .cat-btn#c1 { background: var(--bg-cat1); } .cat-btn#c2 { background: var(--bg-cat2); }
-        .cat-btn#c3 { background: var(--bg-cat3); } .cat-btn#c4 { background: var(--bg-cat4); }
-        .cat-btn.active { border-color: var(--p); box-shadow: 0 0 0 2px var(--p); }
-        .cat-btn p { margin: 0; font-size: 0.8rem; font-weight: 800; line-height: 1.2; color: var(--text-main); }
+        .cat-btn#c1 { background: var(--bg-cat1); }
+        .cat-btn#c2 { background: var(--bg-cat2); }
+        .cat-btn#c3 { background: var(--bg-cat3); }
+        .cat-btn#c4 { background: var(--bg-cat4); }
+        .cat-btn.active { border-color: var(--p); box-shadow: 0 0 0 3px var(--p); }
 
-        /* MAIN SPLIT */
-        .main { display: grid; grid-template-columns: 320px 1fr; height: 90vh; overflow: hidden; }
+        /* ── ROW 2: BARA RAPORT ── */
+        .topbar {
+            display: flex; align-items: center; gap: 10px;
+            padding: 6px 16px; background: white; border-bottom: 2px solid var(--border);
+            font-size: 0.75rem; font-weight: 800; color: var(--p);
+        }
+        .topbar select {
+            padding: 4px 8px; border-radius: 6px; border: 2px solid var(--border);
+            font-family: inherit; font-weight: 700; font-size: 0.75rem;
+        }
+        .btn-raport {
+            background: #059669; color: white; border: none; padding: 6px 14px;
+            border-radius: 8px; font-size: 0.75rem; font-weight: 800; cursor: pointer;
+        }
 
-        /* SIDEBAR */
+        /* ── ROW 3: MAIN ── */
+        .main { display: grid; grid-template-columns: 280px 1fr; overflow: hidden; }
+
+        /* SIDEBAR — cartonase mai mari */
         .sidebar { background: white; border-right: 2px solid var(--border); display: flex; flex-direction: column; overflow: hidden; }
-        .sidebar-h { padding: 12px 20px; font-size: 0.8rem; font-weight: 900; color: var(--p); text-transform: uppercase; border-bottom: 1px solid var(--border); }
-        .sidebar-list { overflow-y: auto; padding: 10px; flex-grow: 1; }
-        .act-item { 
-            padding: 12px; border-radius: 10px; margin-bottom: 8px; cursor: pointer;
-            font-size: 0.85rem; line-height: 1.3; border: 2px solid var(--border); transition: 0.2s; background: #fff; color: var(--text-main);
+        .sidebar-h { padding: 10px 14px; font-size: 0.75rem; font-weight: 900; color: var(--p); text-transform: uppercase; border-bottom: 1px solid var(--border); flex-shrink: 0; letter-spacing: 0.5px; }
+        .sidebar-list { overflow-y: auto; padding: 8px; flex-grow: 1; }
+        .act-item {
+            padding: 10px 12px; border-radius: 10px; margin-bottom: 6px; cursor: pointer;
+            font-size: 0.82rem; line-height: 1.4; border: 2px solid var(--border);
+            transition: 0.2s; background: #fff; color: var(--text-main);
         }
         .act-item:hover { border-color: var(--p); background: var(--bg-cat1); }
         .act-item.active { background: var(--p); color: white; border-color: var(--p); }
-        .act-item b { font-size: 0.75rem; font-weight: 900; display: block; margin-bottom: 2px; color: inherit; }
+        .act-item b { font-size: 0.72rem; font-weight: 900; display: block; margin-bottom: 2px; color: inherit; }
 
-        /* CONTENT */
-        .content { display: grid; grid-template-rows: 65% 35%; overflow: hidden; }
-        
-        /* CALENDAR - ANI ALBAȘTRI ȘI MARI */
-        .calendar-section { padding: 20px 30px; background: white; border-bottom: 2px solid var(--p); overflow-y: auto; }
-        .act-meta h2 { margin: 0; font-size: 1.5rem; font-weight: 900; color: var(--p); }
-        .act-meta p { margin: 5px 0 15px 0; font-size: 1rem; color: var(--text-blue); font-weight: 600; }
+        /* CONTENT: calendar sus, documente jos */
+        .content { display: grid; grid-template-rows: auto 1fr; overflow: hidden; }
 
-        .year-block { margin-bottom: 20px; }
-        .year-label { 
-            font-size: 1rem; font-weight: 900; color: var(--p); /* ANII SUNT ALBAȘTRI ACUM */
-            margin-bottom: 10px; display: block; border-bottom: 2px solid var(--bg-cat1); padding-bottom: 4px;
+        /* CALENDAR — compact, fara scroll */
+        .calendar-section {
+            padding: 12px 18px; background: white; border-bottom: 2px solid var(--border);
+            display: flex; flex-direction: column; gap: 8px; flex-shrink: 0;
         }
-        .month-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(85px, 1fr)); gap: 10px; }
-        .cell { 
-            aspect-ratio: 1.4; border: 2px solid var(--border); border-radius: 10px;
+        .act-meta h2 { font-size: 1.1rem; font-weight: 900; color: var(--p); }
+        .act-meta p  { font-size: 0.8rem; color: var(--text-blue); font-weight: 600; margin-top: 3px; }
+
+        .year-block { display: flex; align-items: center; gap: 8px; }
+        .year-label {
+            font-size: 0.75rem; font-weight: 900; color: var(--p);
+            width: 44px; flex-shrink: 0; text-align: right;
+        }
+        .month-grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 5px; flex: 1; }
+        .cell {
+            aspect-ratio: 1.1; border: 2px solid var(--border); border-radius: 7px;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            background: #fff; cursor: pointer; font-size: 1.1rem; font-weight: 900; transition: 0.2s; color: var(--text-main);
+            background: #fff; cursor: pointer; font-size: 0.78rem; font-weight: 900;
+            transition: 0.2s; color: var(--text-main); line-height: 1;
         }
-        .cell.active { background: var(--success); color: white; border-color: var(--success); }
+        .cell.active   { background: var(--success); color: white; border-color: var(--success); }
         .cell.finished { background: var(--complete) !important; color: white; border-color: var(--complete); }
-        .cell.sel { outline: 4px solid var(--p); outline-offset: 2px; }
-        .cell span { font-size: 0.7rem; color: var(--text-blue); font-weight: 700; margin-top: 4px; }
+        .cell.sel      { outline: 3px solid var(--p); outline-offset: 2px; }
+        .cell span     { font-size: 0.58rem; color: var(--text-blue); font-weight: 700; margin-top: 1px; }
         .cell.active span, .cell.finished span { color: white; opacity: 0.9; }
+        .cell-empty    { aspect-ratio: 1.1; visibility: hidden; }
 
-        /* DOCUMENTE */
-        .docs-section { padding: 15px 30px; background: var(--bg-cat1); display: flex; flex-direction: column; overflow: hidden; }
-        .docs-h { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
-        .docs-h h3 { margin: 0; font-size: 1rem; font-weight: 900; color: var(--p); text-transform: uppercase; }
-        
-        .docs-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; overflow-y: auto; padding-right: 5px; flex-grow: 1; }
-
-        .doc-card { 
-            background: white; border: 2px solid var(--border); border-radius: 12px;
-            padding: 10px 15px; display: flex; flex-direction: column; gap: 6px; box-shadow: 0 2px 4px rgba(30, 64, 175, 0.1);
+        /* DOCUMENTE — grid di cartonase sub calendar */
+        .docs-section {
+            background: var(--bg-cat1); display: flex; flex-direction: column;
+            overflow: hidden; padding: 10px 18px;
         }
-        .doc-card.done { border-left: 8px solid var(--complete); border-color: var(--complete); background: #fffcf5; }
-        .doc-title { font-size: 0.85rem; font-weight: 800; color: var(--text-main); }
-        .doc-reg { width: 100px; font-size: 0.8rem; border: 2px solid var(--border); border-radius: 8px; padding: 4px; font-weight: 900; text-align: center; color: var(--p); }
+        .docs-h { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-shrink: 0; }
+        .docs-h h3 { font-size: 0.85rem; font-weight: 900; color: var(--p); text-transform: uppercase; }
+        .docs-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 8px; overflow-y: auto; flex-grow: 1; align-content: start;
+        }
 
-        .tag { background: var(--bg-cat1); padding: 2px 8px; border-radius: 12px; font-size: 0.65rem; font-weight: 800; color: var(--p); border: 1px solid var(--p); }
+        .doc-card {
+            background: white; border: 2px solid var(--border); border-radius: 10px;
+            padding: 9px 12px; display: flex; flex-direction: column; gap: 5px;
+            box-shadow: 0 1px 4px rgba(30,64,175,0.08); transition: 0.15s;
+        }
+        .doc-card:hover { border-color: var(--p); }
+        .doc-card.done { border-left: 5px solid var(--complete); border-color: var(--complete); background: #fffcf5; }
+        .doc-title { font-size: 0.78rem; font-weight: 800; color: var(--text-main); line-height: 1.3; }
+        .doc-row { display: flex; align-items: center; gap: 6px; }
+        .doc-reg { flex: 1; min-width: 0; font-size: 0.72rem; border: 2px solid var(--border); border-radius: 6px; padding: 3px 5px; font-weight: 900; text-align: center; color: var(--p); }
+        .doc-del { border: none; background: none; color: #ef4444; cursor: pointer; font-size: 1rem; font-weight: 900; flex-shrink: 0; padding: 0 2px; }
 
-        .btn-add { background: var(--p); color: white; border: none; padding: 10px 20px; border-radius: 10px; font-size: 0.8rem; font-weight: 800; cursor: pointer; }
-        .btn-tag { background: white; border: 2px dashed var(--p); color: var(--p); border-radius: 12px; padding: 2px 10px; font-size: 0.65rem; font-weight: 800; cursor: pointer; }
+        .tag { background: var(--bg-cat1); padding: 1px 6px; border-radius: 10px; font-size: 0.6rem; font-weight: 800; color: var(--p); border: 1px solid var(--p); }
+        .btn-add { background: var(--p); color: white; border: none; padding: 7px 14px; border-radius: 8px; font-size: 0.78rem; font-weight: 800; cursor: pointer; }
+        .btn-tag { background: white; border: 2px dashed var(--p); color: var(--p); border-radius: 10px; padding: 1px 8px; font-size: 0.62rem; font-weight: 800; cursor: pointer; }
 
-        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar { width: 4px; }
         ::-webkit-scrollbar-thumb { background: var(--p); border-radius: 10px; }
 
-        .empty-hint { text-align:center; padding-top:40px; color: var(--text-blue); font-weight: 800; font-size: 1rem; }
+        .empty-hint { text-align: center; padding: 24px 10px; color: var(--text-blue); font-weight: 800; font-size: 0.85rem; grid-column: 1 / -1; }
 
-        /* Modal adaugare document */
+        /* JUSTIFICARE — element fix deasupra grid-ului, nu scrolleaza */
+        .just-box {
+            flex-shrink: 0;
+            background: #fffbeb; border: 2px dashed #f59e0b; padding: 7px 10px;
+            border-radius: 9px; display: flex; align-items: flex-start; gap: 8px;
+            margin-bottom: 8px;
+        }
+        .just-box label { font-size: 0.65rem; font-weight: 900; color: #b45309; text-transform: uppercase; white-space: nowrap; flex-shrink: 0; padding-top: 4px; }
+        .just-box textarea { flex: 1; border: 1px solid #fcd34d; border-radius: 6px; padding: 5px 8px; font-family: inherit; font-size: 0.78rem; resize: none; height: auto; min-height: 32px; overflow: hidden; line-height: 1.5; display: block; }
+
+        /* Modal */
         .doc-modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.35); z-index: 9999;
             display: flex; align-items: center; justify-content: center;
         }
-        .doc-modal {
-            background: white; border-radius: 16px; padding: 28px 32px;
-            box-shadow: 0 8px 40px rgba(79,70,229,0.2);
-            width: 380px; max-width: 90vw;
-            font-family: 'Plus Jakarta Sans', sans-serif;
-        }
-        .doc-modal h3 {
-            margin: 0 0 18px 0; font-size: 1.1rem; font-weight: 900;
-            color: var(--p); border-bottom: 2px solid var(--border); padding-bottom: 12px;
-        }
-        .doc-modal label {
-            display: block; font-size: 0.78rem; font-weight: 800;
-            color: var(--text-blue); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.3px;
-        }
-        .doc-modal input {
-            width: 100%; padding: 10px 14px; border: 2px solid var(--border);
-            border-radius: 10px; font-family: inherit; font-size: 0.9rem;
-            font-weight: 700; color: var(--text-main); outline: none;
-            transition: border-color 0.2s;
-        }
+        .doc-modal { background: white; border-radius: 14px; padding: 24px 28px; box-shadow: 0 8px 40px rgba(79,70,229,0.2); width: 360px; max-width: 90vw; }
+        .doc-modal h3 { margin: 0 0 14px 0; font-size: 1rem; font-weight: 900; color: var(--p); border-bottom: 2px solid var(--border); padding-bottom: 10px; }
+        .doc-modal label { display: block; font-size: 0.72rem; font-weight: 800; color: var(--text-blue); margin-bottom: 5px; text-transform: uppercase; }
+        .doc-modal input { width: 100%; padding: 9px 12px; border: 2px solid var(--border); border-radius: 8px; font-family: inherit; font-size: 0.88rem; font-weight: 700; color: var(--text-main); outline: none; transition: border-color 0.2s; }
         .doc-modal input:focus { border-color: var(--p); }
-        .doc-modal-actions {
-            display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;
-        }
-        .doc-modal-cancel {
-            background: #f0f0f0; color: #555; border: none; padding: 10px 18px;
-            border-radius: 10px; font-family: inherit; font-size: 0.8rem;
-            font-weight: 800; cursor: pointer;
-        }
-        .doc-modal-ok {
-            background: var(--p); color: white; border: none; padding: 10px 20px;
-            border-radius: 10px; font-family: inherit; font-size: 0.8rem;
-            font-weight: 800; cursor: pointer;
-        }
+        .doc-modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px; }
+        .doc-modal-cancel { background: #f0f0f0; color: #555; border: none; padding: 8px 16px; border-radius: 8px; font-family: inherit; font-size: 0.75rem; font-weight: 800; cursor: pointer; }
+        .doc-modal-ok { background: var(--p); color: white; border: none; padding: 8px 16px; border-radius: 8px; font-family: inherit; font-size: 0.75rem; font-weight: 800; cursor: pointer; }
         .doc-modal-ok:hover { background: #4338ca; }
     </style>
 </head>
 <body>
+<div class="app">
 
-<div class="app-container">
+    <!-- ROW 1: CATEGORII -->
     <header class="header">
-        <div class="cat-btn active" onclick="loadCat(1)" id="c1"><p>I. MATE: Monitorizare</p></div>
-        <div class="cat-btn" onclick="loadCat(2)" id="c2"><p>II. Intervenție & Prevenire</p></div>
-        <div class="cat-btn" onclick="loadCat(3)" id="c3"><p>III. Achiziții & Bunuri</p></div>
-        <div class="cat-btn" onclick="loadCat(4)" id="c4"><p>IV. Digitalizare</p></div>
+        <div class="cat-btn active" onclick="loadCat(1)" id="c1">I. MATE: Monitorizare</div>
+        <div class="cat-btn" onclick="loadCat(2)" id="c2">II. Intervenție &amp; Prevenire</div>
+        <div class="cat-btn" onclick="loadCat(3)" id="c3">III. Achiziții &amp; Bunuri</div>
+        <div class="cat-btn" onclick="loadCat(4)" id="c4">IV. Digitalizare</div>
     </header>
-<div style="background: white; padding: 10px 20px; border-bottom: 2px solid var(--border); display: flex; gap: 15px; align-items: center;">
-    <div style="display: flex; gap: 8px; align-items: center;">
-        <label style="font-size: 0.7rem; font-weight: 800; color: var(--p);">INTERVAL RAPORT:</label>
-        <select id="start-month" style="padding: 5px; border-radius: 8px; border: 2px solid var(--border); font-family: inherit; font-weight: 700;"></select>
-        <span style="font-weight: 900;">→</span>
-        <select id="end-month" style="padding: 5px; border-radius: 8px; border: 2px solid var(--border); font-family: inherit; font-weight: 700;"></select>
+
+    <!-- ROW 2: BARA RAPORT -->
+    <div class="topbar">
+        <span>INTERVAL RAPORT:</span>
+        <select id="start-month"></select>
+        <span>→</span>
+        <select id="end-month"></select>
+        <button class="btn-raport" onclick="printRaportComplet()">📊 Generare Raport COMPLET</button>
     </div>
-    <button class="btn-add" style="background: #059669;" onclick="printRaportComplet()">📊 Generare Raport COMPLET Proiect</button>
-</div>
+
+    <!-- ROW 3: MAIN -->
     <div class="main">
+
+        <!-- SIDEBAR -->
         <aside class="sidebar">
             <div class="sidebar-h">Subactivități Proiect</div>
             <div id="list" class="sidebar-list"></div>
         </aside>
 
-        <main class="content">
+        <!-- CONTENT -->
+        <div class="content">
+
+            <!-- CALENDAR SUS -->
             <section id="view" class="calendar-section">
-                <div class="empty-hint">SELECTAȚI O ACTIVITATE PENTRU A VEDEA CALENDARUL.</div>
+                <div class="empty-hint">Selectați o activitate din stânga.</div>
             </section>
 
+            <!-- DOCUMENTE JOS -->
             <section class="docs-section">
                 <div class="docs-h">
-                    <h3 id="d-title">Registru Livrabile</h3>
+                    <h3 id="d-title">📄 Livrabile lunare</h3>
                     <button class="btn-add" onclick="addD()">+ Adaugă Document</button>
                 </div>
+                <div id="just-container"></div>
                 <div id="d-list" class="docs-grid">
-                    <div class="empty-hint" style="grid-column: span 2;">Selectați o lună din calendar.</div>
+                    <div class="empty-hint">Selectați o lună din calendar pentru a vedea documentele.</div>
                 </div>
             </section>
-        </main>
+
+        </div>
     </div>
 </div>
 
@@ -392,24 +419,42 @@ function loadCat(id) {
 
 function renderAct(code) {
     cAct = code; cMon = null; loadCat(project.acts[code].cat);
-    const v = document.getElementById('view'); const a = project.acts[code];
+    const v = document.getElementById('view');
+    const a = project.acts[code];
     let h = `<div class="act-meta"><h2>Activitatea ${code}</h2><p>${a.name}</p></div>`;
-    ["2024", "2025", "2026"].forEach(y => {
-        h += `<div class="year-label">ANUL ${y}</div><div class="month-grid">`;
-        project.timeline.filter(t => t.year === y).forEach(m => {
+
+    const yearConfig = {
+        "2024": { pad: 4 },  // Mai=5, donc 4 vides avant
+        "2025": { pad: 0 },  // Ian-Dec complet
+        "2026": { pad: 0, padEnd: 6 }  // Ian-Iun, 6 vides apres
+    };
+
+    ["2024","2025","2026"].forEach(y => {
+        const months = project.timeline.filter(t => t.year === y);
+        const cfg = yearConfig[y];
+        h += `<div class="year-block"><span class="year-label">${y}</span><div class="month-grid">`;
+        for (let p = 0; p < (cfg.pad||0); p++) h += `<div class="cell-empty"></div>`;
+        months.forEach(m => {
             const actv = a.schedule.includes(m.id) ? 'active' : '';
-            const key = getBlockKey(code, m.id), ds = a.docs[key] || [], fin = ds.length > 0 && ds.every(d => d.done) ? 'finished' : '';
-            h += `<div id="m-${m.id}" class="cell ${actv} ${fin}" onclick="selM('${m.id}')">${m.name}<span>${m.id}</span></div>`;
+            const key  = getBlockKey(code, m.id);
+            const ds   = a.docs[key] || [];
+            const fin  = ds.length > 0 && ds.every(d => d.done) ? 'finished' : '';
+            h += `<div id="m-${m.id}" class="cell ${actv} ${fin}" onclick="selM('${m.id}')">
+                    ${m.name}<span>${m.year.slice(2)}</span>
+                  </div>`;
         });
-        h += `</div><br>`;
+        for (let p = 0; p < (cfg.padEnd||0); p++) h += `<div class="cell-empty"></div>`;
+        h += `</div></div>`;
     });
-    v.innerHTML = h; document.getElementById('d-list').innerHTML = '<div class="empty-hint" style="grid-column: span 2;">SELECTAȚI O LUNĂ DIN CALENDAR.</div>';
+
+    v.innerHTML = h;
+    document.getElementById('d-list').innerHTML = '<div class="empty-hint">Selectați o lună din calendar.</div>';
 }
 
 function selM(mid) {
     if (cMon === mid) {
         cMon = null; document.querySelectorAll('.cell').forEach(c => c.classList.remove('sel'));
-        document.getElementById('d-list').innerHTML = '<div class="empty-hint" style="grid-column: span 2;">SELECTAȚI O LUNĂ DIN CALENDAR.</div>';
+        document.getElementById('d-list').innerHTML = '<div class="empty-hint">Selectați o lună din calendar.</div>';
         return;
     }
     cMon = mid; document.querySelectorAll('.cell').forEach(c => c.classList.remove('sel'));
@@ -423,52 +468,68 @@ function selM(mid) {
 }
 
 function renderD() {
-    const l = document.getElementById('d-list'); l.innerHTML = '';
-    const key = getBlockKey(cAct, cMon); 
+    const l = document.getElementById('d-list');
+    l.innerHTML = '';
+    const key  = getBlockKey(cAct, cMon);
     const docs = project.acts[cAct].docs[key] || [];
 
-    // --- START LOGICĂ NOUĂ: JUSTIFICARE ---
-    // Verificăm dacă există justificări; dacă nu, inițializăm un obiect gol
+    // Justificare — in containerul sau propriu, deasupra grid-ului, mereu vizibila
     if (!project.acts[cAct].justificari) project.acts[cAct].justificari = {};
     const justValue = project.acts[cAct].justificari[key] || "";
+    const justContainer = document.getElementById('just-container');
+    if (justContainer) {
+        const justDiv = document.createElement('div');
+        justDiv.className = 'just-box';
+        justDiv.innerHTML =
+            '<label>⚠️ Justificare:</label>' +
+            '<textarea id="just-ta" placeholder="Motivul dacă activitatea nu a avut loc în această lună..." ' +
+            'oninput="autoResizeTA(this); upJust(\'' + key + '\', this.value)">' + justValue + '</textarea>';
+        justContainer.innerHTML = '';
+        justContainer.appendChild(justDiv);
+        setTimeout(() => {
+            const ta = document.getElementById('just-ta');
+            if (ta) autoResizeTA(ta);
+        }, 0);
+    }
 
-    const justDiv = document.createElement('div');
-    justDiv.style = "grid-column: span 2; margin-bottom: 15px; background: #fffbeb; border: 2px dashed #f59e0b; padding: 10px; border-radius: 12px;";
-    justDiv.innerHTML = `
-        <label style="display:block; font-size:0.7rem; font-weight:900; color:#b45309; margin-bottom:5px; text-transform:uppercase;">
-            ⚠️ Justificare nerealizare activitate (dacă este cazul):
-        </label>
-        <textarea style="width:100%; border:1px solid #fcd34d; border-radius:8px; padding:8px; font-family:inherit; font-size:0.85rem;" 
-            placeholder="Scrie aici motivul dacă activitatea nu a avut loc în această lună..."
-            onchange="upJust('${key}', this.value)">${justValue}</textarea>
-    `;
-    l.appendChild(justDiv);
-    // --- SFÂRȘIT LOGICĂ NOUĂ ---
-
-    if (docs.length === 0 && cMon) { 
-        l.innerHTML += '<div class="empty-hint" style="grid-column: span 2;">NICIUN DOCUMENT. FOLOSIȚI BUTONUL "ADĂUGĂ".</div>'; 
-        return; 
+    if (docs.length === 0) {
+        const h = document.createElement('div');
+        h.className = 'empty-hint';
+        h.textContent = 'Niciun document. Apăsați + Adaugă Document.';
+        l.appendChild(h);
+        return;
     }
 
     docs.forEach((d, i) => {
-        const div = document.createElement('div'); div.className = `doc-card ${d.done ? 'done' : ''}`;
-        
-        // LOGICĂ DINAMICĂ PENTRU AVVIZE (Păstrează structura originală)
-        const isAvize = d.title.toLowerCase().includes("avize");
-        const placeholderText = isAvize ? "Nr. avize" : "Nr. Reg.";
+        const div = document.createElement('div');
+        div.className = 'doc-card' + (d.done ? ' done' : '');
 
-        let subs = (d.sub || []).map((s, si) => `<div class="tag">${s} <button onclick="remSub(${i},${si})" style="border:none;background:none;color:red;cursor:pointer;font-weight:900;">&times;</button></div>`).join('');
-        
+        const isAvize = d.title.toLowerCase().includes("avize");
+        const ph = isAvize ? "Nr. avize" : "Nr. Reg.";
+
+        let subs = (d.sub || []).map((s, si) =>
+            `<div class="tag">${s} <button onclick="remSub(${i},${si})" style="border:none;background:none;color:red;cursor:pointer;font-weight:900;font-size:0.8rem;">&times;</button></div>`
+        ).join('');
+
         div.innerHTML = `
-            <div style="display:flex; align-items:center; gap:10px;">
-                <input type="checkbox" ${d.done?'checked':''} onchange="upD(${i},'done',this.checked)" style="width:22px; height:22px; accent-color:#f59e0b; cursor:pointer;">
-                <div class="doc-title">${d.title}</div>
-                <input type="text" class="doc-reg" value="${d.reg||''}" onchange="upD(${i},'reg',this.value)" placeholder="${placeholderText}">
-                <button onclick="remD(${i})" style="border:none;background:none;color:red;cursor:pointer;font-size:1.5rem;font-weight:900;">&times;</button>
+            <div style="display:flex;align-items:flex-start;gap:6px;">
+                <input type="checkbox" ${d.done?'checked':''} onchange="upD(${i},'done',this.checked)"
+                    style="width:17px;height:17px;accent-color:#f59e0b;cursor:pointer;flex-shrink:0;margin-top:2px;">
+                <div class="doc-title" style="flex:1;">${d.title}</div>
+                <button class="doc-del" onclick="remD(${i})" title="Șterge">&times;</button>
             </div>
-            <div style="display:flex; flex-wrap:wrap; gap:5px; padding-left:32px;">${subs}<button class="btn-tag" onclick="addSub(${i})">+ CLASĂ</button></div>`;
+            <div class="doc-row">
+                <input type="text" class="doc-reg" value="${d.reg||''}" onchange="upD(${i},'reg',this.value)" placeholder="${ph}">
+            </div>
+            <div style="display:flex;flex-wrap:wrap;gap:3px;">${subs}<button class="btn-tag" onclick="addSub(${i})">+ CLASĂ</button></div>
+        `;
         l.appendChild(div);
     });
+}
+// Auto-resize textarea
+function autoResizeTA(el) {
+    el.style.height = 'auto';
+    el.style.height = el.scrollHeight + 'px';
 }
 
 // Funcția de ajutor pentru salvarea textului din justificare
@@ -483,53 +544,33 @@ function addSub(i) {
 function remSub(i, si) { const key = getBlockKey(cAct, cMon); project.acts[cAct].docs[key][i].sub.splice(si,1); renderD(); sync(cAct); }
 function addD() {
     if (!cMon) return;
-
-    // Cream overlay + modal
     const overlay = document.createElement('div');
     overlay.className = 'doc-modal-overlay';
-    overlay.id = 'doc-modal-overlay';
-
     overlay.innerHTML = `
         <div class="doc-modal">
             <h3>+ Adaugă Document Nou</h3>
             <label>Numele documentului</label>
-            <input type="text" id="doc-modal-input" placeholder="Ex: Raport monitorizare, Proces-verbal..." maxlength="120" autocomplete="off">
+            <input type="text" id="doc-modal-input" placeholder="Ex: Raport, Proces-verbal..." maxlength="120" autocomplete="off">
             <div class="doc-modal-actions">
                 <button class="doc-modal-cancel" id="doc-modal-cancel">Anulează</button>
                 <button class="doc-modal-ok" id="doc-modal-ok">Adaugă</button>
             </div>
-        </div>
-    `;
-
+        </div>`;
     document.body.appendChild(overlay);
-
-    const input = document.getElementById('doc-modal-input');
-    const btnOk = document.getElementById('doc-modal-ok');
-    const btnCancel = document.getElementById('doc-modal-cancel');
-
-    // Focus pe input
+    const input = overlay.querySelector('#doc-modal-input');
     setTimeout(() => input.focus(), 50);
-
     function confirmAdd() {
         const name = input.value.trim();
         if (!name) { input.style.borderColor = '#ef4444'; input.focus(); return; }
         const key = getBlockKey(cAct, cMon);
         if (!project.acts[cAct].docs[key]) project.acts[cAct].docs[key] = [];
         project.acts[cAct].docs[key].push({ title: name, done: false, reg: '', sub: [] });
-        renderD();
-        sync(cAct);
-        overlay.remove();
+        renderD(); sync(cAct); overlay.remove();
     }
-
-    function cancelAdd() { overlay.remove(); }
-
-    btnOk.addEventListener('click', confirmAdd);
-    btnCancel.addEventListener('click', cancelAdd);
-    overlay.addEventListener('click', e => { if (e.target === overlay) cancelAdd(); });
-    input.addEventListener('keydown', e => {
-        if (e.key === 'Enter') confirmAdd();
-        if (e.key === 'Escape') cancelAdd();
-    });
+    overlay.querySelector('#doc-modal-ok').addEventListener('click', confirmAdd);
+    overlay.querySelector('#doc-modal-cancel').addEventListener('click', () => overlay.remove());
+    overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
+    input.addEventListener('keydown', e => { if (e.key === 'Enter') confirmAdd(); if (e.key === 'Escape') overlay.remove(); });
 }
 function upD(i, f, v) { const key = getBlockKey(cAct, cMon); project.acts[cAct].docs[key][i][f] = v; if(f==='done') renderD(); sync(cAct); }
 function remD(i) { const key = getBlockKey(cAct, cMon); project.acts[cAct].docs[key].splice(i,1); renderD(); sync(cAct); }
