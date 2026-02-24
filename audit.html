@@ -105,6 +105,8 @@
         .btn-del:hover { background: #b91c1c; }
         .btn-restore { background: #0d9488; }
         .btn-restore:hover { background: #0a7c72; }
+        .btn-rename { background: #f59e0b; }
+        .btn-rename:hover { background: #d97706; }
 
         /* ===== CONTRACTE ===== */
         .an-header {
@@ -653,7 +655,21 @@
         return '<div class="file-item" style="cursor:pointer;" onclick="deschideSubfolder(\'' + item.id + '\', \'' + item.card_id + '\', \'' + titluSafe + '\')">' +
             '<span class="file-icon">&#128193;</span>' +
             '<div class="file-info"><div class="file-name">' + item.titlu + '</div><div class="file-date">Folder</div></div>' +
-            '<div class="file-actions"><button class="btn-small btn-del" onclick="event.stopPropagation(); stergeItem(\'' + item.id + '\')">&#10005;</button></div></div>';
+            '<div class="file-actions">' +
+            '<button class="btn-small btn-rename" onclick="event.stopPropagation(); redenumesteFolderul(\'' + item.id + '\', \'' + titluSafe + '\')">&#9998;</button>' +
+            '<button class="btn-small btn-del" onclick="event.stopPropagation(); stergeItem(\'' + item.id + '\')">&#10005;</button>' +
+            '</div></div>';
+    }
+
+    async function redenumesteFolderul(id, numeVechi) {
+        const r = await arataDialog('&#9998; Redenumire folder', 'Noul nume al folderului:', [
+            { text: 'Salvează', valoare: 'da', clasa: 'dialog-btn-primary' },
+            { text: 'Anulează', valoare: 'nu', clasa: 'dialog-btn-cancel' }
+        ], true, numeVechi);
+        if (r.actiune !== 'da' || !r.text.trim()) return;
+        const { error } = await db.from('audit_continut').update({ titlu: r.text.trim() }).eq('id', id);
+        if (error) { alert('Eroare la redenumire: ' + error.message); return; }
+        incarcaVizualizare();
     }
 
     function genFisierItem(item) {
