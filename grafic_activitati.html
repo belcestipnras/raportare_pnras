@@ -104,6 +104,48 @@
         ::-webkit-scrollbar-thumb { background: var(--p); border-radius: 10px; }
 
         .empty-hint { text-align:center; padding-top:40px; color: var(--text-blue); font-weight: 800; font-size: 1rem; }
+
+        /* Modal adaugare document */
+        .doc-modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.35); z-index: 9999;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .doc-modal {
+            background: white; border-radius: 16px; padding: 28px 32px;
+            box-shadow: 0 8px 40px rgba(79,70,229,0.2);
+            width: 380px; max-width: 90vw;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+        .doc-modal h3 {
+            margin: 0 0 18px 0; font-size: 1.1rem; font-weight: 900;
+            color: var(--p); border-bottom: 2px solid var(--border); padding-bottom: 12px;
+        }
+        .doc-modal label {
+            display: block; font-size: 0.78rem; font-weight: 800;
+            color: var(--text-blue); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.3px;
+        }
+        .doc-modal input {
+            width: 100%; padding: 10px 14px; border: 2px solid var(--border);
+            border-radius: 10px; font-family: inherit; font-size: 0.9rem;
+            font-weight: 700; color: var(--text-main); outline: none;
+            transition: border-color 0.2s;
+        }
+        .doc-modal input:focus { border-color: var(--p); }
+        .doc-modal-actions {
+            display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;
+        }
+        .doc-modal-cancel {
+            background: #f0f0f0; color: #555; border: none; padding: 10px 18px;
+            border-radius: 10px; font-family: inherit; font-size: 0.8rem;
+            font-weight: 800; cursor: pointer;
+        }
+        .doc-modal-ok {
+            background: var(--p); color: white; border: none; padding: 10px 20px;
+            border-radius: 10px; font-family: inherit; font-size: 0.8rem;
+            font-weight: 800; cursor: pointer;
+        }
+        .doc-modal-ok:hover { background: #4338ca; }
     </style>
 </head>
 <body>
@@ -439,7 +481,56 @@ function addSub(i) {
     if(val) { const key = getBlockKey(cAct, cMon); if(!project.acts[cAct].docs[key][i].sub) project.acts[cAct].docs[key][i].sub = []; project.acts[cAct].docs[key][i].sub.push(val); renderD(); sync(cAct); }
 }
 function remSub(i, si) { const key = getBlockKey(cAct, cMon); project.acts[cAct].docs[key][i].sub.splice(si,1); renderD(); sync(cAct); }
-function addD() { if(!cMon) return; const key = getBlockKey(cAct, cMon); if(!project.acts[cAct].docs[key]) project.acts[cAct].docs[key] = []; project.acts[cAct].docs[key].push({title:"DOCUMENT NOU", done:false, reg:"", sub:[]}); renderD(); sync(cAct); }
+function addD() {
+    if (!cMon) return;
+
+    // Cream overlay + modal
+    const overlay = document.createElement('div');
+    overlay.className = 'doc-modal-overlay';
+    overlay.id = 'doc-modal-overlay';
+
+    overlay.innerHTML = `
+        <div class="doc-modal">
+            <h3>+ Adaugă Document Nou</h3>
+            <label>Numele documentului</label>
+            <input type="text" id="doc-modal-input" placeholder="Ex: Raport monitorizare, Proces-verbal..." maxlength="120" autocomplete="off">
+            <div class="doc-modal-actions">
+                <button class="doc-modal-cancel" id="doc-modal-cancel">Anulează</button>
+                <button class="doc-modal-ok" id="doc-modal-ok">Adaugă</button>
+            </div>
+        </div>
+    `;
+
+    document.body.appendChild(overlay);
+
+    const input = document.getElementById('doc-modal-input');
+    const btnOk = document.getElementById('doc-modal-ok');
+    const btnCancel = document.getElementById('doc-modal-cancel');
+
+    // Focus pe input
+    setTimeout(() => input.focus(), 50);
+
+    function confirmAdd() {
+        const name = input.value.trim();
+        if (!name) { input.style.borderColor = '#ef4444'; input.focus(); return; }
+        const key = getBlockKey(cAct, cMon);
+        if (!project.acts[cAct].docs[key]) project.acts[cAct].docs[key] = [];
+        project.acts[cAct].docs[key].push({ title: name, done: false, reg: '', sub: [] });
+        renderD();
+        sync(cAct);
+        overlay.remove();
+    }
+
+    function cancelAdd() { overlay.remove(); }
+
+    btnOk.addEventListener('click', confirmAdd);
+    btnCancel.addEventListener('click', cancelAdd);
+    overlay.addEventListener('click', e => { if (e.target === overlay) cancelAdd(); });
+    input.addEventListener('keydown', e => {
+        if (e.key === 'Enter') confirmAdd();
+        if (e.key === 'Escape') cancelAdd();
+    });
+}
 function upD(i, f, v) { const key = getBlockKey(cAct, cMon); project.acts[cAct].docs[key][i][f] = v; if(f==='done') renderD(); sync(cAct); }
 function remD(i) { const key = getBlockKey(cAct, cMon); project.acts[cAct].docs[key].splice(i,1); renderD(); sync(cAct); }
 window.onload = init;
