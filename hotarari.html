@@ -30,6 +30,21 @@
         .card-descriere { font-size: 0.95rem; color: var(--text-dark); line-height: 1.5; flex-grow: 1; }
         .delete-btn { position: absolute; top: 15px; right: 15px; background: none; border: none; font-size: 1.2rem; cursor: pointer; opacity: 0.3; transition: 0.2s; }
         .delete-btn:hover { opacity: 1; color: red; transform: scale(1.1); }
+        .edit-card-btn { position: absolute; top: 15px; right: 45px; background: none; border: none; font-size: 1.1rem; cursor: pointer; opacity: 0.3; transition: 0.2s; }
+        .edit-card-btn:hover { opacity: 1; color: var(--pnras-blue); transform: scale(1.1); }
+
+        /* SECȚIUNI PE TIP */
+        .section-container { width: 100%; margin-bottom: 30px; }
+        .section-header { font-size: 1.1rem; font-weight: 700; padding: 10px 18px; border-radius: 8px 8px 0 0; border-bottom: 3px solid; margin-bottom: 0; }
+        .section-hotarare { background: #eff6ff; color: #1e40af; border-color: #3b82f6; }
+        .section-decizie { background: #fef3c7; color: #92400e; border-color: #f59e0b; }
+        .section-pv { background: #ecfdf5; color: #065f46; border-color: #10b981; }
+        .section-alt { background: #f3e8ff; color: #6b21a8; border-color: #a855f7; }
+        .section-container .grid-hotarari { border: 1px solid #e5e7eb; border-top: none; border-radius: 0 0 8px 8px; padding: 15px; min-height: 60px; background: #fafbfc; }
+        .section-empty { color: #999; font-style: italic; font-size: 0.9rem; padding: 10px 0; text-align: center; }
+
+        /* Card cu PDF atașat */
+        .card-pdf-badge { display: inline-block; background: #ef4444; color: white; font-size: 0.7rem; font-weight: 700; padding: 2px 8px; border-radius: 4px; margin-top: 8px; letter-spacing: 0.5px; }
 
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); display: none; justify-content: center; align-items: center; z-index: 100; backdrop-filter: blur(2px); }
         .modal { background: white; width: 400px; border-radius: 12px; padding: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); display: flex; flex-direction: column; }
@@ -71,7 +86,7 @@
     outline: none;
 }
         .doc-subtitlu { text-align: center; font-size: 1.05rem; font-style: italic; margin-bottom: 15px; }
-        .doc-corp { flex-grow: 1; font-size: 1rem; line-height: 1.1; text-align: justify; }
+        .doc-corp { flex-grow: 1; font-size: 1rem; line-height: 1.1; }
         
         .doc-list { margin-top: 3px; margin-bottom: 10px; padding-left: 20px; }
         .doc-list li { margin-bottom: 3px; }
@@ -98,8 +113,6 @@
     padding: 2px 5px; 
     border-radius: 3px; 
     transition: background-color 0.2s;
-    /* Linia de adăugat: */
-    text-align: justify; 
 }
         .art-input:focus { border-color: var(--pnras-blue); background-color: #f0f7ff; }
         .btn-add-articol { background: #eef2f5; color: var(--pnras-blue); border: 1px dashed var(--pnras-blue); padding: 5px 15px; border-radius: 4px; font-family: 'Inter', sans-serif; font-size: 0.85rem; font-weight: 600; cursor: pointer; margin-top: 5px; display: block; margin-left: auto; margin-right: auto; }
@@ -127,11 +140,11 @@
     margin-left: 5px;
 }
 
-        .doc-signatures { display: flex; justify-content: space-between; margin-top: auto; padding-top: 30px; font-size: 1rem; line-height: 1.3; }
+        .doc-signatures { display: flex; justify-content: space-between; margin-top: auto; padding-top: 30px; font-size: 1rem; line-height: 1.3; break-inside: avoid; page-break-inside: avoid; }
         .sig-block { text-align: left; }
 
         @media print {
-#main-ui, .controls-a4, .back-btn, .btn-add-articol, .btn-delete-art, .btn-add-articol-inline, .edit-sidebar, .header-container, #cards-container, .add-btn, .modal-overlay { 
+#main-ui, .controls-a4, .back-btn, .btn-add-articol, .btn-delete-art, .btn-add-articol-inline, .edit-toolbar, .word-ruler, .ruler-tooltip, .header-container, .section-container, .add-btn, .modal-overlay, #edit-modal, #upload-modal, .tb-dropdown { 
         display: none !important; 
     }    
 * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
@@ -146,172 +159,531 @@
     .a4-page { box-shadow: none !important; width: 100% !important; min-height: auto !important; margin: 0 !important; padding: 0 !important; }
     .art-input { border: none !important; padding: 2px 0 !important; background: transparent !important; }
     [contenteditable="true"] { outline: none !important; }
+    #pv-corp-liber, #alt-corp-liber { border: none !important; padding: 0 !important; }
+    [style*="border-bottom: 1px dashed"] { border-bottom: none !important; }
+    .doc-signatures { break-inside: avoid !important; page-break-inside: avoid !important; page-break-before: auto; }
+    .doc-signatures, .sig-block { orphans: 4; widows: 4; }
+    .articol-rand:last-child { page-break-after: avoid; }
 }
 
-/* Bara Laterală de Editare */
-.edit-sidebar {
-    position: fixed;
-    right: 20px;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 60px;
+/* Toolbar de Editare (stil Word) */
+.edit-toolbar {
+    display: none;
+    width: 100%;
+    max-width: 900px;
     background: white;
     border: 1px solid #d1d9e0;
     border-radius: 8px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-    display: none; /* Ascunsă implicit */
-    flex-direction: column;
-    padding: 10px 5px;
-    gap: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    padding: 6px 10px;
+    margin-bottom: 12px;
     z-index: 1000;
+    position: sticky;
+    top: 10px;
 }
 
-.edit-btn {
-    width: 100%;
-    height: 40px;
-    background: #f8f9fa;
-    border: 1px solid #e0e0e0;
-    border-radius: 4px;
-    cursor: pointer;
+.toolbar-row {
     display: flex;
     align-items: center;
-    justify-content: center;
-    font-size: 14px;
-    font-weight: bold;
-    transition: 0.2s;
+    gap: 2px;
+    flex-wrap: wrap;
 }
 
-.edit-btn:hover { background: #eef2f5; border-color: #0056b3; color: #0056b3; }
-.btn-group-label { font-size: 9px; text-align: center; color: #888; text-transform: uppercase; margin-top: 5px; }
+.toolbar-sep {
+    width: 1px;
+    height: 24px;
+    background: #d1d9e0;
+    margin: 0 4px;
+    flex-shrink: 0;
+}
+
+.tb-select {
+    height: 30px;
+    border: 1px solid #d1d9e0;
+    border-radius: 4px;
+    font-size: 12px;
+    padding: 0 4px;
+    cursor: pointer;
+    background: white;
+    color: #333;
+}
+
+.tb-font-family {
+    width: 140px;
+}
+
+.tb-font-size-input {
+    width: 46px;
+    height: 30px;
+    border: 1px solid #d1d9e0;
+    border-radius: 4px;
+    font-size: 12px;
+    text-align: center;
+    padding: 0 4px;
+    color: #333;
+}
+
+.tb-btn {
+    width: 30px;
+    height: 30px;
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: bold;
+    color: #333;
+    transition: 0.12s;
+    font-family: 'Times New Roman', serif;
+    flex-shrink: 0;
+    position: relative;
+}
+
+.tb-btn:hover { background: #f0f0f0; border-color: #ccc; }
+.tb-btn:active { background: #e0e0e0; }
+.tb-btn-text { width: auto; padding: 0 8px; font-family: 'Inter', sans-serif; font-size: 11px; font-weight: 600; }
+.tb-btn-danger { color: #d93025; }
+.tb-btn-danger:hover { background: #fde8e8; border-color: #f5b5b0; }
+
+/* Color buttons */
+.tb-color-btn { flex-direction: column; justify-content: center; align-items: center; gap: 0; padding-top: 3px; }
+.color-bar { display: block; width: 18px; height: 4px; border-radius: 2px; margin-top: 1px; }
+
+/* Dropdown */
+.tb-dropdown-wrap {
+    position: relative;
+}
+.tb-dropdown-trigger {
+    white-space: nowrap;
+}
+.tb-dropdown {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background: white;
+    border: 1px solid #d1d9e0;
+    border-radius: 6px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+    z-index: 9999;
+    min-width: 170px;
+    padding: 4px 0;
+}
+.tb-dropdown.open { display: block; }
+.tb-dd-item {
+    padding: 7px 16px;
+    font-size: 12px;
+    cursor: pointer;
+    color: #333;
+    font-family: 'Inter', sans-serif;
+    transition: background 0.1s;
+}
+.tb-dd-item:hover { background: #f0f7ff; color: var(--pnras-blue); }
+
+/* Table picker */
+.tb-table-picker { min-width: 220px; }
+.table-grid { display: grid; grid-template-columns: repeat(8, 20px); gap: 2px; padding: 6px 10px; }
+.table-cell { width: 20px; height: 20px; border: 1.5px solid #d1d9e0; border-radius: 2px; cursor: pointer; background: white; transition: 0.1s; }
+.table-cell.hovered { background: #dbeafe; border-color: #3b82f6; }
 
 /* Elimină spațiul de deasupra și de dedesubtul listei în articole */
 .art-input ul, .art-input ol {
     margin-top: 0 !important;
     margin-bottom: 0 !important;
-    padding-left: 20px; /* Doar cât să aibă loc bulina */
+    padding-left: 20px;
 }
-
-/* Elimină spațiul dintre punctele listei */
 .art-input li {
     margin-top: 0 !important;
     margin-bottom: 0 !important;
     padding-top: 0 !important;
     padding-bottom: 0 !important;
-    line-height: 1.1; /* Sincronizat cu restul documentului */
+    line-height: 1.1;
 }
+
+        /* ===== WORD RULER ===== */
+        .word-ruler {
+            display: none;
+            width: 210mm;
+            height: 24px;
+            background: #e8e8e8;
+            position: relative;
+            margin-bottom: 0;
+            border: 1px solid #c8c8c8;
+            border-bottom: none;
+            box-sizing: border-box;
+            user-select: none;
+            overflow: visible;
+        }
+        .ruler-margin {
+            position: absolute;
+            top: 0;
+            height: 100%;
+            background: #d0d0d0;
+            border-right: 1px solid #aaa;
+        }
+        .ruler-margin-left { left: 0; }
+        .ruler-margin-right { right: 0; border-right: none; border-left: 1px solid #aaa; }
+        .ruler-text-area {
+            position: absolute;
+            top: 0;
+            height: 100%;
+            background: #f5f5f5;
+            overflow: visible;
+        }
+        .ruler-ticks {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+        .ruler-tick {
+            position: absolute;
+            bottom: 0;
+            width: 1px;
+            background: #999;
+        }
+        .ruler-tick-label {
+            position: absolute;
+            font-size: 8px;
+            color: #666;
+            transform: translateX(-50%);
+            top: 3px;
+            font-family: Arial, sans-serif;
+            pointer-events: none;
+        }
+
+        /* Markeri indent */
+        .ruler-marker {
+            position: absolute;
+            top: 0;
+            cursor: ew-resize;
+            z-index: 10;
+        }
+        #marker-first-line {
+            top: 0px;
+            margin-left: -6px;
+        }
+        #marker-left-indent {
+            top: 8px;
+            margin-left: -6px;
+        }
+        .marker-left-block {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .marker-left-square {
+            width: 12px;
+            height: 5px;
+            background: #4a6fa5;
+            margin-top: 0px;
+        }
+        #marker-right-indent {
+            top: 8px;
+            margin-left: -6px;
+        }
+
+        /* Tooltip ruler drag */
+        .ruler-tooltip {
+            position: fixed;
+            background: #333;
+            color: white;
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 3px;
+            pointer-events: none;
+            z-index: 9999;
+            display: none;
+            font-family: Arial, sans-serif;
+        }
+
+        /* Popup aliniere ruler */
+        .ruler-popup-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 9998; background: transparent;
+        }
+        .ruler-popup {
+            position: fixed;
+            background: white;
+            border: 1px solid #b0b8c8;
+            border-radius: 6px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.18);
+            padding: 16px 20px 14px;
+            z-index: 9999;
+            font-family: 'Inter', Arial, sans-serif;
+            font-size: 13px;
+            min-width: 240px;
+        }
+        .ruler-popup h4 {
+            margin: 0 0 12px 0;
+            font-size: 13px;
+            font-weight: 700;
+            color: #1e3a5f;
+            border-bottom: 1px solid #e0e6ef;
+            padding-bottom: 8px;
+        }
+        .ruler-popup-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            gap: 10px;
+        }
+        .ruler-popup-row label {
+            font-size: 12px;
+            color: #444;
+            white-space: nowrap;
+            flex: 1;
+        }
+        .ruler-popup-row input {
+            width: 70px;
+            padding: 4px 6px;
+            border: 1px solid #c0c8d8;
+            border-radius: 4px;
+            font-size: 12px;
+            text-align: right;
+        }
+        .ruler-popup-row input:focus { outline: 1px solid #4a6fa5; }
+        .ruler-popup-row span {
+            font-size: 11px;
+            color: #888;
+            width: 20px;
+        }
+        .ruler-popup-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+            margin-top: 12px;
+            border-top: 1px solid #e0e6ef;
+            padding-top: 10px;
+        }
+        .ruler-popup-btn {
+            padding: 5px 14px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            border: 1px solid transparent;
+        }
+        .ruler-popup-btn-cancel { background: #f0f0f0; color: #555; border-color: #ccc; }
+        .ruler-popup-btn-ok { background: #4a6fa5; color: white; }
+        .ruler-popup-btn-ok:hover { background: #3a5f95; }
     </style>
 </head>
 <body>
 
-<div class="edit-sidebar" id="edit-sidebar">
-    <div class="btn-group-label">Text</div>
-    <button class="edit-btn" onclick="formatDoc('bold')">B</button>
-    <button class="edit-btn" onclick="formatDoc('italic')"><i>I</i></button>
-    <button class="edit-btn" onclick="formatDoc('underline')"><u>U</u></button>
-    
-    <div class="btn-group-label">Mărime Font</div>
-    <div id="font-indicator" style="font-size: 11px; color: red; font-weight: bold; text-align: center; margin-bottom: 5px;">16px</div>
-    <div style="display: flex; gap: 2px;">
-        <button class="edit-btn" onclick="adjustFontSize(1)">A+</button>
-        <button class="edit-btn" onclick="adjustFontSize(-1)">a-</button>
-    </div>
-
-    <div class="btn-group-label">Aliniere</div>
-    <button class="edit-btn" onclick="formatDoc('justifyLeft')">←</button>
-    <button class="edit-btn" onclick="formatDoc('justifyCenter')">↔</button>
-    <button class="edit-btn" onclick="formatDoc('justifyFull')">≡</button>
-
-    <div class="btn-group-label">Spațiu Paragraf</div>
-    <div style="display: flex; gap: 2px;">
-        <button class="edit-btn" onclick="adjustPadding('marginTop', 5)">↑+</button>
-        <button class="edit-btn" onclick="adjustPadding('marginTop', -5)">↑-</button>
-    </div>
-    <div style="display: flex; gap: 2px; margin-top: 2px;">
-        <button class="edit-btn" onclick="adjustPadding('marginBottom', 5)">↓+</button>
-        <button class="edit-btn" onclick="adjustPadding('marginBottom', -5)">↓-</button>
-    </div>
-
-    <div class="btn-group-label">Liste</div>
-    <div style="display: flex; gap: 2px;">
-        <button class="edit-btn" onclick="formatDoc('insertUnorderedList')">•</button>
-        <button class="edit-btn" onclick="formatDoc('insertOrderedList')">1.</button>
-    </div>
-
-<div class="btn-group-label">Acțiuni</div>
-<button class="edit-btn" onclick="resetDocumentComplet()" title="Resetare totală text" style="color: #d93025; font-size: 18px;">🔄</button>
-</div>
-
     <a href="mate.html" class="back-btn" id="btn-inapoi-mate">← Înapoi la MATE</a>
 
+    <div id="main-ui">
     <div class="header-container">
     <h1>Hotărâri, Decizii și alte documente</h1>
     <div style="display: flex; gap: 10px;">
         <button class="add-btn" style="background-color: #4b5563;" onclick="deschideRegistruMaster()">📚 Registru de evidență</button>
+        <button class="add-btn" style="background-color: #6366f1;" onclick="openUploadModal()">📎 Încarcă PDF</button>
         <button class="add-btn" onclick="openModal()">➕ Adaugă document</button>
     </div>
 </div>
 
-        <div class="grid-hotarari" id="cards-container">
-            <p style="color: #666; font-style: italic;">Se încarcă hotărârile...</p>
+        <!-- SECȚIUNI PE TIP -->
+        <div class="section-container" id="section-hotarari">
+            <div class="section-header section-hotarare">📋 Hotărâri</div>
+            <div class="grid-hotarari" id="cards-hotarari"></div>
+        </div>
+
+        <div class="section-container" id="section-decizii">
+            <div class="section-header section-decizie">📝 Decizii</div>
+            <div class="grid-hotarari" id="cards-decizii"></div>
+        </div>
+
+        <div class="section-container" id="section-pv">
+            <div class="section-header section-pv">📄 Procese-verbale</div>
+            <div class="grid-hotarari" id="cards-pv"></div>
+        </div>
+
+        <div class="section-container" id="section-alte">
+            <div class="section-header section-alt">📁 Alte documente</div>
+            <div class="grid-hotarari" id="cards-alte"></div>
         </div>
     </div>
 
     <div id="a4-view">
         <div class="controls-a4">
-            <button class="back-btn" style="position: static;" onclick="closeA4()">← Închide Hotărârea</button>
+            <button class="back-btn" style="position: static;" onclick="closeA4()">← Închide documentul</button>
             <button class="add-btn" onclick="window.print()">🖨️ Printare</button>
             <span id="save-status">✓ Salvat</span>
         </div>
 
+        <!-- TOOLBAR EDITARE - WORD STYLE -->
+        <div class="edit-toolbar" id="edit-toolbar">
+            <!-- ROW 1: Font family, size, basic formatting -->
+            <div class="toolbar-row">
+                <!-- Font Family -->
+                <select class="tb-select tb-font-family" id="font-family-select" onchange="applyFontFamily(this.value)" title="Font">
+                    <option value="Times New Roman">Times New Roman</option>
+                    <option value="Arial">Arial</option>
+                    <option value="Calibri">Calibri</option>
+                    <option value="Georgia">Georgia</option>
+                    <option value="Verdana">Verdana</option>
+                    <option value="Tahoma">Tahoma</option>
+                    <option value="Courier New">Courier New</option>
+                    <option value="Trebuchet MS">Trebuchet MS</option>
+                    <option value="Palatino Linotype">Palatino</option>
+                </select>
+
+                <!-- Font Size -->
+                <input type="number" class="tb-font-size-input" id="font-size-input" value="16" min="6" max="72" title="Dimensiune font" onchange="applyFontSize(this.value)" onkeydown="if(event.key==='Enter')applyFontSize(this.value)">
+
+                <div class="toolbar-sep"></div>
+
+                <!-- Bold, Italic, Underline, Strikethrough -->
+                <button class="tb-btn tb-bold" onclick="formatDoc('bold')" title="Bold (Ctrl+B)"><b>B</b></button>
+                <button class="tb-btn tb-italic" onclick="formatDoc('italic')" title="Italic (Ctrl+I)"><i>I</i></button>
+                <button class="tb-btn tb-underline" onclick="formatDoc('underline')" title="Subliniat (Ctrl+U)"><u>U</u></button>
+                <button class="tb-btn" onclick="formatDoc('strikeThrough')" title="Tăiat"><s>S</s></button>
+                <button class="tb-btn" onclick="formatDoc('superscript')" title="Superscript" style="font-size:10px;">x²</button>
+                <button class="tb-btn" onclick="formatDoc('subscript')" title="Subscript" style="font-size:10px;">x₂</button>
+
+                <div class="toolbar-sep"></div>
+
+                <!-- Culoare text -->
+                <div class="tb-color-group" title="Culoare text">
+                    <button class="tb-btn tb-color-btn" onclick="document.getElementById('color-picker').click()" title="Culoare text" style="position:relative;">
+                        <span style="font-weight:900; font-size:14px;">A</span>
+                        <span class="color-bar" id="color-bar" style="background:#000000;"></span>
+                    </button>
+                    <input type="color" id="color-picker" value="#000000" style="opacity:0;position:absolute;width:0;height:0;" onchange="applyTextColor(this.value)">
+                </div>
+
+                <!-- Highlight -->
+                <div class="tb-color-group" title="Evidențiere text">
+                    <button class="tb-btn tb-color-btn" onclick="document.getElementById('highlight-picker').click()" title="Evidențiere">
+                        <span style="font-size:14px;">🖊</span>
+                        <span class="color-bar" id="highlight-bar" style="background:#FFFF00;"></span>
+                    </button>
+                    <input type="color" id="highlight-picker" value="#FFFF00" style="opacity:0;position:absolute;width:0;height:0;" onchange="applyHighlight(this.value)">
+                </div>
+
+                <div class="toolbar-sep"></div>
+
+                <!-- Aliniere -->
+                <button class="tb-btn" onclick="setAlignment('left')" title="Aliniere stânga">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><rect x="1" y="2" width="14" height="2" rx="1"/><rect x="1" y="7" width="9" height="2" rx="1"/><rect x="1" y="12" width="12" height="2" rx="1"/></svg>
+                </button>
+                <button class="tb-btn" onclick="setAlignment('center')" title="Centrat">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><rect x="1" y="2" width="14" height="2" rx="1"/><rect x="3" y="7" width="10" height="2" rx="1"/><rect x="2" y="12" width="12" height="2" rx="1"/></svg>
+                </button>
+                <button class="tb-btn" onclick="setAlignment('right')" title="Aliniere dreapta">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><rect x="1" y="2" width="14" height="2" rx="1"/><rect x="6" y="7" width="9" height="2" rx="1"/><rect x="3" y="12" width="12" height="2" rx="1"/></svg>
+                </button>
+                <button class="tb-btn" onclick="setAlignment('justify')" title="Justify">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><rect x="1" y="2" width="14" height="2" rx="1"/><rect x="1" y="7" width="14" height="2" rx="1"/><rect x="1" y="12" width="14" height="2" rx="1"/></svg>
+                </button>
+
+                <div class="toolbar-sep"></div>
+
+                <!-- Liste -->
+                <button class="tb-btn" onclick="formatDoc('insertUnorderedList')" title="Listă cu buline">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><circle cx="2" cy="4" r="1.5"/><rect x="5" y="3" width="10" height="2" rx="1"/><circle cx="2" cy="8" r="1.5"/><rect x="5" y="7" width="10" height="2" rx="1"/><circle cx="2" cy="12" r="1.5"/><rect x="5" y="11" width="10" height="2" rx="1"/></svg>
+                </button>
+                <button class="tb-btn" onclick="formatDoc('insertOrderedList')" title="Listă numerotată">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><text x="0" y="5" font-size="5" font-weight="bold">1.</text><rect x="5" y="3" width="10" height="2" rx="1"/><text x="0" y="10" font-size="5" font-weight="bold">2.</text><rect x="5" y="8" width="10" height="2" rx="1"/><text x="0" y="15" font-size="5" font-weight="bold">3.</text><rect x="5" y="13" width="10" height="2" rx="1"/></svg>
+                </button>
+
+                <div class="toolbar-sep"></div>
+
+                <!-- Indent -->
+                <button class="tb-btn" onclick="formatDoc('outdent')" title="Dezindentare">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><polygon points="1,4 5,8 1,12"/><rect x="6" y="3" width="9" height="2" rx="1"/><rect x="6" y="7" width="9" height="2" rx="1"/><rect x="6" y="11" width="9" height="2" rx="1"/></svg>
+                </button>
+                <button class="tb-btn" onclick="formatDoc('indent')" title="Indentare">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><polygon points="5,4 1,8 5,12"/><rect x="6" y="3" width="9" height="2" rx="1"/><rect x="6" y="7" width="9" height="2" rx="1"/><rect x="6" y="11" width="9" height="2" rx="1"/></svg>
+                </button>
+
+                <div class="toolbar-sep"></div>
+
+                <!-- Spațiere rânduri -->
+                <div class="tb-dropdown-wrap" title="Spațiere între rânduri">
+                    <button class="tb-btn tb-btn-text tb-dropdown-trigger" onclick="toggleDropdown('line-height-dd')">↕ Rând ▾</button>
+                    <div class="tb-dropdown" id="line-height-dd">
+                        <div class="tb-dd-item" onclick="setLineHeight('1');toggleDropdown('line-height-dd')">Simplu (1.0)</div>
+                        <div class="tb-dd-item" onclick="setLineHeight('1.15');toggleDropdown('line-height-dd')">1.15</div>
+                        <div class="tb-dd-item" onclick="setLineHeight('1.5');toggleDropdown('line-height-dd')">1.5</div>
+                        <div class="tb-dd-item" onclick="setLineHeight('2');toggleDropdown('line-height-dd')">Dublu (2.0)</div>
+                    </div>
+                </div>
+
+                <!-- Spațiere paragraf -->
+                <div class="tb-dropdown-wrap" title="Spațiere paragraf">
+                    <button class="tb-btn tb-btn-text tb-dropdown-trigger" onclick="toggleDropdown('para-space-dd')">¶ Paragraf ▾</button>
+                    <div class="tb-dropdown" id="para-space-dd">
+                        <div class="tb-dd-item" onclick="setParaSpacing(0,0);toggleDropdown('para-space-dd')">Fără spațiu</div>
+                        <div class="tb-dd-item" onclick="setParaSpacing(6,6);toggleDropdown('para-space-dd')">Spațiu mic (6px)</div>
+                        <div class="tb-dd-item" onclick="setParaSpacing(12,12);toggleDropdown('para-space-dd')">Spațiu normal (12px)</div>
+                        <div class="tb-dd-item" onclick="setParaSpacing(20,20);toggleDropdown('para-space-dd')">Spațiu mare (20px)</div>
+                    </div>
+                </div>
+
+                <div class="toolbar-sep"></div>
+
+                <!-- Inserare tabel -->
+                <div class="tb-dropdown-wrap">
+                    <button class="tb-btn tb-btn-text tb-dropdown-trigger" onclick="toggleDropdown('table-dd')" title="Inserează tabel">⊞ Tabel ▾</button>
+                    <div class="tb-dropdown tb-table-picker" id="table-dd">
+                        <div style="padding:8px 10px; font-size:11px; color:#666; font-weight:600;">Selectează dimensiunea:</div>
+                        <div class="table-grid" id="table-grid">
+                            <!-- generated by JS -->
+                        </div>
+                        <div style="padding:4px 10px 8px; font-size:11px; color:#888; text-align:center;" id="table-size-label">—</div>
+                    </div>
+                </div>
+
+                <div class="toolbar-sep"></div>
+
+                <!-- Undo/Redo -->
+                <button class="tb-btn" onclick="formatDoc('undo')" title="Anulează (Ctrl+Z)">↩</button>
+                <button class="tb-btn" onclick="formatDoc('redo')" title="Refă (Ctrl+Y)">↪</button>
+
+                <div class="toolbar-sep"></div>
+
+                <!-- Clear formatting -->
+                <button class="tb-btn" onclick="clearFormatting()" title="Șterge formatarea">Tx</button>
+
+                <!-- Reset -->
+                <button class="tb-btn tb-btn-danger" onclick="resetDocumentComplet()" title="Resetare document la template">🔄</button>
+            </div>
+        </div>
+
+
+        <!-- RULER WORD-STYLE -->
+        <div class="word-ruler" id="word-ruler">
+            <div class="ruler-margin ruler-margin-left" id="ruler-margin-left"></div>
+            <div class="ruler-text-area" id="ruler-text-area">
+                <!-- Ticks generate by JS -->
+                <div class="ruler-ticks" id="ruler-ticks"></div>
+                <!-- Markeri indent -->
+                <div class="ruler-marker" id="marker-first-line" title="Indent prima linie">
+                    <svg width="12" height="8" viewBox="0 0 12 8"><polygon points="6,8 0,0 12,0" fill="#4a6fa5"/></svg>
+                </div>
+                <div class="ruler-marker" id="marker-left-indent" title="Indent stânga">
+                    <div class="marker-left-block">
+                        <svg width="12" height="8" viewBox="0 0 12 8"><polygon points="6,0 0,8 12,8" fill="#4a6fa5"/></svg>
+                        <div class="marker-left-square"></div>
+                    </div>
+                </div>
+                <div class="ruler-marker" id="marker-right-indent" title="Indent dreapta">
+                    <svg width="12" height="8" viewBox="0 0 12 8"><polygon points="6,0 0,8 12,8" fill="#4a6fa5"/></svg>
+                </div>
+            </div>
+            <div class="ruler-margin ruler-margin-right" id="ruler-margin-right"></div>
+        </div>
+
         <div class="a4-page" id="document-continut">
-            <img src="antet_pnras.jpeg" class="antet-img" alt="Antet PNRAS">
-            
-            <div class="doc-titlu">
-    <span id="doc-tip-document" contenteditable="true" oninput="triggerAutoSave()">HOTĂRÂREA</span> 
-    <span contenteditable="true" oninput="triggerAutoSave()"> NR. </span>
-    <span id="doc-nr" contenteditable="true" oninput="triggerAutoSave()"></span>
-    <br> <span contenteditable="true" oninput="triggerAutoSave()">din data de </span>
-    <span id="doc-data" contenteditable="true" oninput="triggerAutoSave()"></span>
-</div>
-
-<div class="doc-subtitlu">
-    Privind: <span id="doc-descriere-titlu" contenteditable="true" oninput="triggerAutoSave()"></span>
-</div>
-
-            <div class="doc-corp">
-    <p contenteditable="true" oninput="triggerAutoSave()"><strong>În temeiul:</strong></p>
-    <ul class="doc-list" id="lista-legi-1" contenteditable="true" oninput="triggerAutoSave()">
-        <li>Legii Educației Naționale nr. 198/2023, cu modificările și completările ulterioare;</li>
-        <li>Metodologiei-cadru de organizare și funcționare a consiliului de administrație din unitățile de învățământ preuniversitar aprobată prin OME nr.6223 din 04.09.2023;</li>
-        <li>Ordinului ministrului educației nr. 5.726/2024 privind aprobarea Regulamentului-cadru de organizare și funcționare a unităților de învățământ preuniversitar;</li>
-        <li>Ordinului nr. 6000/2021 privind aprobarea Mecanismului de Avertizare Timpurie în Educaţie (MATE) şi a Metodologiei de implementare şi utilizare a modulului informatic MATE pentru prevenirea abandonului şcolar şi a părăsirii timpurii a şcolii, Publicat în Monitorul Oficial nr. 1252 din 30 decembrie 2021;</li>
-        <li>Regulamentului (UE) 2016/679 al Parlamentului European și al Consiliului din 27 aprilie 2016 privind protecția persoanelor fizice în ceea ce privește prelucrarea datelor cu caracter personal și libera circulație a acestora.</li>
-    </ul>
-
-    <p style="margin-top: 10px;" contenteditable="true" oninput="triggerAutoSave()"><strong>Având în vedere:</strong></p>
-    <ul class="doc-list" id="lista-legi-2" contenteditable="true" oninput="triggerAutoSave()">
-        <li>Decizia nr. 49/17.09.2024 privind stabilirea componenței Consiliului de Administrație al Liceului Tehnologic ”Victor Mihăilescu Craiu” Belcești, județul Iași, pentru anul școlar 2024 - 2025;</li>
-        <li>Ședința Consiliului de Administrație al Liceului Tehnologic “Victor Mihăilescu Craiu” Belcești, reunit în data de <strong><span id="doc-data-sedinta" contenteditable="true" oninput="triggerAutoSave()"></span></strong>;</li>
-    </ul>
-
-    <div id="doc-titlu-decide" class="doc-decide" contenteditable="true" oninput="triggerAutoSave()">CONSILIUL DE ADMINISTRAȚIE HOTĂRĂȘTE:</div>
-    
-    <div id="articole-container"></div>
-    <button class="btn-add-articol" onclick="adaugaArticol()">➕ Adaugă articol</button>
-</div>
-
-            <div class="doc-signatures">
-    <div class="sig-block">
-        <b contenteditable="true" oninput="triggerAutoSave()" id="sig-titlu-1">Întocmit,</b><br>
-        <span contenteditable="true" oninput="triggerAutoSave()" id="sig-functie-1">Secretar Consiliu de Administrație</span><br>
-        <span contenteditable="true" oninput="triggerAutoSave()" id="sig-nume-1">prof. Mihaela MIHĂILĂ</span>
-    </div>
-    <div class="sig-block" style="text-align: right;">
-        <b contenteditable="true" oninput="triggerAutoSave()" id="sig-titlu-2">Președinte Consiliu de Administrație,</b><br>
-        <span contenteditable="true" oninput="triggerAutoSave()" id="sig-functie-2">Director</span>,<br>
-        <span contenteditable="true" oninput="triggerAutoSave()" id="sig-nume-2">prof. Cătălin Ionuț BAZILUC</span>
-    </div>
-</div>
+            <!-- Conținutul va fi generat dinamic de JS în funcție de tipul documentului -->
         </div>
     </div>
 
@@ -344,12 +716,75 @@
         </div>
     </div>
 
+    <!-- MODAL EDITARE CARD -->
+    <div class="modal-overlay" id="edit-modal">
+        <div class="modal">
+            <h2>Editează Document</h2>
+            <input type="hidden" id="edit-id">
+            <div class="form-group"><label>Număr</label><input type="text" id="edit-nr"></div>
+            <div class="form-group"><label>Data (zz.ll.aaaa)</label><input type="text" id="edit-data"></div>
+            <div class="form-group"><label>Descriere</label><textarea id="edit-descriere"></textarea></div>
+            <div class="form-group">
+                <label>Tip document</label>
+                <select id="edit-tip" style="width:100%; padding:10px; border:1px solid var(--border-color); border-radius:6px; font-family:'Inter', sans-serif; font-size:0.95rem; box-sizing:border-box;">
+                    <option value="1_HOTARARE">Hotărâre</option>
+                    <option value="1_DECIZIE">Decizie</option>
+                    <option value="1_PROCES_VERBAL">Proces-verbal</option>
+                    <option value="1_ALT">Alt document</option>
+                </select>
+            </div>
+            <div class="form-group" id="edit-group-alt-tip" style="display:none;">
+                <label>Denumire document</label>
+                <input type="text" id="edit-alt-tip" placeholder="Ex: Referat">
+            </div>
+            <div class="modal-actions">
+                <button class="cancel-btn" onclick="closeEditModal()">Renunță</button>
+                <button class="save-btn" onclick="saveEditHotarare()">Salvează</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL ÎNCĂRCARE PDF -->
+    <div class="modal-overlay" id="upload-modal">
+        <div class="modal">
+            <h2>📎 Încarcă PDF existent</h2>
+            <div class="form-group"><label>Număr document</label><input type="text" id="upload-nr" placeholder="Ex: 3"></div>
+            <div class="form-group"><label>Data (zz.ll.aaaa)</label><input type="text" id="upload-data" placeholder="Ex: 15.01.2025"></div>
+            <div class="form-group"><label>Descriere</label><textarea id="upload-descriere" placeholder="Ex: Decizie privind..."></textarea></div>
+            <div class="form-group">
+                <label>Tip document</label>
+                <select id="upload-tip" style="width:100%; padding:10px; border:1px solid var(--border-color); border-radius:6px; font-family:'Inter', sans-serif; font-size:0.95rem; box-sizing:border-box;">
+                    <option value="1_HOTARARE">Hotărâre</option>
+                    <option value="1_DECIZIE">Decizie</option>
+                    <option value="1_PROCES_VERBAL">Proces-verbal</option>
+                    <option value="1_ALT">Alt document</option>
+                </select>
+            </div>
+            <div class="form-group" id="upload-group-alt-tip" style="display:none;">
+                <label>Denumire document</label>
+                <input type="text" id="upload-alt-tip" placeholder="Ex: Referat">
+            </div>
+            <div class="form-group">
+                <label>Fișier PDF</label>
+                <input type="file" id="upload-fisier" accept=".pdf" style="width:100%; padding:8px; border:1px solid var(--border-color); border-radius:6px; font-family:'Inter', sans-serif; box-sizing:border-box;">
+            </div>
+            <div id="upload-progress" style="display:none; text-align:center; padding:10px;">
+                <span style="color: #f59e0b; font-weight:600;">⏳ Se încarcă fișierul...</span>
+            </div>
+            <div class="modal-actions">
+                <button class="cancel-btn" onclick="closeUploadModal()">Renunță</button>
+                <button class="save-btn" id="btn-upload-save" onclick="saveUploadPDF()">Încarcă</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         const supabaseUrl = 'https://aexjrbdgajurxzngfkpx.supabase.co';
         const supabaseKey = 'sb_publishable_KPV__0BA9z4EvRl5eqC0FQ_hmBLOLYv';
         const supabaseClient = window.supabase.createClient(supabaseUrl, supabaseKey);
 
         let currentHotarareId = null; 
+        let currentTipRegistru = '1_HOTARARE';
 
         window.onload = loadHotarari;
 
@@ -400,40 +835,69 @@ function closeModal() {
         async function saveDocumentContent() {
     if (!currentHotarareId) return;
 
-    // 1. Citim valorile din antet și text
-    const tipDoc = document.getElementById('doc-tip-document').innerText.trim();
-    const newNr = document.getElementById('doc-nr').innerText.trim();
-    const newData = document.getElementById('doc-data').innerText.trim();
-    const newDesc = document.getElementById('doc-descriere-titlu').innerText.trim();
-    
-    const lege1 = document.getElementById('lista-legi-1').innerHTML;
-    const lege2 = document.getElementById('lista-legi-2').innerHTML;
-    const titluDecide = document.getElementById('doc-titlu-decide').innerHTML;
-    const dataSedinta = document.getElementById('doc-data-sedinta').innerText.trim();
-    
-    // 2. Citim datele din semnături (ID-urile create anterior)
-    const sigT1 = document.getElementById('sig-titlu-1').innerText;
-    const sigF1 = document.getElementById('sig-functie-1').innerText;
-    const sigN1 = document.getElementById('sig-nume-1').innerText;
-    const sigT2 = document.getElementById('sig-titlu-2').innerText;
-    const sigF2 = document.getElementById('sig-functie-2').innerText;
-    const sigN2 = document.getElementById('sig-nume-2').innerText;
+    const tip = currentTipRegistru;
+    let docBodyData = '';
+    let newNr = '', newData = '', newDesc = '';
 
-    // În interiorul funcției saveDocumentContent, modifică linia pentru articole:
-const articoleInputs = document.querySelectorAll('.art-input');
-// Folosim .innerHTML pentru a salva listele și formatarea
-const articoleTexte = Array.from(articoleInputs).map(input => input.innerHTML);
+    if (tip === '1_HOTARARE' || tip === '1_DECIZIE') {
+        const tipDoc = document.getElementById('doc-tip-document')?.innerText.trim() || '';
+        newNr = document.getElementById('doc-nr')?.innerText.trim() || '';
+        newData = document.getElementById('doc-data')?.innerText.trim() || '';
+        newDesc = document.getElementById('doc-descriere-titlu')?.innerText.trim() || '';
+        
+        const lege1 = document.getElementById('lista-legi-1')?.innerHTML || '';
+        const lege2 = document.getElementById('lista-legi-2')?.innerHTML || '';
+        const titluDecide = document.getElementById('doc-titlu-decide')?.innerHTML || '';
+        const dataSedinta = document.getElementById('doc-data-sedinta')?.innerText.trim() || '';
+        const introText = document.getElementById('doc-intro-text')?.innerHTML || '';
+        
+        const sigT1 = document.getElementById('sig-titlu-1')?.innerText || '';
+        const sigF1 = document.getElementById('sig-functie-1')?.innerText || '';
+        const sigN1 = document.getElementById('sig-nume-1')?.innerText || '';
+        const sigT2 = document.getElementById('sig-titlu-2')?.innerText || '';
+        const sigF2 = document.getElementById('sig-functie-2')?.innerText || '';
+        const sigN2 = document.getElementById('sig-nume-2')?.innerText || '';
 
-    // 3. Împachetăm TOTUL în JSON pentru baza de date
-    const docBodyData = JSON.stringify({ 
-        tipDoc, 
-        lege1, 
-        lege2, 
-        titluDecide, 
-        dataSedinta, 
-        articole: articoleTexte,
-        sigT1, sigF1, sigN1, sigT2, sigF2, sigN2 // Am adăugat semnăturile aici
-    });
+        const articoleInputs = document.querySelectorAll('.art-input');
+        const articoleTexte = Array.from(articoleInputs).map(input => input.innerHTML);
+
+        docBodyData = JSON.stringify({ 
+            tipDoc, lege1, lege2, titluDecide, dataSedinta, introText,
+            articole: articoleTexte,
+            sigT1, sigF1, sigN1, sigT2, sigF2, sigN2
+        });
+    } else if (tip === '1_PROCES_VERBAL') {
+        newNr = document.getElementById('doc-nr')?.innerText.trim() || '';
+        newData = document.getElementById('doc-data')?.innerText.trim() || '';
+        newDesc = document.getElementById('doc-descriere-titlu')?.innerText.trim() || '';
+
+        const pvCorpHTML = document.getElementById('pv-corp-liber')?.innerHTML || '';
+
+        docBodyData = JSON.stringify({ 
+            tipDoc: 'PROCES-VERBAL',
+            pvCorpHTML
+        });
+    } else if (tip === '1_ALT') {
+        newNr = document.getElementById('doc-nr')?.innerText.trim() || '';
+        newData = document.getElementById('doc-data')?.innerText.trim() || '';
+        newDesc = document.getElementById('doc-descriere-titlu')?.innerText.trim() || '';
+
+        const altCorpHTML = document.getElementById('alt-corp-liber')?.innerHTML || '';
+        let altTipNume = '';
+        try {
+            const existing = await supabaseClient.from('numere_inregistrare').select('document_data').eq('id_unique', currentHotarareId).single();
+            if (existing?.data?.document_data) {
+                const parsed = JSON.parse(existing.data.document_data);
+                altTipNume = parsed.altTip || '';
+            }
+        } catch(e) {}
+
+        docBodyData = JSON.stringify({ 
+            tipDoc: altTipNume || 'ALT DOCUMENT',
+            altTip: altTipNume,
+            altCorpHTML
+        });
+    }
 
     try {
         const { error } = await supabaseClient
@@ -473,7 +937,7 @@ const articoleTexte = Array.from(articoleInputs).map(input => input.innerHTML);
         <div class="art-input" 
              contenteditable="true" 
              oninput="triggerAutoSave()" 
-             style="min-height: 1.2em; text-align: justify; font-size: 16px; font-family: 'Times New Roman', serif; border: 1px dashed #ccc; padding: 2px 5px; border-radius: 3px; outline: none;">${textExistent}</div>
+             style="min-height: 1.2em; font-size: 16px; font-family: 'Times New Roman', serif; border: 1px dashed #ccc; padding: 2px 5px; border-radius: 3px; outline: none;">${textExistent}</div>
         <button class="btn-add-articol-inline" onclick="adaugaArticol('', this.parentElement)" title="Adaugă articol după acesta">➕</button>
         <button class="btn-delete-art" onclick="stergeArticol(this)" title="Șterge articol">×</button>
     `;
@@ -506,38 +970,193 @@ const articoleTexte = Array.from(articoleInputs).map(input => input.innerHTML);
         }
 
         // ==========================================
+        // TEMPLATE-URI PENTRU FIECARE TIP DE DOCUMENT
+        // ==========================================
+
+        function getTemplateHotarare(nr, data, descriere) {
+            return `
+            <img src="antet_pnras.jpeg" class="antet-img" alt="Antet PNRAS">
+            
+            <div class="doc-titlu">
+                <span id="doc-tip-document" contenteditable="true" oninput="triggerAutoSave()">HOTĂRÂREA</span> 
+                <span contenteditable="true" oninput="triggerAutoSave()"> NR. </span>
+                <span id="doc-nr" contenteditable="true" oninput="triggerAutoSave()">${nr}</span>
+                <br> <span contenteditable="true" oninput="triggerAutoSave()">din data de </span>
+                <span id="doc-data" contenteditable="true" oninput="triggerAutoSave()">${data}</span>
+            </div>
+
+            <div class="doc-subtitlu">
+                Privind: <span id="doc-descriere-titlu" contenteditable="true" oninput="triggerAutoSave()">${descriere}</span>
+            </div>
+
+            <div class="doc-corp">
+                <p contenteditable="true" oninput="triggerAutoSave()"><strong>Având în vedere:</strong></p>
+                <ul class="doc-list" id="lista-legi-1" contenteditable="true" oninput="triggerAutoSave()">
+                    <li>Contractul de finanțare nr. 188/14.05.2024, pentru proiectul „FII UNUL DINTRE C.R.A.I.! (Creativitate, Reziliență, Adaptabilitate, Incluziune)", cod F-PNRAS-2-2023-0447, finanțat prin Planul Național de Redresare și Reziliență – Componenta C15: Educație;</li>
+                    <li>Ghidul de implementare al Programului Național pentru Reducerea Abandonului Școlar (PNRAS) – runda a II-a;</li>
+                    <li>prevederile Programului Național pentru Reducerea Abandonului Școlar, aprobat de Ministerul Educației;</li>
+                    <li>perioada de implementare a proiectului: mai 2024 – iunie 2026;</li>
+                    <li>bugetul aprobat și activitățile asumate prin cererea de finanțare;</li>
+                    <li>necesitatea implementării, monitorizării și raportării activităților proiectului la nivelul unității de învățământ;</li>
+                    <li>Decizia nr. 1, 24.05.2024, privind numirea echipei de management de proiect;</li>
+                    <li>Decizia nr. 49/17.09.2024 privind stabilirea componenței Consiliului de Administrație al Liceului Tehnologic "Victor Mihăilescu Craiu" Belcești, județul Iași, pentru anul școlar 2024 - 2025;</li>
+                    <li>Ședința Consiliului de Administrație al Liceului Tehnologic "Victor Mihăilescu Craiu" Belcești, reunit în data de <strong><span id="doc-data-sedinta" contenteditable="true" oninput="triggerAutoSave()">${data}</span></strong>;</li>
+                </ul>
+
+                <p style="margin-top: 10px;" contenteditable="true" oninput="triggerAutoSave()"><strong>În temeiul:</strong></p>
+                <ul class="doc-list" id="lista-legi-2" contenteditable="true" oninput="triggerAutoSave()">
+                    <li>Legii Educației Naționale nr. 198/2023, cu modificările și completările ulterioare;</li>
+                    <li>Ordinului ministrului educației nr. 5.726/2024 privind aprobarea Regulamentului-cadru de organizare și funcționare a unităților de învățământ preuniversitar;</li>
+                    <li>Ordinului nr. 6000/2021 privind aprobarea Mecanismului de Avertizare Timpurie în Educaţie (MATE) şi a Metodologiei de implementare şi utilizare a modulului informatic MATE pentru prevenirea abandonului şcolar şi a părăsirii timpurii a şcolii, Publicat în Monitorul Oficial nr. 1252 din 30 decembrie 2021;</li>
+                    <li>Regulamentului (UE) 2016/679 al Parlamentului European și al Consiliului din 27 aprilie 2016 privind protecția persoanelor fizice în ceea ce privește prelucrarea datelor cu caracter personal și libera circulație a acestora.</li>
+                </ul>
+
+                <div id="doc-titlu-decide" class="doc-decide" contenteditable="true" oninput="triggerAutoSave()">CONSILIUL DE ADMINISTRAȚIE HOTĂRĂȘTE:</div>
+                
+                <div id="articole-container"></div>
+                <button class="btn-add-articol" onclick="adaugaArticol()">➕ Adaugă articol</button>
+            </div>
+
+            <div class="doc-signatures">
+                <div class="sig-block">
+                    <b contenteditable="true" oninput="triggerAutoSave()" id="sig-titlu-1">Întocmit,</b><br>
+                    <span contenteditable="true" oninput="triggerAutoSave()" id="sig-functie-1">Secretar Consiliu de Administrație</span><br>
+                    <span contenteditable="true" oninput="triggerAutoSave()" id="sig-nume-1">prof. Mihaela MIHĂILĂ</span>
+                </div>
+                <div class="sig-block" style="text-align: right;">
+                    <b contenteditable="true" oninput="triggerAutoSave()" id="sig-titlu-2">Președinte Consiliu de Administrație,</b><br>
+                    <span contenteditable="true" oninput="triggerAutoSave()" id="sig-functie-2">Director</span>,<br>
+                    <span contenteditable="true" oninput="triggerAutoSave()" id="sig-nume-2">prof. Cătălin Ionuț BAZILUC</span>
+                </div>
+            </div>`;
+        }
+
+        function getTemplateDecizie(nr, data, descriere) {
+            return `
+            <img src="antet_pnras.jpeg" class="antet-img" alt="Antet PNRAS">
+            
+            <div class="doc-titlu">
+                <span id="doc-tip-document" contenteditable="true" oninput="triggerAutoSave()">DECIZIA</span> 
+                <span contenteditable="true" oninput="triggerAutoSave()"> NR. </span>
+                <span id="doc-nr" contenteditable="true" oninput="triggerAutoSave()">${nr}</span>
+                <br> <span contenteditable="true" oninput="triggerAutoSave()">din data de </span>
+                <span id="doc-data" contenteditable="true" oninput="triggerAutoSave()">${data}</span>
+            </div>
+
+            <div class="doc-subtitlu">
+                Privind: <span id="doc-descriere-titlu" contenteditable="true" oninput="triggerAutoSave()">${descriere}</span>
+            </div>
+
+            <div class="doc-corp">
+                <p id="doc-intro-text" contenteditable="true" oninput="triggerAutoSave()">Prof. Baziluc Cătălin Ionuț, director la Liceul Tehnologic "Victor Mihăilescu Craiu" Belcești, numit prin Decizia nr. 580/33/20.12.2021,</p>
+
+                <p style="margin-top: 10px;" contenteditable="true" oninput="triggerAutoSave()"><strong>Având în vedere:</strong></p>
+                <ul class="doc-list" id="lista-legi-1" contenteditable="true" oninput="triggerAutoSave()">
+                    <li>Contractul de finanțare nr. 188/14.05.2024, pentru proiectul „FII UNUL DINTRE C.R.A.I.! (Creativitate, Reziliență, Adaptabilitate, Incluziune)", cod F-PNRAS-2-2023-0447, finanțat prin Planul Național de Redresare și Reziliență – Componenta C15: Educație;</li>
+                    <li>Ghidul de implementare al Programului Național pentru Reducerea Abandonului Școlar (PNRAS) – runda a II-a;</li>
+                    <li>prevederile Programului Național pentru Reducerea Abandonului Școlar, aprobat de Ministerul Educației;</li>
+                    <li>perioada de implementare a proiectului: mai 2024 – iunie 2026;</li>
+                    <li>bugetul aprobat și activitățile asumate prin cererea de finanțare;</li>
+                    <li>necesitatea implementării, monitorizării și raportării activităților proiectului la nivelul unității de învățământ;</li>
+                    <li>Decizia nr. 1, 24.05.2024, privind numirea echipei de management de proiect;</li>
+                </ul>
+
+                <p style="margin-top: 10px;" contenteditable="true" oninput="triggerAutoSave()"><strong>În temeiul:</strong></p>
+                <ul class="doc-list" id="lista-legi-2" contenteditable="true" oninput="triggerAutoSave()">
+                    <li>Legii Educației Naționale nr. 198/2023, cu modificările și completările ulterioare;</li>
+                    <li>Ordinului ministrului educației nr. 5.726/2024 privind aprobarea Regulamentului-cadru de organizare și funcționare a unităților de învățământ preuniversitar;</li>
+                    <li>Ordinului nr. 6000/2021 privind aprobarea Mecanismului de Avertizare Timpurie în Educaţie (MATE) şi a Metodologiei de implementare şi utilizare a modulului informatic MATE pentru prevenirea abandonului şcolar şi a părăsirii timpurii a şcolii, Publicat în Monitorul Oficial nr. 1252 din 30 decembrie 2021;</li>
+                    <li>Regulamentului (UE) 2016/679 al Parlamentului European și al Consiliului din 27 aprilie 2016 privind protecția persoanelor fizice în ceea ce privește prelucrarea datelor cu caracter personal și libera circulație a acestora.</li>
+                </ul>
+
+                <div id="doc-titlu-decide" class="doc-decide" contenteditable="true" oninput="triggerAutoSave()">DECIDE:</div>
+                
+                <div id="articole-container"></div>
+                <button class="btn-add-articol" onclick="adaugaArticol()">➕ Adaugă articol</button>
+            </div>
+
+            <div class="doc-signatures">
+                <div class="sig-block">
+                    <b contenteditable="true" oninput="triggerAutoSave()" id="sig-titlu-1">Director,</b><br>
+                    <span contenteditable="true" oninput="triggerAutoSave()" id="sig-functie-1"></span><br>
+                    <span contenteditable="true" oninput="triggerAutoSave()" id="sig-nume-1">prof. Cătălin Ionuț BAZILUC</span>
+                </div>
+                <div class="sig-block" style="text-align: right;">
+                    <b contenteditable="true" oninput="triggerAutoSave()" id="sig-titlu-2">Secretar,</b><br>
+                    <span contenteditable="true" oninput="triggerAutoSave()" id="sig-functie-2"></span><br>
+                    <span contenteditable="true" oninput="triggerAutoSave()" id="sig-nume-2">Elena GHERASIM</span>
+                </div>
+            </div>`;
+        }
+
+        function getTemplatePV(nr, data, descriere) {
+            return `
+            <img src="antet_pnras.jpeg" class="antet-img" alt="Antet PNRAS">
+            
+            <div id="doc-nr" style="display:none;">${nr}</div>
+            <div id="doc-data" style="display:none;">${data}</div>
+            <div id="doc-descriere-titlu" style="display:none;">${descriere}</div>
+
+            <div id="pv-corp-liber" contenteditable="true" oninput="triggerAutoSave()" style="flex-grow: 1; font-family: 'Times New Roman', serif; font-size: 1rem; line-height: 1.5; min-height: 500px; outline: none;">
+                &nbsp;
+            </div>`;
+        }
+
+        function getTemplateAlt(nr, data, descriere, altTipNume) {
+            const titlu = (altTipNume || 'DOCUMENT').toUpperCase();
+            return `
+            <img src="antet_pnras.jpeg" class="antet-img" alt="Antet PNRAS">
+            
+            <div id="doc-nr" style="display:none;">${nr}</div>
+            <div id="doc-data" style="display:none;">${data}</div>
+            <div id="doc-descriere-titlu" style="display:none;">${descriere}</div>
+
+            <div id="alt-corp-liber" contenteditable="true" oninput="triggerAutoSave()" style="flex-grow: 1; font-family: 'Times New Roman', serif; font-size: 1rem; line-height: 1.5; min-height: 500px; outline: none; border: 1px dashed #ccc; padding: 10px; border-radius: 3px;">
+                &nbsp;
+            </div>`;
+        }
+
+        // ==========================================
         // ÎNCĂRCARE A4
         // ==========================================
         async function openA4(id, nr, data, descriere, tipRegistru) {
-    currentHotarareId = id; 
+    currentHotarareId = id;
+    currentTipRegistru = tipRegistru;
 
-    // Verificăm dacă elementele există înainte de a le schimba stilul
     const mainUi = document.getElementById('main-ui');
     const btnInapoi = document.getElementById('btn-inapoi-mate');
     const a4View = document.getElementById('a4-view');
+    const docContainer = document.getElementById('document-continut');
 
     if (mainUi) mainUi.style.display = 'none';
     if (btnInapoi) btnInapoi.style.display = 'none';
     if (a4View) a4View.style.display = 'flex';
-    
-    // Setăm valorile de bază primite din card
-    document.getElementById('doc-nr').innerText = nr;
-    document.getElementById('doc-data').innerText = data;
-    document.getElementById('doc-descriere-titlu').innerText = descriere;
 
-// Setăm tipul mare (titlul) din tipRegistru (va putea fi suprascris ulterior din document_data dacă există)
-const tipEl = document.getElementById('doc-tip-document');
-if (tipEl) {
-  if (tipRegistru === '1_HOTARARE') tipEl.innerText = 'HOTĂRÂREA';
-  else if (tipRegistru === '1_DECIZIE') tipEl.innerText = 'DECIZIA';
-  else if (tipRegistru === '1_PROCES_VERBAL') tipEl.innerText = 'PROCES-VERBAL';
-  else tipEl.innerText = 'DOCUMENT';
-}
-    
-    // În interiorul funcției openA4 (în jurul rândului 300)
-document.getElementById('articole-container').innerHTML = ''; // Golește vizual
-articoleCount = 0; // Resetează contorul intern
+    // 1. Generăm HTML-ul template-ului potrivit
+    let altTipNume = '';
+    if (tipRegistru === '1_HOTARARE') {
+        docContainer.innerHTML = getTemplateHotarare(nr, data, descriere);
+    } else if (tipRegistru === '1_DECIZIE') {
+        docContainer.innerHTML = getTemplateDecizie(nr, data, descriere);
+    } else if (tipRegistru === '1_PROCES_VERBAL') {
+        docContainer.innerHTML = getTemplatePV(nr, data, descriere);
+    } else if (tipRegistru === '1_ALT') {
+        // Încercăm să aflăm numele tipului din DB
+        try {
+            const { data: preData } = await supabaseClient
+                .from('numere_inregistrare').select('document_data').eq('id_unique', id).single();
+            if (preData?.document_data) {
+                const parsed = JSON.parse(preData.document_data);
+                altTipNume = parsed.altTip || parsed.tipDoc || '';
+            }
+        } catch(e) {}
+        docContainer.innerHTML = getTemplateAlt(nr, data, descriere, altTipNume);
+    }
 
+    // 2. Resetăm contorul de articole
+    articoleCount = 0;
+
+    // 3. Încărcăm datele salvate din Supabase (dacă există)
     try {
         const { data: hotarareDB, error } = await supabaseClient
             .from('numere_inregistrare')
@@ -548,42 +1167,54 @@ articoleCount = 0; // Resetează contorul intern
         if (hotarareDB && hotarareDB.document_data) {
             const docData = JSON.parse(hotarareDB.document_data);
             
-            // 1. Restaurăm Tipul (Hotărâre/Decizie)
-            document.getElementById('doc-tip-document').innerText = docData.tipDoc || "HOTĂRÂREA";
-            
-            // 2. Restaurăm Corpul textului (Legi și Temei)
-            // Folosim innerHTML pentru a păstra formatarea listelor
-            if(docData.lege1) document.getElementById('lista-legi-1').innerHTML = docData.lege1;
-            if(docData.lege2) document.getElementById('lista-legi-2').innerHTML = docData.lege2;
-            
-            // 3. Restaurăm titlul de decizie și data ședinței
-            if(docData.titluDecide) document.getElementById('doc-titlu-decide').innerHTML = docData.titluDecide;
-            document.getElementById('doc-data-sedinta').innerText = docData.dataSedinta || data;
+            if (tipRegistru === '1_HOTARARE' || tipRegistru === '1_DECIZIE') {
+                // Restaurăm tipul documentului
+                const tipEl = document.getElementById('doc-tip-document');
+                if (tipEl && docData.tipDoc) tipEl.innerText = docData.tipDoc;
+                
+                // Restaurăm listele de legi
+                if (docData.lege1) document.getElementById('lista-legi-1').innerHTML = docData.lege1;
+                if (docData.lege2) document.getElementById('lista-legi-2').innerHTML = docData.lege2;
+                
+                // Restaurăm titlul decide și data ședinței
+                if (docData.titluDecide) document.getElementById('doc-titlu-decide').innerHTML = docData.titluDecide;
+                const dataSedintaEl = document.getElementById('doc-data-sedinta');
+                if (dataSedintaEl) dataSedintaEl.innerText = docData.dataSedinta || data;
 
-            // 4. Restaurăm Semnăturile (Dacă există salvate)
-            if(docData.sigT1) document.getElementById('sig-titlu-1').innerText = docData.sigT1;
-            if(docData.sigF1) document.getElementById('sig-functie-1').innerText = docData.sigF1;
-            if(docData.sigN1) document.getElementById('sig-nume-1').innerText = docData.sigN1;
-            if(docData.sigT2) document.getElementById('sig-titlu-2').innerText = docData.sigT2;
-            if(docData.sigF2) document.getElementById('sig-functie-2').innerText = docData.sigF2;
-            if(docData.sigN2) document.getElementById('sig-nume-2').innerText = docData.sigN2;
+                // Restaurăm textul introductiv (doar la Decizie)
+                const introEl = document.getElementById('doc-intro-text');
+                if (introEl && docData.introText) introEl.innerHTML = docData.introText;
 
-            // 5. Restaurăm Articolele
-            if (docData.articole && docData.articole.length > 0) {
-                docData.articole.forEach(artText => adaugaArticol(artText));
-            } else {
-                adaugaArticol();
+                // Restaurăm semnăturile
+                if (docData.sigT1) document.getElementById('sig-titlu-1').innerText = docData.sigT1;
+                if (docData.sigF1) document.getElementById('sig-functie-1').innerText = docData.sigF1;
+                if (docData.sigN1) document.getElementById('sig-nume-1').innerText = docData.sigN1;
+                if (docData.sigT2) document.getElementById('sig-titlu-2').innerText = docData.sigT2;
+                if (docData.sigF2) document.getElementById('sig-functie-2').innerText = docData.sigF2;
+                if (docData.sigN2) document.getElementById('sig-nume-2').innerText = docData.sigN2;
+
+                // Restaurăm articolele
+                if (docData.articole && docData.articole.length > 0) {
+                    docData.articole.forEach(artText => adaugaArticol(artText));
+                } else {
+                    adaugaArticol();
+                }
+            } else if (tipRegistru === '1_PROCES_VERBAL') {
+                if (docData.pvCorpHTML) document.getElementById('pv-corp-liber').innerHTML = docData.pvCorpHTML;
+            } else if (tipRegistru === '1_ALT') {
+                if (docData.altCorpHTML) document.getElementById('alt-corp-liber').innerHTML = docData.altCorpHTML;
             }
         } else {
-            // Dacă nu avem date salvate în document_data, inițializăm cu valori default
-            document.getElementById('doc-tip-document').innerText = "HOTĂRÂREA";
-            document.getElementById('doc-data-sedinta').innerText = data;
-            adaugaArticol(); 
+            // Niciun document_data salvat — inițializăm cu default-uri
+            if (tipRegistru === '1_HOTARARE' || tipRegistru === '1_DECIZIE') {
+                adaugaArticol();
+            }
         }
     } catch (err) { 
         console.error("Eroare la încărcare:", err);
-        document.getElementById('doc-data-sedinta').innerText = data;
-        adaugaArticol(); 
+        if (tipRegistru === '1_HOTARARE' || tipRegistru === '1_DECIZIE') {
+            adaugaArticol();
+        }
     }
 }
 
@@ -664,185 +1295,559 @@ articoleCount = 0; // Resetează contorul intern
             loadHotarari(); 
         }
 
+        function openEditModal(id, nr, data, descriere, tipRegistru) {
+            document.getElementById('edit-id').value = id;
+            document.getElementById('edit-nr').value = nr;
+            document.getElementById('edit-data').value = data;
+            document.getElementById('edit-descriere').value = descriere;
+            document.getElementById('edit-tip').value = tipRegistru;
+            
+            const isAlt = tipRegistru === '1_ALT';
+            document.getElementById('edit-group-alt-tip').style.display = isAlt ? 'block' : 'none';
+            
+            if (isAlt) {
+                // Încercăm să preluăm numele tipului din document_data
+                supabaseClient.from('numere_inregistrare').select('document_data').eq('id_unique', id).single()
+                    .then(({ data: row }) => {
+                        if (row?.document_data) {
+                            try {
+                                const parsed = JSON.parse(row.document_data);
+                                document.getElementById('edit-alt-tip').value = parsed.altTip || '';
+                            } catch(e) {}
+                        }
+                    });
+            } else {
+                document.getElementById('edit-alt-tip').value = '';
+            }
+
+            document.getElementById('edit-modal').style.display = 'flex';
+        }
+
+        function closeEditModal() {
+            document.getElementById('edit-modal').style.display = 'none';
+        }
+
+        // Toggle alt tip field in edit modal
+        document.addEventListener('DOMContentLoaded', () => {
+            const editTipSelect = document.getElementById('edit-tip');
+            if (editTipSelect) {
+                editTipSelect.addEventListener('change', () => {
+                    const isAlt = editTipSelect.value === '1_ALT';
+                    document.getElementById('edit-group-alt-tip').style.display = isAlt ? 'block' : 'none';
+                    if (!isAlt) document.getElementById('edit-alt-tip').value = '';
+                });
+            }
+        });
+
+        async function saveEditHotarare() {
+            const id = document.getElementById('edit-id').value;
+            const nr = document.getElementById('edit-nr').value.trim();
+            const data = document.getElementById('edit-data').value.trim();
+            const desc = document.getElementById('edit-descriere').value.trim();
+            const tip = document.getElementById('edit-tip').value;
+            const altTip = (document.getElementById('edit-alt-tip')?.value || '').trim();
+
+            if (!nr || !data || !desc) {
+                alert("Completați toate câmpurile!");
+                return;
+            }
+
+            if (tip === '1_ALT' && !altTip) {
+                alert("Scrie denumirea documentului!");
+                return;
+            }
+
+            try {
+                // Actualizăm câmpurile principale
+                const updateData = {
+                    nr_c: nr,
+                    nr_d: data,
+                    nr_inreg: desc,
+                    tip_registru: tip,
+                    ultima_modificare: new Date().toISOString()
+                };
+
+                const { error } = await supabaseClient
+                    .from('numere_inregistrare')
+                    .update(updateData)
+                    .eq('id_unique', id);
+
+                if (error) throw error;
+
+                // Dacă s-a schimbat tipul, actualizăm și document_data cu noul tip
+                const { data: existing } = await supabaseClient
+                    .from('numere_inregistrare')
+                    .select('document_data')
+                    .eq('id_unique', id)
+                    .single();
+
+                let docData = {};
+                if (existing?.document_data) {
+                    try { docData = JSON.parse(existing.document_data); } catch(e) {}
+                }
+
+                let tipDocText = "HOTĂRÂREA";
+                if (tip === '1_DECIZIE') tipDocText = "DECIZIA";
+                if (tip === '1_PROCES_VERBAL') tipDocText = "PROCES-VERBAL";
+                if (tip === '1_ALT') tipDocText = altTip.toUpperCase();
+
+                docData.tipDoc = tipDocText;
+                if (tip === '1_ALT') docData.altTip = altTip;
+
+                await supabaseClient
+                    .from('numere_inregistrare')
+                    .update({ document_data: JSON.stringify(docData) })
+                    .eq('id_unique', id);
+
+                closeEditModal();
+                loadHotarari();
+
+            } catch (err) {
+                alert("Eroare la salvare: " + err.message);
+            }
+        }
+
         async function loadHotarari() {
-    const container = document.getElementById('cards-container');
+    const containerH = document.getElementById('cards-hotarari');
+    const containerD = document.getElementById('cards-decizii');
+    const containerPV = document.getElementById('cards-pv');
+    const containerA = document.getElementById('cards-alte');
 
     const { data: docs, error } = await supabaseClient
         .from('numere_inregistrare')
         .select('*')
-        .like('tip_registru', '1_%')   // 🔵 doar MATE
+        .like('tip_registru', '1_%')
         .order('nr_d', { ascending: false });
 
     if (error) {
-        container.innerHTML = `<p style="color:red">Eroare: ${error.message}</p>`;
+        containerH.innerHTML = `<p style="color:red">Eroare: ${error.message}</p>`;
         return;
     }
 
-    if (!docs || !docs.length) {
-        container.innerHTML = '<p style="color:#666; font-style:italic;">Niciun document.</p>';
-        return;
+    const hotarari = [], decizii = [], pvuri = [], alte = [];
+
+    if (docs) {
+        docs.forEach(doc => {
+            if (doc.tip_registru === '1_HOTARARE') hotarari.push(doc);
+            else if (doc.tip_registru === '1_DECIZIE') decizii.push(doc);
+            else if (doc.tip_registru === '1_PROCES_VERBAL') pvuri.push(doc);
+            else alte.push(doc);
+        });
     }
 
     function tipAfisaj(doc) {
         if (doc.tip_registru === '1_HOTARARE') return 'HOTĂRÂRE';
         if (doc.tip_registru === '1_DECIZIE') return 'DECIZIE';
         if (doc.tip_registru === '1_PROCES_VERBAL') return 'PROCES-VERBAL';
-
         if (doc.tip_registru === '1_ALT') {
             try {
                 const d = doc.document_data ? JSON.parse(doc.document_data) : null;
                 return (d?.altTip || d?.tipDoc || 'DOCUMENT');
-            } catch {
-                return 'DOCUMENT';
-            }
+            } catch { return 'DOCUMENT'; }
         }
-
         return 'DOCUMENT';
     }
 
-    container.innerHTML = docs.map(doc => `
-        <div class="hotarare-card" 
-            onclick="openA4('${doc.id_unique}', '${doc.nr_c}', '${doc.nr_d}', '${doc.nr_inreg}', '${doc.tip_registru}')">
-            
-            <button class="delete-btn" onclick="event.stopPropagation(); deleteHotarare('${doc.id_unique}')">🗑️</button>
-            
-            <div class="card-nr">${tipAfisaj(doc)} Nr. ${doc.nr_c}</div>
-            <div class="card-data">📅 ${doc.nr_d}</div>
-            <div class="card-descriere">${doc.nr_inreg}</div>
-        </div>
-    `).join('');
+    function hasPDF(doc) {
+        try {
+            const d = doc.document_data ? JSON.parse(doc.document_data) : null;
+            return d?.pdfPath ? true : false;
+        } catch { return false; }
+    }
+
+    function renderCards(lista) {
+        if (!lista.length) return '<p class="section-empty">Niciun document în această secțiune.</p>';
+        return lista.map(doc => {
+            const descEscaped = (doc.nr_inreg || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+            const isPDF = hasPDF(doc);
+            const clickAction = isPDF 
+                ? `deschidePDF('${doc.id_unique}')` 
+                : `openA4('${doc.id_unique}', '${doc.nr_c}', '${doc.nr_d}', '${descEscaped}', '${doc.tip_registru}')`;
+            return `
+            <div class="hotarare-card" onclick="${clickAction}">
+                <button class="edit-card-btn" onclick="event.stopPropagation(); openEditModal('${doc.id_unique}', '${doc.nr_c}', '${doc.nr_d}', '${descEscaped}', '${doc.tip_registru}')" title="Editează">✏️</button>
+                <button class="delete-btn" onclick="event.stopPropagation(); deleteHotarare('${doc.id_unique}')">🗑️</button>
+                
+                <div class="card-nr">${tipAfisaj(doc)} Nr. ${doc.nr_c}</div>
+                <div class="card-data">📅 ${doc.nr_d}</div>
+                <div class="card-descriere">${doc.nr_inreg}</div>
+                ${isPDF ? '<span class="card-pdf-badge">📎 PDF ATAȘAT</span>' : ''}
+            </div>`;
+        }).join('');
+    }
+
+    containerH.innerHTML = renderCards(hotarari);
+    containerD.innerHTML = renderCards(decizii);
+    containerPV.innerHTML = renderCards(pvuri);
+    containerA.innerHTML = renderCards(alte);
 }
 
-// Constante pentru monitorizare
-const DEFAULT_FONT_SIZE = 16;
+// ==========================================
+// UPLOAD PDF LOGIC
+// ==========================================
+function openUploadModal() {
+    document.getElementById('upload-modal').style.display = 'flex';
+    document.getElementById('upload-nr').value = '';
+    document.getElementById('upload-data').value = '';
+    document.getElementById('upload-descriere').value = '';
+    document.getElementById('upload-tip').value = '1_HOTARARE';
+    document.getElementById('upload-group-alt-tip').style.display = 'none';
+    document.getElementById('upload-alt-tip').value = '';
+    document.getElementById('upload-fisier').value = '';
+    document.getElementById('upload-progress').style.display = 'none';
+    document.getElementById('btn-upload-save').disabled = false;
+}
 
-// --- FUNCȚII DE FORMATARE ---
+function closeUploadModal() {
+    document.getElementById('upload-modal').style.display = 'none';
+}
 
-// 1. Formatare text (Bold, Italic, Liste, Aliniere)
+// Toggle alt tip în upload modal
+document.addEventListener('DOMContentLoaded', () => {
+    const uploadTipSelect = document.getElementById('upload-tip');
+    if (uploadTipSelect) {
+        uploadTipSelect.addEventListener('change', () => {
+            const isAlt = uploadTipSelect.value === '1_ALT';
+            document.getElementById('upload-group-alt-tip').style.display = isAlt ? 'block' : 'none';
+            if (!isAlt) document.getElementById('upload-alt-tip').value = '';
+        });
+    }
+});
+
+async function saveUploadPDF() {
+    const nr = document.getElementById('upload-nr').value.trim();
+    const data = document.getElementById('upload-data').value.trim();
+    const desc = document.getElementById('upload-descriere').value.trim();
+    const tip = document.getElementById('upload-tip').value;
+    const altTip = (document.getElementById('upload-alt-tip')?.value || '').trim();
+    const fisierInput = document.getElementById('upload-fisier');
+    const fisier = fisierInput.files[0];
+
+    if (!nr || !data || !desc) { alert("Completați toate câmpurile!"); return; }
+    if (tip === '1_ALT' && !altTip) { alert("Scrie denumirea documentului!"); return; }
+    if (!fisier) { alert("Selectați un fișier PDF!"); return; }
+    if (!fisier.name.toLowerCase().endsWith('.pdf')) { alert("Doar fișiere PDF sunt acceptate!"); return; }
+
+    document.getElementById('upload-progress').style.display = 'block';
+    document.getElementById('btn-upload-save').disabled = true;
+
+    try {
+        const idCodificat = `PDF_${new Date().getTime()}`;
+        const fileName = `${idCodificat}_${fisier.name.replace(/[^a-zA-Z0-9._-]/g, '_')}`;
+        const filePath = `documente/${fileName}`;
+
+        // 1. Încărcăm PDF-ul în Supabase Storage
+        const { error: uploadError } = await supabaseClient.storage
+            .from('arhiva_pnras')
+            .upload(filePath, fisier, { contentType: 'application/pdf', upsert: false });
+
+        if (uploadError) throw uploadError;
+
+        // 2. Obținem URL-ul public
+        const { data: urlData } = supabaseClient.storage
+            .from('arhiva_pnras')
+            .getPublicUrl(filePath);
+
+        const publicUrl = urlData?.publicUrl || '';
+
+        // 3. Stabilim tipul documentului
+        let tipDocText = "HOTĂRÂREA";
+        if (tip === '1_DECIZIE') tipDocText = "DECIZIA";
+        if (tip === '1_PROCES_VERBAL') tipDocText = "PROCES-VERBAL";
+        if (tip === '1_ALT') tipDocText = altTip.toUpperCase();
+
+        const documentData = JSON.stringify({
+            tipDoc: tipDocText,
+            altTip: (tip === '1_ALT') ? altTip : "",
+            pdfPath: filePath,
+            pdfUrl: publicUrl
+        });
+
+        let anSelectat = parseInt(data.slice(-4)) || new Date().getFullYear();
+
+        // 4. Salvăm înregistrarea în baza de date
+        const { error: dbError } = await supabaseClient
+            .from('numere_inregistrare')
+            .insert([{
+                id_unique: idCodificat,
+                expert_nume: 'Sistem',
+                tip_registru: tip,
+                nr_c: nr,
+                nr_d: data,
+                nr_inreg: desc,
+                an: anSelectat,
+                luna: 1,
+                ultima_modificare: new Date().toISOString(),
+                document_data: documentData
+            }]);
+
+        if (dbError) throw dbError;
+
+        closeUploadModal();
+        loadHotarari();
+
+    } catch (err) {
+        alert("Eroare la încărcare: " + err.message);
+        document.getElementById('upload-progress').style.display = 'none';
+        document.getElementById('btn-upload-save').disabled = false;
+    }
+}
+
+async function deschidePDF(idUnique) {
+    try {
+        const { data: row } = await supabaseClient
+            .from('numere_inregistrare')
+            .select('document_data')
+            .eq('id_unique', idUnique)
+            .single();
+
+        if (row?.document_data) {
+            const parsed = JSON.parse(row.document_data);
+            if (parsed.pdfUrl) {
+                window.open(parsed.pdfUrl, '_blank');
+            } else if (parsed.pdfPath) {
+                const { data: urlData } = supabaseClient.storage
+                    .from('arhiva_pnras')
+                    .getPublicUrl(parsed.pdfPath);
+                if (urlData?.publicUrl) window.open(urlData.publicUrl, '_blank');
+            }
+        }
+    } catch (err) {
+        alert("Eroare la deschidere PDF: " + err.message);
+    }
+}
+
+// ============================================================
+// TOOLBAR WORD-LIKE — FUNCȚII COMPLETE
+// ============================================================
+// Logica Word: toolbar-ul NU fura focusul (preventDefault pe mousedown)
+// Deci document.activeElement ramane mereu elementul editabil curent
+// setAlignment urca in DOM pana la primul element BLOCK si aplica text-align
+
+// Prevenim pierderea focusului la click pe orice buton din toolbar
+document.addEventListener('DOMContentLoaded', () => {
+    const toolbar = document.getElementById('edit-toolbar');
+    if (toolbar) {
+        toolbar.addEventListener('mousedown', function(e) {
+            // NU prevenim pe input/select (au nevoie de focus)
+            if (!e.target.matches('input[type="number"], select')) {
+                e.preventDefault(); // Focusul ramane in elementul editabil!
+            }
+        });
+    }
+    buildTableGrid();
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('.tb-dropdown-wrap')) {
+            document.querySelectorAll('.tb-dropdown.open').forEach(d => d.classList.remove('open'));
+        }
+    });
+});
+
+// Gaseste primul element BLOCK parinte al nodului curent (unde se aplica text-align)
+function getBlockElement(node) {
+    if (!node) return null;
+    if (node.nodeType === 3) node = node.parentElement; // text node -> parent
+    const blockTags = ['DIV','P','LI','UL','OL','H1','H2','H3','H4','H5','H6','BLOCKQUOTE','TD','TH'];
+    let el = node;
+    while (el && el.id !== 'document-continut') {
+        if (blockTags.includes(el.tagName)) return el;
+        el = el.parentElement;
+    }
+    return null;
+}
+
+// Aliniere - exact ca Word
+function setAlignment(align) {
+    const sel = window.getSelection();
+    let blockEl = null;
+
+    if (sel && sel.rangeCount > 0) {
+        // Avem cursorul undeva - gasim blocul parinte
+        blockEl = getBlockElement(sel.anchorNode);
+    }
+
+    // Fallback: elementul activ
+    if (!blockEl) {
+        blockEl = getBlockElement(document.activeElement);
+    }
+
+    if (blockEl) {
+        blockEl.style.textAlign = align;
+        triggerAutoSave();
+    }
+}
+
+// Formatare text (bold, italic etc) - focusul e deja in document
 function formatDoc(cmd) {
-    // Forțăm focusul înapoi pe document dacă s-a pierdut
     document.execCommand(cmd, false, null);
     triggerAutoSave();
 }
 
-// 2. Ajustare dimensiune font cu indicator
-function adjustFontSize(delta) {
-    const selection = window.getSelection();
-    if (selection.rangeCount > 0) {
-        let el = selection.anchorNode.parentElement;
-        // Căutăm cel mai apropiat element editabil (inclusiv textarea pentru articole)
-        let target = el.closest('p, .art-input, li, span, div[contenteditable="true"]');
-        
-        if (target) {
-            let currentSize = parseFloat(window.getComputedStyle(target).fontSize);
-            let newSize = Math.round(currentSize + delta);
-            target.style.fontSize = newSize + "px";
-            
-            // Actualizăm indicatorul vizual
-            updateFontIndicator(newSize);
-            triggerAutoSave();
+function applyFontFamily(fontName) {
+    document.execCommand('fontName', false, fontName);
+    triggerAutoSave();
+}
+
+function applyFontSize(sizeStr) {
+    const size = parseInt(sizeStr);
+    if (!size || size < 6 || size > 200) return;
+    const sel = window.getSelection();
+    if (!sel || !sel.rangeCount || sel.isCollapsed) {
+        // Nicio selectie - aplicam pe blocul curent
+        const blockEl = getBlockElement(document.activeElement);
+        if (blockEl) { blockEl.style.fontSize = size + 'px'; triggerAutoSave(); }
+        return;
+    }
+    document.execCommand('fontSize', false, '7');
+    document.querySelectorAll('font[size="7"]').forEach(f => {
+        f.removeAttribute('size');
+        f.style.fontSize = size + 'px';
+    });
+    triggerAutoSave();
+}
+
+function applyTextColor(color) {
+    document.getElementById('color-bar').style.background = color;
+    document.execCommand('foreColor', false, color);
+    triggerAutoSave();
+}
+
+function applyHighlight(color) {
+    document.getElementById('highlight-bar').style.background = color;
+    document.execCommand('hiliteColor', false, color);
+    triggerAutoSave();
+}
+
+function setLineHeight(value) {
+    const blockEl = getBlockElement(window.getSelection()?.anchorNode) || document.activeElement;
+    if (blockEl && blockEl.id !== 'document-continut') { blockEl.style.lineHeight = value; triggerAutoSave(); }
+}
+
+function setParaSpacing(top, bottom) {
+    const blockEl = getBlockElement(window.getSelection()?.anchorNode) || document.activeElement;
+    if (blockEl && blockEl.id !== 'document-continut') {
+        blockEl.style.marginTop = top + 'px';
+        blockEl.style.marginBottom = bottom + 'px';
+        triggerAutoSave();
+    }
+}
+
+function addSpaceParagraph() { setParaSpacing(12, 12); }
+function removeSpaceParagraph() { setParaSpacing(0, 0); }
+
+function adjustIndent(dir) {
+    const blockEl = getBlockElement(window.getSelection()?.anchorNode) || document.activeElement;
+    if (blockEl && blockEl.id !== 'document-continut') {
+        let cur = parseInt(window.getComputedStyle(blockEl).paddingLeft) || 0;
+        blockEl.style.paddingLeft = Math.max(0, cur + dir * 20) + 'px';
+        triggerAutoSave();
+    }
+}
+
+function clearFormatting() {
+    document.execCommand('removeFormat', false, null);
+    triggerAutoSave();
+}
+
+function getSelectedBlock() {
+    return getBlockElement(window.getSelection()?.anchorNode) || document.activeElement;
+}
+
+// 12. Dropdown toggle
+function toggleDropdown(id) {
+    const dd = document.getElementById(id);
+    const wasOpen = dd.classList.contains('open');
+    document.querySelectorAll('.tb-dropdown.open').forEach(d => d.classList.remove('open'));
+    if (!wasOpen) dd.classList.add('open');
+}
+
+// 13. Inserare tabel
+function buildTableGrid() {
+    const grid = document.getElementById('table-grid');
+    if (!grid) return;
+    const label = document.getElementById('table-size-label');
+    const ROWS = 8, COLS = 8;
+    grid.innerHTML = '';
+    for (let r = 1; r <= ROWS; r++) {
+        for (let c = 1; c <= COLS; c++) {
+            const cell = document.createElement('div');
+            cell.className = 'table-cell';
+            cell.dataset.row = r;
+            cell.dataset.col = c;
+            cell.addEventListener('mouseenter', function() {
+                const row = parseInt(this.dataset.row);
+                const col = parseInt(this.dataset.col);
+                label.textContent = `${col} × ${row}`;
+                grid.querySelectorAll('.table-cell').forEach(tc => {
+                    tc.classList.toggle('hovered',
+                        parseInt(tc.dataset.row) <= row && parseInt(tc.dataset.col) <= col);
+                });
+            });
+            cell.addEventListener('click', function() {
+                const row = parseInt(this.dataset.row);
+                const col = parseInt(this.dataset.col);
+                insertTable(row, col);
+                toggleDropdown('table-dd');
+            });
+            grid.appendChild(cell);
         }
     }
 }
 
-// 3. Funcție pentru culoarea roșie la 16px
-function updateFontIndicator(size) {
-    const indicator = document.getElementById('font-indicator');
-    if (!indicator) return;
-    
-    const roundedSize = Math.round(size);
-    indicator.innerText = roundedSize + "px";
-    
-    if (roundedSize === DEFAULT_FONT_SIZE) {
-        indicator.style.color = "red";
-    } else {
-        indicator.style.color = "#0056b3";
-    }
-}
-
-// 4. Spațiere Sus/Jos (Margini)
-function adjustPadding(marginProp, amount) {
-    const selection = window.getSelection();
-    if (selection.rangeCount > 0) {
-        let el = selection.anchorNode.parentElement;
-        let target = el.closest('p, .articol-rand, li, .doc-titlu, .doc-subtitlu');
-        
-        if (target) {
-            let currentMargin = parseInt(window.getComputedStyle(target)[marginProp]) || 0;
-            let newMargin = currentMargin + amount;
-            target.style[marginProp] = (newMargin < 0 ? 0 : newMargin) + 'px';
-            triggerAutoSave();
+function insertTable(rows, cols) {
+    let html = '<table style="border-collapse:collapse;width:100%;margin:8px 0;">';
+    for (let r = 0; r < rows; r++) {
+        html += '<tr>';
+        for (let c = 0; c < cols; c++) {
+            html += `<td style="border:1px solid #333;padding:4px 8px;min-width:40px;height:24px;font-family:\'Times New Roman\',serif;font-size:1rem;"> </td>`;
         }
+        html += '</tr>';
     }
+    html += '</table><p><br></p>';
+    document.execCommand('insertHTML', false, html);
+    triggerAutoSave();
 }
 
-// 5. Sincronizare indicator la click
-document.addEventListener('click', function(e) {
-    const target = e.target.closest('[contenteditable="true"], .art-input');
-    if (target) {
-        let size = parseFloat(window.getComputedStyle(target).fontSize);
-        updateFontIndicator(size);
-    }
-});
 
-// --- LOGICA DE AFIȘARE BARA LATERALĂ ---
-// Re-declarăm funcțiile globale pentru a evita conflictele
+
+// --- LOGICA DE AFIȘARE BARA ---
 const originalOpenA4 = openA4;
 
 openA4 = async function(id, nr, data, descriere, tipRegistru) {
     await originalOpenA4(id, nr, data, descriere, tipRegistru);
-    document.getElementById('edit-sidebar').style.display = 'flex';
-    updateFontIndicator(DEFAULT_FONT_SIZE);
+    document.getElementById('edit-toolbar').style.display = 'block';
 };
 
 const originalCloseA4 = closeA4;
 closeA4 = function() {
     originalCloseA4();
-    document.getElementById('edit-sidebar').style.display = 'none';
+    document.getElementById('edit-toolbar').style.display = 'none';
 };
+
+// (openA4/closeA4 redefinite mai sus în blocul TOOLBAR WORD-LIKE)
 
 function resetDocumentComplet() {
     if (!confirm("Sigur vrei să resetezi tot documentul? Vei pierde textul scris și formatările.")) return;
 
-    // 1. Resetăm textele din antet
-    document.getElementById('doc-tip-document').innerText = "HOTĂRÂREA";
-    document.getElementById('doc-descriere-titlu').innerText = "";
-    document.getElementById('doc-data-sedinta').innerText = document.getElementById('doc-data').innerText;
-    document.getElementById('doc-titlu-decide').innerText = "CONSILIUL DE ADMINISTRAȚIE HOTĂRĂȘTE:";
+    const tip = currentTipRegistru;
+    const nr = document.getElementById('doc-nr')?.innerText.trim() || '';
+    const data = document.getElementById('doc-data')?.innerText.trim() || '';
+    const descriere = document.getElementById('doc-descriere-titlu')?.innerText.trim() || '';
+    const docContainer = document.getElementById('document-continut');
 
-    // 2. Resetăm Temeiul Legal (Legile) - Textul complet
-    document.getElementById('lista-legi-1').innerHTML = `
-        <li>Legii Educației Naționale nr. 198/2023, cu modificările și completările ulterioare;</li>
-        <li>Metodologiei-cadru de organizare și funcționare a consiliului de administrație din unitățile de învățământ preuniversitar aprobată prin OME nr.6223 din 04.09.2023;</li>
-        <li>Ordinului ministrului educației nr. 5.726/2024 privind aprobarea Regulamentului-cadru de organizare și funcționare a unităților de învățământ preuniversitar;</li>
-        <li>Ordinului nr. 6000/2021 privind aprobarea Mecanismului de Avertizare Timpurie în Educaţie (MATE) şi a Metodologiei de implementare şi utilizare a modulului informatic MATE pentru prevenirea abandonului şcolar şi a părăsirii timpurii a şcolii, Publicat în Monitorul Oficial nr. 1252 din 30 decembrie 2021;</li>
-        <li>Regulamentului (UE) 2016/679 al Parlamentului European și al Consiliului din 27 aprilie 2016 privind protecția persoanelor fizice în ceea ce privește prelucrarea datelor cu caracter personal și libera circulație a acestora.</li>
-    `;
-    document.getElementById('lista-legi-2').innerHTML = `
-        <li>Decizia nr. 49/17.09.2024 privind stabilirea componenței Consiliului de Administrație al Liceului Tehnologic ”Victor Mihăilescu Craiu” Belcești, județul Iași, pentru anul școlar 2024 - 2025;</li>
-        <li>Ședința Consiliului de Administrație al Liceului Tehnologic “Victor Mihăilescu Craiu” Belcești, reunit în data de <strong><span id="doc-data-sedinta" contenteditable="true" oninput="triggerAutoSave()"></span></strong>;</li>
-    `;
-
-    // 3. Resetăm Semnăturile la valorile implicite
-    document.getElementById('sig-titlu-1').innerText = "Întocmit,";
-    document.getElementById('sig-functie-1').innerText = "Secretar Consiliu de Administrație";
-    document.getElementById('sig-nume-1').innerText = "prof. Mihaela MIHĂILĂ";
-    document.getElementById('sig-titlu-2').innerText = "Președinte Consiliu de Administrație,";
-    document.getElementById('sig-functie-2').innerText = "Director,";
-    document.getElementById('sig-nume-2').innerText = "prof. Cătălin Ionuț BAZILUC";
-
-    // 4. Resetăm articolele
-    document.getElementById('articole-container').innerHTML = '';
-    articoleCount = 0;
-    adaugaArticol("");
-
-    // 5. Resetăm stilurile vizuale (opțional, dar recomandat)
-    const allEditable = document.querySelectorAll('[contenteditable="true"]');
-    allEditable.forEach(el => {
-        el.style.fontSize = "16px";
-        el.style.marginTop = "";
-        el.style.marginBottom = "";
-    });
+    if (tip === '1_HOTARARE') {
+        docContainer.innerHTML = getTemplateHotarare(nr, data, descriere);
+        articoleCount = 0;
+        adaugaArticol("");
+    } else if (tip === '1_DECIZIE') {
+        docContainer.innerHTML = getTemplateDecizie(nr, data, descriere);
+        articoleCount = 0;
+        adaugaArticol("");
+    } else if (tip === '1_PROCES_VERBAL') {
+        docContainer.innerHTML = getTemplatePV(nr, data, descriere);
+    } else if (tip === '1_ALT') {
+        docContainer.innerHTML = getTemplateAlt(nr, data, descriere, '');
+    }
 
     updateFontIndicator(DEFAULT_FONT_SIZE);
     triggerAutoSave();
@@ -856,22 +1861,22 @@ async function deschideRegistruMaster() {
         <html lang="ro">
         <head>
             <meta charset="UTF-8">
-            <title>Registru General 25 Poziții</title>
+            <title>Registru de Evidență</title>
             <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
             <style>
                 @page { size: A4; margin: 0; }
                 body { margin: 0; padding: 0; background: #525659; font-family: 'Inter', sans-serif; }
                 
                 .page { 
-                    width: 210mm; height: 297mm; 
+                    width: 210mm; min-height: 297mm; 
                     padding: 10mm 15mm; margin: 10mm auto; 
                     background: white; box-sizing: border-box; 
                     page-break-after: always; overflow: hidden;
                     display: flex; flex-direction: column; position: relative;
                 }
 
-                /* PAGINA 1: COPERTA (REPRODUCERE IDENTICĂ) */
                 .page-coperta { 
+                    height: 297mm;
                     border: 2px solid #1e40af; 
                     background: linear-gradient(135deg, #f0f7ff 0%, #ffffff 100%); 
                     justify-content: center; align-items: center; text-align: center;
@@ -882,30 +1887,37 @@ async function deschideRegistruMaster() {
                 .subtitlu-registru { font-size: 24pt; font-weight: 700; color: #334155; text-transform: uppercase; line-height: 1.2; }
                 .footer-coperta { margin-top: auto; font-size: 14pt; font-weight: 600; color: #475569; border-top: 2px solid #e2e8f0; padding-top: 30px; width: 80%; margin-bottom: 20mm; }
 
-                /* PAGINA 2: TABELUL (MAXIM 25 RÂNDURI PENTRU A4) */
-                .header-tabel { text-align: center; text-transform: uppercase; font-weight: 800; margin-bottom: 10px; color: #1e40af; font-size: 14pt; }
+                .page-tabele { height: auto; min-height: 297mm; }
+
+                .section-reg { margin-bottom: 30px; }
+                .section-reg-title { text-align: center; text-transform: uppercase; font-weight: 800; margin-bottom: 8px; font-size: 13pt; padding: 6px 0; border-radius: 4px; }
+                .section-reg-title.s-hotarare { color: #1e40af; background: #eff6ff; }
+                .section-reg-title.s-decizie { color: #92400e; background: #fef3c7; }
+                .section-reg-title.s-pv { color: #065f46; background: #ecfdf5; }
+                .section-reg-title.s-alt { color: #6b21a8; background: #f3e8ff; }
+
                 table { width: 100%; border-collapse: collapse; border: 1.5px solid black; table-layout: fixed; }
                 th, td { border: 1px solid black; padding: 0 5px; font-size: 10pt; }
                 th { background: #f1f5f9; text-transform: uppercase; font-size: 8pt; text-align: center; height: 25px; }
                 .col-nr { width: 35px; text-align: center; font-weight: bold; background: #f8fafc; }
                 .col-data { width: 95px; text-align: center; }
-                .col-tip { width: 110px; text-align: center; }
                 td { height: 9.4mm; overflow: hidden; }
 
-                /* PAGINA 3: PROCES VERBAL (IDENTIC DIN SURSĂ) */
                 .pv-outer { border: 2px solid #1e40af; padding: 25mm 20mm; flex-grow: 1; background: #fcfdfe; display: flex; flex-direction: column; }
                 .pv-titlu { text-align: center; color: #1e40af; font-weight: 900; font-size: 22pt; text-decoration: underline; margin-bottom: 40px; text-transform: uppercase; }
-                .pv-text { font-size: 13pt; line-height: 1.8; text-align: justify; margin-bottom: 25px; }
                 .semnaturi { display: flex; justify-content: space-between; margin-top: auto; text-align: center; padding-bottom: 30px; }
                 .semn-box { width: 45%; font-size: 11pt; }
 
                 .no-print { position: fixed; top: 15px; right: 15px; z-index: 9999; }
                 .btn-p { padding: 12px 25px; cursor: pointer; font-weight: bold; background: #1e40af; color: white; border: none; border-radius: 6px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+                .empty-section { text-align: center; font-style: italic; color: #999; padding: 10px 0; font-size: 10pt; }
 
                 @media print {
                     body { background: none; }
-                    .page { margin: 0; box-shadow: none; border: none; width: 210mm; height: 297mm; }
-                    .page-coperta, .pv-outer { border: 2px solid #1e40af !important; -webkit-print-color-adjust: exact; }
+                    .page { margin: 0; box-shadow: none; border: none; width: 210mm; }
+                    .page-coperta, .pv-outer { border: 2px solid #1e40af !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+                    .section-reg-title { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+                    th { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
                     .no-print { display: none !important; }
                 }
             </style>
@@ -920,39 +1932,57 @@ async function deschideRegistruMaster() {
                 <div class="titlu-container">
                     <div class="titlu-registru">REGISTRU</div>
                     <div class="linie-decor"></div>
-                    <div class="subtitlu-registru">DE EVIDENȚĂ A<br>HOTĂRÂRILOR ȘI DECIZIILOR</div>
+                    <div class="subtitlu-registru">DE EVIDENȚĂ A<br>HOTĂRÂRILOR, DECIZIILOR,<br>PROCESELOR-VERBALE<br>ȘI A ALTOR DOCUMENTE</div>
                 </div>
                 <div class="footer-coperta">
-                    LICEUL TEHNOLOGIC ”VICTOR MIHĂILESCU CRAIU” BELCEȘTI<br>
+                    LICEUL TEHNOLOGIC "VICTOR MIHĂILESCU CRAIU" BELCEȘTI<br>
                     JUDEȚUL IAȘI
                 </div>
             </div>
 
-            <div class="page">
-                <div class="header-tabel">EVIDENȚA CRONOLOGICĂ A DOCUMENTELOR</div>
-                <table>
-                    <thead>
-                        <tr>
-                            <th class="col-nr">Nr.</th>
-                            <th class="col-data">Data emiterii</th>
-                            <th class="col-tip">Tip Document</th>
-                            <th>Conținut Document (Obiectul înregistrării)</th>
-                        </tr>
-                    </thead>
-                    <tbody id="reg-body"></tbody>
-                </table>
+            <div class="page page-tabele">
+                <div class="section-reg" id="sec-hotarari">
+                    <div class="section-reg-title s-hotarare">📋 Hotărâri</div>
+                    <table><thead><tr>
+                        <th class="col-nr">Nr.</th>
+                        <th class="col-data">Data emiterii</th>
+                        <th>Conținut Document (Obiectul înregistrării)</th>
+                    </tr></thead><tbody id="reg-hotarari"></tbody></table>
+                </div>
+
+                <div class="section-reg" id="sec-decizii">
+                    <div class="section-reg-title s-decizie">📝 Decizii</div>
+                    <table><thead><tr>
+                        <th class="col-nr">Nr.</th>
+                        <th class="col-data">Data emiterii</th>
+                        <th>Conținut Document (Obiectul înregistrării)</th>
+                    </tr></thead><tbody id="reg-decizii"></tbody></table>
+                </div>
+
+                <div class="section-reg" id="sec-pv">
+                    <div class="section-reg-title s-pv">📄 Procese-verbale</div>
+                    <table><thead><tr>
+                        <th class="col-nr">Nr.</th>
+                        <th class="col-data">Data emiterii</th>
+                        <th>Conținut Document (Obiectul înregistrării)</th>
+                    </tr></thead><tbody id="reg-pv"></tbody></table>
+                </div>
+
+                <div class="section-reg" id="sec-alte">
+                    <div class="section-reg-title s-alt">📁 Alte documente</div>
+                    <table><thead><tr>
+                        <th class="col-nr">Nr.</th>
+                        <th class="col-data">Data emiterii</th>
+                        <th>Conținut Document (Obiectul înregistrării)</th>
+                    </tr></thead><tbody id="reg-alte"></tbody></table>
+                </div>
             </div>
 
             <div class="page">
                 <div class="pv-outer">
                     <h2 class="pv-titlu">PROCES-VERBAL</h2>
-                    <p class="pv-text">
-                        Prezentul registru de evidență a Hotărârilor și Deciziilor conține un număr de <strong>25 (douăzeci și cinci) de poziții</strong> numerotate cronologic.
-                    </p>
-                    <p class="pv-text">
-                        La data generării, în registru sunt înscrise un număr de <strong id="total-doc">...</strong> documente oficiale. 
-                        Numerotarea și integritatea documentelor au fost verificate conform procedurilor Liceului Tehnologic ”Victor Mihăilescu Craiu” Belcești.
-                    </p>
+                    <p class="pv-text" id="pv-paragraph-1"></p>
+                    <p class="pv-text" id="pv-paragraph-2"></p>
                     <div class="semnaturi">
                         <div class="semn-box">
                             <strong>DIRECTOR,</strong><br>prof. Cătălin Ionuț BAZILUC<br><br><br>_________________
@@ -970,60 +2000,374 @@ async function deschideRegistruMaster() {
     try {
         const { data: documente } = await supabaseClient
             .from('numere_inregistrare')
-            .select('*'); // Luăm tot pentru a nu bloca funcțiile de deschidere
+            .select('*')
+            .like('tip_registru', '1_%')
+            .order('nr_d', { ascending: true });
 
-        const docMap = {};
-        let countReal = 0;
+        const hotarari = [], decizii = [], pvuri = [], alte = [];
 
         if (documente) {
-            documente.forEach(d => { 
-                // Detectăm numărul curat pentru plasarea în tabel, dar păstrăm restul datelor intacte
-                const nrString = String(d.nr_c || "");
-                const nrCurat = parseInt(nrString.replace(/[^0-9]/g, ''));
-                const esteTipValid = (typeof d.tip_registru === 'string' && d.tip_registru.startsWith('1_'));
-                
-                if (nrCurat >= 1 && nrCurat <= 25 && esteTipValid) {
-                    docMap[nrCurat] = d;
-                    countReal++;
-                }
+            documente.forEach(d => {
+                if (d.tip_registru === '1_HOTARARE') hotarari.push(d);
+                else if (d.tip_registru === '1_DECIZIE') decizii.push(d);
+                else if (d.tip_registru === '1_PROCES_VERBAL') pvuri.push(d);
+                else if (d.tip_registru && d.tip_registru.startsWith('1_')) alte.push(d);
             });
         }
 
-        const tbody = regWin.document.getElementById('reg-body');
-        regWin.document.getElementById('total-doc').innerText = countReal;
-
-        for (let i = 1; i <= 25; i++) {
-            const doc = docMap[i];
-            const tr = regWin.document.createElement('tr');
-            if (doc) {
-                let tip = 'DOCUMENT';
-
-if (doc.tip_registru === '1_HOTARARE') tip = 'HOTĂRÂRE';
-else if (doc.tip_registru === '1_DECIZIE') tip = 'DECIZIE';
-else if (doc.tip_registru === '1_PROCES_VERBAL') tip = 'PROCES-VERBAL';
-else if (doc.tip_registru === '1_ALT') {
-    try {
-        const dd = doc.document_data ? JSON.parse(doc.document_data) : null;
-        tip = (dd?.altTip || dd?.tipDoc || 'ALT DOCUMENT').toUpperCase();
-    } catch {
-        tip = 'ALT DOCUMENT';
-    }
-}
-                tr.innerHTML = `
-                    <td class="col-nr">${i}</td>
-                    <td class="col-data">${doc.nr_d || ''}</td>
-                    <td class="col-tip"><strong>${tip}</strong></td>
-                    <td style="font-size: 9pt;">${doc.nr_inreg || ''}</td>
-                `;
-            } else {
-                // Rând gol FĂRĂ TEXT conform cerinței
-                tr.innerHTML = `<td class="col-nr">${i}</td><td></td><td></td><td></td>`;
+        function populateTabel(tbodyId, lista) {
+            const tbody = regWin.document.getElementById(tbodyId);
+            if (!lista.length) {
+                const tr = regWin.document.createElement('tr');
+                tr.innerHTML = '<td colspan="3" class="empty-section">Niciun document</td>';
+                tbody.appendChild(tr);
+                return;
             }
-            tbody.appendChild(tr);
+            lista.forEach((doc, idx) => {
+                const tr = regWin.document.createElement('tr');
+                tr.innerHTML = 
+                    '<td class="col-nr">' + (idx + 1) + '</td>' +
+                    '<td class="col-data">' + (doc.nr_d || '') + '</td>' +
+                    '<td style="font-size: 9pt;">' + (doc.nr_inreg || '') + '</td>';
+                tbody.appendChild(tr);
+            });
         }
+
+        populateTabel('reg-hotarari', hotarari);
+        populateTabel('reg-decizii', decizii);
+        populateTabel('reg-pv', pvuri);
+        populateTabel('reg-alte', alte);
+
+        const totalAll = hotarari.length + decizii.length + pvuri.length + alte.length;
+
+        regWin.document.getElementById('pv-paragraph-1').innerHTML = 
+            'Prezentul registru de evidență a Hotărârilor, Deciziilor, Proceselor-verbale și a altor documente, conține un număr de ' +
+            '<strong>' + hotarari.length + '</strong> poziții pentru Hotărâri, ' +
+            '<strong>' + decizii.length + '</strong> poziții pentru Decizii, ' +
+            '<strong>' + pvuri.length + '</strong> poziții pentru Procese-verbale, ' +
+            '<strong>' + alte.length + '</strong> poziții pentru Alte documente, numerotate cronologic.';
+
+        regWin.document.getElementById('pv-paragraph-2').innerHTML = 
+            'La data generării, în registru sunt înscrise un număr de <strong>' + totalAll + '</strong> documente oficiale. ' +
+            'Numerotarea și integritatea documentelor au fost verificate conform procedurilor Liceului Tehnologic "Victor Mihăilescu Craiu" Belcești.';
+
     } catch (err) { console.error(err); }
 }
-    </script>
+    
+
+// ===== WORD RULER =====
+(function() {
+    // Dimensiuni pagina A4 in pixeli la 96dpi
+    // 210mm = 793.7px, 1.5cm = 56.69px
+    const PAGE_WIDTH_MM = 210;
+    const MARGIN_MM = 15; // 1.5cm
+    const TEXT_WIDTH_MM = PAGE_WIDTH_MM - 2 * MARGIN_MM; // 180mm
+
+    // Starea ruler-ului (in mm relativ la text area)
+    let state = {
+        firstLine: 0,   // indent prima linie (mm)
+        leftIndent: 0,  // indent stanga (mm)
+        rightIndent: 0  // indent dreapta (mm, pozitiv = spre stanga)
+    };
+
+    let rulerEl, textAreaEl, marginLeft, marginRight;
+    let markerFirstLine, markerLeft, markerRight;
+    let tooltip;
+    let dragging = null;
+    let dragStartX = 0;
+    let dragStartVal = 0;
+    let pixelsPerMm = 0;
+    let savedBlock = null; // blocul activ salvat cand se deschide popup-ul
+
+    function mmToPx(mm) { return mm * pixelsPerMm; }
+    function pxToMm(px) { return px / pixelsPerMm; }
+
+    function initRuler() {
+        rulerEl       = document.getElementById('word-ruler');
+        textAreaEl    = document.getElementById('ruler-text-area');
+        marginLeft    = document.getElementById('ruler-margin-left');
+        marginRight   = document.getElementById('ruler-margin-right');
+        markerFirstLine = document.getElementById('marker-first-line');
+        markerLeft    = document.getElementById('marker-left-indent');
+        markerRight   = document.getElementById('marker-right-indent');
+
+        tooltip = document.createElement('div');
+        tooltip.className = 'ruler-tooltip';
+        tooltip.id = 'ruler-tooltip';
+        document.body.appendChild(tooltip);
+
+        computeScale();
+        buildTicks();
+        positionMarkers();
+        setupDrag();
+        setupDblClick();
+    }
+
+    function computeScale() {
+        // Calculam pixelsPerMm din dimensiunea reala a paginii A4 in DOM
+        const a4 = document.getElementById('document-continut');
+        if (!a4) return;
+        const rect = a4.getBoundingClientRect();
+        pixelsPerMm = rect.width / PAGE_WIDTH_MM;
+
+        const marginPx  = mmToPx(MARGIN_MM);
+        const textPx    = mmToPx(TEXT_WIDTH_MM);
+        const rulerWidth = mmToPx(PAGE_WIDTH_MM);
+
+        rulerEl.style.width = rulerWidth + 'px';
+        marginLeft.style.width  = marginPx + 'px';
+        marginRight.style.width = marginPx + 'px';
+        marginRight.style.right = '0';
+        textAreaEl.style.left  = marginPx + 'px';
+        textAreaEl.style.width = textPx + 'px';
+    }
+
+    function buildTicks() {
+        const ticks = document.getElementById('ruler-ticks');
+        ticks.innerHTML = '';
+        const textPx = mmToPx(TEXT_WIDTH_MM);
+        // Tick-uri la fiecare 5mm, label la fiecare 10mm
+        for (let mm = 0; mm <= TEXT_WIDTH_MM; mm += 5) {
+            const px = mmToPx(mm);
+            const isMajor = (mm % 10 === 0);
+            const isMid   = (mm % 5 === 0 && !isMajor);
+
+            const tick = document.createElement('div');
+            tick.className = 'ruler-tick';
+            tick.style.left   = px + 'px';
+            tick.style.height = isMajor ? '10px' : '6px';
+            ticks.appendChild(tick);
+
+            if (isMajor && mm > 0 && mm < TEXT_WIDTH_MM) {
+                const lbl = document.createElement('div');
+                lbl.className = 'ruler-tick-label';
+                lbl.style.left = px + 'px';
+                lbl.textContent = mm;
+                ticks.appendChild(lbl);
+            }
+        }
+    }
+
+    function positionMarkers() {
+        const textPx = mmToPx(TEXT_WIDTH_MM);
+        // First-line: relativ la textArea, offset = leftIndent + firstLine
+        const flPx = mmToPx(state.leftIndent + state.firstLine);
+        markerFirstLine.style.left = flPx + 'px';
+
+        // Left indent: relativ la textArea, offset = leftIndent
+        const liPx = mmToPx(state.leftIndent);
+        markerLeft.style.left = liPx + 'px';
+
+        // Right indent: de la dreapta textArea
+        const riPx = textPx - mmToPx(state.rightIndent);
+        markerRight.style.left = riPx + 'px';
+    }
+
+    function applyToDocument() {
+        const target = savedBlock
+            || getBlockElement(window.getSelection()?.anchorNode)
+            || getBlockElement(document.activeElement);
+        if (!target || target.id === 'document-continut') return;
+
+        const li = state.leftIndent.toFixed(1);
+        const ri = state.rightIndent.toFixed(1);
+        const fi = state.firstLine.toFixed(1);
+
+        target.style.paddingLeft  = li + 'mm';
+        target.style.paddingRight = ri + 'mm';
+        target.style.textIndent   = fi + 'mm';
+        triggerAutoSave();
+    }
+
+    function setupDrag() {
+        function startDrag(marker, e) {
+            e.preventDefault();
+            dragging = marker;
+            dragStartX = e.clientX;
+            if (marker === 'firstLine')   dragStartVal = state.firstLine;
+            if (marker === 'leftIndent')  dragStartVal = state.leftIndent;
+            if (marker === 'rightIndent') dragStartVal = state.rightIndent;
+            tooltip.style.display = 'block';
+        }
+
+        markerFirstLine.addEventListener('mousedown', e => startDrag('firstLine', e));
+        markerLeft.addEventListener('mousedown', e => startDrag('leftIndent', e));
+        markerRight.addEventListener('mousedown', e => startDrag('rightIndent', e));
+
+        document.addEventListener('mousemove', e => {
+            if (!dragging) return;
+            const delta = pxToMm(e.clientX - dragStartX);
+            const textW = TEXT_WIDTH_MM;
+
+            if (dragging === 'firstLine') {
+                state.firstLine = Math.max(-state.leftIndent, Math.min(textW - state.leftIndent - state.rightIndent, dragStartVal + delta));
+                tooltip.textContent = 'Prima linie: ' + (state.leftIndent + state.firstLine).toFixed(1) + ' mm';
+            } else if (dragging === 'leftIndent') {
+                state.leftIndent = Math.max(0, Math.min(textW - state.rightIndent - 5, dragStartVal + delta));
+                tooltip.textContent = 'Stânga: ' + state.leftIndent.toFixed(1) + ' mm';
+            } else if (dragging === 'rightIndent') {
+                state.rightIndent = Math.max(0, Math.min(textW - state.leftIndent - 5, dragStartVal - delta));
+                tooltip.textContent = 'Dreapta: ' + state.rightIndent.toFixed(1) + ' mm';
+            }
+
+            positionMarkers();
+            tooltip.style.left = (e.clientX + 10) + 'px';
+            tooltip.style.top  = (e.clientY - 28) + 'px';
+        });
+
+        document.addEventListener('mouseup', () => {
+            if (!dragging) return;
+            applyToDocument();
+            dragging = null;
+            tooltip.style.display = 'none';
+        });
+    }
+
+    function setupDblClick() {
+        // Salvam blocul activ la mousedown (inainte ca focusul sa se piarda)
+        textAreaEl.addEventListener('mousedown', function(e) {
+            const sel = window.getSelection();
+            if (sel && sel.rangeCount > 0) {
+                const b = getBlockElement(sel.anchorNode);
+                if (b) savedBlock = b;
+            }
+            if (!savedBlock) {
+                savedBlock = getBlockElement(document.activeElement);
+            }
+        });
+        textAreaEl.addEventListener('dblclick', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            showRulerPopup(e.clientX, e.clientY);
+        });
+    }
+
+    function showRulerPopup(x, y) {
+        // Inchidem orice popup existent
+        closeRulerPopup();
+
+        const overlay = document.createElement('div');
+        overlay.className = 'ruler-popup-overlay';
+        overlay.id = 'ruler-popup-overlay';
+
+        const popup = document.createElement('div');
+        popup.className = 'ruler-popup';
+        popup.id = 'ruler-popup';
+
+        // Pozitie: apare sub locul de dublu-click
+        popup.style.left = Math.min(x, window.innerWidth - 260) + 'px';
+        popup.style.top  = (y + 10) + 'px';
+
+        popup.innerHTML = `
+            <h4>📐 Aliniere paragraf</h4>
+            <div class="ruler-popup-row">
+                <label>Rând 1 (prima linie):</label>
+                <input type="number" id="rp-firstline" value="${(state.leftIndent + state.firstLine).toFixed(1)}" step="0.5" min="-50" max="180">
+                <span>mm</span>
+            </div>
+            <div class="ruler-popup-row">
+                <label>Rândul 2+ (stânga):</label>
+                <input type="number" id="rp-leftindent" value="${state.leftIndent.toFixed(1)}" step="0.5" min="0" max="180">
+                <span>mm</span>
+            </div>
+            <div class="ruler-popup-row">
+                <label>Indent dreapta:</label>
+                <input type="number" id="rp-rightindent" value="${state.rightIndent.toFixed(1)}" step="0.5" min="0" max="180">
+                <span>mm</span>
+            </div>
+            <div class="ruler-popup-actions">
+                <button class="ruler-popup-btn ruler-popup-btn-cancel" id="rp-cancel">Anulează</button>
+                <button class="ruler-popup-btn ruler-popup-btn-ok" id="rp-ok">Aplică</button>
+            </div>
+        `;
+
+        document.body.appendChild(overlay);
+        document.body.appendChild(popup);
+
+        // Focus pe primul input
+        setTimeout(() => popup.querySelector('#rp-firstline').select(), 50);
+
+        // Buton OK
+        popup.querySelector('#rp-ok').addEventListener('click', () => {
+            const fl  = parseFloat(popup.querySelector('#rp-firstline').value)  || 0;
+            const li  = parseFloat(popup.querySelector('#rp-leftindent').value)  || 0;
+            const ri  = parseFloat(popup.querySelector('#rp-rightindent').value) || 0;
+
+            state.leftIndent  = Math.max(0, li);
+            state.rightIndent = Math.max(0, ri);
+            state.firstLine   = fl - state.leftIndent; // firstLine e relativ la leftIndent
+
+            positionMarkers();
+            applyToDocument();
+            closeRulerPopup();
+        });
+
+        // Buton Anulează + click pe overlay
+        popup.querySelector('#rp-cancel').addEventListener('click', closeRulerPopup);
+        overlay.addEventListener('click', closeRulerPopup);
+
+        // Enter = OK, Escape = Cancel
+        popup.addEventListener('keydown', e => {
+            if (e.key === 'Enter')  { e.preventDefault(); popup.querySelector('#rp-ok').click(); }
+            if (e.key === 'Escape') closeRulerPopup();
+        });
+    }
+
+    function closeRulerPopup() {
+        const ov = document.getElementById('ruler-popup-overlay');
+        const pp = document.getElementById('ruler-popup');
+        if (ov) ov.remove();
+        if (pp) pp.remove();
+    }
+
+    // Actualizam ruler cand se schimba selectia
+    function syncRulerFromBlock(block) {
+        if (!block || block.id === 'document-continut') return;
+        const cs = window.getComputedStyle(block);
+        const pl = parseFloat(cs.paddingLeft)  || 0;
+        const pr = parseFloat(cs.paddingRight) || 0;
+        const ti = parseFloat(cs.textIndent)   || 0;
+        // Convertim px -> mm
+        state.leftIndent  = pxToMm(pl);
+        state.rightIndent = pxToMm(pr);
+        state.firstLine   = pxToMm(ti);
+        positionMarkers();
+    }
+
+    document.addEventListener('selectionchange', () => {
+        const sel = window.getSelection();
+        if (!sel || !sel.rangeCount) return;
+        const block = getBlockElement(sel.anchorNode);
+        if (block) syncRulerFromBlock(block);
+    });
+
+    // Expune initRuler global
+    window.initWordRuler = initRuler;
+    window.resizeWordRuler = computeScale;
+})();
+
+// Afisam ruler cand deschidem A4
+const _origOpenA4ruler = openA4;
+openA4 = async function(...args) {
+    await _origOpenA4ruler(...args);
+    const ruler = document.getElementById('word-ruler');
+    if (ruler) {
+        ruler.style.display = 'flex';
+        setTimeout(initWordRuler, 50); // dupa render
+    }
+};
+const _origCloseA4ruler = closeA4;
+closeA4 = function() {
+    _origCloseA4ruler();
+    const ruler = document.getElementById('word-ruler');
+    if (ruler) ruler.style.display = 'none';
+};
+
+window.addEventListener('resize', () => {
+    if (typeof resizeWordRuler === 'function') resizeWordRuler();
+});
+
+</script>
 </body>
 
 </html>
