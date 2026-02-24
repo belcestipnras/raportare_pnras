@@ -79,6 +79,8 @@
         .btn-file { background: #0d9488; }
         .btn-delete { background: #dc2626; }
         .btn-history { background: #6b7280; }
+        .btn-notite { background: #f59e0b; }
+        .btn-notite:hover { background: #d97706; }
         .btn-dosar { background: #7c3aed; }
 
         /* ===== FIȘIERE / FOLDERE ===== */
@@ -105,8 +107,6 @@
         .btn-del:hover { background: #b91c1c; }
         .btn-restore { background: #0d9488; }
         .btn-restore:hover { background: #0a7c72; }
-        .btn-rename { background: #f59e0b; }
-        .btn-rename:hover { background: #d97706; }
 
         /* ===== CONTRACTE ===== */
         .an-header {
@@ -137,6 +137,19 @@
             padding: 2px 4px; border-radius: 6px; transition: all 0.2s; flex-shrink: 0;
         }
         .btn-lacat:hover { background: #f0f0f0; transform: scale(1.1); }
+
+        /* ===== NOTIȚE ===== */
+        .notite-box { background: #fffbeb; border: 1px solid #fde68a; border-radius: 10px; padding: 14px 16px; margin-bottom: 16px; }
+        .notite-box-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+        .notite-box-label { font-size: 12px; font-weight: 700; color: #92400e; }
+        .notite-box-close { background: none; border: none; cursor: pointer; font-size: 16px; color: #aaa; padding: 0; line-height: 1; }
+        .notite-box-close:hover { color: #dc2626; }
+        .notite-ta { width: 100%; min-height: 80px; font-family: 'Inter', sans-serif; font-size: 13px; color: #333; border: 1px solid #fcd34d; border-radius: 6px; padding: 8px 10px; resize: vertical; background: #fff; transition: border-color 0.2s; line-height: 1.5; box-sizing: border-box; }
+        .notite-ta:focus { outline: none; border-color: #f59e0b; }
+        .notite-ta::placeholder { color: #d1d5db; font-style: italic; }
+        .notite-status { font-size: 11px; color: #aaa; text-align: right; min-height: 16px; margin-top: 4px; }
+        .notite-status.salvat { color: #0d9488; }
+        .notite-status.eroare { color: #dc2626; }
 
         /* ===== CHECKLIST ===== */
         .checklist { margin-top: 10px; }
@@ -187,6 +200,22 @@
         .empty { text-align: center; padding: 40px; color: #bbb; }
 
         #file-input-audit { display: none; }
+
+        /* ===== TOAST ===== */
+        .toast {
+            position: fixed; bottom: 24px; right: 24px;
+            background: #1a1a2e; color: #fff;
+            padding: 12px 20px; border-radius: 10px;
+            font-size: 13px; font-weight: 600;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+            display: flex; align-items: center; gap: 10px;
+            z-index: 9999; opacity: 0; transform: translateY(10px);
+            transition: opacity 0.25s, transform 0.25s;
+            pointer-events: none;
+        }
+        .toast.show { opacity: 1; transform: translateY(0); }
+        .toast.success { border-left: 4px solid #0d9488; }
+        .toast.error { border-left: 4px solid #dc2626; }
     </style>
 </head>
 <body>
@@ -213,8 +242,18 @@
     const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
     // ===================== STATE =====================
+    function salveazaState() {
+        try { sessionStorage.setItem('auditNav', JSON.stringify({ stack: navigationStack, view: currentView })); } catch(e) {}
+    }
+    function restaureazaState() {
+        try {
+            const s = sessionStorage.getItem('auditNav');
+            if (s) { const d = JSON.parse(s); navigationStack = d.stack || []; currentView = d.view || { type: 'root' }; }
+        } catch(e) {}
+    }
     let navigationStack = [];
     let currentView = { type: 'root' };
+    restaureazaState();
     let uploadTargetCardId = null;
     let uploadTargetParentId = null;
     let arataBlocate = false;
@@ -289,6 +328,7 @@
             navigationStack = navigationStack.slice(0, index);
             currentView = navigationStack[navigationStack.length - 1];
         }
+        salveazaState();
         actualizeazaBreadcrumb();
         incarcaVizualizare();
     }
@@ -296,6 +336,7 @@
     function pushNav(item) {
         navigationStack.push(item);
         currentView = item;
+        salveazaState();
         actualizeazaBreadcrumb();
         incarcaVizualizare();
     }
@@ -620,7 +661,6 @@
     // ===================== FOLDER GENERIC =====================
     async function afiseazaFolder(cardId, parentId) {
         const cont = document.getElementById('continut');
-        // Normalizează parentId — poate veni ca string 'null' din onclick HTML
         if (parentId === 'null' || parentId === null || parentId === undefined) parentId = null;
 
         let query = db.from('audit_continut').select('*')
@@ -632,44 +672,137 @@
 
         const { data: items } = await query;
 
+        // Căutăm notița curentă (tip='notita') pentru acest folder
+        let notitaItem = null;
+        if (items) notitaItem = items.find(i => i.tip === 'notita');
+        const notiteCurente = notitaItem ? (notitaItem.titlu || '') : '';
+        const areNotite = notiteCurente.trim().length > 0;
+        const itemsFiltrate = items ? items.filter(i => i.tip !== 'notita') : [];
+
         const parentArg = parentId ? "'" + parentId + "'" : 'null';
+        const notitaIdArg = notitaItem ? "'" + notitaItem.id + "'" : 'null';
+
         let html = '<div class="actions-bar">' +
             '<button class="btn-action btn-folder" onclick="adaugaSubfolder(\'' + cardId + '\', ' + parentArg + ')">&#128193; Adaugă subfolder</button>' +
             '<button class="btn-action btn-file" onclick="adaugaFisier(\'' + cardId + '\', ' + parentArg + ')">&#128196; Adaugă fișier</button>' +
             '<button class="btn-action btn-history" onclick="veziIstoricCard(\'' + cardId + '\')">&#128337; Istoric</button>' +
+            '<button class="btn-action btn-notite" onclick="toggleNotite(\'' + cardId + '\', ' + parentArg + ', ' + notitaIdArg + ')" id="btn-notite">&#128221; Notițe' + (areNotite ? ' ●' : '') + '</button>' +
             '</div>';
 
-        if (!items || items.length === 0) {
+        const notiteSafe = notiteCurente.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+        html += '<div id="notite-box" class="notite-box" style="display:' + (areNotite ? 'block' : 'none') + ';">' +
+            '<div class="notite-box-header">' +
+            '<span class="notite-box-label">&#128221; Notițe</span>' +
+            '<button class="notite-box-close" onclick="stergeNotita(' + notitaIdArg + ')" title="Șterge notițe">&#10005;</button>' +
+            '</div>' +
+            '<textarea class="notite-ta" id="notite-ta" placeholder="Scrie notițe pentru acest folder..." ' +
+            'oninput="scheduleazaSalvareNotite(\'' + cardId + '\', ' + parentArg + ', ' + notitaIdArg + ')" ' +
+            'onblur="salveazaNotiteImmediat(\'' + cardId + '\', ' + parentArg + ', ' + notitaIdArg + ')">' + notiteSafe + '</textarea>' +
+            '<div class="notite-status" id="notite-status"></div>' +
+            '</div>';
+
+        if (itemsFiltrate.length === 0) {
             html += '<div class="empty">&#128193; Folder gol. Adaugă subfoldere sau fișiere.</div>';
         } else {
             html += '<div class="file-list">';
-            items.forEach(item => { html += item.tip === 'folder' ? genFolderItem(item) : genFisierItem(item); });
+            itemsFiltrate.forEach(item => { html += item.tip === 'folder' ? genFolderItem(item) : genFisierItem(item); });
             html += '</div>';
         }
 
         cont.innerHTML = html;
     }
 
-    function genFolderItem(item) {
+    function toggleNotite(cardId, parentId, notitaId) {
+        const box = document.getElementById('notite-box');
+        if (!box) return;
+        if (box.style.display !== 'none') {
+            box.style.display = 'none';
+        } else {
+            box.style.display = 'block';
+            setTimeout(() => { const ta = document.getElementById('notite-ta'); if (ta) ta.focus(); }, 50);
+        }
+    }
+
+    async function stergeNotita(notitaId) {
+        if (!notitaId || notitaId === 'null') return;
+        const { error } = await db.from('audit_continut').update({ sters: true }).eq('id', notitaId);
+        if (error) { aratToast('❌ Eroare la ștergere!', 'error'); return; }
+        const box = document.getElementById('notite-box');
+        if (box) box.remove();
+        const btn = document.getElementById('btn-notite');
+        if (btn) btn.innerHTML = '&#128221; Notițe';
+        aratToast('🗑️ Notițe șterse (pot fi restaurate din Istoric)', 'success');
+    }
+
+    const _notiteTimer = { t: null };
+
+    function scheduleazaSalvareNotite(cardId, parentId, notitaId) {
+        const ta = document.getElementById('notite-ta');
+        const s = document.getElementById('notite-status');
+        clearTimeout(_notiteTimer.t);
+        if (s) { s.textContent = 'Se salvează...'; s.className = 'notite-status'; }
+        _notiteTimer.t = setTimeout(() => salveazaNotite(cardId, parentId, notitaId), 900);
+    }
+
+    function salveazaNotiteImmediat(cardId, parentId, notitaId) {
+        clearTimeout(_notiteTimer.t);
+        salveazaNotite(cardId, parentId, notitaId);
+    }
+
+    async function salveazaNotite(cardId, parentId, notitaId) {
+        const ta = document.getElementById('notite-ta');
+        const s = document.getElementById('notite-status');
+        if (!ta) return;
+        const text = ta.value;
+
+        let error;
+        if (notitaId && notitaId !== 'null') {
+            // Actualizează notița existentă
+            ({ error } = await db.from('audit_continut').update({ titlu: text }).eq('id', notitaId));
+        } else {
+            // Creează notița nouă
+            const { data: nd, error: insertErr } = await db.from('audit_continut').insert({
+                card_id: cardId,
+                parent_id: parentId || null,
+                tip: 'notita',
+                titlu: text,
+                sters: false
+            }).select().single();
+            error = insertErr;
+            if (nd) {
+                // Actualizează butonul cu noul id
+                const btn = document.getElementById('btn-notite');
+                if (btn) btn.setAttribute('onclick', "toggleNotite('" + cardId + "', " + (parentId ? "'" + parentId + "'" : 'null') + ", '" + nd.id + "')");
+                const closeBtn = document.querySelector('.notite-box-close');
+                if (closeBtn) closeBtn.setAttribute('onclick', "stergeNotita('" + nd.id + "')");
+                const ta2 = document.getElementById('notite-ta');
+                if (ta2) {
+                    ta2.setAttribute('oninput', "scheduleazaSalvareNotite('" + cardId + "', " + (parentId ? "'" + parentId + "'" : 'null') + ", '" + nd.id + "')");
+                    ta2.setAttribute('onblur', "salveazaNotiteImmediat('" + cardId + "', " + (parentId ? "'" + parentId + "'" : 'null') + ", '" + nd.id + "')");
+                }
+                notitaId = nd.id;
+            }
+        }
+
+        const btn = document.getElementById('btn-notite');
+        if (btn) btn.innerHTML = '&#128221; Notițe' + (text.trim() ? ' ●' : '');
+
+        if (s) {
+            if (error) { s.textContent = 'Eroare: ' + (error.message || JSON.stringify(error)); s.className = 'notite-status eroare'; }
+            else {
+                s.textContent = '✓ Salvat'; s.className = 'notite-status salvat';
+                aratToast('✓ Notițe salvate', 'success');
+                setTimeout(() => { if (s) { s.textContent = ''; s.className = 'notite-status'; } }, 2000);
+            }
+        }
+    }
+
+        function genFolderItem(item) {
         const titluSafe = (item.titlu || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
         return '<div class="file-item" style="cursor:pointer;" onclick="deschideSubfolder(\'' + item.id + '\', \'' + item.card_id + '\', \'' + titluSafe + '\')">' +
             '<span class="file-icon">&#128193;</span>' +
             '<div class="file-info"><div class="file-name">' + item.titlu + '</div><div class="file-date">Folder</div></div>' +
-            '<div class="file-actions">' +
-            '<button class="btn-small btn-rename" onclick="event.stopPropagation(); redenumesteFolderul(\'' + item.id + '\', \'' + titluSafe + '\')">&#9998;</button>' +
-            '<button class="btn-small btn-del" onclick="event.stopPropagation(); stergeItem(\'' + item.id + '\')">&#10005;</button>' +
-            '</div></div>';
-    }
-
-    async function redenumesteFolderul(id, numeVechi) {
-        const r = await arataDialog('&#9998; Redenumire folder', 'Noul nume al folderului:', [
-            { text: 'Salvează', valoare: 'da', clasa: 'dialog-btn-primary' },
-            { text: 'Anulează', valoare: 'nu', clasa: 'dialog-btn-cancel' }
-        ], true, numeVechi);
-        if (r.actiune !== 'da' || !r.text.trim()) return;
-        const { error } = await db.from('audit_continut').update({ titlu: r.text.trim() }).eq('id', id);
-        if (error) { alert('Eroare la redenumire: ' + error.message); return; }
-        incarcaVizualizare();
+            '<div class="file-actions"><button class="btn-small btn-del" onclick="event.stopPropagation(); stergeItem(\'' + item.id + '\')">&#10005;</button></div></div>';
     }
 
     function genFisierItem(item) {
@@ -781,7 +914,7 @@
             html += '<div class="file-list">';
             items.forEach(item => {
                 html += '<div class="file-item istoric-item">' +
-                    '<span class="file-icon">' + (item.tip === 'folder' ? '📁' : '📄') + '</span>' +
+                    '<span class="file-icon">' + (item.tip === 'folder' ? '📁' : item.tip === 'notita' ? '📝' : '📄') + '</span>' +
                     '<div class="file-info"><div class="file-name">' + (item.titlu || item.fisier_nume || '-') + '</div><div class="file-date">Șters</div></div>' +
                     '<div class="file-actions"><button class="btn-small btn-restore" onclick="restaureazaItem(\'' + item.id + '\')">&#128260; Restaurează</button></div></div>';
             });
@@ -821,5 +954,6 @@
     incarcaVizualizare();
 </script>
 
+    <div id="toast" class="toast"></div>
 </body>
 </html>
