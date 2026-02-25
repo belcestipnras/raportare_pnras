@@ -46,6 +46,72 @@
         /* Card cu PDF atașat */
         .card-pdf-badge { display: inline-block; background: #ef4444; color: white; font-size: 0.7rem; font-weight: 700; padding: 2px 8px; border-radius: 4px; margin-top: 8px; letter-spacing: 0.5px; }
 
+        /* Zona PDF semnat sub card */
+        .card-signed-zone { 
+            margin-top: 10px; 
+            padding-top: 10px; 
+            border-top: 1px dashed #d1d9e0; 
+            font-size: 0.8rem; 
+        }
+        .card-signed-actions { 
+            display: flex; 
+            gap: 6px; 
+            flex-wrap: wrap;
+            margin-bottom: 6px; 
+        }
+        .btn-card-action { 
+            background: #f0f7ff; 
+            color: var(--pnras-blue); 
+            border: 1px solid #b8d4f0; 
+            padding: 4px 10px; 
+            border-radius: 5px; 
+            font-size: 0.75rem; 
+            font-weight: 600; 
+            cursor: pointer; 
+            font-family: 'Inter', sans-serif;
+            transition: 0.2s; 
+            white-space: nowrap;
+        }
+        .btn-card-action:hover { 
+            background: #dbeafe; 
+            border-color: var(--pnras-blue); 
+        }
+        .btn-card-upload { 
+            background: #fef3c7; 
+            color: #92400e; 
+            border-color: #f59e0b; 
+        }
+        .btn-card-upload:hover { 
+            background: #fde68a; 
+        }
+        .card-signed-preview { 
+            display: flex; 
+            align-items: center; 
+            gap: 8px; 
+            background: #ecfdf5; 
+            border: 1px solid #6ee7b7; 
+            border-radius: 6px; 
+            padding: 6px 10px; 
+            margin-top: 6px;
+        }
+        .card-signed-preview a { 
+            color: #065f46; 
+            font-weight: 600; 
+            text-decoration: none; 
+            font-size: 0.8rem; 
+        }
+        .card-signed-preview a:hover { 
+            text-decoration: underline; 
+        }
+        .card-status-unsigned { 
+            color: #9ca3af; 
+            font-style: italic; 
+            font-size: 0.75rem; 
+            margin-top: 4px;
+        }
+        /* Input file ascuns pentru upload semnat */
+        .hidden-upload { display: none; }
+
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); display: none; justify-content: center; align-items: center; z-index: 100; backdrop-filter: blur(2px); }
         .modal { background: white; width: 400px; border-radius: 12px; padding: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); display: flex; flex-direction: column; }
         .modal h2 { margin: 0 0 20px 0; color: var(--pnras-blue); font-size: 1.4rem; text-align: center; }
@@ -144,7 +210,7 @@
         .sig-block { text-align: left; }
 
         @media print {
-#main-ui, .controls-a4, .back-btn, .btn-add-articol, .btn-delete-art, .btn-add-articol-inline, .edit-toolbar, .word-ruler, .ruler-tooltip, .header-container, .section-container, .add-btn, .modal-overlay, #edit-modal, #upload-modal, .tb-dropdown { 
+#main-ui, .controls-a4, .back-btn, .btn-add-articol, .btn-delete-art, .btn-add-articol-inline, .edit-toolbar, .word-ruler, .ruler-tooltip, .header-container, .section-container, .add-btn, .modal-overlay, #edit-modal, #upload-modal, .tb-dropdown, .card-signed-zone, .hidden-upload { 
         display: none !important; 
     }    
 * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
@@ -975,7 +1041,7 @@ function closeModal() {
 
         function getTemplateHotarare(nr, data, descriere) {
             return `
-            <img src="antet_pnras.jpeg" class="antet-img" alt="Antet PNRAS">
+            <img src="https://aexjrbdgajurxzngfkpx.supabase.co/storage/v1/object/public/arhiva_pnras/antet_pnras.jpeg" class="antet-img" alt="Antet PNRAS">
             
             <div class="doc-titlu">
                 <span id="doc-tip-document" contenteditable="true" oninput="triggerAutoSave()">HOTĂRÂREA</span> 
@@ -1033,7 +1099,7 @@ function closeModal() {
 
         function getTemplateDecizie(nr, data, descriere) {
             return `
-            <img src="antet_pnras.jpeg" class="antet-img" alt="Antet PNRAS">
+            <img src="https://aexjrbdgajurxzngfkpx.supabase.co/storage/v1/object/public/arhiva_pnras/antet_pnras.jpeg" class="antet-img" alt="Antet PNRAS">
             
             <div class="doc-titlu">
                 <span id="doc-tip-document" contenteditable="true" oninput="triggerAutoSave()">DECIZIA</span> 
@@ -1091,7 +1157,7 @@ function closeModal() {
 
         function getTemplatePV(nr, data, descriere) {
             return `
-            <img src="antet_pnras.jpeg" class="antet-img" alt="Antet PNRAS">
+            <img src="https://aexjrbdgajurxzngfkpx.supabase.co/storage/v1/object/public/arhiva_pnras/antet_pnras.jpeg" class="antet-img" alt="Antet PNRAS">
             
             <div id="doc-nr" style="display:none;">${nr}</div>
             <div id="doc-data" style="display:none;">${data}</div>
@@ -1105,7 +1171,7 @@ function closeModal() {
         function getTemplateAlt(nr, data, descriere, altTipNume) {
             const titlu = (altTipNume || 'DOCUMENT').toUpperCase();
             return `
-            <img src="antet_pnras.jpeg" class="antet-img" alt="Antet PNRAS">
+            <img src="https://aexjrbdgajurxzngfkpx.supabase.co/storage/v1/object/public/arhiva_pnras/antet_pnras.jpeg" class="antet-img" alt="Antet PNRAS">
             
             <div id="doc-nr" style="display:none;">${nr}</div>
             <div id="doc-data" style="display:none;">${data}</div>
@@ -1455,14 +1521,45 @@ function closeModal() {
         } catch { return false; }
     }
 
+    function getSignedPdfInfo(doc) {
+        try {
+            const d = doc.document_data ? JSON.parse(doc.document_data) : null;
+            if (d?.signedPdfUrl) return { url: d.signedPdfUrl, path: d.signedPdfPath };
+            return null;
+        } catch { return null; }
+    }
+
     function renderCards(lista) {
         if (!lista.length) return '<p class="section-empty">Niciun document în această secțiune.</p>';
         return lista.map(doc => {
             const descEscaped = (doc.nr_inreg || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
             const isPDF = hasPDF(doc);
+            const signedInfo = getSignedPdfInfo(doc);
             const clickAction = isPDF 
                 ? `deschidePDF('${doc.id_unique}')` 
                 : `openA4('${doc.id_unique}', '${doc.nr_c}', '${doc.nr_d}', '${descEscaped}', '${doc.tip_registru}')`;
+            
+            // Zona PDF semnat
+            let signedZoneHTML = '';
+            if (!isPDF) {
+                // Doar documentele editabile au nevoie de descărcare PDF + upload semnat
+                signedZoneHTML = `
+                <div class="card-signed-zone" onclick="event.stopPropagation()">
+                    <div class="card-signed-actions">
+                        <button class="btn-card-action" onclick="event.stopPropagation(); descarcaPDFdinCard('${doc.id_unique}', '${doc.nr_c}', '${doc.nr_d}', '${descEscaped}', '${doc.tip_registru}')" title="Generează și descarcă PDF">⬇️ Descarcă PDF</button>
+                        <button class="btn-card-action btn-card-upload" onclick="event.stopPropagation(); document.getElementById('signed-upload-${doc.id_unique}').click()" title="Încarcă PDF semnat cu certSIGN">📎 Încarcă semnat</button>
+                        <input type="file" id="signed-upload-${doc.id_unique}" class="hidden-upload" accept=".pdf" onchange="uploadSemnat('${doc.id_unique}', this)">
+                    </div>
+                    ${signedInfo 
+                        ? `<div class="card-signed-preview">
+                            ✅ <a href="${signedInfo.url}" target="_blank" onclick="event.stopPropagation()">PDF semnat — Vizualizează</a>
+                            <button onclick="event.stopPropagation(); stergeSignedPDF('${doc.id_unique}', '${signedInfo.path}')" title="Șterge PDF-ul semnat" style="background:none;border:none;color:#ef4444;font-size:1.1rem;cursor:pointer;margin-left:auto;padding:0 4px;opacity:0.5;transition:0.2s;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.5">✕</button>
+                           </div>` 
+                        : `<div class="card-status-unsigned">⏳ Nesemnat</div>`
+                    }
+                </div>`;
+            }
+
             return `
             <div class="hotarare-card" onclick="${clickAction}">
                 <button class="edit-card-btn" onclick="event.stopPropagation(); openEditModal('${doc.id_unique}', '${doc.nr_c}', '${doc.nr_d}', '${descEscaped}', '${doc.tip_registru}')" title="Editează">✏️</button>
@@ -1472,6 +1569,7 @@ function closeModal() {
                 <div class="card-data">📅 ${doc.nr_d}</div>
                 <div class="card-descriere">${doc.nr_inreg}</div>
                 ${isPDF ? '<span class="card-pdf-badge">📎 PDF ATAȘAT</span>' : ''}
+                ${signedZoneHTML}
             </div>`;
         }).join('');
     }
@@ -1614,6 +1712,141 @@ async function deschidePDF(idUnique) {
         }
     } catch (err) {
         alert("Eroare la deschidere PDF: " + err.message);
+    }
+}
+
+// ==========================================
+// DESCARCĂ PDF DIN CARD (prin Print → Save as PDF)
+// ==========================================
+async function descarcaPDFdinCard(id, nr, data, descriere, tipRegistru) {
+    // Deschidem documentul A4
+    await openA4(id, nr, data, descriere, tipRegistru);
+    
+    // Mic delay pentru renderizare completă
+    await new Promise(r => setTimeout(r, 300));
+    
+    // Printăm (utilizatorul alege "Save as PDF")
+    window.print();
+}
+
+// ==========================================
+// UPLOAD PDF SEMNAT (pe înregistrarea existentă)
+// ==========================================
+async function uploadSemnat(idUnique, inputEl) {
+    const fisier = inputEl.files[0];
+    if (!fisier) return;
+
+    if (!fisier.name.toLowerCase().endsWith('.pdf')) {
+        alert("Doar fișiere PDF sunt acceptate!");
+        inputEl.value = '';
+        return;
+    }
+
+    // Confirmare rapidă
+    if (!confirm(`Încarci PDF-ul semnat "${fisier.name}" pentru acest document?`)) {
+        inputEl.value = '';
+        return;
+    }
+
+    try {
+        const fileName = `signed_${idUnique}_${fisier.name.replace(/[^a-zA-Z0-9._-]/g, '_')}`;
+        const filePath = `documente_semnate/${fileName}`;
+
+        // 1. Încărcăm în Supabase Storage
+        const { error: uploadError } = await supabaseClient.storage
+            .from('arhiva_pnras')
+            .upload(filePath, fisier, { contentType: 'application/pdf', upsert: true });
+
+        if (uploadError) throw uploadError;
+
+        // 2. Obținem URL-ul public
+        const { data: urlData } = supabaseClient.storage
+            .from('arhiva_pnras')
+            .getPublicUrl(filePath);
+
+        const publicUrl = urlData?.publicUrl || '';
+
+        // 3. Actualizăm document_data existent (UPDATE, nu INSERT!)
+        const { data: existing } = await supabaseClient
+            .from('numere_inregistrare')
+            .select('document_data')
+            .eq('id_unique', idUnique)
+            .single();
+
+        let docData = {};
+        if (existing?.document_data) {
+            try { docData = JSON.parse(existing.document_data); } catch(e) {}
+        }
+
+        // Adăugăm câmpurile pentru PDF semnat
+        docData.signedPdfPath = filePath;
+        docData.signedPdfUrl = publicUrl;
+        docData.signedAt = new Date().toISOString();
+
+        const { error: dbError } = await supabaseClient
+            .from('numere_inregistrare')
+            .update({ 
+                document_data: JSON.stringify(docData),
+                ultima_modificare: new Date().toISOString()
+            })
+            .eq('id_unique', idUnique);
+
+        if (dbError) throw dbError;
+
+        // 4. Reîncărcăm lista pentru a reflecta statusul
+        loadHotarari();
+
+    } catch (err) {
+        alert("Eroare la încărcare PDF semnat: " + err.message);
+    }
+
+    inputEl.value = '';
+}
+
+// ==========================================
+// ȘTERGE PDF SEMNAT
+// ==========================================
+async function stergeSignedPDF(idUnique, filePath) {
+    if (!confirm("Sigur vrei să ștergi PDF-ul semnat?")) return;
+
+    try {
+        // 1. Ștergem fișierul din Storage
+        const { error: storageError } = await supabaseClient.storage
+            .from('arhiva_pnras')
+            .remove([filePath]);
+
+        if (storageError) console.warn("Eroare ștergere storage:", storageError);
+
+        // 2. Actualizăm document_data — scoatem câmpurile signed
+        const { data: existing } = await supabaseClient
+            .from('numere_inregistrare')
+            .select('document_data')
+            .eq('id_unique', idUnique)
+            .single();
+
+        let docData = {};
+        if (existing?.document_data) {
+            try { docData = JSON.parse(existing.document_data); } catch(e) {}
+        }
+
+        delete docData.signedPdfPath;
+        delete docData.signedPdfUrl;
+        delete docData.signedAt;
+
+        const { error: dbError } = await supabaseClient
+            .from('numere_inregistrare')
+            .update({ 
+                document_data: JSON.stringify(docData),
+                ultima_modificare: new Date().toISOString()
+            })
+            .eq('id_unique', idUnique);
+
+        if (dbError) throw dbError;
+
+        loadHotarari();
+
+    } catch (err) {
+        alert("Eroare la ștergere: " + err.message);
     }
 }
 
@@ -1928,7 +2161,7 @@ async function deschideRegistruMaster() {
             </div>
 
             <div class="page page-coperta">
-                <img src="antet_pnras.jpeg" class="antet-img" onerror="this.style.display='none'">
+                <img src="https://aexjrbdgajurxzngfkpx.supabase.co/storage/v1/object/public/arhiva_pnras/antet_pnras.jpeg" class="antet-img" onerror="this.style.display='none'">
                 <div class="titlu-container">
                     <div class="titlu-registru">REGISTRU</div>
                     <div class="linie-decor"></div>
