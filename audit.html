@@ -105,6 +105,8 @@
         .btn-open:hover { background: #1545b5; }
         .btn-del { background: #dc2626; }
         .btn-del:hover { background: #b91c1c; }
+        .btn-move { background: #6366f1; font-size: 10px; padding: 4px 6px; }
+        .btn-move:hover { background: #4f46e5; }
         .btn-restore { background: #0d9488; }
         .btn-restore:hover { background: #0a7c72; }
 
@@ -703,7 +705,8 @@
             html += '<div class="empty">&#128193; Folder gol. Adaugă subfoldere sau fișiere.</div>';
         } else {
             html += '<div class="file-list">';
-            itemsFiltrate.forEach(item => { html += item.tip === 'folder' ? genFolderItem(item) : genFisierItem(item); });
+            const total = itemsFiltrate.length;
+            itemsFiltrate.forEach((item, idx) => { html += item.tip === 'folder' ? genFolderItem(item, idx, total) : genFisierItem(item, idx, total); });
             html += '</div>';
         }
 
@@ -793,12 +796,14 @@
         }
     }
 
-    function genFolderItem(item) {
+    function genFolderItem(item, idx, total) {
         const titluSafe = (item.titlu || '').replace(/'/g, "\'").replace(/"/g, '&quot;');
         return '<div class="file-item" style="cursor:pointer;" onclick="deschideSubfolder(\'' + item.id + '\', \'' + item.card_id + '\', \'' + titluSafe + '\')">' +
             '<span class="file-icon">&#128193;</span>' +
             '<div class="file-info"><div class="file-name">' + item.titlu + '</div><div class="file-date">Folder</div></div>' +
             '<div class="file-actions">' +
+            (idx > 0 ? '<button class="btn-small btn-move" onclick="event.stopPropagation(); mutaItem(\'' + item.id + '\', -1)" title="Mută sus">▲</button>' : '') +
+            (idx < total - 1 ? '<button class="btn-small btn-move" onclick="event.stopPropagation(); mutaItem(\'' + item.id + '\', 1)" title="Mută jos">▼</button>' : '') +
             '<button class="btn-small btn-rename" onclick="event.stopPropagation(); redenumesteFolderul(\'' + item.id + '\', \'' + titluSafe + '\')">&#9998;</button>' +
             '<button class="btn-small btn-del" onclick="event.stopPropagation(); stergeItem(\'' + item.id + '\')">&#10005;</button>' +
             '</div></div>';
@@ -815,7 +820,7 @@
         aratToast('✓ Folder redenumit', 'success');
         incarcaVizualizare();
     }
-    function genFisierItem(item) {
+    function genFisierItem(item, idx, total) {
         const ext = (item.fisier_nume || '').split('.').pop().toLowerCase();
         let icon = '📄';
         if (['jpg','jpeg','png','gif'].includes(ext)) icon = '🖼️';
@@ -828,6 +833,8 @@
             '<div class="file-info"><div class="file-name">' + (item.titlu || item.fisier_nume || '-') + '</div>' +
             '<div class="file-date">' + (item.fisier_nume || '') + '</div></div>' +
             '<div class="file-actions">' +
+            (idx > 0 ? '<button class="btn-small btn-move" onclick="event.stopPropagation(); mutaItem(\'' + item.id + '\', -1)" title="Mută sus">▲</button>' : '') +
+            (idx < total - 1 ? '<button class="btn-small btn-move" onclick="event.stopPropagation(); mutaItem(\'' + item.id + '\', 1)" title="Mută jos">▼</button>' : '') +
             (item.fisier_url ? '<button class="btn-small btn-open" onclick="window.open(\'' + item.fisier_url + '\', \'_blank\')">Deschide</button>' : '') +
             '<button class="btn-small btn-del" onclick="stergeItem(\'' + item.id + '\')">&#10005;</button>' +
             '</div></div>';
@@ -845,13 +852,23 @@
         ], true, 'Ex: Dosare 2025');
         if (r.actiune !== 'da' || !r.text.trim()) return;
 
+        // Calculăm ordinea: max(ordine) + 1
+        let maxOrdQuery = db.from('audit_continut').select('ordine')
+            .eq('card_id', cardId).eq('sters', false).neq('tip', 'notita')
+            .order('ordine', { ascending: false }).limit(1);
+        if (parentId) maxOrdQuery = maxOrdQuery.eq('parent_id', parentId);
+        else maxOrdQuery = maxOrdQuery.is('parent_id', null);
+        const { data: maxOrdData } = await maxOrdQuery;
+        const nextOrdine = (maxOrdData && maxOrdData.length > 0 && maxOrdData[0].ordine != null) ? maxOrdData[0].ordine + 1 : 0;
+
         const insertData = {
             card_id: cardId,
             parent_id: parentId || null,
             tip: 'folder',
             titlu: r.text.trim(),
             icon: '📁',
-            sters: false
+            sters: false,
+            ordine: nextOrdine
         };
 
         const { data, error } = await db.from('audit_continut').insert(insertData).select();
@@ -890,10 +907,20 @@
             }
             const { data: urlData } = db.storage.from('audit').getPublicUrl(fileName);
             console.log('[UPLOAD] URL:', urlData.publicUrl);
+
+            // Calculăm ordinea
+            let maxOrdQ = db.from('audit_continut').select('ordine')
+                .eq('card_id', uploadTargetCardId).eq('sters', false).neq('tip', 'notita')
+                .order('ordine', { ascending: false }).limit(1);
+            if (uploadTargetParentId) maxOrdQ = maxOrdQ.eq('parent_id', uploadTargetParentId);
+            else maxOrdQ = maxOrdQ.is('parent_id', null);
+            const { data: maxOrdD } = await maxOrdQ;
+            const nextOrd = (maxOrdD && maxOrdD.length > 0 && maxOrdD[0].ordine != null) ? maxOrdD[0].ordine + 1 : 0;
+
             const { error: dbError } = await db.from('audit_continut').insert({
                 card_id: uploadTargetCardId, parent_id: uploadTargetParentId,
                 tip: 'fisier', titlu: file.name, fisier_url: urlData.publicUrl, fisier_nume: file.name,
-                sters: false
+                sters: false, ordine: nextOrd
             });
             console.log('[UPLOAD] DB insert error:', dbError);
             if (dbError) uploadErrors.push(file.name + ' (DB): ' + (dbError.message || JSON.stringify(dbError)));
@@ -914,6 +941,42 @@
         if (r.actiune !== 'da') return;
         await db.from('audit_continut').update({ sters: true }).eq('id', id);
         await db.from('audit_continut').update({ sters: true }).eq('parent_id', id);
+        incarcaVizualizare();
+    }
+
+    // ===================== MUTĂ ITEM SUS/JOS =====================
+    async function mutaItem(itemId, direction) {
+        // 1. Obținem itemul curent
+        const { data: item } = await db.from('audit_continut').select('*').eq('id', itemId).single();
+        if (!item) return;
+
+        // 2. Obținem toți frații (același card_id, parent_id, neșterși, fără notițe)
+        let query = db.from('audit_continut').select('*')
+            .eq('card_id', item.card_id).eq('sters', false)
+            .neq('tip', 'notita')
+            .order('ordine', { ascending: true });
+
+        if (item.parent_id) query = query.eq('parent_id', item.parent_id);
+        else query = query.is('parent_id', null);
+
+        const { data: siblings } = await query;
+        if (!siblings || siblings.length < 2) return;
+
+        // 3. Găsim indexul curent
+        const currentIdx = siblings.findIndex(s => s.id === itemId);
+        if (currentIdx < 0) return;
+
+        const targetIdx = currentIdx + direction;
+        if (targetIdx < 0 || targetIdx >= siblings.length) return;
+
+        // 4. Swap ordinea între cele două
+        const currentOrdine = siblings[currentIdx].ordine || currentIdx;
+        const targetOrdine = siblings[targetIdx].ordine || targetIdx;
+
+        await db.from('audit_continut').update({ ordine: targetOrdine }).eq('id', siblings[currentIdx].id);
+        await db.from('audit_continut').update({ ordine: currentOrdine }).eq('id', siblings[targetIdx].id);
+
+        // 5. Reîncărcăm
         incarcaVizualizare();
     }
 
