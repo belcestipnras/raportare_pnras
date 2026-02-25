@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Audit PNRAS</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -381,7 +383,9 @@
             html += '<div class="card" onclick="deschideCard(\'' + c.id + '\', \'' + c.titlu + '\', \'' + c.tip + '\')">' +
                 '<div class="card-icon">' + c.icon + '</div>' +
                 '<div class="card-title">' + c.titlu + '</div>' +
-                '<div class="card-subtitle">Card fix</div></div>';
+                '<div class="card-subtitle">Card fix</div>' +
+                '<button class="btn-small" style="position:absolute;bottom:10px;right:10px;background:#059669;font-size:11px;" ' +
+                'onclick="event.stopPropagation(); descarcaTotCard(\'' + c.id + '\', \'' + c.titlu + '\')" title="Descarcă tot conținutul">📦 Descarcă</button></div>';
         });
 
         if (carduriDb) {
@@ -391,6 +395,8 @@
                     '<div class="card-icon">' + (c.icon || '📁') + '</div>' +
                     '<div class="card-title">' + c.titlu + '</div>' +
                     '<div class="card-subtitle">Card personalizat</div>' +
+                    '<button class="btn-small" style="position:absolute;bottom:10px;right:10px;background:#059669;font-size:11px;" ' +
+                    'onclick="event.stopPropagation(); descarcaTotCard(\'' + c.id + '\', \'' + titluSafe + '\')" title="Descarcă tot conținutul">📦 Descarcă</button>' +
                     '<button class="btn-small btn-del" style="position:absolute;top:10px;right:10px;" ' +
                     'onclick="event.stopPropagation(); stergeCard(\'' + c.id + '\')">&#10005;</button></div>';
             });
@@ -820,6 +826,35 @@
         aratToast('✓ Folder redenumit', 'success');
         incarcaVizualizare();
     }
+
+    async function redenumesteFisierul(id, numeVechi) {
+        const r = await arataDialog('&#9998; Editează titlul fișierului', 'Noul titlu:', [
+            { text: 'Salvează', valoare: 'da', clasa: 'dialog-btn-primary' },
+            { text: 'Anulează', valoare: 'nu', clasa: 'dialog-btn-cancel' }
+        ], true, numeVechi);
+        if (r.actiune !== 'da' || !r.text.trim()) return;
+        const { error } = await db.from('audit_continut').update({ titlu: r.text.trim() }).eq('id', id);
+        if (error) { aratToast('❌ Eroare la editare!', 'error'); return; }
+        aratToast('✓ Titlu actualizat', 'success');
+        incarcaVizualizare();
+    }
+
+    async function descarcaFisier(url, numeFisier) {
+        try {
+            const response = await fetch(url);
+            const blob = await response.blob();
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = numeFisier;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(a.href);
+        } catch (err) {
+            // Fallback: deschide într-un tab nou
+            window.open(url, '_blank');
+        }
+    }
     function genFisierItem(item, idx, total) {
         const ext = (item.fisier_nume || '').split('.').pop().toLowerCase();
         let icon = '📄';
@@ -828,6 +863,8 @@
         else if (['xlsx','xls','csv'].includes(ext)) icon = '📊';
         else if (['doc','docx'].includes(ext)) icon = '📝';
 
+        const titluSafe = (item.titlu || item.fisier_nume || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+
         return '<div class="file-item">' +
             '<span class="file-icon">' + icon + '</span>' +
             '<div class="file-info"><div class="file-name">' + (item.titlu || item.fisier_nume || '-') + '</div>' +
@@ -835,7 +872,9 @@
             '<div class="file-actions">' +
             (idx > 0 ? '<button class="btn-small btn-move" onclick="event.stopPropagation(); mutaItem(\'' + item.id + '\', -1)" title="Mută sus">▲</button>' : '') +
             (idx < total - 1 ? '<button class="btn-small btn-move" onclick="event.stopPropagation(); mutaItem(\'' + item.id + '\', 1)" title="Mută jos">▼</button>' : '') +
-            (item.fisier_url ? '<button class="btn-small btn-open" onclick="window.open(\'' + item.fisier_url + '\', \'_blank\')">Deschide</button>' : '') +
+            '<button class="btn-small btn-rename" onclick="event.stopPropagation(); redenumesteFisierul(\'' + item.id + '\', \'' + titluSafe + '\')" title="Editează titlul">&#9998;</button>' +
+            (item.fisier_url ? '<button class="btn-small btn-open" onclick="window.open(\'' + item.fisier_url + '\', \'_blank\')" title="Deschide">Deschide</button>' : '') +
+            (item.fisier_url ? '<button class="btn-small" style="background:#059669;" onclick="event.stopPropagation(); descarcaFisier(\'' + item.fisier_url + '\', \'' + (item.fisier_nume || 'fisier').replace(/'/g, "\\'") + '\')" title="Descarcă fișierul">💾</button>' : '') +
             '<button class="btn-small btn-del" onclick="stergeItem(\'' + item.id + '\')">&#10005;</button>' +
             '</div></div>';
     }
@@ -1032,6 +1071,68 @@
         }
         await db.from('audit_continut').delete().eq('card_id', cardId).eq('sters', true);
         incarcaVizualizare();
+    }
+
+    // ===================== DESCARCĂ TOT CARD-UL CA ZIP =====================
+    async function descarcaTotCard(cardId, titluCard) {
+        aratToast('📦 Se pregătește descărcarea...', 'success');
+
+        try {
+            // 1. Obținem TOATE itemurile din card (neșterse, fără notițe)
+            const { data: allItems } = await db.from('audit_continut').select('*')
+                .eq('card_id', cardId).eq('sters', false).neq('tip', 'notita')
+                .order('ordine', { ascending: true });
+
+            if (!allItems || allItems.length === 0) {
+                aratToast('⚠️ Cardul este gol, nimic de descărcat.', 'error');
+                return;
+            }
+
+            const zip = new JSZip();
+
+            // 2. Construim arborele de foldere
+            async function adaugaInZip(parentId, zipFolder) {
+                const children = allItems.filter(i => {
+                    if (parentId === null) return !i.parent_id;
+                    return i.parent_id === parentId;
+                });
+
+                for (const item of children) {
+                    if (item.tip === 'folder') {
+                        // Creăm subfolder în ZIP
+                        const subFolder = zipFolder.folder(item.titlu || 'Folder');
+                        await adaugaInZip(item.id, subFolder);
+                    } else if (item.tip === 'fisier' && item.fisier_url) {
+                        // Descărcăm fișierul și îl adăugăm în ZIP
+                        try {
+                            const response = await fetch(item.fisier_url);
+                            if (response.ok) {
+                                const blob = await response.blob();
+                                const numeFisier = item.fisier_nume || item.titlu || 'fisier';
+                                zipFolder.file(numeFisier, blob);
+                            }
+                        } catch (e) {
+                            console.warn('Nu s-a putut descărca:', item.titlu, e);
+                        }
+                    }
+                }
+            }
+
+            await adaugaInZip(null, zip);
+
+            // 3. Generăm și descărcăm ZIP-ul
+            const content = await zip.generateAsync({ type: 'blob' }, (metadata) => {
+                // Progres opțional
+            });
+
+            const numeZip = (titluCard || 'Audit').replace(/[^a-zA-Z0-9ăâîșțĂÂÎȘȚ ]/g, '_') + '.zip';
+            saveAs(content, numeZip);
+            aratToast('✅ Descărcare completă!', 'success');
+
+        } catch (err) {
+            console.error('Eroare descărcare ZIP:', err);
+            aratToast('❌ Eroare: ' + err.message, 'error');
+        }
     }
 
     // ===================== START =====================
