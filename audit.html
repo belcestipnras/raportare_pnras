@@ -142,6 +142,41 @@
         }
         .btn-lacat:hover { background: #f0f0f0; transform: scale(1.1); }
 
+        /* ===== FOLDER LAYOUT ===== */
+        #folder-wrapper {
+            display: flex;
+            align-items: flex-start;
+        }
+        .folder-left {
+            width: 20%;
+            flex-shrink: 0;
+            background: #fffbeb;
+            border-right: 2px solid #fde68a;
+            padding: 16px;
+        }
+        .folder-left .notite-box {
+            margin-bottom: 0;
+            display: block !important;
+            background: transparent;
+            border: none;
+            padding: 0;
+        }
+        .folder-left .notite-box-header {
+            margin-bottom: 8px;
+        }
+        .folder-left .notite-ta {
+            min-height: 1.5em;
+            height: auto;
+            overflow: hidden;
+            resize: none;
+            width: 100%;
+        }
+        .folder-right {
+            flex: 1;
+            min-width: 0;
+            padding: 20px 24px;
+        }
+
         /* ===== NOTIȚE ===== */
         .notite-box { background: #fffbeb; border: 1px solid #fde68a; border-radius: 10px; padding: 14px 16px; margin-bottom: 16px; }
         .notite-box-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
@@ -220,6 +255,10 @@
         .toast.show { opacity: 1; transform: translateY(0); }
         .toast.success { border-left: 4px solid #0d9488; }
         .toast.error { border-left: 4px solid #dc2626; }
+
+        /* ===== DRAG & DROP ===== */
+        .file-item.dragging { opacity: 0.35; border: 2px dashed #1a56db; }
+        .file-item.drag-over { border-color: #1a56db; background: #f0f4ff; transform: scale(1.01); }
     </style>
 </head>
 <body>
@@ -233,7 +272,10 @@
     <span onclick="navigheaza(0)">&#127968; Audit</span>
 </div>
 
-<div class="container">
+<div id="folder-wrapper" style="display:none; height: calc(100vh - 110px);">
+    <!-- folder-layout randat direct aici, full width -->
+</div>
+<div class="container" id="container-normal">
     <div id="continut"><div class="loading">Se încarcă...</div></div>
 </div>
 
@@ -355,6 +397,12 @@
 
     // ===================== ROUTER =====================
     async function incarcaVizualizare() {
+        // Restauram container normal (poate fi ascuns de folder view)
+        const wrapper = document.getElementById('folder-wrapper');
+        const containerNormal = document.getElementById('container-normal');
+        if (wrapper) wrapper.style.display = 'none';
+        if (containerNormal) containerNormal.style.display = '';
+
         const cont = document.getElementById('continut');
         cont.innerHTML = '<div class="loading">Se încarcă...</div>';
 
@@ -688,36 +736,57 @@
         const parentArg = parentId ? "'" + parentId + "'" : 'null';
         const notitaIdArg = notitaItem ? "'" + notitaItem.id + "'" : 'null';
 
-        let html = '<div class="actions-bar">' +
-            '<button class="btn-action btn-folder" onclick="adaugaSubfolder(\'' + cardId + '\', ' + parentArg + ')">&#128193; Adaugă subfolder</button>' +
-            '<button class="btn-action btn-file" onclick="adaugaFisier(\'' + cardId + '\', ' + parentArg + ')">&#128196; Adaugă fișier</button>' +
-            '<button class="btn-action btn-history" onclick="veziIstoricCard(\'' + cardId + '\')">&#128337; Istoric</button>' +
-            '<button class="btn-action btn-notite" onclick="toggleNotite(\'' + cardId + '\', ' + parentArg + ', ' + notitaIdArg + ')" id="btn-notite">&#128221; Notițe' + (areNotite ? ' ●' : '') + '</button>' +
+        const notiteSafe = notiteCurente.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+
+        // Coloana stanga: notite
+        const leftCol =
+            '<div class="folder-left">' +
+                '<div id="notite-box" class="notite-box">' +
+                    '<div class="notite-box-header">' +
+                        '<span class="notite-box-label">&#128221; Notițe</span>' +
+                        '<button class="notite-box-close" onclick="stergeNotita(' + notitaIdArg + ')" title="Șterge notițe">&#10005;</button>' +
+                    '</div>' +
+                    '<textarea class="notite-ta" id="notite-ta" placeholder="Scrie notițe..." ' +
+                        'oninput="autoResizeNotite(this); scheduleazaSalvareNotite(\'' + cardId + '\', ' + parentArg + ', ' + notitaIdArg + ')" ' +
+                        'onblur="salveazaNotiteImmediat(\'' + cardId + '\', ' + parentArg + ', ' + notitaIdArg + ')">' + notiteSafe + '</textarea>' +
+                    '<div class="notite-status" id="notite-status"></div>' +
+                '</div>' +
             '</div>';
 
-        const notiteSafe = notiteCurente.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-        html += '<div id="notite-box" class="notite-box" style="display:' + (areNotite ? 'block' : 'none') + ';">' +
-            '<div class="notite-box-header">' +
-            '<span class="notite-box-label">&#128221; Notițe</span>' +
-            '<button class="notite-box-close" onclick="stergeNotita(' + notitaIdArg + ')" title="Șterge notițe">&#10005;</button>' +
-            '</div>' +
-            '<textarea class="notite-ta" id="notite-ta" placeholder="Scrie notițe pentru acest folder..." ' +
-            'oninput="scheduleazaSalvareNotite(\'' + cardId + '\', ' + parentArg + ', ' + notitaIdArg + ')" ' +
-            'onblur="salveazaNotiteImmediat(\'' + cardId + '\', ' + parentArg + ', ' + notitaIdArg + ')">' + notiteSafe + '</textarea>' +
-            '<div class="notite-status" id="notite-status"></div>' +
-            '</div>';
+        // Coloana dreapta: butoane + documente
+        let rightCol =
+            '<div class="folder-right">' +
+                '<div class="actions-bar">' +
+                    '<button class="btn-action btn-folder" onclick="adaugaSubfolder(\'' + cardId + '\', ' + parentArg + ')">&#128193; Subfolder</button>' +
+                    '<button class="btn-action btn-file" onclick="adaugaFisier(\'' + cardId + '\', ' + parentArg + ')">&#128196; Fișier</button>' +
+                    '<button class="btn-action btn-history" onclick="veziIstoricCard(\'' + cardId + '\')">&#128337; Istoric</button>' +
+                '</div>';
 
         if (itemsFiltrate.length === 0) {
-            html += '<div class="empty">&#128193; Folder gol. Adaugă subfoldere sau fișiere.</div>';
+            rightCol += '<div class="empty">&#128193; Folder gol. Adaugă subfoldere sau fișiere.</div>';
         } else {
-            html += '<div class="file-list">';
+            rightCol += '<div class="file-list">';
             const total = itemsFiltrate.length;
-            itemsFiltrate.forEach((item, idx) => { html += item.tip === 'folder' ? genFolderItem(item, idx, total) : genFisierItem(item, idx, total); });
-            html += '</div>';
+            itemsFiltrate.forEach((item, idx) => { rightCol += item.tip === 'folder' ? genFolderItem(item, idx, total) : genFisierItem(item, idx, total); });
+            rightCol += '</div>';
         }
+        rightCol += '</div>';
 
-        cont.innerHTML = html;
+        // Afisam folder-layout in wrapper full-width, nu in container
+        const wrapper = document.getElementById('folder-wrapper');
+        const containerNormal = document.getElementById('container-normal');
+        wrapper.style.display = 'flex';
+        containerNormal.style.display = 'none';
+        wrapper.innerHTML = leftCol + rightCol;
+        initDragSort();
+        const ta = document.getElementById('notite-ta');
+        if (ta) autoResizeNotite(ta);
     }
+    function autoResizeNotite(el) {
+        el.style.height = 'auto';
+        el.style.height = el.scrollHeight + 'px';
+    }
+
     function aratToast(msg, tip) {
         const t = document.getElementById('toast');
         if (!t) return;
@@ -785,7 +854,7 @@
                 if (closeBtn) closeBtn.setAttribute('onclick', "stergeNotita('" + nd.id + "')");
                 const ta2 = document.getElementById('notite-ta');
                 if (ta2) {
-                    ta2.setAttribute('oninput', "scheduleazaSalvareNotite('" + cardId + "', " + (parentId ? "'" + parentId + "'" : 'null') + ", '" + nd.id + "')");
+                    ta2.setAttribute('oninput', "autoResizeNotite(this); scheduleazaSalvareNotite('" + cardId + "', " + (parentId ? "'" + parentId + "'" : 'null') + ", '" + nd.id + "')");
                     ta2.setAttribute('onblur', "salveazaNotiteImmediat('" + cardId + "', " + (parentId ? "'" + parentId + "'" : 'null') + ", '" + nd.id + "')");
                 }
             }
@@ -804,12 +873,10 @@
 
     function genFolderItem(item, idx, total) {
         const titluSafe = (item.titlu || '').replace(/'/g, "\'").replace(/"/g, '&quot;');
-        return '<div class="file-item" style="cursor:pointer;" onclick="deschideSubfolder(\'' + item.id + '\', \'' + item.card_id + '\', \'' + titluSafe + '\')">' +
+        return '<div class="file-item" draggable="true" data-id="' + item.id + '" style="cursor:grab;" onclick="deschideSubfolder(\'' + item.id + '\', \'' + item.card_id + '\', \'' + titluSafe + '\')">' +
             '<span class="file-icon">&#128193;</span>' +
             '<div class="file-info"><div class="file-name">' + item.titlu + '</div><div class="file-date">Folder</div></div>' +
             '<div class="file-actions">' +
-            (idx > 0 ? '<button class="btn-small btn-move" onclick="event.stopPropagation(); mutaItem(\'' + item.id + '\', -1)" title="Mută sus">▲</button>' : '') +
-            (idx < total - 1 ? '<button class="btn-small btn-move" onclick="event.stopPropagation(); mutaItem(\'' + item.id + '\', 1)" title="Mută jos">▼</button>' : '') +
             '<button class="btn-small btn-rename" onclick="event.stopPropagation(); redenumesteFolderul(\'' + item.id + '\', \'' + titluSafe + '\')">&#9998;</button>' +
             '<button class="btn-small btn-del" onclick="event.stopPropagation(); stergeItem(\'' + item.id + '\')">&#10005;</button>' +
             '</div></div>';
@@ -863,18 +930,17 @@
         else if (['xlsx','xls','csv'].includes(ext)) icon = '📊';
         else if (['doc','docx'].includes(ext)) icon = '📝';
 
-        const titluSafe = (item.titlu || item.fisier_nume || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+        const titluSafe = (item.titlu || item.fisier_nume || '').replace(/'/g, "\'").replace(/"/g, '&quot;');
+        const fisierNumeSafe = (item.fisier_nume || 'fisier').replace(/'/g, "\'");
 
-        return '<div class="file-item">' +
+        return '<div class="file-item" draggable="true" data-id="' + item.id + '" style="cursor:grab;">' +
             '<span class="file-icon">' + icon + '</span>' +
             '<div class="file-info"><div class="file-name">' + (item.titlu || item.fisier_nume || '-') + '</div></div>' +
             '<div class="file-actions">' +
-            (idx > 0 ? '<button class="btn-small btn-move" onclick="event.stopPropagation(); mutaItem(\'' + item.id + '\', -1)" title="Mută sus">▲</button>' : '') +
-            (idx < total - 1 ? '<button class="btn-small btn-move" onclick="event.stopPropagation(); mutaItem(\'' + item.id + '\', 1)" title="Mută jos">▼</button>' : '') +
             '<button class="btn-small btn-rename" onclick="event.stopPropagation(); redenumesteFisierul(\'' + item.id + '\', \'' + titluSafe + '\')" title="Editează titlul">&#9998;</button>' +
-            (item.fisier_url ? '<button class="btn-small btn-open" onclick="window.open(\'' + item.fisier_url + '\', \'_blank\')" title="Deschide">Deschide</button>' : '') +
-            (item.fisier_url ? '<button class="btn-small" style="background:#059669;" onclick="event.stopPropagation(); descarcaFisier(\'' + item.fisier_url + '\', \'' + (item.fisier_nume || 'fisier').replace(/'/g, "\\'") + '\')" title="Descarcă fișierul">💾</button>' : '') +
-            '<button class="btn-small btn-del" onclick="stergeItem(\'' + item.id + '\')">&#10005;</button>' +
+            (item.fisier_url ? '<button class="btn-small btn-open" onclick="event.stopPropagation(); window.open(\'' + item.fisier_url + '\', \'_blank\')" title="Deschide">Deschide</button>' : '') +
+            (item.fisier_url ? '<button class="btn-small" style="background:#059669;" onclick="event.stopPropagation(); descarcaFisier(\'' + item.fisier_url + '\', \'' + fisierNumeSafe + '\')" title="Descarcă">💾</button>' : '') +
+            '<button class="btn-small btn-del" onclick="event.stopPropagation(); stergeItem(\'' + item.id + '\')">&#10005;</button>' +
             '</div></div>';
     }
 
@@ -1132,6 +1198,65 @@
             console.error('Eroare descărcare ZIP:', err);
             aratToast('❌ Eroare: ' + err.message, 'error');
         }
+    }
+
+
+    // ===================== DRAG & DROP REORDONARE =====================
+    let _dragId = null;
+
+    function initDragSort() {
+        const list = document.querySelector('.file-list');
+        if (!list) return;
+
+        list.querySelectorAll('.file-item[draggable]').forEach(el => {
+            el.addEventListener('dragstart', e => {
+                _dragId = el.dataset.id;
+                e.dataTransfer.effectAllowed = 'move';
+                e.dataTransfer.setData('text/plain', _dragId);
+                setTimeout(() => el.classList.add('dragging'), 0);
+            });
+            el.addEventListener('dragend', () => {
+                el.classList.remove('dragging');
+                document.querySelectorAll('.file-item').forEach(i => i.classList.remove('drag-over'));
+            });
+            el.addEventListener('dragover', e => {
+                e.preventDefault();
+                e.stopPropagation();
+                document.querySelectorAll('.file-item').forEach(i => i.classList.remove('drag-over'));
+                if (el.dataset.id !== _dragId) el.classList.add('drag-over');
+            });
+            el.addEventListener('drop', async e => {
+                e.preventDefault();
+                e.stopPropagation();
+                document.querySelectorAll('.file-item').forEach(i => i.classList.remove('drag-over'));
+                const targetId = el.dataset.id;
+                if (!_dragId || _dragId === targetId) return;
+
+                const allEls = [...document.querySelectorAll('.file-item[data-id]')];
+                const ids = allEls.map(el => el.dataset.id);
+                const fromIdx = ids.indexOf(_dragId);
+                const toIdx = ids.indexOf(targetId);
+                if (fromIdx < 0 || toIdx < 0) return;
+
+                // Muta vizual imediat
+                const draggingEl = allEls[fromIdx];
+                const targetEl = allEls[toIdx];
+                const parent = draggingEl.parentNode;
+                if (fromIdx < toIdx) {
+                    parent.insertBefore(draggingEl, targetEl.nextSibling);
+                } else {
+                    parent.insertBefore(draggingEl, targetEl);
+                }
+
+                // Salveaza noile ordini in DB
+                const newIds = [...document.querySelectorAll('.file-item[data-id]')].map(el => el.dataset.id);
+                await Promise.all(newIds.map((id, i) =>
+                    db.from('audit_continut').update({ ordine: i }).eq('id', id)
+                ));
+
+                _dragId = null;
+            });
+        });
     }
 
     // ===================== START =====================
