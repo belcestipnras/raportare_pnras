@@ -110,25 +110,39 @@
         }
         .docs-h { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-shrink: 0; }
         .docs-h h3 { font-size: 0.85rem; font-weight: 900; color: var(--p); text-transform: uppercase; }
+        .docs-body {
+            display: grid;
+            grid-template-columns: 1fr 3fr;
+            gap: 10px;
+            overflow: hidden;
+            flex-grow: 1;
+        }
+        .docs-left {
+            overflow-y: auto;
+        }
         .docs-scroll-area {
-            overflow-y: auto; flex-grow: 1;
+            overflow-y: auto; flex-grow: 1; height: 100%;
         }
         .docs-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 8px; align-content: start;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 6px; align-content: start;
         }
 
         .doc-card {
-            background: white; border: 2px solid var(--border); border-radius: 10px;
-            padding: 9px 12px; display: flex; flex-direction: column; gap: 5px;
-            box-shadow: 0 1px 4px rgba(30,64,175,0.08); transition: 0.15s;
+            background: white; border: 2px solid var(--border); border-radius: 8px;
+            padding: 6px 8px; display: flex; flex-direction: column; gap: 3px;
+            box-shadow: 0 1px 3px rgba(30,64,175,0.07); transition: 0.15s;
+            cursor: grab;
         }
+        .doc-card:active { cursor: grabbing; }
+        .doc-card.dragging { opacity: 0.4; border: 2px dashed var(--p); }
+        .doc-card.drag-over { border-color: var(--p); background: #eef2ff; }
         .doc-card:hover { border-color: var(--p); }
-        .doc-card.done { border-left: 5px solid var(--complete); border-color: var(--complete); background: #fffcf5; }
-        .doc-title { font-size: 0.88rem; font-weight: 800; color: var(--text-main); line-height: 1.3; }
-        .doc-row { display: flex; align-items: center; gap: 6px; }
-        .doc-reg { flex: 1; min-width: 0; font-size: 0.82rem; border: 2px solid var(--border); border-radius: 6px; padding: 3px 5px; font-weight: 900; text-align: center; color: var(--p); }
+        .doc-card.done { border-left: 4px solid var(--complete); border-color: var(--complete); background: #fffcf5; }
+        .doc-title { font-size: 0.78rem; font-weight: 700; color: var(--text-main); line-height: 1.25; }
+        .doc-row { display: flex; align-items: center; gap: 4px; }
+        .doc-reg { flex: 1; min-width: 0; font-size: 0.72rem; border: 1.5px solid var(--border); border-radius: 5px; padding: 2px 4px; font-weight: 800; text-align: center; color: var(--p); }
         .doc-del { border: none; background: none; color: #ef4444; cursor: pointer; font-size: 1rem; font-weight: 900; flex-shrink: 0; padding: 0 2px; }
 
         .tag { background: var(--bg-cat1); padding: 1px 6px; border-radius: 10px; font-size: 0.6rem; font-weight: 800; color: var(--p); border: 1px solid var(--p); }
@@ -140,15 +154,21 @@
 
         .empty-hint { text-align: center; padding: 24px 10px; color: var(--text-blue); font-weight: 800; font-size: 0.85rem; grid-column: 1 / -1; }
 
-        /* JUSTIFICARE — element fix deasupra grid-ului, nu scrolleaza */
+        /* JUSTIFICARE — coloana stanga */
         .just-box {
-            flex-shrink: 0;
             background: #fffbeb; border: 2px dashed #f59e0b; padding: 7px 10px;
-            border-radius: 9px; display: flex; align-items: flex-start; gap: 8px;
-            margin-bottom: 8px;
+            border-radius: 9px; display: flex; flex-direction: column; gap: 6px;
+            height: 100%;
         }
         .just-box label { font-size: 0.65rem; font-weight: 900; color: #b45309; text-transform: uppercase; white-space: nowrap; flex-shrink: 0; padding-top: 4px; }
-        .just-box textarea { flex: 1; border: 1px solid #fcd34d; border-radius: 6px; padding: 5px 8px; font-family: inherit; font-size: 0.78rem; resize: none; height: auto; min-height: 32px; overflow: hidden; line-height: 1.5; display: block; }
+        .just-editable {
+            flex: 1; border: 1px solid #fcd34d; border-radius: 6px; padding: 5px 8px;
+            font-family: 'Plus Jakarta Sans', sans-serif; font-size: 0.78rem;
+            line-height: 1.5; outline: none; resize: none;
+            color: var(--text-main); background: white; width: 100%;
+        }
+        .just-editable:focus { border-color: #f59e0b; }
+
 
         /* Modal */
         .doc-modal-overlay {
@@ -210,11 +230,13 @@
                     <h3 id="d-title">📄 Livrabile lunare</h3>
                     <button class="btn-add" onclick="addD()">+ Adaugă Document</button>
                 </div>
-                <div class="docs-scroll-area">
-                <div id="just-container"></div>
-                <div id="d-list" class="docs-grid">
-                    <div class="empty-hint">Selectați o lună din calendar pentru a vedea documentele.</div>
-                </div>
+                <div class="docs-body">
+                    <div class="docs-left" id="just-container"></div>
+                    <div class="docs-scroll-area">
+                        <div id="d-list" class="docs-grid">
+                            <div class="empty-hint">Selectați o lună din calendar pentru a vedea documentele.</div>
+                        </div>
+                    </div>
                 </div>
             </section>
 
@@ -454,12 +476,14 @@ function renderAct(code) {
 
     v.innerHTML = h;
     document.getElementById('d-list').innerHTML = '<div class="empty-hint">Selectați o lună din calendar.</div>';
+    document.getElementById('just-container').innerHTML = '';
 }
 
 function selM(mid) {
     if (cMon === mid) {
         cMon = null; document.querySelectorAll('.cell').forEach(c => c.classList.remove('sel'));
         document.getElementById('d-list').innerHTML = '<div class="empty-hint">Selectați o lună din calendar.</div>';
+        document.getElementById('just-container').innerHTML = '';
         return;
     }
     cMon = mid; document.querySelectorAll('.cell').forEach(c => c.classList.remove('sel'));
@@ -478,23 +502,26 @@ function renderD() {
     const key  = getBlockKey(cAct, cMon);
     const docs = project.acts[cAct].docs[key] || [];
 
-    // Justificare — in containerul sau propriu, deasupra grid-ului, mereu vizibila
+    // Justificare — coloana stanga
     if (!project.acts[cAct].justificari) project.acts[cAct].justificari = {};
     const justValue = project.acts[cAct].justificari[key] || "";
     const justContainer = document.getElementById('just-container');
     if (justContainer) {
+        justContainer.innerHTML = '';
         const justDiv = document.createElement('div');
         justDiv.className = 'just-box';
         justDiv.innerHTML =
             '<label>⚠️ Justificare:</label>' +
-            '<textarea id="just-ta" placeholder="Motivul dacă activitatea nu a avut loc în această lună..." ' +
-            'oninput="autoResizeTA(this); upJust(\'' + key + '\', this.value)">' + justValue + '</textarea>';
-        justContainer.innerHTML = '';
+            '<textarea id="just-ta" class="just-editable" placeholder="Motivul dacă activitatea nu a avut loc în această lună...">' +
+            (justValue ? justValue.replace(/</g,'&lt;') : '') + '</textarea>';
         justContainer.appendChild(justDiv);
-        setTimeout(() => {
-            const ta = document.getElementById('just-ta');
-            if (ta) autoResizeTA(ta);
-        }, 0);
+
+        const ta = document.getElementById('just-ta');
+        if (ta) {
+            ta.addEventListener('input', function() {
+                upJust(key, this.value);
+            });
+        }
     }
 
     if (docs.length === 0) {
@@ -516,26 +543,45 @@ function renderD() {
             `<div class="tag">${s} <button onclick="remSub(${i},${si})" style="border:none;background:none;color:red;cursor:pointer;font-weight:900;font-size:0.8rem;">&times;</button></div>`
         ).join('');
 
+        div.draggable = true;
+        div.dataset.idx = i;
         div.innerHTML = `
-            <div style="display:flex;align-items:flex-start;gap:6px;">
+            <div style="display:flex;align-items:flex-start;gap:5px;">
                 <input type="checkbox" ${d.done?'checked':''} onchange="upD(${i},'done',this.checked)"
-                    style="width:17px;height:17px;accent-color:#f59e0b;cursor:pointer;flex-shrink:0;margin-top:2px;">
+                    style="width:14px;height:14px;accent-color:#f59e0b;cursor:pointer;flex-shrink:0;margin-top:2px;">
                 <div class="doc-title" style="flex:1;cursor:pointer;" ondblclick="editDocTitle(${i}, this)" title="Dublu-click pentru a edita numele">${d.title}</div>
-                <button style="border:none;background:none;color:var(--p);cursor:pointer;font-size:0.75rem;flex-shrink:0;opacity:0.4;padding:0 2px;" onclick="editDocTitle(${i}, this.previousElementSibling)" title="Editează numele" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.4">✏️</button>
-                <button class="doc-del" onclick="remD(${i})" title="Șterge">&times;</button>
+                <button style="border:none;background:none;color:var(--p);cursor:pointer;font-size:0.7rem;flex-shrink:0;opacity:0.35;padding:0 1px;" onclick="editDocTitle(${i}, this.previousElementSibling)" title="Editează" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.35">✏️</button>
+                <button class="doc-del" onclick="remD(${i})" title="Șterge" style="font-size:0.9rem;">&times;</button>
             </div>
             <div class="doc-row">
                 <input type="text" class="doc-reg" value="${d.reg||''}" onchange="upD(${i},'reg',this.value)" placeholder="${ph}">
             </div>
-            <div style="display:flex;flex-wrap:wrap;gap:3px;">${subs}<button class="btn-tag" onclick="addSub(${i})">+ CLASĂ</button></div>
+            ${subs ? `<div style="display:flex;flex-wrap:wrap;gap:2px;">${subs}</div>` : ''}
         `;
+
+        // Drag events
+        div.addEventListener('dragstart', e => {
+            e.dataTransfer.effectAllowed = 'move';
+            e.dataTransfer.setData('text/plain', i);
+            setTimeout(() => div.classList.add('dragging'), 0);
+        });
+        div.addEventListener('dragend', () => div.classList.remove('dragging'));
+        div.addEventListener('dragover', e => { e.preventDefault(); div.classList.add('drag-over'); });
+        div.addEventListener('dragleave', () => div.classList.remove('drag-over'));
+        div.addEventListener('drop', e => {
+            e.preventDefault();
+            div.classList.remove('drag-over');
+            const fromIdx = parseInt(e.dataTransfer.getData('text/plain'));
+            const toIdx = i;
+            if (fromIdx === toIdx) return;
+            const key = getBlockKey(cAct, cMon);
+            const arr = project.acts[cAct].docs[key];
+            const [moved] = arr.splice(fromIdx, 1);
+            arr.splice(toIdx, 0, moved);
+            renderD(); sync(cAct);
+        });
         l.appendChild(div);
     });
-}
-// Auto-resize textarea
-function autoResizeTA(el) {
-    el.style.height = 'auto';
-    el.style.height = el.scrollHeight + 'px';
 }
 
 // Funcția de ajutor pentru salvarea textului din justificare
