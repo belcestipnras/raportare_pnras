@@ -66,6 +66,14 @@
         
         .btn-add-group { width: 100%; background: var(--accent); color: white; border: none; padding: 10px 16px; border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 0.8rem; margin-top: 10px; }
 
+        /* DRAG & DROP */
+        tr[draggable="true"] { cursor: grab; }
+        tr[draggable="true"]:active { cursor: grabbing; }
+        tr.drag-over { outline: 2px dashed var(--accent); outline-offset: -2px; background: #eff6ff !important; }
+        tr.dragging { opacity: 0.4; }
+        .drag-handle { cursor: grab; font-size: 1rem; padding: 0 6px; color: var(--text-muted); user-select: none; }
+        .drag-handle:active { cursor: grabbing; }
+
         /* PRINT */
         @media print {
             @page { size: A4 landscape; margin: 10mm; }
@@ -94,7 +102,7 @@
     </div>
     
     <div class="print-options">
-        <button class="btn-p" style="background:#4b5563; color:white;" onclick="printMod('luna')">🖨️ Print Lună</button>
+        <button class="btn-p" style="background:#4b5563; color:white;" onclick="printLuna()">🖨️ Print Lună</button>
         <button class="btn-p" style="background:#1f2937; color:white;" onclick="printMod('registru')">📚 Print Registru</button>
     </div>
 </div>
@@ -113,6 +121,7 @@
             <table id="tabel-principal">
                 <thead>
                     <tr>
+                        <th style="width:28px;"></th>
                         <th class="col-nr">#</th>
                         <th class="col-zi">Zi</th>
                         <th class="col-nrdata">Nr. Înreg. / Dată</th>
@@ -215,10 +224,15 @@ window.numereOcupate = localRows
     
     // 1. Sortare inițială cronologică pentru a atribui numerele corect
     // Rândurile fără zi (cele noi) primesc valoarea 999 pentru a sta la final
+    // În cadrul aceleiași zile, se sortează după sort_order (dacă există), altfel după id
     let rowsToDisplay = localRows.filter(r => r.stare !== 'sters').sort((a, b) => {
         const ziA = parseInt(a.zi_inreg) || 999;
         const ziB = parseInt(b.zi_inreg) || 999;
-        return ziA !== ziB ? ziA - ziB : a.id - b.id;
+        if (ziA !== ziB) return ziA - ziB;
+        // Aceeași zi: sort_order are prioritate
+        const soA = a.sort_order != null ? a.sort_order : a.id;
+        const soB = b.sort_order != null ? b.sort_order : b.id;
+        return soA - soB;
     });
 
     // 2. Calculăm numerele de înregistrare (afisNr)
@@ -266,11 +280,17 @@ window.numereOcupate = localRows
         const lunaNr = (lunaIdx + 1).toString().padStart(2, '0');
 
         const tr = document.createElement('tr');
+        tr.dataset.id = row.id;
+        tr.dataset.zi = row.zi_inreg || '';
+        tr.draggable = true;
         if (esteConflict) {
             tr.style.backgroundColor = "#fee2e2"; // Fundal roșu pentru erori de cronologie
         }
 
         tr.innerHTML = `
+            <td style="text-align:center; width:28px; background:#f9fafb;">
+                <span class="drag-handle" title="Trage pentru a reordona (doar în aceeași zi)">⠿</span>
+            </td>
             <td class="col-nr" style="${row.blocat ? 'background:#d1fae5 !important; color:#065f46; font-weight:800;' : ''}">
                 ${afisNr} ${row.blocat ? '🔒' : ''}
             </td>
@@ -301,6 +321,87 @@ window.numereOcupate = localRows
             </td>
         `;
         tbody.appendChild(tr);
+    });
+
+    // Inițializăm drag & drop după ce toate rândurile sunt în DOM
+    initDragDrop();
+}
+
+let dragSrcId = null;
+let dragSrcZi = null;
+
+function initDragDrop() {
+    const tbody = document.getElementById('tabel-body');
+    const rows = Array.from(tbody.querySelectorAll('tr[draggable="true"]'));
+
+    rows.forEach(row => {
+        row.addEventListener('dragstart', (e) => {
+            dragSrcId = row.dataset.id;
+            dragSrcZi = row.dataset.zi;
+            row.classList.add('dragging');
+            e.dataTransfer.effectAllowed = 'move';
+        });
+
+        row.addEventListener('dragend', () => {
+            rows.forEach(r => r.classList.remove('drag-over', 'dragging'));
+        });
+
+        row.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            // Permitem drop doar dacă e aceeași zi
+            if (row.dataset.zi === dragSrcZi && row.dataset.id !== dragSrcId) {
+                e.dataTransfer.dropEffect = 'move';
+                rows.forEach(r => r.classList.remove('drag-over'));
+                row.classList.add('drag-over');
+            } else {
+                e.dataTransfer.dropEffect = 'none';
+            }
+        });
+
+        row.addEventListener('dragleave', () => {
+            row.classList.remove('drag-over');
+        });
+
+        row.addEventListener('drop', async (e) => {
+            e.preventDefault();
+            row.classList.remove('drag-over');
+
+            if (!dragSrcId || row.dataset.id === dragSrcId || row.dataset.zi !== dragSrcZi) return;
+
+            // Obținem ordinea curentă a rândurilor din aceeași zi din tabel (ordinea vizuală)
+            const allRowsInTbody = Array.from(tbody.querySelectorAll('tr[draggable="true"]'));
+            const sameDay = allRowsInTbody.filter(r => r.dataset.zi === dragSrcZi);
+
+            const srcIdx = sameDay.findIndex(r => r.dataset.id === dragSrcId);
+            const dstIdx = sameDay.findIndex(r => r.dataset.id === row.dataset.id);
+
+            if (srcIdx === -1 || dstIdx === -1) return;
+
+            // Reordonăm vizual
+            const srcRow = sameDay[srcIdx];
+            if (srcIdx < dstIdx) {
+                row.parentNode.insertBefore(srcRow, row.nextSibling);
+            } else {
+                row.parentNode.insertBefore(srcRow, row);
+            }
+
+            // Salvăm noua ordine în Supabase
+            const updatedOrder = Array.from(tbody.querySelectorAll('tr[draggable="true"]'))
+                .filter(r => r.dataset.zi === dragSrcZi);
+
+            const updates = updatedOrder.map((r, idx) => ({
+                id: parseInt(r.dataset.id),
+                sort_order: idx
+            }));
+
+            // Update în Supabase pentru fiecare rând din ziua respectivă
+            for (const u of updates) {
+                await _SB.from('registru_master').update({ sort_order: u.sort_order }).eq('id', u.id);
+            }
+
+            // Reîmprospătăm datele (numerele se recalculează)
+            await refreshDate();
+        });
     });
 }
 
@@ -653,6 +754,135 @@ async function proceseazaSchimbareData(id, ziNoua) {
     </div>`;
     
     container.innerHTML = h;
+}
+
+async function printLuna() {
+    // 1. Filtrăm datele din variabila localRows (care conține deja luna curentă)
+    const dateLuna = localRows.filter(r => r.stare === 'activ').sort((a, b) => {
+        const ziA = parseInt(a.zi_inreg) || 0;
+        const ziB = parseInt(b.zi_inreg) || 0;
+        return ziA - ziB;
+    });
+
+    if (dateLuna.length === 0) {
+        alert("Nu există date pentru luna selectată!");
+        return;
+    }
+
+    const totalPozitii = dateLuna.length;
+    const printWindow = window.open('', '_blank');
+
+    // 2. Construim rândurile tabelului
+    let rowsHtml = "";
+    dateLuna.forEach((row, i) => {
+        const nr = i + 1;
+        const lunaNr = (luniText.indexOf(row.luna_inreg) + 1).toString().padStart(2, '0');
+        
+        rowsHtml += `
+            <tr>
+                <td style="text-align:center; border:1px solid black; padding:8px;">${nr}</td>
+                <td style="text-align:center; border:1px solid black; padding:8px;">${row.zi_inreg || ''}</td>
+                <td style="text-align:center; border:1px solid black; padding:8px;">${nr} / ${row.zi_inreg || '..'}.${lunaNr}.${currentAn}</td>
+                <td style="border:1px solid black; padding:8px; text-align:left;">${row.cuprins_act || ''}</td>
+            </tr>`;
+    });
+
+    // 3. Generăm structura completă a documentului (Copertă + Tabel + PV)
+    printWindow.document.write(`
+        <html>
+        <head>
+            <title>Registru PNRAS - ${currentLuna} ${currentAn}</title>
+            <style>
+                @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
+                @page { size: A4 portrait; margin: 1.5cm; }
+                body { font-family: 'Inter', sans-serif; margin: 0; padding: 0; }
+                .content-wrapper { counter-reset: p-idx 0; }
+                thead { display: table-header-group; }
+                tr { page-break-inside: avoid; }
+                .page-coperta { 
+                    width: 100%; height: 26.5cm; page-break-after: always; 
+                    display: flex; flex-direction: column; justify-content: space-between; 
+                    text-align: center; border: 8px double #1e40af; padding: 30px; box-sizing: border-box;
+                    background: linear-gradient(180deg, #ffffff 0%, #f0f4ff 100%);
+                }
+                .antet { width: 100%; display: block; margin-bottom: 20px; }
+                .titlu-coperta { font-size: 28pt; font-weight: 900; color: #1e3a8a; text-transform: uppercase; margin: 40px 0; }
+                .cat-box { border: 2px solid #1e40af; padding: 25px; margin: 0 auto; width: 90%; text-align: left; font-size: 14pt; background: white; box-shadow: 8px 8px 0px #1e40af; }
+                table { width: 100%; border-collapse: collapse; border: 1.5px solid black; }
+                th { border: 1px solid black; background: #1e40af !important; color: white !important; padding: 10px; font-size: 9pt; text-transform: uppercase; }
+                td { border: 1px solid black; font-size: 10pt; }
+                .footer-number { position: fixed; bottom: -1cm; right: 0cm; font-size: 11pt; font-weight: bold; color: #1e40af; }
+                .footer-number::after { counter-increment: p-idx; content: counter(p-idx); }
+                .section { page-break-after: always; position: relative; }
+                .pv-box { border: 2px solid black; padding: 40px; background: white; margin-top: 20px; }
+                .semnaturi { display: flex; justify-content: space-between; margin-top: 60px; }
+                .semn-box { text-align: center; width: 45%; }
+                @media print { body { -webkit-print-color-adjust: exact; } }
+            </style>
+        </head>
+        <body>
+            <div class="page-coperta">
+                <img src="antet_pnras.jpeg" class="antet">
+                <div class="titlu-coperta">REGISTRU de evidență<br>a documentelor<br><span style="font-size:18pt;">- LUNA ${currentLuna.toUpperCase()} ${currentAn} -</span></div>
+                <div style="flex-grow:1; display:flex; flex-direction:column; justify-content:center; gap:30px;">
+                    <div class="cat-box"><strong>Categoria I:</strong> Activități de identificarea și monitorizare a elevilor în risc de abandon școlar - MATE</div>
+                    <div class="cat-box"><strong>Categoria II:</strong> Activități de prevenire, intervenție și compensare</div>
+                </div>
+                <div style="font-weight:bold; color:#1e40af;">PROGRAMUL NAȚIONAL PENTRU REDUCEREA ABANDONULUI ȘCOLAR</div>
+            </div>
+
+            <div class="content-wrapper">
+                <div class="footer-number"></div>
+                <div class="section">
+                    <img src="antet_pnras.jpeg" class="antet">
+                    <h2 style="text-align:center; text-transform:uppercase; color:#1e40af; font-size:14pt;">Registrul de Documente: ${currentLuna} ${currentAn}</h2>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th style="width:50px;">Nr. crt.</th>
+                                <th style="width:50px;">Zi</th>
+                                <th style="width:160px;">Nr. înregistrare / Dată</th>
+                                <th>Conținut document (Cuprins)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${rowsHtml}
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="section" style="page-break-after: auto;">
+                    <img src="antet_pnras.jpeg" class="antet">
+                    <div class="pv-box">
+                        <h2 style="text-align:center; text-decoration: underline; font-weight: 900; color:#1e40af;">PROCES-VERBAL</h2>
+                        <p style="font-size: 12pt; line-height: 1.8;">
+                            Prezentul registru pentru luna <strong>${currentLuna} ${currentAn}</strong> conține un număr de <strong id="pg-final">...</strong> pagini, 
+                            cu un total de <strong>${totalPozitii}</strong> poziții înregistrate.
+                        </p>
+                        <div class="semnaturi">
+                            <div class="semn-box">
+                                <strong>DIRECTOR,</strong><br>prof. Cătălin Ionuț BAZILUC<br><br><br>_________________
+                            </div>
+                            <div class="semn-box">
+                                <strong>MANAGER PROIECT,</strong><br>prof. dr. Ciprian MIHAI<br><br><br>_________________
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <script>
+                window.onload = function() {
+                    const hTabel = document.querySelector('.content-wrapper').offsetHeight;
+                    const pgs = Math.ceil(hTabel / 930); 
+                    document.getElementById('pg-final').innerText = pgs;
+                    setTimeout(() => { window.print(); }, 1000);
+                };
+            <\/script>
+        </body>
+        </html>
+    `);
+    printWindow.document.close();
 }
 
     init();
