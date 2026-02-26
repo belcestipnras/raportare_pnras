@@ -193,17 +193,23 @@
         /* ===== CHECKLIST ===== */
         .checklist { margin-top: 10px; }
         .check-item {
-            display: flex; align-items: center; gap: 10px; padding: 10px 14px;
+            display: flex; flex-direction: column; gap: 0; padding: 10px 14px;
             background: #fff; border-radius: 8px; margin-bottom: 5px;
             border: 1px solid #e8ecf1; font-size: 13px;
         }
+        .check-item-header { display: flex; align-items: center; gap: 10px; }
         .check-icon { font-size: 18px; }
         .check-name { flex: 1; font-weight: 500; }
         .check-ok { background: #f0fdf4; border-color: #bbf7d0; }
         .check-miss { background: #fef2f2; border-color: #fecaca; }
         .check-opt { background: #f9fafb; border-color: #e5e7eb; color: #888; }
-        .check-files { font-size: 11px; color: #1a56db; cursor: pointer; margin-left: 4px; }
+        .check-files-list { display: flex; flex-direction: column; gap: 4px; margin-top: 8px; margin-left: 28px; }
+        .check-file-row { display: flex; align-items: center; gap: 6px; }
+        .check-files { font-size: 11px; color: #1a56db; cursor: pointer; flex: 1; }
         .check-files:hover { text-decoration: underline; }
+        .check-files.storage { color: #0369a1; }
+        .btn-del-storage { background: none; border: none; cursor: pointer; font-size: 13px; color: #dc2626; padding: 0 2px; line-height: 1; opacity: 0.6; }
+        .btn-del-storage:hover { opacity: 1; }
 
         /* ===== DIALOG ===== */
         .overlay {
@@ -665,14 +671,49 @@
     async function afiseazaChecklistContract(contractId, titlu) {
         const cont = document.getElementById('continut');
 
+        // Preluăm documentele din tabel
         const { data: docs } = await db.from('documente_contract').select('*').eq('contract_id', contractId);
+
+        // Preluăm fișierele din storage cu prefix contract_id
+        const { data: storageFiles } = await db.storage.from('contracte').list('', {
+            limit: 200,
+            search: contractId
+        });
+
+        // Construim un map: prefix numeric -> listă fișiere storage
+        // ex: "2" -> [{name, url}], "5.1" -> [{name, url}]
+        const storageGrupate = {};
+        if (storageFiles) {
+            storageFiles.forEach(f => {
+                const prefix = contractId + '_';
+                if (!f.name.startsWith(prefix)) return;
+                const rest = f.name.substring(prefix.length);
+                // Scoatem timestamp-ul (primul segment numeric lung)
+                const afterTs = rest.replace(/^\d+_/, '');
+                // Extragem numărul din față: "2.", "5.1", "13" etc.
+                const numMatch = afterTs.match(/^(\d+(?:\.\d+)?)[.\s]/);
+                if (!numMatch) return;
+                const numPrefix = numMatch[1];
+                if (!storageGrupate[numPrefix]) storageGrupate[numPrefix] = [];
+                const { data: urlData } = db.storage.from('contracte').getPublicUrl(f.name);
+                storageGrupate[numPrefix].push({ name: afterTs, url: urlData.publicUrl, storagePath: f.name });
+            });
+        }
 
         const existente = docs ? docs.map(d => d.tip_document) : [];
         const grupate = {};
         if (docs) docs.forEach(d => { if (!grupate[d.tip_document]) grupate[d.tip_document] = []; grupate[d.tip_document].push(d); });
 
+        // Verificăm dacă un tip are fișiere în storage
+        function areStorageForTip(tip) {
+            const numMatch = tip.match(/^(\d+(?:\.\d+)?)[.\s]/);
+            if (!numMatch) return false;
+            const numPrefix = numMatch[1];
+            return storageGrupate[numPrefix] && storageGrupate[numPrefix].length > 0;
+        }
+
         const dosarPdf = docs ? docs.find(d => d.tip_document === 'DOSAR ACHIZIȚIE PDF') : null;
-        const complet = DOCUMENTE_OBLIGATORII.every(o => existente.includes(o));
+        const complet = DOCUMENTE_OBLIGATORII.every(o => existente.includes(o) || areStorageForTip(o));
 
         let html = '<div style="padding:14px 18px;border-radius:10px;margin-bottom:16px;font-size:15px;font-weight:700;' +
             (complet ? 'background:#dcfce7;color:#166534;">' : 'background:#fee2e2;color:#991b1b;">') +
@@ -693,19 +734,48 @@
             const incarcat = existente.includes(tip);
             const fisiere = grupate[tip] || [];
 
+            // Fișiere din storage pentru acest tip
+            const numMatch = tip.match(/^(\d+(?:\.\d+)?)[.\s]/);
+            const numPrefix = numMatch ? numMatch[1] : null;
+            const storageFisiere = (numPrefix && storageGrupate[numPrefix]) ? storageGrupate[numPrefix] : [];
+
+            const areDoc = incarcat || storageFisiere.length > 0;
+
             let cls = 'check-opt', ico = '⬜';
-            if (incarcat) { cls = 'check-ok'; ico = '✅'; }
+            if (areDoc) { cls = 'check-ok'; ico = '✅'; }
             else if (oblig) { cls = 'check-miss'; ico = '❌'; }
 
             html += '<div class="check-item ' + cls + '">' +
+                '<div class="check-item-header">' +
                 '<span class="check-icon">' + ico + '</span>' +
-                '<span class="check-name">' + tip + (oblig ? '' : ' (opțional)') + '</span>';
+                '<span class="check-name">' + tip + (oblig ? '' : ' (opțional)') + '</span>' +
+                '</div>';
 
+            // Fișiere din tabel + storage - toate sub header
+            const toateFisierele = [];
             fisiere.forEach(f => {
-                if (f.link_drive) {
-                    html += '<a class="check-files" href="' + f.link_drive + '" target="_blank">' + (f.nume_fisier || 'Deschide') + '</a>';
-                }
+                if (f.link_drive) toateFisierele.push({ url: f.link_drive, name: f.nume_fisier || 'Deschide', tip: 'tabel', id: f.id });
             });
+            storageFisiere.forEach(f => {
+                const dejaPrezent = fisiere.some(d => d.link_drive === f.url);
+                if (!dejaPrezent) toateFisierele.push({ url: f.url, name: f.name, tip: 'storage', storagePath: f.storagePath });
+            });
+
+            if (toateFisierele.length > 0) {
+                html += '<div class="check-files-list">';
+                toateFisierele.forEach(f => {
+                    html += '<div class="check-file-row">';
+                    html += '<a class="check-files' + (f.tip === 'storage' ? ' storage' : '') + '" href="' + f.url + '" target="_blank">📎 ' + f.name + '</a>';
+                    if (f.tip === 'storage') {
+                        const pathSafe = f.storagePath.replace(/'/g, "\'");
+                        html += '<button class="btn-del-storage" onclick="stergeStorageFisier(\'' + pathSafe + '\', \'' + contractId + '\', \'' + titlu.replace(/'/g,"\'\'") + '\')" title="Șterge fișier">🗑️</button>';
+                    } else {
+                        html += '<button class="btn-del-storage" onclick="stergeTabelFisier(\'' + f.id + '\', \'' + contractId + '\', \'' + titlu.replace(/'/g,"\'\'") + '\')" title="Șterge fișier">🗑️</button>';
+                    }
+                    html += '</div>';
+                });
+                html += '</div>';
+            }
 
             html += '</div>';
         });
@@ -1262,6 +1332,32 @@
     // ===================== START =====================
     actualizeazaBreadcrumb();
     incarcaVizualizare();
+
+    // ===================== ȘTERGERE FIȘIERE CHECKLIST =====================
+    async function stergeStorageFisier(storagePath, contractId, titlu) {
+        const r = await arataDialog('🗑️ Șterge fișier', 'Ești sigur că vrei să ștergi acest fișier din storage?', [
+            { text: 'Șterge', valoare: 'da', clasa: 'dialog-btn-primary' },
+            { text: 'Anulează', valoare: 'nu', clasa: 'dialog-btn-cancel' }
+        ]);
+        if (r.actiune !== 'da') return;
+        const { error } = await db.storage.from('contracte').remove([storagePath]);
+        if (error) { aratToast('❌ Eroare la ștergere: ' + error.message, 'error'); return; }
+        aratToast('🗑️ Fișier șters', 'success');
+        afiseazaChecklistContract(contractId, titlu);
+    }
+
+    async function stergeTabelFisier(docId, contractId, titlu) {
+        const r = await arataDialog('🗑️ Șterge fișier', 'Ești sigur că vrei să ștergi acest document?', [
+            { text: 'Șterge', valoare: 'da', clasa: 'dialog-btn-primary' },
+            { text: 'Anulează', valoare: 'nu', clasa: 'dialog-btn-cancel' }
+        ]);
+        if (r.actiune !== 'da') return;
+        const { error } = await db.from('documente_contract').delete().eq('id', docId);
+        if (error) { aratToast('❌ Eroare la ștergere: ' + error.message, 'error'); return; }
+        aratToast('🗑️ Document șters', 'success');
+        afiseazaChecklistContract(contractId, titlu);
+    }
+
 </script>
 
     <div id="toast" class="toast"></div>

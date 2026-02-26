@@ -32,6 +32,7 @@
 
     📁 Dosar contract
     <button class="btn" onclick="genereazaDosar()">Generează dosar</button>
+    <button class="btn" onclick="stergeTotal()" style="background:#fee2e2;color:#dc2626;border-color:#fca5a5;">🗑️ Șterge tot</button>
   </h1>
 
   <!-- upload INVIZIBIL (pornit din cartonase) -->
@@ -430,6 +431,30 @@ document.getElementById("fileInput").addEventListener("change", async function()
   if(!files.length) return;
 
   for(const file of files){
+    // sterge documentele vechi de acelasi tip din storage + tabel
+    const { data: vechi } = await supabaseClient
+      .from("documente_contract")
+      .select("id, link_drive")
+      .eq("contract_id", contractId)
+      .eq("tip_document", tipSelectat);
+
+    if (vechi && vechi.length) {
+      const paths = vechi
+        .filter(d => d.link_drive)
+        .map(d => {
+          try {
+            const url = new URL(d.link_drive);
+            const path = url.pathname.split("/object/public/contracte/")[1];
+            return path ? decodeURIComponent(path) : null;
+          } catch(e) { return null; }
+        })
+        .filter(Boolean);
+      if (paths.length) await supabaseClient.storage.from("contracte").remove(paths);
+      await supabaseClient.from("documente_contract").delete()
+        .eq("contract_id", contractId)
+        .eq("tip_document", tipSelectat);
+    }
+
     const safe = safeName(file.name);
     const fileName = `${contractId}_${Date.now()}_${safe}`;
 
@@ -489,10 +514,82 @@ async function stergeDoc(id, link){
       .delete()
       .eq("id", id);
 
+    // ===== curata fisiere orfane din storage (fara inregistrare in tabel) =====
+    const { data: ramaseTabel } = await supabaseClient
+      .from("documente_contract")
+      .select("link_drive")
+      .eq("contract_id", contractId);
+
+    const { data: storageFiles } = await supabaseClient.storage
+      .from("contracte")
+      .list("", { limit: 500, search: contractId });
+
+    if (storageFiles && storageFiles.length) {
+      const linkuriTabel = new Set((ramaseTabel || []).map(d => d.link_drive).filter(Boolean));
+      const orfane = storageFiles
+        .filter(f => {
+          if (!f.name.startsWith(contractId + "_")) return false;
+          const { data: urlData } = supabaseClient.storage.from("contracte").getPublicUrl(f.name);
+          return !linkuriTabel.has(urlData.publicUrl);
+        })
+        .map(f => f.name);
+      if (orfane.length) {
+        await supabaseClient.storage.from("contracte").remove(orfane);
+      }
+    }
+
     incarcaDocumente();
 
   }catch(e){
     alert("Eroare la ștergere");
+    console.log(e);
+  }
+}
+
+async function stergeTotal(){
+  if(!confirm("Ștergi TOATE documentele și fișierele acestui contract? Acțiunea este ireversibilă!")) return;
+
+  try{
+    // 1. Luăm toate înregistrările din tabel
+    const { data: docs } = await supabaseClient
+      .from("documente_contract")
+      .select("id, link_drive")
+      .eq("contract_id", contractId);
+
+    // 2. Ștergem fișierele din storage care au link în tabel
+    if(docs && docs.length){
+      const paths = docs
+        .filter(d => d.link_drive)
+        .map(d => {
+          try{
+            const url = new URL(d.link_drive);
+            const path = url.pathname.split("/object/public/contracte/")[1];
+            return path ? decodeURIComponent(path) : null;
+          }catch(e){ return null; }
+        })
+        .filter(Boolean);
+      if(paths.length) await supabaseClient.storage.from("contracte").remove(paths);
+    }
+
+    // 3. Ștergem din storage și fișierele orfane (fără înregistrare în tabel)
+    const { data: storageFiles } = await supabaseClient.storage.from("contracte").list("", { limit: 500, search: contractId });
+    if(storageFiles && storageFiles.length){
+      const orphans = storageFiles
+        .filter(f => f.name.startsWith(contractId + "_"))
+        .map(f => f.name);
+      if(orphans.length) await supabaseClient.storage.from("contracte").remove(orphans);
+    }
+
+    // 4. Ștergem toate înregistrările din tabel
+    await supabaseClient
+      .from("documente_contract")
+      .delete()
+      .eq("contract_id", contractId);
+
+    incarcaDocumente();
+    alert("✓ Toate documentele au fost șterse.");
+  }catch(e){
+    alert("Eroare la ștergere totală");
     console.log(e);
   }
 }
@@ -817,7 +914,22 @@ if (vreaStampila) aplicaStampila(p, imaginiStampile); // Doar dacă s-a ales OK
 
   const { data:urlData } = supabaseClient.storage.from("contracte").getPublicUrl(fileName);
 
-  // sterge vechea inregistrare dosar
+  // sterge vechiul dosar din storage (daca exista)
+  const { data: dosarVechi } = await supabaseClient
+    .from("documente_contract")
+    .select("link_drive")
+    .eq("contract_id", contractId)
+    .eq("tip_document", "DOSAR ACHIZIȚIE PDF")
+    .single();
+  if (dosarVechi && dosarVechi.link_drive) {
+    try {
+      const url = new URL(dosarVechi.link_drive);
+      const path = url.pathname.split("/object/public/contracte/")[1];
+      if (path) await supabaseClient.storage.from("contracte").remove([decodeURIComponent(path)]);
+    } catch(e) {}
+  }
+
+    // sterge vechea inregistrare dosar
 await supabaseClient
 .from("documente_contract")
 .delete()
