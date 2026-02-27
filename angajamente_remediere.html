@@ -195,9 +195,10 @@
         workspace.innerHTML = "<div style='color:#64748b; margin-top:20px;'>Se încarcă...</div>";
         const { data, error } = await _db.from('mate_pnras').select('*').eq('clasa', numeClasa).eq('anul', currentYear).order('nume_elev');
         if (!error && data) {
-            cachedData = data;
+            const dataFiltrata = data.filter(e => e.nr_dosar && e.nr_dosar !== '' && e.nr_dosar !== '---');
+            cachedData = dataFiltrata;
             cachedClass = numeClasa;
-            renderFise(data, numeClasa);
+            renderFise(dataFiltrata, numeClasa);
         } else {
             workspace.innerHTML = "Eroare la încărcare.";
         }
