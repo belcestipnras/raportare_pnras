@@ -322,10 +322,8 @@ async function incarcaDatele() {
         const { data: listaActivitati, error: err2 } = await _db.from('elevi').select('cnp, clasa_grupa').in('cnp', listaCNP).eq('anul', parseInt(an));
         if (err2) console.error(err2);
 
-        const cnpUriInscrisi = new Set((listaActivitati || []).map(e => String(e.cnp)));
-        const listaPnrasFiltrata = listaPnras.filter(pnrasItem => cnpUriInscrisi.has(String(pnrasItem.cnp)));
-
-        eleviDB = listaPnrasFiltrata.map(pnrasItem => {
+        // Toti elevii din mate_pnras, cu sau fara grupe
+        eleviDB = listaPnras.map(pnrasItem => {
             const activitatiElev = (listaActivitati || []).filter(e => String(e.cnp) === String(pnrasItem.cnp));
             const setGrupe = new Set(activitatiElev.map(e => e.clasa_grupa).filter(g => g));
             return { ...pnrasItem, activitati_extra: [...setGrupe].join(', '), grupe_array: [...setGrupe] };
@@ -400,7 +398,8 @@ function renderPlanuri(clasa) {
         const grupeElev = elev.grupe_array || [];
 
         let continutRemedial = "", continutLiteratie = "", continutCluburi = "";
-        let areRomana = false, areMate = false, areLiteratie = false;
+        // areRomana/areMate/areLiteratie nu mai sunt necesare - II.4 si II.6 sunt fixe
+        let areRomana = true, areMate = true, areLiteratie = true;
 
         if (an == "2026") {
             areRomana = grupeElev.some(g => romRemedial2026.includes(g));
@@ -429,21 +428,28 @@ function renderPlanuri(clasa) {
             continutCluburi = `<div style="margin-bottom: 5px;"><div style="font-weight: 700; font-size: 9.5pt; margin-bottom: 2px;">II.5. Activități extracurriculare și/sau extrașcolare, inclusiv în parteneriate cu ONG</div><ul style="margin: 0; padding-left: 20px; font-size: 9pt;">${texteCluburi.map(t => `<li>${t}</li>`).join('')}</ul></div>`;
         }
 
-        let htmlSubsectiuneaA = "";
-        if (continutRemedial || continutCluburi || continutLiteratie) {
-            htmlSubsectiuneaA = `<div class="content-box"><div style="font-weight: 700; font-size: 9.5pt; margin-bottom: 5px; border-bottom: 1px solid #e2e8f0; padding-bottom: 3px;">A. Tipuri de servicii educaționale necesare elevului/elevei</div>${continutRemedial}${continutCluburi}${continutLiteratie}</div>`;
-        }
+        let htmlSubsectiuneaA = `<div class="content-box"><div style="font-weight: 700; font-size: 9.5pt; margin-bottom: 5px; border-bottom: 1px solid #e2e8f0; padding-bottom: 3px;">A. Tipuri de servicii educaționale necesare elevului/elevei</div>${continutRemedial}${continutCluburi}${continutLiteratie}</div>`;
 
-        let specialistiGasiti = [];
+        const specialistiFixi = [
+            'Angheluș Raluca - Expert activități remediale la limba și literatura română',
+            'Baziluc Ana Maria - Expert activități remediale la limba și literatura română',
+            'Ghemeș Anca - Expert activități remediale la limba și literatura română',
+            'Arotăriței Dănuț - Expert activități remediale la matematică',
+            'Boldan Ovidiu - Expert activități remediale la matematică',
+            'Iftene Ana Maria - Expert activități remediale la matematică',
+            'Popovici Estera - Expert activități remediale la matematică'
+        ];
+        // Experti extracurriculari - dinamic dupa grupe
+        let specialistiExtra = [];
         listaSpecialistiCurenta.forEach(spec => {
-            if (grupeElev.some(g => spec.grupe.includes(g))) { specialistiGasiti.push(`${spec.nume} - ${ROLURI_EXPERTI[spec.nume] || "Expert"}`); }
+            if (grupeElev.some(g => spec.grupe.includes(g))) {
+                const rol = ROLURI_EXPERTI[spec.nume] || 'Expert';
+                if (rol.includes('extracurricular')) specialistiExtra.push(`${spec.nume} - ${rol}`);
+            }
         });
-        specialistiGasiti = [...new Set(specialistiGasiti)];
-
-        let htmlSubsectiuneaB = "";
-        if (specialistiGasiti.length > 0) {
-            htmlSubsectiuneaB = `<div class="content-box"><div style="font-weight: 700; font-size: 9.5pt; margin-bottom: 5px; border-bottom: 1px solid #e2e8f0; padding-bottom: 3px;">B. Specialiști necesari elevului/elevei</div><ul style="margin: 0; padding-left: 20px; font-size: 9pt; line-height: 1.4;">${specialistiGasiti.map(text => `<li>${text}</li>`).join('')}</ul></div>`;
-        }
+        specialistiExtra = [...new Set(specialistiExtra)];
+        const totiSpecialistii = [...specialistiFixi, ...specialistiExtra];
+        let htmlSubsectiuneaB = `<div class="content-box"><div style="font-weight: 700; font-size: 9.5pt; margin-bottom: 5px; border-bottom: 1px solid #e2e8f0; padding-bottom: 3px;">B. Specialiști necesari elevului/elevei</div><ul style="margin: 0; padding-left: 20px; font-size: 9pt; line-height: 1.4;">${totiSpecialistii.map(text => `<li>${text}</li>`).join('')}</ul></div>`;
 
         let htmlSubsectiuneaC = `
             <div class="content-box">
