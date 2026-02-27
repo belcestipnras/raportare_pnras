@@ -59,10 +59,10 @@
         .perc-med { color: var(--warning); }
         .perc-low { color: var(--success); }
 
-        .ai-paragraph { display: block; text-indent: 1.27cm; margin-bottom: 12px; text-align: justify; font-size: 10.5pt; line-height: 1.6; }
+        .ai-paragraph { display: block; text-indent: 1.27cm; margin-bottom: 4px; text-align: justify; font-size: 10.5pt; line-height: 1.4; }
         .ai-box-editable { min-height: 200pt; border: 1px solid #e2e8f0; padding: 15px; background: #fff; outline: none; border-radius: 4px; }
         
-        .footer-signatures { margin-top: 50px; display: flex; justify-content: space-between; align-items: flex-start; page-break-inside: avoid; }
+        .footer-signatures { margin-top: 5px; display: flex; justify-content: space-between; align-items: flex-start; page-break-inside: avoid; page-break-before: avoid; break-before: avoid; }
         .sig-block { text-align: center; width: 45%; }
         .sig-label { font-weight: 800; text-transform: uppercase; font-size: 9pt; }
         .sig-name { margin-top: 40px; font-weight: 800; border-top: 1px solid #000; padding-top: 5px; font-size: 10pt; }
@@ -116,7 +116,7 @@ const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS
 const _db = supabase.createClient(supabaseUrl, supabaseKey);
 
 const params = new URLSearchParams(window.location.search);
-const anSelectat = params.get('an') || 2026;
+let anSelectat = params.get('an') || '2025 - 2026';
 let toateDatele = [];
 let vizualizareCurenta = 'General';
 let contextStatisticiAI = {};
@@ -149,7 +149,11 @@ const MATE_MAP = {
 };
 
 async function init() {
-    const { data, error } = await _db.from('mate_pnras').select('*').eq('anul', anSelectat).order('nume_elev', { ascending: true });
+    // Citeste an_scolar salvat din DB (primul rand)
+    const { data: cfg } = await _db.from('mate_pnras').select('an_scolar').not('an_scolar', 'is', null).limit(1).single();
+    if (cfg && cfg.an_scolar) anSelectat = cfg.an_scolar;
+
+    const { data, error } = await _db.from('mate_pnras').select('*').order('nume_elev', { ascending: true });
     if (!error) {
         toateDatele = data;
         renderNav();
@@ -171,7 +175,8 @@ async function switchView(view) {
     const activeBtn = document.getElementById(`btn-${view}`);
     if (activeBtn) activeBtn.classList.add('active');
     
-    document.getElementById('clasa-an-header').innerHTML = (view === 'General' ? 'Nivel Școală' : 'Clasa: ' + view) + ' | An școlar: <input type="text" id="an-scolar-input" class="edit-input" style="width:120px; font-size:11pt; font-weight:800;" value="' + anSelectat + '" onchange="anSelectat = this.value; init();" onblur="salveazaDate()">';
+    const prefix = view === 'General' ? 'Nivel Școală' : 'Clasa: ' + view;
+    document.getElementById('clasa-an-header').innerHTML = prefix + ' | An școlar: <input type="text" id="an-scolar-input" class="edit-input" style="width:120px;font-size:11pt;font-weight:800;" value="' + anSelectat + '" onchange="salveazaAnScolar(this.value)">';
 
     const subset = view === 'General' ? toateDatele : toateDatele.filter(e => e.clasa === view);
     renderIndicators(subset);
@@ -266,6 +271,15 @@ async function genereazaAnalizaAI() {
         box.innerHTML = res.reply.split('\n').filter(p => p.trim() !== '').map(p => `<span class="ai-paragraph">${p}</span>`).join('');
         await salveazaDate();
     } catch (e) { box.innerHTML = "Eroare AI."; }
+}
+
+async function salveazaAnScolar(val) {
+    anSelectat = val;
+    await _db.from('mate_pnras').update({ an_scolar: val }).neq('id', 0);
+    // Actualizeaza doar textul din header, fara sa reincarca toata pagina
+    const view = vizualizareCurenta;
+    const prefix = view === 'General' ? 'Nivel Școală' : 'Clasa: ' + view;
+    document.getElementById('clasa-an-header').innerHTML = prefix + ' | An școlar: <input type="text" id="an-scolar-input" class="edit-input" style="width:120px;font-size:11pt;font-weight:800;" value="' + anSelectat + '" onchange="salveazaAnScolar(this.value)">';
 }
 
 init();
