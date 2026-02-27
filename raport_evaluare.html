@@ -171,7 +171,7 @@ async function switchView(view) {
     const activeBtn = document.getElementById(`btn-${view}`);
     if (activeBtn) activeBtn.classList.add('active');
     
-    document.getElementById('clasa-an-header').innerText = (view === 'General' ? 'Nivel Școală' : 'Clasa: ' + view) + ' | An școlar: ' + anSelectat;
+    document.getElementById('clasa-an-header').innerHTML = (view === 'General' ? 'Nivel Școală' : 'Clasa: ' + view) + ' | An școlar: <input type="text" id="an-scolar-input" class="edit-input" style="width:120px; font-size:11pt; font-weight:800;" value="' + anSelectat + '" onchange="anSelectat = this.value; init();" onblur="salveazaDate()">';
 
     const subset = view === 'General' ? toateDatele : toateDatele.filter(e => e.clasa === view);
     renderIndicators(subset);
