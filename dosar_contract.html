@@ -35,8 +35,10 @@
     <button class="btn" onclick="stergeTotal()" style="background:#fee2e2;color:#dc2626;border-color:#fca5a5;">🗑️ Șterge tot</button>
   </h1>
 
-  <!-- upload INVIZIBIL (pornit din cartonase) -->
+  <!-- upload INVIZIBIL (pornit din cartonase - inlocuieste documentele) -->
   <input type="file" id="fileInput" multiple style="display:none" />
+  <!-- upload INVIZIBIL (pornit din butonul + de pe fiecare tip - adauga fara sa stearga) -->
+  <input type="file" id="fileInputAdauga" multiple style="display:none" />
 
   <div class="info">
     <div><b>Contract:</b> <span id="contract-nume">...</span></div>
@@ -44,13 +46,8 @@
 
     <div id="statusDosar" style="margin-top:14px;font-size:20px;font-weight:bold;"></div>
 
-    <!-- bifa manual complet -->
-    <div style="margin-top:8px;">
-      <label style="cursor:pointer;font-size:14px;">
-        <input type="checkbox" id="bifaComplet" onchange="toggleCompletManual()">
-        Marchează manual dosar COMPLET
-      </label>
-    </div>
+    <!-- bifaComplet pastrat ascuns pentru compatibilitate -->
+    <input type="checkbox" id="bifaComplet" style="display:none">
 
     <div id="cartonaseContainer" style="
       display:grid;
@@ -58,6 +55,14 @@
       gap:10px;
       margin-top:16px;
     "></div>
+
+    <!-- Adauga cartonas nou -->
+    <div id="addCartonasRow" style="margin-top:12px;display:flex;gap:8px;align-items:center;">
+      <input id="inputCartonasNou" type="text" placeholder="Titlu cartonaș nou..."
+        style="padding:7px 10px;border:1px solid #e2e8f0;border-radius:8px;font-size:13px;flex:1;max-width:300px;">
+      <button class="btn" onclick="adaugaCartonasNou()"
+        style="background:#dcfce7;color:#16a34a;border-color:#86efac;">➕ Adaugă cartonaș</button>
+    </div>
   </div>
 
   <h3>Documente contract</h3>
@@ -212,7 +217,7 @@ document.getElementById("contract-nume").innerText = nume || "-";
 document.getElementById("contract-furn").innerText = furn || "-";
 
 /* ===================== LISTE ===================== */
-const listaDocumente = [
+const listaDocumente_DEFAULT = [
   "1. Referat de necesitate",
   "2. Notă de justificare",
   "3. Cerere de ofertă",
@@ -234,6 +239,7 @@ const listaDocumente = [
   "15. Fotografii",
   "16. Alte documente"
 ];
+let listaDocumente = [];
 
 const obligatorii = [
   "1. Referat de necesitate",
@@ -268,7 +274,73 @@ incarcaDocumente();
 }
 
 /* ===================== LOAD + RENDER ===================== */
+function getListaDefault() {
+  // Detectam tipul dupa denumirea contractului
+  const denLower = (contractNumeFull || "").toLowerCase();
+
+  if (denLower.includes("stat de plat")) {
+    // Extragem luna si anul din denumire (ex: "iulie 2024")
+    const luni = {
+      "ianuarie":1,"februarie":2,"martie":3,"aprilie":4,"mai":5,"iunie":6,
+      "iulie":7,"august":8,"septembrie":9,"octombrie":10,"noiembrie":11,"decembrie":12
+    };
+    const luniNume = ["Ianuarie","Februarie","Martie","Aprilie","Mai","Iunie",
+                      "Iulie","August","Septembrie","Octombrie","Noiembrie","Decembrie"];
+
+    let lunaGasita = "";
+    let anGasit = "";
+
+    const denOrig = contractNumeFull || "";
+
+    // Cauta luna in denumire
+    for (const [luna, nr] of Object.entries(luni)) {
+      if (denOrig.toLowerCase().includes(luna)) {
+        lunaGasita = luniNume[nr - 1];
+        break;
+      }
+    }
+
+    // Cauta anul (4 cifre)
+    const matchAn = denOrig.match(/(20\d{2})/);
+    if (matchAn) anGasit = matchAn[1];
+
+    if (lunaGasita && anGasit) {
+      return [`Stat de plată ${lunaGasita} ${anGasit}`];
+    } else if (lunaGasita) {
+      return [`Stat de plată ${lunaGasita}`];
+    } else {
+      return ["Stat de plată"];
+    }
+  }
+
+  // Default: dosar achizitie
+  return listaDocumente_DEFAULT;
+}
+
+async function salveazaCartonase() {
+  await supabaseClient
+    .from("cartonase_config")
+    .upsert({ contract_id: contractId, cartonase: listaDocumente }, { onConflict: "contract_id" });
+}
+
 async function incarcaDocumente(){
+
+  // 0) cartonase salvate
+  const { data: cfgData, error: cfgError } = await supabaseClient
+    .from("cartonase_config")
+    .select("cartonase")
+    .eq("contract_id", contractId)
+    .maybeSingle();
+
+  if (cfgData) {
+    // Exista config salvata - o folosim (chiar daca e array gol)
+    listaDocumente.splice(0, listaDocumente.length, ...(cfgData.cartonase || []));
+  } else {
+    // Prima vizita - alegem lista default in functie de tip
+    const defaultList = getListaDefault();
+    listaDocumente.splice(0, listaDocumente.length, ...defaultList);
+    await salveazaCartonase();
+  }
 
   // 1) documente
   const { data:docs, error } = await supabaseClient
@@ -310,16 +382,27 @@ document.getElementById("bifaComplet").checked = completManual;
     }).forEach(tip => {
       html += `
         <tr style="background:#f1f5f9;font-weight:bold">
-          <td>${tip} (${grupate[tip].length})</td>
+          <td style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
+            <span>${tip} (${grupate[tip].length})</span>
+            <button class="btn small" onclick="adaugaDocumentLaTip(this)" data-tip="${tip}"
+              style="background:#dcfce7;color:#16a34a;border-color:#86efac;font-weight:600;font-size:12px;">
+              ➕ Adaugă
+            </button>
+          </td>
         </tr>
       `;
 
       grupate[tip].forEach(doc => {
+        const numeFisierEscaped = (doc.nume_fisier || "").replace(/'/g, "\\'").replace(/"/g, "&quot;");
         html += `
           <tr>
             <td>
               <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
-                <span style="min-width:240px">${doc.nume_fisier || ""}</span>
+                <input class="small" type="text"
+                  value="${numeFisierEscaped}"
+                  onchange="salveazaTitlu('${doc.id}', this.value)"
+                  title="Editează titlul documentului"
+                  style="min-width:240px;padding:4px;border:1px solid #e2e8f0;border-radius:6px;font-size:13px;">
 
                 <input class="small" type="text" placeholder="Nr"
                   value="${doc.nr_inregistrare || ""}"
@@ -333,7 +416,7 @@ document.getElementById("bifaComplet").checked = completManual;
 
                 <a href="${doc.link_drive}" target="_blank">📄 Deschide</a>
 
-                <button class="btn small" onclick="stergeDoc('${doc.id}','${doc.link_drive}')">🗑️</button>
+                <button class="btn small" onclick="stergeDoc('${doc.id}','${doc.link_drive}')" title="Șterge documentul" style="background:#fee2e2;color:#dc2626;border-color:#fca5a5;">🗑️ Șterge</button>
               </div>
             </td>
           </tr>
@@ -374,43 +457,52 @@ document.getElementById("bifaComplet").checked = completManual;
       textColor = "#334155";
     }
 
-    container.innerHTML += `
-      <div onclick="selecteazaTip('${doc}')"
-        style="
-          padding:10px;
-          border-radius:12px;
-          background:${culoare};
-          color:${textColor};
-          border:1px solid #e2e8f0;
-          box-shadow:0 1px 2px rgba(0,0,0,0.05);
-          cursor:pointer;
-          font-size:13px;
-          text-align:center;
-          font-weight:600;
-        ">
-        ${doc}
-      </div>
-    `;
+    const docIdx = listaDocumente.indexOf(doc);
+
+    const wrapper = document.createElement("div");
+    wrapper.id = `cartonas_${docIdx}`;
+    wrapper.style.cssText = `position:relative;padding:10px 10px 8px 10px;border-radius:12px;background:${culoare};color:${textColor};border:1px solid #e2e8f0;box-shadow:0 1px 2px rgba(0,0,0,0.05);font-size:13px;text-align:center;font-weight:600;`;
+
+    // Titlu - click = upload
+    const titluDiv = document.createElement("div");
+    titluDiv.title = "Click: upload | Dublu-click: editează titlul";
+    titluDiv.style.cssText = "cursor:pointer;padding-right:18px;min-height:20px;";
+    titluDiv.textContent = doc;
+    titluDiv.addEventListener("click", () => selecteazaTip(doc));
+    titluDiv.addEventListener("dblclick", (e) => { e.stopPropagation(); editeazaCartonas(docIdx, titluDiv); });
+    wrapper.appendChild(titluDiv);
+
+    // Buton stergere
+    const btnDel = document.createElement("button");
+    btnDel.title = "Șterge cartonașul și documentele lui";
+    btnDel.textContent = "✕";
+    btnDel.style.cssText = "position:absolute;top:4px;right:4px;background:rgba(0,0,0,0.15);border:none;border-radius:50%;width:18px;height:18px;font-size:11px;line-height:18px;cursor:pointer;color:inherit;padding:0;font-weight:bold;";
+    btnDel.addEventListener("click", (e) => { e.stopPropagation(); stergeCartonas(doc); });
+    wrapper.appendChild(btnDel);
+
+    container.appendChild(wrapper);
   });
 
   // 5) status
   const statusDiv = document.getElementById("statusDosar");
 
-  if(completManual){
-    statusDiv.innerHTML = `<span style="color:#16a34a">DOSAR COMPLET ✔ (manual)</span>`;
-  } else if(obligatorii.every(o => existente.includes(o))){
+  if(listaDocumente.length > 0 && totalOk === listaDocumente.length){
     statusDiv.innerHTML = `<span style="color:#16a34a">DOSAR COMPLET ✔</span> (${totalOk}/${listaDocumente.length})`;
   } else {
     statusDiv.innerHTML = `<span style="color:#dc2626">DOSAR INCOMPLET</span> (${totalOk}/${listaDocumente.length})`;
   }
 }
 
-/* ===================== EDIT NR / DATA ===================== */
+/* ===================== EDIT NR / DATA / TITLU ===================== */
 async function salveazaNr(id,val){
   await supabaseClient.from("documente_contract").update({nr_inregistrare:val}).eq("id",id);
 }
 async function salveazaData(id,val){
   await supabaseClient.from("documente_contract").update({data_inregistrare:val}).eq("id",id);
+}
+async function salveazaTitlu(id, val){
+  const { error } = await supabaseClient.from("documente_contract").update({nume_fisier: val}).eq("id", id);
+  if(error) alert("Eroare la salvarea titlului: " + error.message);
 }
 
 function safeName(name){
@@ -419,6 +511,51 @@ return name
 .replace(/[^a-zA-Z0-9.\-_]/g,"_") // doar litere sigure
 .replace(/_+/g,"_");
 }
+
+/* ===================== UPLOAD - ADAUGA DOCUMENT (fara stergere) ===================== */
+let tipAdauga = "";
+
+function adaugaDocumentLaTip(btn) {
+  tipAdauga = btn.getAttribute("data-tip");
+  document.getElementById("fileInputAdauga").click();
+}
+
+document.getElementById("fileInputAdauga").addEventListener("change", async function(){
+  const files = this.files;
+  if(!files.length) return;
+
+  for(const file of files){
+    const safe = safeName(file.name);
+    const fileName = `${contractId}_${Date.now()}_${safe}`;
+
+    const up = await supabaseClient.storage.from("contracte").upload(fileName, file, { upsert:false });
+    if(up.error){
+      alert("Eroare upload: " + up.error.message);
+      this.value = "";
+      return;
+    }
+
+    const { data:linkData } = supabaseClient.storage.from("contracte").getPublicUrl(fileName);
+
+    const ins = await supabaseClient.from("documente_contract").insert([{
+      contract_id: contractId,
+      nume_contract: nume || "",
+      furnizor: furn || "",
+      tip_document: tipAdauga,
+      nume_fisier: file.name,
+      link_drive: linkData.publicUrl
+    }]);
+
+    if(ins.error){
+      alert("Eroare salvare în tabel: " + ins.error.message);
+      this.value = "";
+      return;
+    }
+  }
+
+  this.value = "";
+  incarcaDocumente();
+});
 
 /* ===================== UPLOAD from cartonase ===================== */
 function selecteazaTip(tip){
@@ -486,6 +623,129 @@ document.getElementById("fileInput").addEventListener("change", async function()
   this.value = "";
   incarcaDocumente();
 });
+
+/* ===================== ADAUGA / EDITEAZA CARTONAS ===================== */
+async function adaugaCartonasNou() {
+  const input = document.getElementById("inputCartonasNou");
+  const titlu = input.value.trim();
+  if (!titlu) { input.focus(); return; }
+  if (listaDocumente.includes(titlu)) {
+    alert("Există deja un cartonaș cu acest titlu!");
+    return;
+  }
+  listaDocumente.push(titlu);
+  input.value = "";
+  await salveazaCartonase();
+  incarcaDocumente();
+}
+
+// Enter key pe input
+document.getElementById("inputCartonasNou").addEventListener("keydown", function(e){
+  if(e.key === "Enter") adaugaCartonasNou();
+});
+
+function editeazaCartonas(idx, titleDiv) {
+  const vechuNume = listaDocumente[idx];
+  
+  // Inlocuim div-ul cu un input inline
+  const container = titleDiv.parentElement;
+  const oldDiv = titleDiv;
+  
+  const inp = document.createElement("input");
+  inp.type = "text";
+  inp.value = vechuNume;
+  inp.style = "width:100%;box-sizing:border-box;padding:3px 6px;border:1px solid #93c5fd;border-radius:6px;font-size:13px;font-weight:600;text-align:center;background:rgba(255,255,255,0.8);color:#1e293b;";
+  
+  oldDiv.replaceWith(inp);
+  inp.focus();
+  inp.select();
+
+  async function salveaza() {
+    const nouNume = inp.value.trim();
+    if (!nouNume) { inp.focus(); return; }
+    if (nouNume !== vechuNume && listaDocumente.includes(nouNume)) {
+      alert("Există deja un cartonaș cu acest titlu!");
+      inp.focus();
+      return;
+    }
+
+    // Actualizam lista locala
+    listaDocumente[idx] = nouNume;
+
+    // Actualizam si in obligatorii daca era acolo
+    const idxObl = obligatorii.indexOf(vechuNume);
+    if (idxObl !== -1) obligatorii[idxObl] = nouNume;
+
+    // Daca exista documente uploadate cu vechiul tip, le redenumim in tabel
+    if (nouNume !== vechuNume) {
+      await salveazaCartonase();
+      supabaseClient
+        .from("documente_contract")
+        .update({ tip_document: nouNume })
+        .eq("contract_id", contractId)
+        .eq("tip_document", vechuNume)
+        .then(() => incarcaDocumente());
+    } else {
+      incarcaDocumente();
+    }
+  }
+
+  inp.addEventListener("blur", salveaza);
+  inp.addEventListener("keydown", function(e) {
+    if (e.key === "Enter") { inp.blur(); }
+    if (e.key === "Escape") { incarcaDocumente(); }
+  });
+}
+
+/* ===================== STERGE CARTONAS ===================== */
+async function stergeCartonas(tip) {
+  if(!confirm(`Ștergi cartonașul "${tip}" și TOATE documentele uploadate pentru el? Acțiunea este ireversibilă!`)) return;
+
+  try {
+    // 1. Ia toate documentele de acest tip
+    const { data: docs } = await supabaseClient
+      .from("documente_contract")
+      .select("id, link_drive")
+      .eq("contract_id", contractId)
+      .eq("tip_document", tip);
+
+    // 2. Sterge fisierele din storage
+    if (docs && docs.length) {
+      const paths = docs
+        .filter(d => d.link_drive)
+        .map(d => {
+          try {
+            const url = new URL(d.link_drive);
+            const path = url.pathname.split("/object/public/contracte/")[1];
+            return path ? decodeURIComponent(path) : null;
+          } catch(e) { return null; }
+        })
+        .filter(Boolean);
+      if (paths.length) await supabaseClient.storage.from("contracte").remove(paths);
+
+      // 3. Sterge din tabel
+      await supabaseClient
+        .from("documente_contract")
+        .delete()
+        .eq("contract_id", contractId)
+        .eq("tip_document", tip);
+    }
+
+    // 4. Scoate din lista locala
+    const idx = listaDocumente.indexOf(tip);
+    if (idx !== -1) listaDocumente.splice(idx, 1);
+
+    // 5. Scoate si din obligatorii daca e acolo
+    const idxObl = obligatorii.indexOf(tip);
+    if (idxObl !== -1) obligatorii.splice(idxObl, 1);
+
+    await salveazaCartonase();
+    incarcaDocumente();
+  } catch(e) {
+    alert("Eroare la ștergere cartonaș");
+    console.log(e);
+  }
+}
 
 /* ===================== DELETE ===================== */
 async function stergeDoc(id, link){
