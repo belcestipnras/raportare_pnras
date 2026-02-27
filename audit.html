@@ -265,6 +265,15 @@
         /* ===== DRAG & DROP ===== */
         .file-item.dragging { opacity: 0.35; border: 2px dashed #1a56db; }
         .file-item.drag-over { border-color: #1a56db; background: #f0f4ff; transform: scale(1.01); }
+
+        /* ===== NR. CRT. BADGE ===== */
+        .nr-crt {
+            min-width: 32px; height: 32px;
+            background: #1a56db; color: #fff;
+            border-radius: 8px; display: flex; align-items: center; justify-content: center;
+            font-size: 12px; font-weight: 700; flex-shrink: 0;
+            box-shadow: 0 2px 6px rgba(26,86,219,0.25);
+        }
     </style>
 </head>
 <body>
@@ -528,8 +537,8 @@
         // Conținut manual
         if (manual && manual.length > 0) {
             html += '<div class="file-list">';
-            manual.forEach(item => {
-                html += item.tip === 'folder' ? genFolderItem(item) : genFisierItem(item);
+            manual.forEach((item, idx) => {
+                html += item.tip === 'folder' ? genFolderItem(item, idx, manual.length) : genFisierItem(item, idx, manual.length);
             });
             html += '</div>';
         }
@@ -943,7 +952,10 @@
 
     function genFolderItem(item, idx, total) {
         const titluSafe = (item.titlu || '').replace(/'/g, "\'").replace(/"/g, '&quot;');
+        const nrCrt = (typeof idx === 'number') ? idx + 1 : '';
+        const nrBadge = nrCrt !== '' ? '<div class="nr-crt">' + nrCrt + '</div>' : '';
         return '<div class="file-item" draggable="true" data-id="' + item.id + '" style="cursor:grab;" onclick="deschideSubfolder(\'' + item.id + '\', \'' + item.card_id + '\', \'' + titluSafe + '\')">' +
+            nrBadge +
             '<span class="file-icon">&#128193;</span>' +
             '<div class="file-info"><div class="file-name">' + item.titlu + '</div><div class="file-date">Folder</div></div>' +
             '<div class="file-actions">' +
@@ -1002,8 +1014,11 @@
 
         const titluSafe = (item.titlu || item.fisier_nume || '').replace(/'/g, "\'").replace(/"/g, '&quot;');
         const fisierNumeSafe = (item.fisier_nume || 'fisier').replace(/'/g, "\'");
+        const nrCrt = (typeof idx === 'number') ? idx + 1 : '';
+        const nrBadge = nrCrt !== '' ? '<div class="nr-crt">' + nrCrt + '</div>' : '';
 
         return '<div class="file-item" draggable="true" data-id="' + item.id + '" style="cursor:grab;">' +
+            nrBadge +
             '<span class="file-icon">' + icon + '</span>' +
             '<div class="file-info"><div class="file-name">' + (item.titlu || item.fisier_nume || '-') + '</div></div>' +
             '<div class="file-actions">' +
@@ -1271,6 +1286,20 @@
     }
 
 
+    // Recalculează numerele crt vizual după reordonare
+    function recalcNrCrt(container) {
+        const items = container.querySelectorAll('.file-item[data-id]');
+        items.forEach((el, i) => {
+            let badge = el.querySelector('.nr-crt');
+            if (!badge) {
+                badge = document.createElement('div');
+                badge.className = 'nr-crt';
+                el.insertBefore(badge, el.firstChild);
+            }
+            badge.textContent = i + 1;
+        });
+    }
+
     // ===================== DRAG & DROP REORDONARE =====================
     let _dragId = null;
 
@@ -1317,6 +1346,9 @@
                 } else {
                     parent.insertBefore(draggingEl, targetEl);
                 }
+
+                // Recalculează numerele crt după mutare
+                recalcNrCrt(parent);
 
                 // Salveaza noile ordini in DB
                 const newIds = [...document.querySelectorAll('.file-item[data-id]')].map(el => el.dataset.id);
