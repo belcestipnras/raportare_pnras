@@ -749,6 +749,9 @@
         const listaCartonase = (cfgData && cfgData.cartonase && cfgData.cartonase.length)
             ? cfgData.cartonase : LISTA_DOCUMENTE;
 
+        const { data: contractRow } = await db.from('buget_pnras').select('subcategorie').eq('id', contractId).maybeSingle();
+        const esteStatPlata = contractRow && contractRow.subcategorie === 'c';
+
         const existente = docs ? docs.map(d => d.tip_document) : [];
         const grupate = {};
         if (docs) docs.forEach(d => {
@@ -786,6 +789,13 @@
                 '<span class="check-icon">' + ico + '</span>' +
                 '<span class="check-name">' + tip + '</span>' +
                 '</div>';
+
+            if (tip === '9. Contract' || tip === '13. Factura' || (esteStatPlata && tip === '13. Factura')) {
+                html += '<div style="margin-top:7px;margin-left:28px;display:flex;align-items:flex-start;gap:6px;color:#9ca3af;font-size:11px;font-style:italic;line-height:1.6;">' +
+                    '<span style="flex-shrink:0;margin-top:1px;">⚠️</span>' +
+                    '<span>Verifică să fie menționate: <b>Codul Proiectului</b>, <b>Bun de plată</b>, <b>Viza CFP</b>, <b>Certificat în privința realității, regularității, legalității</b></span>' +
+                    '</div>';
+            }
 
             if (fisiere.length > 0) {
                 html += '<div class="check-files-list">';
