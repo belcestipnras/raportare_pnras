@@ -604,31 +604,31 @@ document.getElementById("fileInput").addEventListener("change", async function()
   const files = this.files;
   if(!files.length) return;
 
-  for(const file of files){
-    // sterge documentele vechi de acelasi tip din storage + tabel
-    const { data: vechi } = await supabaseClient
-      .from("documente_contract")
-      .select("id, link_drive")
+  // sterge documentele vechi de acelasi tip din storage + tabel (O SINGURA DATA)
+  const { data: vechi } = await supabaseClient
+    .from("documente_contract")
+    .select("id, link_drive")
+    .eq("contract_id", contractId)
+    .eq("tip_document", tipSelectat);
+
+  if (vechi && vechi.length) {
+    const paths = vechi
+      .filter(d => d.link_drive)
+      .map(d => {
+        try {
+          const url = new URL(d.link_drive);
+          const path = url.pathname.split("/object/public/contracte/")[1];
+          return path ? decodeURIComponent(path) : null;
+        } catch(e) { return null; }
+      })
+      .filter(Boolean);
+    if (paths.length) await supabaseClient.storage.from("contracte").remove(paths);
+    await supabaseClient.from("documente_contract").delete()
       .eq("contract_id", contractId)
       .eq("tip_document", tipSelectat);
+  }
 
-    if (vechi && vechi.length) {
-      const paths = vechi
-        .filter(d => d.link_drive)
-        .map(d => {
-          try {
-            const url = new URL(d.link_drive);
-            const path = url.pathname.split("/object/public/contracte/")[1];
-            return path ? decodeURIComponent(path) : null;
-          } catch(e) { return null; }
-        })
-        .filter(Boolean);
-      if (paths.length) await supabaseClient.storage.from("contracte").remove(paths);
-      await supabaseClient.from("documente_contract").delete()
-        .eq("contract_id", contractId)
-        .eq("tip_document", tipSelectat);
-    }
-
+  for(const file of files){
     // Verifică duplicat după nume fișier
     const { data: existent2 } = await supabaseClient.from("documente_contract")
       .select("id").eq("contract_id", contractId).eq("nume_fisier", file.name).limit(1);
@@ -999,6 +999,7 @@ if (vreaStampila) { // Verificăm dacă utilizatorul a ales OK
 
 let y = 520;
 let randIndex = 0;
+let nrCrt = 0;
 
 // Grupam documentele dupa tip_document (excludem dosarul PDF)
 const grupateOpisDoc = {};
@@ -1031,7 +1032,11 @@ function deseneazaRand(text, nrInreg, dataInreg, fmt) {
   if (randIndex % 2 === 1) {
     pageOpis.drawRectangle({ x: 85, y: y - 4, width: 425, height: 16, color: PDFLib.rgb(0.97, 0.97, 0.98) });
   }
-  pageOpis.drawText(roPDF(text), { x: 95 + fmt.indent, y: y, size: fmt.size, font: fmt.font });
+  if (fmt.areNrCrt) {
+    nrCrt++;
+    pageOpis.drawText(String(nrCrt), { x: 86, y: y, size: fmt.size, font: fmt.font });
+  }
+  pageOpis.drawText(roPDF(text), { x: 105 + fmt.indent, y: y, size: fmt.size, font: fmt.font });
 
   if (fmt.areDoc) {
     let dataF = "-";
@@ -1059,31 +1064,25 @@ for (const tip of tipuriReale) {
   const fmt = getFmt(nivel);
   const fisiereTip = grupateOpisDoc[tip] || [];
 
-  if (nivel === 1) {
-    // Titlu sectiune - fara document, fara nr/data
-    deseneazaRand(tip, null, null, fmt);
-  } else {
-    // Nivel 2+ - trebuie document
-    if (fisiereTip.length === 0) {
-      // Nu are document - afisam randul cu - / -
-      deseneazaRand(tip, "-", null, fmt);
-    } else if (fisiereTip.length === 1) {
-      // Un singur fisier - randul principal cu nr/data
-      const f = fisiereTip[0];
-      deseneazaRand(tip, f.nr_inregistrare, f.data_inregistrare, fmt);
-    } else {
-      // Mai multe fisiere - titlul cartonasului fara nr/data, apoi fiecare fisier
-      deseneazaRand(tip, null, null, { ...fmt, areDoc: false });
+  const fmtDoc = nivel === 1
+    ? { font: fontOpisBold, indent: 0, size: 9, areDoc: true, areNrCrt: false }
+    : { ...fmt, areDoc: true, areNrCrt: false };
 
-      const fmtExtra = { font: fontOpisItalic, indent: fmt.indent + 20, size: fmt.size - 0.5, areDoc: true };
-      for (const f of fisiereTip) {
-        if (y < 40) break;
-        const numeFis = (f.nume_fisier || "document")
-          .replace(/\.pdf$/i, "")
-          .replace(/\.jpe?g$/i, "")
-          .replace(/\.png$/i, "");
-        deseneazaRand(numeFis.substring(0, 60), f.nr_inregistrare, f.data_inregistrare, fmtExtra);
-      }
+  if (fisiereTip.length === 0) {
+    deseneazaRand(tip, "-", null, fmtDoc);
+  } else if (fisiereTip.length === 1) {
+    const f = fisiereTip[0];
+    deseneazaRand(tip, f.nr_inregistrare, f.data_inregistrare, fmtDoc);
+  } else {
+    deseneazaRand(tip, null, null, { ...fmtDoc, areDoc: false, areNrCrt: false });
+    const fmtExtra = { font: fontOpisItalic, indent: fmtDoc.indent + 20, size: fmtDoc.size - 0.5, areDoc: true, areNrCrt: false };
+    for (const f of fisiereTip) {
+      if (y < 40) break;
+      const numeFis = (f.nume_fisier || "document")
+        .replace(/\.pdf$/i, "")
+        .replace(/\.jpe?g$/i, "")
+        .replace(/\.png$/i, "");
+      deseneazaRand(numeFis.substring(0, 60), f.nr_inregistrare, f.data_inregistrare, fmtExtra);
     }
   }
 }
@@ -1124,10 +1123,24 @@ try{
 if((d.link_drive || "").toLowerCase().includes(".pdf")){
         const src = await PDFDocument.load(bytes);
         const sourcePages = await pdfFinal.copyPages(src, src.getPageIndices());
-        for (const p of sourcePages) {
-  if (vreaStampila) aplicaStampila(p, imaginiStampile); // Doar dacă s-a ales OK
-  pdfFinal.addPage(p);
-}
+        const saritPrimaPagina = ['9. Contract', '13. Factura', '14. OP'].includes(tip);
+        for (let pi = 0; pi < sourcePages.length; pi++) {
+          const srcPage = sourcePages[pi];
+          const { width: srcW, height: srcH } = srcPage.getSize();
+          // Creăm pagină A4 și desenăm conținutul scalat
+          const a4Page = pdfFinal.addPage([595, 842]);
+          const scaleX = 595 / srcW;
+          const scaleY = 842 / srcH;
+          const scaleF = Math.min(scaleX, scaleY);
+          const drawW = srcW * scaleF;
+          const drawH = srcH * scaleF;
+          const offX = (595 - drawW) / 2;
+          const offY = (842 - drawH) / 2;
+          // Embed pagina sursă ca XObject și desenează pe A4
+          const [embeddedPage] = await pdfFinal.embedPages([srcPage]);
+          a4Page.drawPage(embeddedPage, { x: offX, y: offY, width: drawW, height: drawH });
+          if (vreaStampila && !(saritPrimaPagina && pi === 0)) aplicaStampila(a4Page, imaginiStampile);
+        }
         continue;
       }
 
@@ -1141,7 +1154,8 @@ if((d.link_drive || "").toLowerCase().includes(".pdf")){
       const w = img.width * scale;
       const h = img.height * scale;
       p.drawImage(img, {x:(595-w)/2, y:(842-h)/2, width:w, height:h});
-if (vreaStampila) aplicaStampila(p, imaginiStampile); // Doar dacă s-a ales OK
+const saritPrimaPaginaImg = ['9. Contract', '13. Factura', '14. OP'].includes(tip);
+if (vreaStampila && !saritPrimaPaginaImg) aplicaStampila(p, imaginiStampile);
     }
   }
 
