@@ -130,6 +130,24 @@
             padding: 3px 8px; border-radius: 6px; font-size: 10px; font-weight: 600; white-space: nowrap;
         }
 
+        /* ===== TABS ===== */
+        .tabs-bar {
+            display: flex; gap: 0; margin-bottom: 20px; margin-top: 4px;
+            border-bottom: 2px solid #e2e6ea;
+        }
+        .tab-btn {
+            padding: 10px 24px; border: none; background: none; cursor: pointer;
+            font-size: 14px; font-weight: 600; color: #888; border-bottom: 3px solid transparent;
+            margin-bottom: -2px; transition: all 0.2s; display: flex; align-items: center; gap: 8px;
+        }
+        .tab-btn:hover { color: #1a56db; }
+        .tab-btn.activ { color: #1a56db; border-bottom-color: #1a56db; }
+        .tab-badge {
+            background: #e8eeff; color: #1a56db; border-radius: 20px;
+            padding: 1px 8px; font-size: 11px; font-weight: 700;
+        }
+        .tab-badge.verde { background: #dcfce7; color: #166534; }
+
         /* ===== CONTRACTE BLOCATE ===== */
         .contract-item.blocat { display: none; }
         .arata-blocate .contract-item.blocat {
@@ -318,6 +336,7 @@
     let uploadTargetCardId = null;
     let uploadTargetParentId = null;
     let arataBlocate = false;
+    let tabActiv = 'contracte'; // 'contracte' sau 'state_plata'
 
     const CARDURI_FIXE = [
         { id: '00000000-0000-0000-0000-000000000001', titlu: 'DOSARE ACHIZIȚII', icon: '📁', tip: 'special_dosare' },
@@ -505,10 +524,16 @@
     }
 
     // ===================== DOSARE ACHIZIȚII =====================
+    function schimbaTab(tab) {
+        tabActiv = tab;
+        arataBlocate = false;
+        incarcaVizualizare();
+    }
+
     async function afiseazaDosareAchizitii() {
         const cont = document.getElementById('continut');
 
-        const { data: contracte } = await db.from('buget_pnras').select('*')
+        const { data: toateContractele } = await db.from('buget_pnras').select('*')
             .eq('tip_rand', 'CONTRACT').order('data_document', { ascending: true });
 
         const { data: documente } = await db.from('documente_contract').select('contract_id, tip_document');
@@ -517,31 +542,22 @@
             .eq('card_id', '00000000-0000-0000-0000-000000000001').is('parent_id', null).eq('sters', false)
             .neq('tip', 'blocat').order('ordine', { ascending: true });
 
-        // Citim starea de blocat din audit_continut (tip='blocat', titlu=contract_id)
         const { data: blocate } = await db.from('audit_continut').select('titlu')
             .eq('card_id', '00000000-0000-0000-0000-000000000001').eq('tip', 'blocat').eq('sters', false);
         const blocateSet = new Set((blocate || []).map(b => b.titlu));
 
-        let html = '<div class="actions-bar">' +
-            '<button class="btn-action btn-folder" onclick="adaugaSubfolder(\'00000000-0000-0000-0000-000000000001\', null)">&#128193; Adaugă subfolder</button>' +
-            '<button class="btn-action btn-file" onclick="adaugaFisier(\'00000000-0000-0000-0000-000000000001\', null)">&#128196; Adaugă fișier</button>' +
-            '<button class="btn-action btn-history" onclick="veziIstoricCard(\'00000000-0000-0000-0000-000000000001\')">&#128337; Istoric</button>' +
-            '<button id="btn-arata-blocate" class="btn-action" style="background:#9ca3af;" onclick="toggleArataBlocate(this)">&#128274; Afișează dosare blocate</button>' +
-            '</div>';
-
-        // Mesaj informativ
-        html += '<div style="margin-bottom:16px;padding:12px 16px;background:#f0f4ff;border-left:4px solid #1a56db;border-radius:8px;font-size:12px;color:#444;line-height:1.6;">' +
-            '&#8505;&#65039; Dacă vreți să vizualizați dosarele încărcate, care au fost blocate, sau cele care nu fac obiectul prezentei raportări, dați click pe <b>"Afișează dosare blocate"</b> și acestea vor apărea la finalul paginii.' +
-            '</div>';
-
-        // Conținut manual
-        if (manual && manual.length > 0) {
-            html += '<div class="file-list">';
-            manual.forEach((item, idx) => {
-                html += item.tip === 'folder' ? genFolderItem(item, idx, manual.length) : genFisierItem(item, idx, manual.length);
-            });
-            html += '</div>';
+        const { data: cartonaseConfig } = await db.from('cartonase_config').select('contract_id, cartonase');
+        const cartonasePer = {};
+        if (cartonaseConfig) {
+            cartonaseConfig.forEach(c => { cartonasePer[c.contract_id] = c.cartonase || []; });
         }
+
+        // Separare contracte vs state de plată (subcategorie 'c' = state de plată)
+        const contractePropriu = (toateContractele || []).filter(c => c.subcategorie !== 'c');
+        const statePlata = (toateContractele || []).filter(c => c.subcategorie === 'c');
+
+        const nrContracte = contractePropriu.filter(c => !blocateSet.has(c.id)).length;
+        const nrState = statePlata.filter(c => !blocateSet.has(c.id)).length;
 
         const docPer = {};
         if (documente) {
@@ -553,11 +569,13 @@
 
         function genContractItem(c, esteBlockat) {
             const ex = docPer[c.id] || [];
-            const complet = DOCUMENTE_OBLIGATORII.every(o => ex.includes(o));
-            const totalOk = LISTA_DOCUMENTE.filter(d => ex.includes(d)).length;
+            const listaCustom = cartonasePer[c.id];
+            const lista = (listaCustom && listaCustom.length > 0) ? listaCustom : LISTA_DOCUMENTE;
+            const totalOk = lista.filter(d => ex.includes(d)).length;
+            const complet = lista.length > 0 && totalOk === lista.length;
             let st = '';
             if (complet) st = '<span class="contract-status" style="background:#dcfce7;color:#166534;">COMPLET ✔</span>';
-            else if (totalOk > 0) st = '<span class="contract-status" style="background:#fef3c7;color:#92400e;">' + totalOk + '/' + LISTA_DOCUMENTE.length + '</span>';
+            else if (totalOk > 0) st = '<span class="contract-status" style="background:#fef3c7;color:#92400e;">' + totalOk + '/' + lista.length + '</span>';
             else st = '<span class="contract-status" style="background:#fee2e2;color:#991b1b;">GOL</span>';
 
             const val = c.valoare ? parseFloat(c.valoare).toLocaleString('ro-RO', { minimumFractionDigits: 2 }) + ' lei' : '';
@@ -575,7 +593,7 @@
                 (esteBlockat ? '' : 'data-cid="' + idSafe + '" data-ctitlu="' + titluSafe + '" onclick="deschideContractFromEl(this)"') +
                 ' style="display:flex;align-items:center;gap:12px;cursor:' + (esteBlockat ? 'not-allowed' : 'pointer') + ';">' +
                 '<div style="display:flex;align-items:center;gap:12px;flex:1;min-width:0;">' +
-                    '<span style="font-size:20px;">📄</span>' +
+                    '<span style="font-size:20px;">' + (c.subcategorie === 'c' ? '💼' : '📄') + '</span>' +
                     '<div style="flex:1;min-width:0;"><div class="contract-title">' + titluAfisat + '</div></div>' +
                     '<span class="contract-val">' + val + '</span>' +
                     st +
@@ -587,49 +605,92 @@
                 '</div>';
         }
 
-        // Contracte ACTIVE (neblocate)
-        if (contracte && contracte.length > 0) {
-            const active = contracte.filter(c => !blocateSet.has(c.id));
-            const blocateList = contracte.filter(c => blocateSet.has(c.id));
+        function genListaItemuri(lista, titluBlocat) {
+            const active = lista.filter(c => !blocateSet.has(c.id));
+            const blocateList = lista.filter(c => blocateSet.has(c.id));
+            let h = '';
+
+            if (active.length === 0 && blocateList.length === 0) {
+                h += '<div class="empty">Nu există înregistrări.</div>';
+            }
 
             if (active.length > 0) {
-                html += '<h3 style="margin-top:20px;font-size:15px;color:#1a56db;font-weight:700;">&#128196; Contracte</h3>';
                 const grupe = {};
                 active.forEach(c => { const an = c.an || '-'; if (!grupe[an]) grupe[an] = []; grupe[an].push(c); });
                 Object.keys(grupe).sort().forEach(an => {
-                    html += '<div class="an-header">&#128197; ' + an + '</div>';
-                    grupe[an].forEach(c => { html += genContractItem(c, false); });
+                    h += '<div class="an-header">&#128197; ' + an + '</div>';
+                    grupe[an].forEach(c => { h += genContractItem(c, false); });
                 });
             }
 
-            // Contracte BLOCATE - separate, vizibile doar când arataBlocate=true
-
             if (blocateList.length > 0 && arataBlocate) {
-                html += '<div style="margin-top:32px;border:2px dashed #d1d5db;border-radius:14px;padding:20px;background:#fafafa;">' +
+                h += '<div style="margin-top:32px;border:2px dashed #d1d5db;border-radius:14px;padding:20px;background:#fafafa;">' +
                     '<div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">' +
                         '<span style="font-size:22px;">&#128274;</span>' +
                         '<div>' +
-                            '<div style="font-size:15px;font-weight:700;color:#6b7280;">Facturi blocate</div>' +
+                            '<div style="font-size:15px;font-weight:700;color:#6b7280;">' + titluBlocat + '</div>' +
                             '<div style="font-size:11px;color:#9ca3af;margin-top:2px;">Acestea nu fac obiectul prezentei raportări</div>' +
                         '</div>' +
                     '</div>';
                 const grupeB = {};
                 blocateList.forEach(c => { const an = c.an || '-'; if (!grupeB[an]) grupeB[an] = []; grupeB[an].push(c); });
                 Object.keys(grupeB).sort().forEach(an => {
-                    html += '<div class="an-header" style="color:#9ca3af;border-color:#e5e7eb;">&#128197; ' + an + '</div>';
-                    grupeB[an].forEach(c => { html += genContractItem(c, true); });
+                    h += '<div class="an-header" style="color:#9ca3af;border-color:#e5e7eb;">&#128197; ' + an + '</div>';
+                    grupeB[an].forEach(c => { h += genContractItem(c, true); });
                 });
-                html += '</div>';
+                h += '</div>';
             }
+            return h;
+        }
+
+        // ===== HTML =====
+        let html = '<div class="actions-bar">' +
+            '<button class="btn-action btn-folder" onclick="adaugaSubfolder(\'00000000-0000-0000-0000-000000000001\', null)">&#128193; Adaugă subfolder</button>' +
+            '<button class="btn-action btn-file" onclick="adaugaFisier(\'00000000-0000-0000-0000-000000000001\', null)">&#128196; Adaugă fișier</button>' +
+            '<button class="btn-action btn-history" onclick="veziIstoricCard(\'00000000-0000-0000-0000-000000000001\')">&#128337; Istoric</button>' +
+            '<button id="btn-arata-blocate" class="btn-action" style="background:#9ca3af;" onclick="toggleArataBlocate(this)">&#128274; Afișează dosare blocate</button>' +
+            '</div>';
+
+        html += '<div style="margin-bottom:16px;padding:12px 16px;background:#f0f4ff;border-left:4px solid #1a56db;border-radius:8px;font-size:12px;color:#444;line-height:1.6;">' +
+            '&#8505;&#65039; Dacă vreți să vizualizați dosarele încărcate, care au fost blocate, sau cele care nu fac obiectul prezentei raportări, dați click pe <b>"Afișează dosare blocate"</b> și acestea vor apărea la finalul paginii.' +
+            '</div>';
+
+        // Conținut manual (fișiere/foldere adăugate manual)
+        if (manual && manual.length > 0) {
+            html += '<div class="file-list">';
+            manual.forEach((item, idx) => {
+                html += item.tip === 'folder' ? genFolderItem(item, idx, manual.length) : genFisierItem(item, idx, manual.length);
+            });
+            html += '</div>';
+        }
+
+        // ===== TAB-URI =====
+        html += '<div class="tabs-bar">' +
+            '<button class="tab-btn ' + (tabActiv === 'contracte' ? 'activ' : '') + '" onclick="schimbaTab(\'contracte\')">' +
+                '&#128196; Contracte <span class="tab-badge">' + nrContracte + '</span>' +
+            '</button>' +
+            '<button class="tab-btn ' + (tabActiv === 'state_plata' ? 'activ' : '') + '" onclick="schimbaTab(\'state_plata\')">' +
+                '&#128188; State de plată <span class="tab-badge verde">' + nrState + '</span>' +
+            '</button>' +
+        '</div>';
+
+        // ===== CONȚINUT TAB ACTIV =====
+        if (tabActiv === 'contracte') {
+            html += genListaItemuri(contractePropriu, 'Contracte blocate');
+        } else {
+            html += genListaItemuri(statePlata, 'State de plată blocate');
         }
 
         cont.innerHTML = html;
-        // Update button text
+
+        // Actualizare buton blocate
         const btn = document.getElementById('btn-arata-blocate');
         if (btn) btn.innerHTML = arataBlocate ? '&#128274; Ascunde dosare blocate' : '&#128274; Afișează dosare blocate';
-        // Show/hide "no blocked" message next to button
+
+        const listaActiva = tabActiv === 'contracte' ? contractePropriu : statePlata;
+        const blocateListActiva = listaActiva.filter(c => blocateSet.has(c.id));
         let msgExistent = document.getElementById('msg-no-blocate');
-        if (arataBlocate && blocateList.length === 0) {
+        if (arataBlocate && blocateListActiva.length === 0) {
             if (!msgExistent) {
                 const msg = document.createElement('span');
                 msg.id = 'msg-no-blocate';
@@ -677,56 +738,32 @@
     }
 
     // ===================== CHECKLIST CONTRACT =====================
+    // ===================== CHECKLIST CONTRACT =====================
     async function afiseazaChecklistContract(contractId, titlu) {
         const cont = document.getElementById('continut');
 
-        // Preluăm documentele din tabel
         const { data: docs } = await db.from('documente_contract').select('*').eq('contract_id', contractId);
 
-        // Preluăm fișierele din storage cu prefix contract_id
-        const { data: storageFiles } = await db.storage.from('contracte').list('', {
-            limit: 200,
-            search: contractId
-        });
-
-        // Construim un map: prefix numeric -> listă fișiere storage
-        // ex: "2" -> [{name, url}], "5.1" -> [{name, url}]
-        const storageGrupate = {};
-        if (storageFiles) {
-            storageFiles.forEach(f => {
-                const prefix = contractId + '_';
-                if (!f.name.startsWith(prefix)) return;
-                const rest = f.name.substring(prefix.length);
-                // Scoatem timestamp-ul (primul segment numeric lung)
-                const afterTs = rest.replace(/^\d+_/, '');
-                // Extragem numărul din față: "2.", "5.1", "13" etc.
-                const numMatch = afterTs.match(/^(\d+(?:\.\d+)?)[.\s]/);
-                if (!numMatch) return;
-                const numPrefix = numMatch[1];
-                if (!storageGrupate[numPrefix]) storageGrupate[numPrefix] = [];
-                const { data: urlData } = db.storage.from('contracte').getPublicUrl(f.name);
-                storageGrupate[numPrefix].push({ name: afterTs, url: urlData.publicUrl, storagePath: f.name });
-            });
-        }
+        const { data: cfgData } = await db.from('cartonase_config')
+            .select('cartonase').eq('contract_id', contractId).maybeSingle();
+        const listaCartonase = (cfgData && cfgData.cartonase && cfgData.cartonase.length)
+            ? cfgData.cartonase : LISTA_DOCUMENTE;
 
         const existente = docs ? docs.map(d => d.tip_document) : [];
         const grupate = {};
-        if (docs) docs.forEach(d => { if (!grupate[d.tip_document]) grupate[d.tip_document] = []; grupate[d.tip_document].push(d); });
-
-        // Verificăm dacă un tip are fișiere în storage
-        function areStorageForTip(tip) {
-            const numMatch = tip.match(/^(\d+(?:\.\d+)?)[.\s]/);
-            if (!numMatch) return false;
-            const numPrefix = numMatch[1];
-            return storageGrupate[numPrefix] && storageGrupate[numPrefix].length > 0;
-        }
+        if (docs) docs.forEach(d => {
+            if (!grupate[d.tip_document]) grupate[d.tip_document] = [];
+            grupate[d.tip_document].push(d);
+        });
 
         const dosarPdf = docs ? docs.find(d => d.tip_document === 'DOSAR ACHIZIȚIE PDF') : null;
-        const complet = DOCUMENTE_OBLIGATORII.every(o => existente.includes(o) || areStorageForTip(o));
+        const totalOk = listaCartonase.filter(tip => existente.includes(tip)).length;
+        const complet = listaCartonase.length > 0 && totalOk === listaCartonase.length;
 
         let html = '<div style="padding:14px 18px;border-radius:10px;margin-bottom:16px;font-size:15px;font-weight:700;' +
             (complet ? 'background:#dcfce7;color:#166534;">' : 'background:#fee2e2;color:#991b1b;">') +
-            (complet ? '✅ DOSAR COMPLET' : '❌ DOSAR INCOMPLET') + '</div>';
+            (complet ? '✅ DOSAR COMPLET (' + totalOk + '/' + listaCartonase.length + ')' :
+                       '❌ DOSAR INCOMPLET (' + totalOk + '/' + listaCartonase.length + ')') + '</div>';
 
         if (dosarPdf && dosarPdf.link_drive) {
             html += '<div style="margin-bottom:16px;">' +
@@ -738,58 +775,59 @@
         }
 
         html += '<div class="checklist">';
-        LISTA_DOCUMENTE.forEach(tip => {
-            const oblig = DOCUMENTE_OBLIGATORII.includes(tip);
-            const incarcat = existente.includes(tip);
+        listaCartonase.forEach(tip => {
             const fisiere = grupate[tip] || [];
-
-            // Fișiere din storage pentru acest tip
-            const numMatch = tip.match(/^(\d+(?:\.\d+)?)[.\s]/);
-            const numPrefix = numMatch ? numMatch[1] : null;
-            const storageFisiere = (numPrefix && storageGrupate[numPrefix]) ? storageGrupate[numPrefix] : [];
-
-            const areDoc = incarcat || storageFisiere.length > 0;
-
-            let cls = 'check-opt', ico = '⬜';
+            const areDoc = existente.includes(tip);
+            let cls = 'check-miss', ico = '❌';
             if (areDoc) { cls = 'check-ok'; ico = '✅'; }
-            else if (oblig) { cls = 'check-miss'; ico = '❌'; }
 
             html += '<div class="check-item ' + cls + '">' +
                 '<div class="check-item-header">' +
                 '<span class="check-icon">' + ico + '</span>' +
-                '<span class="check-name">' + tip + (oblig ? '' : ' (opțional)') + '</span>' +
+                '<span class="check-name">' + tip + '</span>' +
                 '</div>';
 
-            // Fișiere din tabel + storage - toate sub header
-            const toateFisierele = [];
-            fisiere.forEach(f => {
-                if (f.link_drive) toateFisierele.push({ url: f.link_drive, name: f.nume_fisier || 'Deschide', tip: 'tabel', id: f.id });
-            });
-            storageFisiere.forEach(f => {
-                const dejaPrezent = fisiere.some(d => d.link_drive === f.url);
-                if (!dejaPrezent) toateFisierele.push({ url: f.url, name: f.name, tip: 'storage', storagePath: f.storagePath });
-            });
-
-            if (toateFisierele.length > 0) {
+            if (fisiere.length > 0) {
                 html += '<div class="check-files-list">';
-                toateFisierele.forEach(f => {
+                fisiere.forEach(f => {
+                    if (!f.link_drive) return;
+                    const titluSafe = titlu.replace(/'/g, "\\'");
                     html += '<div class="check-file-row">';
-                    html += '<a class="check-files' + (f.tip === 'storage' ? ' storage' : '') + '" href="' + f.url + '" target="_blank">📎 ' + f.name + '</a>';
-                    if (f.tip === 'storage') {
-                        const pathSafe = f.storagePath.replace(/'/g, "\'");
-                        html += '<button class="btn-del-storage" onclick="stergeStorageFisier(\'' + pathSafe + '\', \'' + contractId + '\', \'' + titlu.replace(/'/g,"\'\'") + '\')" title="Șterge fișier">🗑️</button>';
-                    } else {
-                        html += '<button class="btn-del-storage" onclick="stergeTabelFisier(\'' + f.id + '\', \'' + contractId + '\', \'' + titlu.replace(/'/g,"\'\'") + '\')" title="Șterge fișier">🗑️</button>';
-                    }
+                    html += '<a class="check-files" href="' + f.link_drive + '" target="_blank">📎 ' + (f.nume_fisier || 'Deschide') + '</a>';
+                    html += '<button class="btn-del-storage" onclick="stergeTabelFisier(\'' + f.id + '\', \'' + contractId + '\', \'' + titluSafe + '\')" title="Șterge fișier">🗑️</button>';
                     html += '</div>';
                 });
                 html += '</div>';
             }
-
             html += '</div>';
         });
-        html += '</div>';
 
+        const tipuriExtra = Object.keys(grupate).filter(tip =>
+            !listaCartonase.includes(tip) && tip !== 'DOSAR ACHIZIȚIE PDF'
+        );
+        if (tipuriExtra.length > 0) {
+            html += '<div style="margin-top:12px;font-size:12px;color:#888;font-style:italic;">Alte documente:</div>';
+            tipuriExtra.forEach(tip => {
+                const fisiere = grupate[tip] || [];
+                html += '<div class="check-item check-opt"><div class="check-item-header">' +
+                    '<span class="check-icon">📄</span><span class="check-name">' + tip + '</span></div>';
+                if (fisiere.length > 0) {
+                    html += '<div class="check-files-list">';
+                    fisiere.forEach(f => {
+                        if (!f.link_drive) return;
+                        const titluSafe = titlu.replace(/'/g, "\\'");
+                        html += '<div class="check-file-row">';
+                        html += '<a class="check-files" href="' + f.link_drive + '" target="_blank">📎 ' + (f.nume_fisier || 'Deschide') + '</a>';
+                        html += '<button class="btn-del-storage" onclick="stergeTabelFisier(\'' + f.id + '\', \'' + contractId + '\', \'' + titluSafe + '\')" title="Șterge">🗑️</button>';
+                        html += '</div>';
+                    });
+                    html += '</div>';
+                }
+                html += '</div>';
+            });
+        }
+
+        html += '</div>';
         cont.innerHTML = html;
     }
 
