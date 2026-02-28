@@ -612,7 +612,7 @@
             }
 
             calculeazaTotaluriGlobale();
-            randeazaContinutul();
+            await randeazaContinutul();
         }
 
         function calculeazaTotalContract() {
@@ -627,7 +627,7 @@
             document.getElementById('f-valoare').value = (faraTva + tva).toFixed(2);
         }
 
-        function printeazaTotalProiect() {
+        async function printeazaTotalProiect() {
             const pilonOriginal = pilonSelectat;
             const titluPerioada = (anSelectat === 'TOTAL') ? "MULTIANUALĂ (2024 - 2026)" : `ANUL FINANCIAR ${anSelectat}`;
             let totHtml = '';
@@ -637,13 +637,13 @@
                 {id: 'III', nume: 'Categoria III: Lucrări minore, achiziționarea de bunuri'}, 
                 {id: 'IV', nume: 'Categoria IV: Activități digitalizare proces educațional'}
             ];
-            totiPilonii.forEach(p => {
+            for (const p of totiPilonii) {
                 pilonSelectat = p.id;
-                const htmlPilon = randeazaLinii(true); 
+                const htmlPilon = await randeazaLinii(true); 
                 if(!htmlPilon.includes("Nu există buget")) {
                     totHtml += `<div style="font-family: 'Inter', sans-serif; font-weight:800; font-size: 1.15rem; margin-top: 25px; margin-bottom: 10px; color: var(--pnras-blue); border-bottom: 1px solid var(--pnras-blue); padding-bottom: 3px;">${p.nume.toUpperCase()}</div><div style="font-family: 'Times New Roman', Times, serif;">${htmlPilon}</div>`;
                 }
-            });
+            }
             pilonSelectat = pilonOriginal;
             const printHtml = `<img src="antet_pnras.jpeg" class="antet-img" alt="Antet PNRAS"><div class="audit-title" style="margin-bottom:5px;">REGISTRU COMPLET - EXECUȚIE FINANCIARĂ</div><div class="audit-title" style="color:var(--pnras-blue); font-size:1.15rem;">TOATE SECȚIUNILE DE FINANȚARE (I - IV)</div><div class="audit-subtitle">Perioada analizată: ${titluPerioada} | Data generării: ${new Date().toLocaleDateString('ro-RO')}</div>${totHtml}<div class="audit-signatures" style="margin-top: 40px;"><div class="sig-block"><b>Întocmit,</b><br>Responsabil Financiar PNRAS<br>ec. Viorica MORĂRAȘU</div><div class="sig-block" style="text-align: right;"><b>Aprobat,</b><br>Director,<br>prof. Cătălin Ionuț BAZILUC</div></div>`;
             document.getElementById('audit-content').innerHTML = printHtml; document.getElementById('modal-audit-overlay').style.display = 'flex';
@@ -936,12 +936,12 @@
             document.getElementById('total-ramas-plati').innerText = formatBani(totalBuget - totalPlatit);
         }
 
-        function randeazaContinutul() {
-            const html = randeazaLinii(false);
+        async function randeazaContinutul() {
+            const html = await randeazaLinii(false);
             document.getElementById('data-container').innerHTML = html;
         }
 
-        function randeazaLinii(isPrintMode) {
+        async function randeazaLinii(isPrintMode) {
             let containerHtml = '';
             const isTotalView = (anSelectat === 'TOTAL');
             
@@ -960,7 +960,7 @@
             // Functie ajutatoare pentru a detecta daca exista facturi in anul selectat sau in viitor
             const hasFacturiInAn = (id, an) => rawData.some(x => x.tip_rand === 'FACTURA' && x.parent_id === id && x.an == an);
 
-            categoriiUnice.forEach(subcat => {
+            for (const subcat of categoriiUnice) {
                 const bugetOriginal = liniiDinPilon.find(r => r.subcategorie === subcat);
                 const titluComplet = getNumeComplet(subcat);
                 let bugetRealDisponibil = 0, bugetCheltuitInAn = 0, contracteCurente = [], timelineHtml = '';
@@ -1031,7 +1031,16 @@
 
                 let contracteHtml = '';
 
-                contracteCurente.forEach(contract => {
+                // Preîncarcă documentele pentru toate contractele curente
+                const idContracte = contracteCurente.map(c => c.id);
+                let toateDocsFacturi = [];
+                if (idContracte.length > 0) {
+                    const { data: docsRaw } = await supabaseClient.from('documente_contract')
+                        .select('*').in('contract_id', idContracte).eq('tip_document', '13. Factura');
+                    toateDocsFacturi = docsRaw || [];
+                }
+
+                for (const contract of contracteCurente) {
                     const facturi = rawData.filter(r => r.parent_id === contract.id && r.tip_rand === 'FACTURA');
                     // SORTARE CRONOLOGICA FACTURI (existenta)
                     facturi.sort((a, b) => new Date(a.data_document) - new Date(b.data_document));
@@ -1062,14 +1071,21 @@
                     const clasaStare = (displayStare === 'Finalizat') ? 'platit' : 'derulare';
                     // -----------------------------------
 
+                    const docsFacturi = toateDocsFacturi.filter(d => d.contract_id === contract.id);
+
                     let facturiHtml = facturi.map(f => {
                         const tvaInfo = (f.val_tva > 0 || f.val_fara_tva > 0) ? `<span style="color:#777; font-size:0.7rem; font-style:italic;">(Fără TVA: ${formatBani(f.val_fara_tva)} | TVA: ${formatBani(f.val_tva)})</span>` : '';
                         const dateF = formatDataRo(f.data_document);
                         const titluFactura = `Factura Nr. ${f.numar || '??'}/${dateF} (${f.titlu})`;
-                        
                         const stilFactura = (f.an != anSelectat && !isTotalView) ? "opacity: 0.5;" : "";
 
-                        return `<div class="factura-row" style="${stilFactura}"><span style="display:flex; flex-direction:column;"><span>↪ ${titluFactura}</span>${tvaInfo}</span><div style="display:flex; align-items:center;"><b>${formatBani(f.valoare)}</b>${(!isPrintMode && !isTotalView) ? `<button class="btn-action-small btn-edit no-print" onclick="deschideEditareFactura('${f.id}')">✏️</button><button class="btn-action-small btn-delete no-print" onclick="stergeFactura('${f.id}')">🗑️</button>` : ''}</div></div>`;
+                        const docAsociat = docsFacturi.find(d => d.furnizor === f.id);
+                        const areDoc = !!docAsociat;
+                        const btnStergeDoc = areDoc ? `<button class="btn-action-small no-print" style="background:#dc2626;color:#fff;font-size:9px;padding:2px 5px;border-radius:4px;border:none;cursor:pointer;margin-left:-4px;" title="Sterge PDF" onclick="stergePdfFactura('${docAsociat.id}','${docAsociat.link_drive}')">✕</button>` : '';
+                        const btnVezi = (!isPrintMode && !isTotalView) ? `<span style="display:inline-flex;align-items:center;gap:6px;"><button id="btn-vezi-${f.id}" class="btn-action-small no-print" style="background:${areDoc ? '#16a34a' : '#dc2626'};color:#fff;font-size:10px;padding:3px 7px;border-radius:5px;border:none;cursor:pointer;" title="${areDoc ? (docAsociat.nume_fisier || 'Vezi factura') : 'Nicio factura incarcata'}" onclick="${areDoc ? `window.open('${docAsociat.link_drive}','_blank')` : `triggerUploadFactura('${f.id}','${contract.id}')`}">📄 Factura</button>${btnStergeDoc}</span>` : '';
+                        const btnUpload = (!isPrintMode && !isTotalView && areDoc) ? `<button class="btn-action-small no-print" style="font-size:10px;padding:3px 7px;" title="Inlocuieste fisierul" onclick="triggerUploadFactura('${f.id}','${contract.id}')">⬆️</button>` : '';
+
+                        return `<div class="factura-row" style="${stilFactura}"><span style="display:flex; flex-direction:column;"><span>↪ ${titluFactura}</span>${tvaInfo}</span><div style="display:flex; align-items:center; gap:4px;"><b>${formatBani(f.valoare)}</b>${(!isPrintMode && !isTotalView) ? `${btnVezi}${btnUpload}<button class="btn-action-small btn-edit no-print" onclick="deschideEditareFactura('${f.id}')">✏️</button><button class="btn-action-small btn-delete no-print" onclick="stergeFactura('${f.id}')">🗑️</button>` : ''}</div></div>`;
                     }).join('');
 
                     const cTvaInfo = (contract.val_tva > 0 || contract.val_fara_tva > 0) ? `<div class="tva-details">(Fără TVA: ${formatBani(contract.val_fara_tva)} | TVA: ${formatBani(contract.val_tva)})</div>` : '';
@@ -1097,7 +1113,7 @@ title="Dosar contract">📁</button>
                             ${(!isTotalView && !isPrintMode && subcat !== 'c') ? `<button class="btn-add-factura no-print" onclick="deschideModalFactura('${contract.id}', ${anSelectat})">➕ Plătește factură (Tranșă)</button>` : ''}
                         </div>
                     `;
-                });
+                }
 
                 if(!isTotalView) {
                     const facturiOrfane = rawData.filter(f => f.tip_rand === 'FACTURA' && f.pilon === pilonSelectat && f.subcategorie === subcat && f.an == anSelectat && !contracteCurente.some(c => c.id === f.parent_id));
@@ -1131,7 +1147,7 @@ title="Dosar contract">📁</button>
                         </div>
                     </div>
                 `;
-            });
+            }
 
             if(randate === 0) containerHtml = `<div class="empty-state">Nu există buget disponibil pentru această activitate.</div>`;
             
@@ -1143,8 +1159,8 @@ title="Dosar contract">📁</button>
             return containerHtml;
         }
 
-        function schimbaAn(an, btn) { anSelectat = an; document.querySelectorAll('.year-btn').forEach(b => b.classList.remove('active')); btn.classList.add('active'); randeazaContinutul(); }
-        function schimbaActivitate(pilon, btn) { pilonSelectat = pilon; document.querySelectorAll('.activity-card').forEach(b => b.classList.remove('active')); btn.classList.add('active'); randeazaContinutul(); }
+        async function schimbaAn(an, btn) { anSelectat = an; document.querySelectorAll('.year-btn').forEach(b => b.classList.remove('active')); btn.classList.add('active'); await randeazaContinutul(); }
+        async function schimbaActivitate(pilon, btn) { pilonSelectat = pilon; document.querySelectorAll('.activity-card').forEach(b => b.classList.remove('active')); btn.classList.add('active'); await randeazaContinutul(); }
         
         function deschideModalContract(parentId, an, pilon, subcat) { 
             resetModale();
@@ -1275,6 +1291,82 @@ function deschideDosarDinTitlu(id, btn){
 
     const url = `dosar_contract.html?id=${id}&den=${encodeURIComponent(titlu)}&furn=${encodeURIComponent(titlu)}`;
     window.open(url,'_blank');
+}
+
+// ===================== UPLOAD FACTURĂ PDF =====================
+function sanitizeNumeFisier(s) {
+    return s.normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+        .replace(/[^a-zA-Z0-9._-]/g, '_').substring(0, 80);
+}
+
+// Încarcă starea fișierelor pentru toate facturile vizibile
+let facturiDocumente = {}; // { facturaId: { url, numeF } | null }
+
+async function incarcaDocumenteFacturi(contractId) {
+    const { data } = await supabaseClient.from('documente_contract')
+        .select('*').eq('contract_id', contractId).eq('tip_document', '13. Factura');
+    return data || [];
+}
+
+async function uploadFacturaPdf(facturaId, contractId, inputEl) {
+    const file = inputEl.files[0];
+    if (!file) return;
+
+    // Șterge documentul vechi dacă există
+    const { data: docVechi } = await supabaseClient.from('documente_contract')
+        .select('*').eq('furnizor', facturaId).eq('tip_document', '13. Factura').maybeSingle();
+    if (docVechi) {
+        const marker = '/storage/v1/object/public/contracte/';
+        const idx = docVechi.link_drive.indexOf(marker);
+        if (idx !== -1) {
+            const path = docVechi.link_drive.substring(idx + marker.length);
+            await supabaseClient.storage.from('contracte').remove([decodeURIComponent(path)]);
+        }
+        await supabaseClient.from('documente_contract').delete().eq('id', docVechi.id);
+    }
+
+    const safe = sanitizeNumeFisier(file.name);
+    const fileName = `${contractId}_${Date.now()}_${safe}`;
+
+    const { error } = await supabaseClient.storage.from('contracte').upload(fileName, file, { upsert: false });
+    if (error) { alert('Eroare upload: ' + error.message); return; }
+
+    const { data: linkData } = supabaseClient.storage.from('contracte').getPublicUrl(fileName);
+    const url = linkData.publicUrl;
+
+    const { error: insError } = await supabaseClient.from('documente_contract').insert([{
+        contract_id: contractId,
+        tip_document: '13. Factura',
+        link_drive: url,
+        nume_fisier: file.name,
+        furnizor: facturaId
+    }]);
+
+    if (insError) { alert('Eroare salvare: ' + insError.message); return; }
+
+    alert('✅ Factura a fost încărcată cu succes!');
+    await randeazaContinutul();
+}
+
+async function stergePdfFactura(docId, url) {
+    if (!confirm('Ștergi PDF-ul facturii? Înregistrarea facturii rămâne neatinsă.')) return;
+    // Extrage path-ul din URL
+    const marker = '/storage/v1/object/public/contracte/';
+    const idx = url.indexOf(marker);
+    if (idx !== -1) {
+        const path = url.substring(idx + marker.length);
+        await supabaseClient.storage.from('contracte').remove([decodeURIComponent(path)]);
+    }
+    await supabaseClient.from('documente_contract').delete().eq('id', docId);
+    await randeazaContinutul();
+}
+
+function triggerUploadFactura(facturaId, contractId) {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'application/pdf';
+    input.onchange = () => uploadFacturaPdf(facturaId, contractId, input);
+    input.click();
 }
     </script>
 </body>

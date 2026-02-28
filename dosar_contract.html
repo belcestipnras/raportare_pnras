@@ -336,8 +336,19 @@ async function incarcaDocumente(){
     // Exista config salvata - o folosim (chiar daca e array gol)
     listaDocumente.splice(0, listaDocumente.length, ...(cfgData.cartonase || []));
   } else {
-    // Prima vizita - alegem lista default in functie de tip
-    const defaultList = getListaDefault();
+    // Prima vizita - construim lista din documentele existente in tabel
+    const { data: docsExistente } = await supabaseClient
+      .from("documente_contract")
+      .select("tip_document")
+      .eq("contract_id", contractId);
+
+    const tipuriUnice = [...new Set(
+      (docsExistente || [])
+        .map(d => d.tip_document)
+        .filter(t => t && t !== "DOSAR ACHIZIȚIE PDF")
+    )].sort((a, b) => a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' }));
+
+    const defaultList = tipuriUnice.length ? tipuriUnice : getListaDefault();
     listaDocumente.splice(0, listaDocumente.length, ...defaultList);
     await salveazaCartonase();
   }
@@ -353,7 +364,15 @@ async function incarcaDocumente(){
     return;
   }
 
-  const data = docs || [];
+  // Filtrează documentele venite din buget_achizitii (furnizor = facturaId)
+  // doar dacă '13. Factura' e în lista de cartonașe
+  const areFacturaInLista = listaDocumente.includes("13. Factura");
+  const data = (docs || []).filter(d => {
+    if (d.furnizor && d.furnizor.length === 36 && d.tip_document === "13. Factura") {
+      return areFacturaInLista;
+    }
+    return true;
+  });
   const existente = data.map(d => d.tip_document);
 
   // 2) status manual complet (daca exista coloana)
@@ -398,6 +417,11 @@ document.getElementById("bifaComplet").checked = completManual;
           <tr>
             <td>
               <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+                <input class="small" type="text"
+                  value="${(doc.tip_document || '').replace(/'/g, '\'')}"
+                  onchange="salveazaTip('${doc.id}', this.value)"
+                  title="Editează cartonașul (tip document)"
+                  style="min-width:160px;padding:4px;border:1px solid #fbbf24;border-radius:6px;font-size:13px;background:#fffbeb;">
                 <input class="small" type="text"
                   value="${numeFisierEscaped}"
                   onchange="salveazaTitlu('${doc.id}', this.value)"
@@ -504,6 +528,11 @@ async function salveazaTitlu(id, val){
   const { error } = await supabaseClient.from("documente_contract").update({nume_fisier: val}).eq("id", id);
   if(error) alert("Eroare la salvarea titlului: " + error.message);
 }
+async function salveazaTip(id, val){
+  const { error } = await supabaseClient.from("documente_contract").update({tip_document: val}).eq("id", id);
+  if(error) alert("Eroare la salvarea tipului: " + error.message);
+  else incarcaDocumente();
+}
 
 function safeName(name){
 return name
@@ -525,6 +554,14 @@ document.getElementById("fileInputAdauga").addEventListener("change", async func
   if(!files.length) return;
 
   for(const file of files){
+    // Verifică duplicat după nume fișier
+    const { data: existent } = await supabaseClient.from("documente_contract")
+      .select("id").eq("contract_id", contractId).eq("nume_fisier", file.name).limit(1);
+    if (existent && existent.length > 0) {
+      alert("⚠️ Fișierul \"" + file.name + "\" există deja în dosar. Nu a fost adăugat din nou.");
+      continue;
+    }
+
     const safe = safeName(file.name);
     const fileName = `${contractId}_${Date.now()}_${safe}`;
 
@@ -590,6 +627,14 @@ document.getElementById("fileInput").addEventListener("change", async function()
       await supabaseClient.from("documente_contract").delete()
         .eq("contract_id", contractId)
         .eq("tip_document", tipSelectat);
+    }
+
+    // Verifică duplicat după nume fișier
+    const { data: existent2 } = await supabaseClient.from("documente_contract")
+      .select("id").eq("contract_id", contractId).eq("nume_fisier", file.name).limit(1);
+    if (existent2 && existent2.length > 0) {
+      alert("⚠️ Fișierul \"" + file.name + "\" există deja în dosar. Nu a fost adăugat din nou.");
+      continue;
     }
 
     const safe = safeName(file.name);
@@ -875,28 +920,8 @@ async function genereazaDosar(){
   }
 
   // ordinea (în PDF folosim variante fara diacritice pt titluri)
-  const ordine = [
-    "1. Referat de necesitate",
-    "2. Notă de justificare",
-    "3. Cerere de ofertă",
-    "4. Anunț achiziție",
-    "5. Ofertă",
-    "5.1 CIF",
-    "5.2 Certificat constatator",
-    "5.3 Declarație beneficiar real",
-    "5.4 Declarație art. 164/165/167",
-    "6. Proces-verbal selecție oferte",
-    "7. Comunicare selecție oferte",
-    "8. Dovadă achiziție SICAP",
-    "9. Contract",
-    "10. Decizie comisie recepție",
-    "11. Proces-verbal de recepție",
-    "12. Proces-verbal de dare în folosință",
-    "13. Factura",
-    "14. OP",
-    "15. Fotografii",
-    "16. Alte documente"
-  ];
+  // Folosim lista de cartonase configurata (din Supabase), nu cea hardcodata
+  const ordine = [...listaDocumente];
 
   const pdfFinal = await PDFDocument.create();
 // ===== COPERTA DIN SUPABASE =====
@@ -953,8 +978,8 @@ const opisDoc = await PDFDocument.load(opisBytes);
 const pageOpis = opisDoc.getPages()[0];
 const fontOpis = await opisDoc.embedFont(PDFLib.StandardFonts.Helvetica);
 const fontOpisBold = await opisDoc.embedFont(PDFLib.StandardFonts.HelveticaBold);
-const fontOpisItalic = await pdfFinal.embedFont(PDFLib.StandardFonts.HelveticaOblique);
-const fontOpisBoldItalic = await pdfFinal.embedFont(PDFLib.StandardFonts.HelveticaBoldOblique);
+const fontOpisItalic = await opisDoc.embedFont(PDFLib.StandardFonts.HelveticaOblique);
+const fontOpisBoldItalic = await opisDoc.embedFont(PDFLib.StandardFonts.HelveticaBoldOblique);
 
 // --- ÎNCĂRCARE ȘTAMPILE DIN STORAGE ---
 let imaginiStampile = [];
@@ -972,126 +997,95 @@ if (vreaStampila) { // Verificăm dacă utilizatorul a ales OK
   } catch (e) { console.error("Eroare incarcare stampile:", e); }
 }
 
-let y = 520; 
+let y = 520;
 let randIndex = 0;
-let ofertaAntetScris = false;
-let fotografiiProcesate = false;
 
-// 1. Sortare IERARHICĂ (asigură ordinea 5, 5.1, 5.2, 5.3, 5.10)
-// 1. Sortare IERARHICĂ (asigură ordinea 5, 5.1, 5.1.1, 5.2)
-const toateDocurile = docs.sort((a, b) => {
-  const getParts = (doc) => {
-    // Luăm prefixul din NUMELE FIȘIERULUI (ex: "5.1.1_ceva.pdf" -> "5.1.1")
-    const nume = (doc.nume_fisier || "").split('_')[0];
-    const match = nume.match(/^(\d+(\.\d+)*)/);
-    return match ? match[0].split('.').filter(p => p !== "").map(Number) : [];
-  };
+// Grupam documentele dupa tip_document (excludem dosarul PDF)
+const grupateOpisDoc = {};
+if (docs) {
+  docs.forEach(d => {
+    if (d.tip_document === 'DOSAR ACHIZIȚIE PDF') return;
+    if (!grupateOpisDoc[d.tip_document]) grupateOpisDoc[d.tip_document] = [];
+    grupateOpisDoc[d.tip_document].push(d);
+  });
+}
 
-  const partsA = getParts(a);
-  const partsB = getParts(b);
+// Determina nivelul ierarhic din prefixul numeric
+// "1." -> 1, "5.1" -> 2, "5.1.1" -> 3, "5.1.1.1" -> 4
+function getNivel(titlu) {
+  const match = titlu.match(/^(\d+(\.\d+)*)/);
+  if (!match) return 1;
+  return match[1].split('.').filter(s => s !== '').length;
+}
 
-  for (let i = 0; i < Math.max(partsA.length, partsB.length); i++) {
-    const vA = partsA[i] !== undefined ? partsA[i] : -1;
-    const vB = partsB[i] !== undefined ? partsB[i] : -1;
-    if (vA !== vB) return vA - vB;
+// Formatul pentru fiecare nivel
+function getFmt(nivel) {
+  if (nivel === 1) return { font: fontOpisBold,       indent: 0,  size: 9,   areDoc: false };
+  if (nivel === 2) return { font: fontOpisBoldItalic, indent: 20, size: 8.5, areDoc: true  };
+  if (nivel === 3) return { font: fontOpisItalic,     indent: 40, size: 8,   areDoc: true  };
+  return             { font: fontOpisItalic,     indent: 60, size: 8,   areDoc: true  };
+}
+
+function deseneazaRand(text, nrInreg, dataInreg, fmt) {
+  if (y < 40) return;
+  if (randIndex % 2 === 1) {
+    pageOpis.drawRectangle({ x: 85, y: y - 4, width: 425, height: 16, color: PDFLib.rgb(0.97, 0.97, 0.98) });
   }
-  return (a.nume_fisier || "").localeCompare(b.nume_fisier || "");
-});
+  pageOpis.drawText(roPDF(text), { x: 95 + fmt.indent, y: y, size: fmt.size, font: fmt.font });
 
-for(const doc of toateDocurile) {
-  // Tăiem după "_" pentru a curăța numele (ex: 5.1_pictura devine 5.1)
-  let numeBaza = (doc.nume_fisier || "").replace(/\.pdf$/i, "");
-  if (numeBaza.includes("_")) {
-    numeBaza = numeBaza.split("_")[0];
-  }
-  let textDeAfisat = numeBaza.trim();
-
-  // Forțăm 3.1 să devină 4 (Bold) așa cum ai cerut anterior
-  if(textDeAfisat.startsWith("3.1.")) {
-    textDeAfisat = textDeAfisat.replace("3.1.", "4.");
-  }
-
-  // --- FILTRU STRICT: Dacă nu începe cu cifră și nu e excepția "Fotografii", sărim peste ---
-  const incepeCuCifra = /^\d/.test(textDeAfisat);
-  const esteFoto = doc.tip_document.toLowerCase().includes("fotografii");
-  
-  if (!incepeCuCifra && !esteFoto) continue;
-
-  // --- EXCEPȚIE FOTOGRAFII ---
-  if (esteFoto) {
-    if (!fotografiiProcesate) {
-      pageOpis.drawText(roPDF("15. Fotografii"), { x: 95, y: y, size: 9, font: fontOpisBold });
-      y -= 18; randIndex++;
-      fotografiiProcesate = true;
+  if (fmt.areDoc) {
+    let dataF = "-";
+    if (dataInreg) {
+      const p = dataInreg.split("-");
+      if (p.length === 3) dataF = `${p[2]}.${p[1]}.${p[0]}`;
     }
-    continue;
+    pageOpis.drawText(roPDF(`${nrInreg || "-"} / ${dataF}`), { x: 400, y: y, size: fmt.size, font: fmt.font });
   }
 
-  // --- ANTET CATEGORIE 5 (OFERTA) ---
-  if(doc.tip_document.startsWith("5") && !ofertaAntetScris) {
-    pageOpis.drawText(roPDF("5. Oferta"), { x: 95, y: y, size: 9, font: fontOpisBold });
-    y -= 18; randIndex++;
-    ofertaAntetScris = true;
-  }
-
-  // Renumerotare specifică: 3.1 devine 4 (Bold)
-  if(textDeAfisat.startsWith("3.1.")) {
-    textDeAfisat = textDeAfisat.replace("3.1.", "4.");
-  }
-
-  // --- STABILIRE BOLD ȘI INDENTARE (CHIRURGICAL) ---
-const matchNumere = textDeAfisat.match(/^(\d+(\.\d+)*)/);
-let indent = 0;
-let fontRand = fontOpis; 
-
-if (matchNumere) {
-  // Curățăm prefixul: eliminăm punctul final dacă există, apoi spargem în segmente
-  const prefixCurat = matchNumere[0].replace(/\.$/, "");
-  const segmente = prefixCurat.split('.');
-  const nivel = segmente.length;
-
-  if (nivel === 1 || textDeAfisat.startsWith("4.")) {
-    // Nivel 1: "5." -> BOLD
-    fontRand = fontOpisBold;
-    indent = 0;
-  } 
-  else if (nivel === 2) {
-    // Nivel 2: "5.1" -> BOLD + ITALIC
-    fontRand = fontOpisBoldItalic;
-    indent = 20;
-  } 
-  else if (nivel >= 3) {
-    // Nivel 3: "5.1.1" -> ITALIC
-    fontRand = fontOpisItalic;
-    indent = 40;
-  }
+  y -= 18; randIndex++;
 }
 
-// 2. Fundal alternat (Rămâne neschimbat)
-if(randIndex % 2 === 1) { 
-  pageOpis.drawRectangle({ x: 85, y: y - 4, width: 425, height: 16, color: PDFLib.rgb(0.97, 0.97, 0.98) });
-}
+// Iteram prin tipurile reale din documente, sortate numeric
+const tipuriReale = [...new Set(
+  docs
+    .filter(d => d.tip_document !== 'DOSAR ACHIZIȚIE PDF')
+    .map(d => d.tip_document)
+)].sort((a, b) => a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' }));
 
-// 3. Scriere Text cu indentarea nouă
-pageOpis.drawText(roPDF(textDeAfisat), { 
-  x: 95 + indent, 
-  y: y, 
-  size: 8.5, 
-  font: fontRand 
-});
+for (const tip of tipuriReale) {
+  if (y < 40) break;
 
-  // --- AFIȘARE NR. ÎNREGISTRARE ȘI DATĂ ---
-  let dataF = "-";
-  if(doc.data_inregistrare) {
-      const p = doc.data_inregistrare.split("-");
-      if(p.length === 3) dataF = `${p[2]}.${p[1]}.${p[0]}`;
+  const nivel = getNivel(tip);
+  const fmt = getFmt(nivel);
+  const fisiereTip = grupateOpisDoc[tip] || [];
+
+  if (nivel === 1) {
+    // Titlu sectiune - fara document, fara nr/data
+    deseneazaRand(tip, null, null, fmt);
+  } else {
+    // Nivel 2+ - trebuie document
+    if (fisiereTip.length === 0) {
+      // Nu are document - afisam randul cu - / -
+      deseneazaRand(tip, "-", null, fmt);
+    } else if (fisiereTip.length === 1) {
+      // Un singur fisier - randul principal cu nr/data
+      const f = fisiereTip[0];
+      deseneazaRand(tip, f.nr_inregistrare, f.data_inregistrare, fmt);
+    } else {
+      // Mai multe fisiere - titlul cartonasului fara nr/data, apoi fiecare fisier
+      deseneazaRand(tip, null, null, { ...fmt, areDoc: false });
+
+      const fmtExtra = { font: fontOpisItalic, indent: fmt.indent + 20, size: fmt.size - 0.5, areDoc: true };
+      for (const f of fisiereTip) {
+        if (y < 40) break;
+        const numeFis = (f.nume_fisier || "document")
+          .replace(/\.pdf$/i, "")
+          .replace(/\.jpe?g$/i, "")
+          .replace(/\.png$/i, "");
+        deseneazaRand(numeFis.substring(0, 60), f.nr_inregistrare, f.data_inregistrare, fmtExtra);
+      }
+    }
   }
-  const nrInreg = doc.nr_inregistrare || "-";
-  pageOpis.drawText(roPDF(`${nrInreg} / ${dataF}`), { x: 400, y: y, size: 9, font: fontOpisBold });
-
-  y -= 18; 
-  randIndex++;
-  if (y < 40) break; 
 }
 
 const opisPages = await pdfFinal.copyPages(opisDoc, opisDoc.getPageIndices());

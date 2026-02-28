@@ -790,10 +790,17 @@
                 '<span class="check-name">' + tip + '</span>' +
                 '</div>';
 
-            if (tip === '9. Contract' || tip === '13. Factura' || (esteStatPlata && tip === '13. Factura')) {
+            if (tip === '9. Contract' || tip === '13. Factura') {
                 html += '<div style="margin-top:7px;margin-left:28px;display:flex;align-items:flex-start;gap:6px;color:#9ca3af;font-size:11px;font-style:italic;line-height:1.6;">' +
                     '<span style="flex-shrink:0;margin-top:1px;">⚠️</span>' +
                     '<span>Verifică să fie menționate: <b>Codul Proiectului</b>, <b>Bun de plată</b>, <b>Viza CFP</b>, <b>Certificat în privința realității, regularității, legalității</b></span>' +
+                    '</div>';
+            }
+
+            if (tip === '14. OP') {
+                html += '<div style="margin-top:7px;margin-left:28px;display:flex;align-items:flex-start;gap:6px;color:#9ca3af;font-size:11px;font-style:italic;line-height:1.6;">' +
+                    '<span style="flex-shrink:0;margin-top:1px;">⚠️</span>' +
+                    '<span>Verifică să fie menționate: <b>Codul Proiectului</b>, <b>Certificat în privința realității, regularității, legalității</b></span>' +
                     '</div>';
             }
 
