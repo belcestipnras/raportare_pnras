@@ -348,13 +348,32 @@
     }
 
     // ===================== SELECTEAZĂ FACTURĂ =====================
-    function selecteazaFactura(id) {
+    async function selecteazaFactura(id) {
         const factura = facturiData.find(f => f.id === id);
         if (!factura || factura.blocat) return;
         facturaSelectata = id;
         document.querySelectorAll('.factura-item').forEach(el => el.classList.remove('activ'));
         const elem = document.getElementById('f-' + id);
         if (elem) elem.classList.add('activ');
+
+        // Verificăm dacă există fișier importat
+        const { data: files } = await db.storage.from('arhiva_pnras').list(facturaSelectata);
+        const areFisier = files && files.length > 0;
+        const cardFisier = areFisier
+            ? `<div style="display:inline-flex;align-items:center;gap:8px;background:#ecfdf5;border:1px solid #6ee7b7;border-radius:8px;padding:8px 14px;font-size:12px;font-weight:600;color:#065f46;">
+                <span style="cursor:pointer;" onclick="veziFactura()">&#128196; ${files[0].name}</span>
+                <span style="background:#16a34a;color:#fff;border-radius:4px;padding:1px 6px;font-size:10px;">✓ Încărcat</span>
+                <button onclick="stergeFisier('${files[0].name}')" style="background:#dc2626;color:#fff;border:none;border-radius:4px;padding:2px 7px;font-size:10px;cursor:pointer;margin-left:4px;" title="Șterge fișierul și produsele">🗑️ Șterge</button>
+               </div>`
+            : `<div style="display:inline-flex;align-items:center;gap:8px;background:#fef2f2;border:1px solid #fca5a5;border-radius:8px;padding:8px 14px;font-size:12px;font-weight:600;color:#991b1b;">
+                &#128196; Nicio factură încărcată
+                <span style="background:#dc2626;color:#fff;border-radius:4px;padding:1px 6px;font-size:10px;">✕ Lipsă</span>
+               </div>`;
+
+        // Verificăm dacă există produse salvate
+        const { data: produseSalvate } = await db.from('produse_factura').select('id')
+            .eq('factura_id', facturaSelectata).eq('sters', false).limit(1);
+        const areProduse = produseSalvate && produseSalvate.length > 0;
 
         document.getElementById('continut-registru').innerHTML = `
             <div class="factura-header">
@@ -364,14 +383,16 @@
             </div>
             <div class="butoane-actiuni">
                 <button class="btn-actiune btn-importa" onclick="importaFactura()">&#128194; Importă factură</button>
-                <button class="btn-actiune btn-vezi-factura" onclick="veziFactura()">&#128196; Vezi factură</button>
-                <button class="btn-actiune btn-extrage" onclick="extrageProduse()">&#9881; Extrage produse</button>
-                <button class="btn-actiune btn-vezi" onclick="veziProduse()">&#128065; Vezi produse</button>
-                <button class="btn-actiune btn-trimite" onclick="trimiteRegistru()">&#128228; Trimite către registru</button>
-                <button class="btn-actiune btn-istoric" onclick="veziIstoric()">&#128337; Vezi istoric</button>
+                ${areFisier ? `<button class="btn-actiune btn-extrage" onclick="extrageProduse()">&#9881; Extrage produse</button>` : ''}
             </div>
+            <div style="margin:12px 0 16px 0;">${cardFisier}</div>
             <div id="zona-continut"></div>
         `;
+
+        // Dacă există produse salvate, le afișăm automat
+        if (areProduse) {
+            veziProduse();
+        }
     }
 
     // ===================== IMPORTĂ FACTURĂ =====================
@@ -393,6 +414,8 @@
             zona.innerHTML = '<div class="status-msg status-err">Eroare la încărcare: ' + error.message + '</div>';
         } else {
             zona.innerHTML = '<div class="status-msg status-ok">&#9989; Fișierul <b>' + file.name + '</b> a fost încărcat cu succes.</div>';
+            // Reîncărcăm view-ul ca să apară cartonașul verde
+            setTimeout(() => selecteazaFactura(facturaSelectata), 800);
         }
         e.target.value = '';
     });
@@ -474,7 +497,8 @@
         // Ștergem din registru
         await db.from('registru_inventar').delete().eq('factura_id', facturaSelectata);
 
-        zona.innerHTML = '<div class="status-msg status-ok">&#9989; Fișierul a fost mutat în istoric. Produsele pot fi recuperate din Vezi istoric.</div>';
+        // Reîncărcăm view-ul să apară cartonașul roșu
+        setTimeout(() => selecteazaFactura(facturaSelectata), 500);
     }
 
     // ===================== EXTRAGE PRODUSE =====================
@@ -512,16 +536,25 @@
     function afiseazaTabelEditabil(produse) {
         const zona = document.getElementById('zona-continut');
         let html = '<table class="tabel-produse"><thead><tr>';
-        html += '<th>Nr.</th><th>Denumire</th><th>UM</th><th>Cantitate</th><th>Preț unitar</th><th>Valoare</th>';
+        html += '<th>Nr.</th><th>Denumire</th><th>UM</th><th>Cantitate</th><th>Preț unitar</th><th>Tip</th><th>Valoare</th>';
         html += '</tr></thead><tbody>';
 
         produse.forEach((p, i) => {
+            const tipAuto = (p.pret_unitar || 0) > 2500 ? 'Mijloc fix' : 'Obiect de inventar';
             html += `<tr>
                 <td>${i + 1}</td>
                 <td><input type="text" id="den_${i}" value="${(p.denumire || '').replace(/"/g, '&quot;')}"></td>
                 <td><input type="text" id="um_${i}" value="${(p.um || 'BUC').replace(/"/g, '&quot;')}" style="width:60px"></td>
                 <td><input type="number" id="cant_${i}" value="${p.cantitate || 0}" step="any"></td>
                 <td><input type="number" id="pret_${i}" value="${p.pret_unitar || 0}" step="any"></td>
+                <td>
+                    <select id="tip_${i}" style="font-size:11px;">
+                        <option value="Obiect de inventar" ${tipAuto === 'Obiect de inventar' ? 'selected' : ''}>Obiect de inventar</option>
+                        <option value="Mijloc fix" ${tipAuto === 'Mijloc fix' ? 'selected' : ''}>Mijloc fix</option>
+                        <option value="Serviciu">Serviciu</option>
+                        <option value="Consumabil">Consumabil</option>
+                    </select>
+                </td>
                 <td><input type="number" id="val_${i}" value="${p.valoare || 0}" step="any"></td>
             </tr>`;
         });
@@ -532,18 +565,25 @@
         zona.innerHTML = html;
     }
 
+    // ===================== TIP AUTOMAT DUPĂ PREȚ =====================
+    function tipDupaPret(pret) {
+        return parseFloat(pret) > 2500 ? 'Mijloc fix' : 'Obiect de inventar';
+    }
+
     // ===================== SALVEAZĂ PRODUSE NOI =====================
     async function salveazaProduseNoi() {
         const nr = parseInt(document.getElementById('nr_produse').value);
         const produseNoi = [];
         for (let i = 0; i < nr; i++) {
+            const pretVal = parseFloat(document.getElementById('pret_' + i).value) || 0;
             produseNoi.push({
                 factura_id: facturaSelectata,
                 denumire: document.getElementById('den_' + i).value,
                 um: document.getElementById('um_' + i).value,
                 cantitate: parseFloat(document.getElementById('cant_' + i).value) || 0,
-                pret_unitar: parseFloat(document.getElementById('pret_' + i).value) || 0,
+                pret_unitar: pretVal,
                 valoare: parseFloat(document.getElementById('val_' + i).value) || 0,
+                tip: document.getElementById('tip_' + i).value,
             });
         }
 
@@ -577,6 +617,9 @@
         if (error) {
             document.getElementById('zona-continut').innerHTML += '<div class="status-msg status-err">Eroare: ' + error.message + '</div>';
         } else {
+            // Trimite automat la registru după salvare
+            await new Promise(r => setTimeout(r, 300));
+            await trimiteRegistruSilent();
             veziProduse();
         }
     }
@@ -617,7 +660,7 @@
                 <td><input type="text" class="edit-den" data-id="${p.id}" value="${(p.denumire || '').replace(/"/g, '&quot;')}" ${blocat ? 'disabled' : ''}></td>
                 <td><input type="text" class="edit-um" data-id="${p.id}" value="${(p.um || '').replace(/"/g, '&quot;')}" style="width:50px" ${blocat ? 'disabled' : ''}></td>
                 <td><input type="number" class="edit-cant" data-id="${p.id}" value="${p.cantitate || 0}" step="any" style="width:55px" ${blocat ? 'disabled' : ''}></td>
-                <td><input type="number" class="edit-pret" data-id="${p.id}" value="${p.pret_unitar || 0}" step="any" style="width:75px" ${blocat ? 'disabled' : ''}></td>
+                <td><input type="number" class="edit-pret" data-id="${p.id}" value="${p.pret_unitar || 0}" step="any" style="width:75px" ${blocat ? 'disabled' : ''} ></td>
                 <td><input type="number" class="edit-val" data-id="${p.id}" value="${p.valoare || 0}" step="any" style="width:75px" ${blocat ? 'disabled' : ''}></td>
                 <td>
                     <select class="edit-tip" data-id="${p.id}" ${blocat ? 'disabled' : ''}>
@@ -728,6 +771,7 @@ locatie: document.querySelector(`.edit-loc[data-id="${id}"]`).value === 'Alt spa
             }).eq('id', id);
             count++;
         }
+        await trimiteRegistruSilent();
         alert(count + ' produse actualizate!');
         veziProduse();
     }
@@ -867,6 +911,35 @@ locatie: document.querySelector(`.edit-loc[data-id="${id}"]`).value === 'Alt spa
         doc.save('QR_' + (produs.numar_inventar || 'produs') + '.pdf');
     }
 
+    // ===================== TRIMITE CĂTRE REGISTRU (SILENT) =====================
+    async function trimiteRegistruSilent() {
+        if (!facturaSelectata) return;
+        const factura = facturiData.find(f => f.id === facturaSelectata);
+        const { data: produse } = await db.from('produse_factura').select('*')
+            .eq('factura_id', facturaSelectata).eq('sters', false);
+        if (!produse || produse.length === 0) return;
+
+        // Expandăm fiecare produs în rânduri individuale după cantitate
+        const items = [];
+        for (const p of produse) {
+            const cant = Math.max(1, Math.floor(p.cantitate || 1));
+            for (let i = 0; i < cant; i++) {
+                items.push({
+                    produs_id: p.id, factura_id: p.factura_id,
+                    denumire: p.denumire, um: p.um, cantitate: 1,
+                    pret_unitar: p.pret_unitar, valoare: p.pret_unitar,
+                    tip: p.tip, locatie: p.locatie, numar_inventar: p.numar_inventar,
+                    data_document: factura ? factura.data_document : null,
+                    titlu_factura: factura ? factura.titlu : null,
+                    numar_factura: factura ? factura.numar : null,
+                });
+            }
+        }
+
+        await db.from('registru_inventar').delete().eq('factura_id', facturaSelectata);
+        await db.from('registru_inventar').insert(items);
+    }
+
     // ===================== TRIMITE CĂTRE REGISTRU =====================
     async function trimiteRegistru() {
         if (!facturaSelectata) return;
@@ -993,7 +1066,14 @@ async function golesteIstoric() {
 
     // ===================== REGISTRE (about:blank) =====================
     async function deschideRegistru(tip) {
-        let query = db.from('registru_inventar').select('*').order('data_document', { ascending: true });
+        // Preluăm din produse_factura unde există număr de inventar
+        let query = db.from('produse_factura')
+            .select('*')
+            .eq('sters', false)
+            .not('numar_inventar', 'is', null)
+            .neq('numar_inventar', '')
+            .order('numar_inventar', { ascending: true });
+
         let titlu = 'GENERAL';
         let subtitlu = 'Registru General';
 
@@ -1008,7 +1088,28 @@ async function golesteIstoric() {
             if (titluri[tip]) { titlu = titluri[tip].titlu; subtitlu = titluri[tip].subtitlu; }
         }
 
-        const { data, error } = await query;
+        let { data, error } = await query;
+
+        // Îmbogățim cu datele din buget_pnras (factura)
+        if (data && data.length > 0) {
+            const facturaIds = [...new Set(data.map(p => p.factura_id).filter(Boolean))];
+            const { data: facturi } = await db.from('buget_pnras')
+                .select('id, titlu, numar, data_document, an')
+                .in('id', facturaIds);
+            const facturiMap = {};
+            if (facturi) facturi.forEach(f => facturiMap[f.id] = f);
+
+            data = data.map(p => {
+                const f = facturiMap[p.factura_id] || {};
+                return {
+                    ...p,
+                    titlu_factura: f.titlu || '',
+                    numar_factura: f.numar || '',
+                    data_document: f.data_document || '',
+                    an: f.an || new Date().getFullYear(),
+                };
+            });
+        }
         if (error) { alert('Eroare: ' + error.message); return; }
 
         const tipRegistru = tip === 'general' ? 'general' : tip;
@@ -1179,9 +1280,9 @@ async function golesteIstoric() {
                     <td>${nrCrt}</td>
                     <td>${p.denumire || '-'}</td>
                     <td>${p.um || '-'}</td>
-                    <td>${p.cantitate || 0}</td>
+                    <td>1</td>
                     <td>${p.pret_unitar || 0}</td>
-                    <td>${p.valoare || 0}</td>
+                    <td>${p.pret_unitar || 0}</td>
                     <td>${p.locatie || '-'}</td>`;
                 if (hasInventar) html += `<td style="font-weight:600;">${p.numar_inventar || '-'}</td>`;
                 let dataFmt = p.data_document || '-';
@@ -1189,7 +1290,7 @@ async function golesteIstoric() {
                     const parti = dataFmt.split('-');
                     dataFmt = parti[2] + '.' + parti[1] + '.' + parti[0];
                 }
-                const factInfo = (p.numar_factura || '-') + '/' + dataFmt;	
+                const factInfo = (p.numar_factura || '-') + '/' + dataFmt;
                 html += `<td>${factInfo}</td></tr>`;
             });
 
