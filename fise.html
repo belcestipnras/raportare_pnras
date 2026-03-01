@@ -157,11 +157,7 @@
             <button class="btn" style="background: #8b5cf6; color: white;" onclick="completeazaToateFiseleAI()">✨ Completează tot cu AI</button>
         </div>
         <div class="nav-right">
-            <button class="btn" style="background: #059669; color: white;" onclick="document.getElementById('input-fise').click()">📄 Încarcă Fișă</button>
-            <button class="btn" style="background: #d97706; color: white;" onclick="document.getElementById('input-foto').click()">📸 Fotografii</button>
             <button class="btn btn-reset" onclick="reseteazaLaPlanificare()">🧹 Reset</button>
-            <input type="file" id="input-fise" style="display: none;" accept="application/pdf" onchange="incarcaInCloud(this, 'FISA')" multiple>
-            <input type="file" id="input-foto" style="display: none;" accept="image/*" onchange="incarcaInCloud(this, 'FOTO')" multiple>
         </div>
     </div>
 
@@ -523,10 +519,12 @@ REGULI: NU scrie altceva în afară de aceste 5 secțiuni. Fiecare secțiune pe 
                     label.classList.add('activa');
                 }
             };
+            // Mereu deschis
+            fisiereLista.classList.add('deschis');
 
             // Zona expandabila
             const fisiereLista = document.createElement('div');
-            fisiereLista.className = 'sf-fisiere deschis';
+            fisiereLista.className = 'sf-fisiere';
 
             // Butoane actiuni: + Fișă, + Foto, Printează
             const actiuni = document.createElement('div');
@@ -546,11 +544,6 @@ REGULI: NU scrie altceva în afară de aceste 5 secțiuni. Fiecare secțiune pe 
             btnPrint.className = 'sf-btn-data print';
             btnPrint.innerHTML = '🖨️ PDF';
             btnPrint.onclick = (e) => { e.stopPropagation(); printeazaFisaCuDocumente(idx, data, docs); };
-
-            const labelAdauga = document.createElement('div');
-            labelAdauga.style.cssText = 'padding: 4px 14px 2px; font-size: 9px; color: #334155; letter-spacing: 0.5px; text-transform: uppercase;';
-            labelAdauga.innerText = 'adaugă document';
-            fisiereLista.appendChild(labelAdauga);
 
             actiuni.appendChild(btnFisa);
             actiuni.appendChild(btnFoto);
@@ -594,7 +587,7 @@ REGULI: NU scrie altceva în afară de aceste 5 secțiuni. Fiecare secțiune pe 
                 label.innerHTML = `<span class="sf-data-text">📁 ${data}</span><span class="sf-arrow">▸</span>`;
 
                 const fisiereLista = document.createElement('div');
-                fisiereLista.className = 'sf-fisiere deschis';
+                fisiereLista.className = 'sf-fisiere';
 
                 const listaDoc = document.createElement('div');
                 listaDoc.style.cssText = 'padding: 4px 0;';
