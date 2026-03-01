@@ -849,6 +849,49 @@
         const supabaseKey = 'sb_publishable_KPV__0BA9z4EvRl5eqC0FQ_hmBLOLYv';
         const supabaseClient = window.supabase.createClient(supabaseUrl, supabaseKey);
 
+/* ===== CLOUDFLARE R2 — WORKER PROXY ===== */
+// ⚠️  Înlocuiește URL-ul de mai jos cu URL-ul Worker-ului tău după deploy
+const WORKER_URL = "https://r2-proxy.belcesti-pnras2024.workers.dev";
+
+const PUBLIC_URLS = {
+  contracte: "https://pub-21fd5af81dd046f08d14c67f1291f051.r2.dev",
+  audit:     "https://pub-4ea8aba91932467f8f7714b866438f3a.r2.dev",
+  arhiva:    "https://pub-13cf388dd61a492191d7381c33a367b5.r2.dev",
+};
+
+async function r2UploadFile(fileName, fileBlob, bucketKey) {
+  const resp = await fetch(`${WORKER_URL}/upload`, {
+    method: "PUT",
+    headers: {
+      "X-Bucket": bucketKey,
+      "X-File-Name": fileName,
+      "Content-Type": fileBlob.type || "application/octet-stream",
+    },
+    body: fileBlob,
+  });
+  if (!resp.ok) {
+    const txt = await resp.text();
+    throw new Error("Upload eșuat: " + txt);
+  }
+  const data = await resp.json();
+  return data.url;
+}
+
+async function r2DeleteFile(publicUrl, bucketKey) {
+  try {
+    const baseUrl = PUBLIC_URLS[bucketKey];
+    const fileName = decodeURIComponent(publicUrl.replace(baseUrl + "/", ""));
+    await fetch(`${WORKER_URL}/delete`, {
+      method: "DELETE",
+      headers: {
+        "X-Bucket": bucketKey,
+        "X-File-Name": fileName,
+      },
+    });
+  } catch(e) { console.log("Eroare ștergere R2:", e); }
+}
+
+
         let currentHotarareId = null; 
         let currentTipRegistru = '1_HOTARARE';
 
@@ -1634,19 +1677,9 @@ async function saveUploadPDF() {
         const fileName = `${idCodificat}_${fisier.name.replace(/[^a-zA-Z0-9._-]/g, '_')}`;
         const filePath = `documente/${fileName}`;
 
-        // 1. Încărcăm PDF-ul în Supabase Storage
-        const { error: uploadError } = await supabaseClient.storage
-            .from('arhiva_pnras')
-            .upload(filePath, fisier, { contentType: 'application/pdf', upsert: false });
-
-        if (uploadError) throw uploadError;
-
-        // 2. Obținem URL-ul public
-        const { data: urlData } = supabaseClient.storage
-            .from('arhiva_pnras')
-            .getPublicUrl(filePath);
-
-        const publicUrl = urlData?.publicUrl || '';
+        // 1. Încărcăm PDF-ul în Cloudflare R2
+        const publicUrl = await r2UploadFile(filePath, fisier, "arhiva");
+        if (!publicUrl) throw new Error("Upload eșuat");
 
         // 3. Stabilim tipul documentului
         let tipDocText = "HOTĂRÂREA";
@@ -1752,19 +1785,22 @@ async function uploadSemnat(idUnique, inputEl) {
         const fileName = `signed_${idUnique}_${fisier.name.replace(/[^a-zA-Z0-9._-]/g, '_')}`;
         const filePath = `documente_semnate/${fileName}`;
 
-        // 1. Încărcăm în Supabase Storage
-        const { error: uploadError } = await supabaseClient.storage
-            .from('arhiva_pnras')
-            .upload(filePath, fisier, { contentType: 'application/pdf', upsert: true });
+        // 0. Dacă există un PDF vechi, îl ștergem din R2
+        const { data: existingOld } = await supabaseClient
+            .from('numere_inregistrare')
+            .select('document_data')
+            .eq('id_unique', idUnique)
+            .single();
+        if (existingOld?.document_data) {
+            try {
+                const oldDoc = JSON.parse(existingOld.document_data);
+                if (oldDoc.signedPdfPath) await r2DeleteFile(oldDoc.signedPdfUrl, "arhiva");
+            } catch(e) {}
+        }
 
-        if (uploadError) throw uploadError;
-
-        // 2. Obținem URL-ul public
-        const { data: urlData } = supabaseClient.storage
-            .from('arhiva_pnras')
-            .getPublicUrl(filePath);
-
-        const publicUrl = urlData?.publicUrl || '';
+        // 1. Încărcăm în Cloudflare R2
+        const publicUrl = await r2UploadFile(filePath, fisier, "arhiva");
+        if (!publicUrl) throw new Error("Upload eșuat");
 
         // 3. Actualizăm document_data existent (UPDATE, nu INSERT!)
         const { data: existing } = await supabaseClient

@@ -320,6 +320,49 @@
     const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFleGpyYmRnYWp1cnh6bmdma3B4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgxMzE3NTYsImV4cCI6MjA4MzcwNzc1Nn0.VUx0QOKgjX4m23HOF2rBpE9vWA3T18KtjLc0w_iXhqA';
     const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
+/* ===== CLOUDFLARE R2 — WORKER PROXY ===== */
+// ⚠️  Înlocuiește URL-ul de mai jos cu URL-ul Worker-ului tău după deploy
+const WORKER_URL = "https://r2-proxy.belcesti-pnras2024.workers.dev";
+
+const PUBLIC_URLS = {
+  contracte: "https://pub-21fd5af81dd046f08d14c67f1291f051.r2.dev",
+  audit:     "https://pub-4ea8aba91932467f8f7714b866438f3a.r2.dev",
+  arhiva:    "https://pub-13cf388dd61a492191d7381c33a367b5.r2.dev",
+};
+
+async function r2UploadFile(fileName, fileBlob, bucketKey) {
+  const resp = await fetch(`${WORKER_URL}/upload`, {
+    method: "PUT",
+    headers: {
+      "X-Bucket": bucketKey,
+      "X-File-Name": fileName,
+      "Content-Type": fileBlob.type || "application/octet-stream",
+    },
+    body: fileBlob,
+  });
+  if (!resp.ok) {
+    const txt = await resp.text();
+    throw new Error("Upload eșuat: " + txt);
+  }
+  const data = await resp.json();
+  return data.url;
+}
+
+async function r2DeleteFile(publicUrl, bucketKey) {
+  try {
+    const baseUrl = PUBLIC_URLS[bucketKey];
+    const fileName = decodeURIComponent(publicUrl.replace(baseUrl + "/", ""));
+    await fetch(`${WORKER_URL}/delete`, {
+      method: "DELETE",
+      headers: {
+        "X-Bucket": bucketKey,
+        "X-File-Name": fileName,
+      },
+    });
+  } catch(e) { console.log("Eroare ștergere R2:", e); }
+}
+
+
     // ===================== STATE =====================
     function salveazaState() {
         try { sessionStorage.setItem('auditNav', JSON.stringify({ stack: navigationStack, view: currentView })); } catch(e) {}
@@ -1143,16 +1186,11 @@
             const uniqueId = Math.random().toString(36).substring(2, 10) + '_' + Date.now();
             const fileName = uniqueId + '_' + file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
             console.log('[UPLOAD] Încerc upload:', fileName);
-            const { data: storageData, error: storageError } = await db.storage.from('audit').upload(fileName, file, { upsert: false });
-            console.log('[UPLOAD] Storage result:', storageData, storageError);
-            if (storageError) {
-                uploadErrors.push(file.name + ': ' + (storageError.message || JSON.stringify(storageError)));
-                continue;
-            }
-            const { data: urlData } = db.storage.from('audit').getPublicUrl(fileName);
-            console.log('[UPLOAD] URL:', urlData.publicUrl);
+            let auditUrl;
+            try { auditUrl = await r2UploadFile(fileName, file, "audit"); }
+            catch(e) { uploadErrors.push(file.name + ': ' + e.message); continue; }
+            console.log('[UPLOAD] URL:', auditUrl);
 
-            // Calculăm ordinea
             let maxOrdQ = db.from('audit_continut').select('ordine')
                 .eq('card_id', uploadTargetCardId).eq('sters', false).neq('tip', 'notita')
                 .order('ordine', { ascending: false }).limit(1);
@@ -1163,7 +1201,7 @@
 
             const { error: dbError } = await db.from('audit_continut').insert({
                 card_id: uploadTargetCardId, parent_id: uploadTargetParentId,
-                tip: 'fisier', titlu: file.name, fisier_url: urlData.publicUrl, fisier_nume: file.name,
+                tip: 'fisier', titlu: file.name, fisier_url: auditUrl, fisier_nume: file.name,
                 sters: false, ordine: nextOrd
             });
             console.log('[UPLOAD] DB insert error:', dbError);
@@ -1268,10 +1306,7 @@
             .eq('card_id', cardId).eq('sters', true).eq('tip', 'fisier');
         if (fisiere) {
             for (const f of fisiere) {
-                if (f.fisier_url) {
-                    const fn = f.fisier_url.split('/').pop();
-                    await db.storage.from('audit').remove([fn]);
-                }
+                if (f.fisier_url) await r2DeleteFile(f.fisier_url, "audit");
             }
         }
         await db.from('audit_continut').delete().eq('card_id', cardId).eq('sters', true);
@@ -1421,14 +1456,13 @@
     incarcaVizualizare();
 
     // ===================== ȘTERGERE FIȘIERE CHECKLIST =====================
-    async function stergeStorageFisier(storagePath, contractId, titlu) {
+    async function stergeStorageFisier(publicUrl, contractId, titlu) {
         const r = await arataDialog('🗑️ Șterge fișier', 'Ești sigur că vrei să ștergi acest fișier din storage?', [
             { text: 'Șterge', valoare: 'da', clasa: 'dialog-btn-primary' },
             { text: 'Anulează', valoare: 'nu', clasa: 'dialog-btn-cancel' }
         ]);
         if (r.actiune !== 'da') return;
-        const { error } = await db.storage.from('contracte').remove([storagePath]);
-        if (error) { aratToast('❌ Eroare la ștergere: ' + error.message, 'error'); return; }
+        await r2DeleteFile(publicUrl, "contracte");
         aratToast('🗑️ Fișier șters', 'success');
         afiseazaChecklistContract(contractId, titlu);
     }

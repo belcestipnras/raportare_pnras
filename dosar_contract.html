@@ -105,18 +105,51 @@ function safeName(name){
     .slice(0, 140);
 }
 
-// ia path-ul din link public: .../storage/v1/object/public/contracte/<PATH>
-function storagePathFromPublicUrl(url){
-  try{
-    const marker = "/storage/v1/object/public/contracte/";
-    const idx = url.indexOf(marker);
-    if(idx === -1) return null;
-    const encodedPath = url.substring(idx + marker.length);
-    return decodeURIComponent(encodedPath);
-  }catch(e){
-    return null;
+/* ===== CLOUDFLARE R2 — WORKER PROXY ===== */
+// ⚠️  Înlocuiește URL-ul de mai jos cu URL-ul Worker-ului tău după deploy
+const WORKER_URL = "https://r2-proxy.belcesti-pnras2024.workers.dev";
+
+const PUBLIC_URLS = {
+  contracte: "https://pub-21fd5af81dd046f08d14c67f1291f051.r2.dev",
+  audit:     "https://pub-4ea8aba91932467f8f7714b866438f3a.r2.dev",
+  arhiva:    "https://pub-13cf388dd61a492191d7381c33a367b5.r2.dev",
+};
+
+async function r2UploadFile(fileName, fileBlob, bucketKey) {
+  const resp = await fetch(`${WORKER_URL}/upload`, {
+    method: "PUT",
+    headers: {
+      "X-Bucket": bucketKey,
+      "X-File-Name": fileName,
+      "Content-Type": fileBlob.type || "application/octet-stream",
+    },
+    body: fileBlob,
+  });
+  if (!resp.ok) {
+    const txt = await resp.text();
+    throw new Error("Upload eșuat: " + txt);
   }
+  const data = await resp.json();
+  return data.url;
 }
+
+async function r2DeleteFile(publicUrl, bucketKey) {
+  try {
+    const baseUrl = PUBLIC_URLS[bucketKey];
+    const fileName = decodeURIComponent(publicUrl.replace(baseUrl + "/", ""));
+    await fetch(`${WORKER_URL}/delete`, {
+      method: "DELETE",
+      headers: {
+        "X-Bucket": bucketKey,
+        "X-File-Name": fileName,
+      },
+    });
+  } catch(e) { console.log("Eroare ștergere R2:", e); }
+}
+
+
+// compatibilitate URL-uri vechi Supabase
+function storagePathFromPublicUrl(url){ return null; }
 
 // Funcție separată pentru aplicare ștampilă aleatorie
 function aplicaStampila(pagina, imaginiStampile) {
@@ -168,34 +201,14 @@ function intreabaStampila() {
 }
 
 async function downloadBytesFromStoragePublicUrl(publicUrl){
-
 try{
-
-const url = new URL(publicUrl);
-let path = url.pathname.split("/object/public/contracte/")[1];
-
-if(!path){
-throw "Path invalid";
-}
-
-path = decodeURIComponent(path);
-
-const { data, error } = await supabaseClient
-.storage
-.from("contracte")
-.download(path);
-
-if(error){
-console.log("DOWNLOAD ERROR:", error);
-throw error;
-}
-
-const ab = await data.arrayBuffer();
-return new Uint8Array(ab);
-
+  const resp = await fetch(publicUrl);
+  if(!resp.ok) throw new Error("HTTP " + resp.status);
+  const ab = await resp.arrayBuffer();
+  return new Uint8Array(ab);
 }catch(e){
-alert("Eroare citire fisier din storage. Redenumeste PDF fara diacritice.");
-throw e;
+  alert("Eroare citire fisier. Verifica conexiunea.");
+  throw e;
 }
 }
 
@@ -565,14 +578,9 @@ document.getElementById("fileInputAdauga").addEventListener("change", async func
     const safe = safeName(file.name);
     const fileName = `${contractId}_${Date.now()}_${safe}`;
 
-    const up = await supabaseClient.storage.from("contracte").upload(fileName, file, { upsert:false });
-    if(up.error){
-      alert("Eroare upload: " + up.error.message);
-      this.value = "";
-      return;
-    }
-
-    const { data:linkData } = supabaseClient.storage.from("contracte").getPublicUrl(fileName);
+    let publicUrl3;
+    try { publicUrl3 = await r2UploadFile(fileName, file, "contracte"); }
+    catch(e) { alert("Eroare upload: " + e.message); this.value = ""; return; }
 
     const ins = await supabaseClient.from("documente_contract").insert([{
       contract_id: contractId,
@@ -580,7 +588,7 @@ document.getElementById("fileInputAdauga").addEventListener("change", async func
       furnizor: furn || "",
       tip_document: tipAdauga,
       nume_fisier: file.name,
-      link_drive: linkData.publicUrl
+      link_drive: publicUrl3
     }]);
 
     if(ins.error){
@@ -612,17 +620,9 @@ document.getElementById("fileInput").addEventListener("change", async function()
     .eq("tip_document", tipSelectat);
 
   if (vechi && vechi.length) {
-    const paths = vechi
-      .filter(d => d.link_drive)
-      .map(d => {
-        try {
-          const url = new URL(d.link_drive);
-          const path = url.pathname.split("/object/public/contracte/")[1];
-          return path ? decodeURIComponent(path) : null;
-        } catch(e) { return null; }
-      })
-      .filter(Boolean);
-    if (paths.length) await supabaseClient.storage.from("contracte").remove(paths);
+    for (const d of vechi) {
+      if (d.link_drive) await r2DeleteFile(d.link_drive, "contracte");
+    }
     await supabaseClient.from("documente_contract").delete()
       .eq("contract_id", contractId)
       .eq("tip_document", tipSelectat);
@@ -640,14 +640,9 @@ document.getElementById("fileInput").addEventListener("change", async function()
     const safe = safeName(file.name);
     const fileName = `${contractId}_${Date.now()}_${safe}`;
 
-    const up = await supabaseClient.storage.from("contracte").upload(fileName, file, { upsert:false });
-    if(up.error){
-      alert("Eroare upload: " + up.error.message);
-      this.value = "";
-      return;
-    }
-
-    const { data:linkData } = supabaseClient.storage.from("contracte").getPublicUrl(fileName);
+    let publicUrl5;
+    try { publicUrl5 = await r2UploadFile(fileName, file, "contracte"); }
+    catch(e) { alert("Eroare upload: " + e.message); this.value = ""; return; }
 
     const ins = await supabaseClient.from("documente_contract").insert([{
       contract_id: contractId,
@@ -655,7 +650,7 @@ document.getElementById("fileInput").addEventListener("change", async function()
       furnizor: furn || "",
       tip_document: tipSelectat,
       nume_fisier: file.name,
-      link_drive: linkData.publicUrl
+      link_drive: publicUrl5
     }]);
 
     if(ins.error){
@@ -798,51 +793,8 @@ async function stergeDoc(id, link){
 
   try{
 
-    // ===== sterge fisier din storage =====
-    if(link){
-      const url = new URL(link);
-      let path = url.pathname.split("/object/public/contracte/")[1];
-
-      if(path){
-        path = decodeURIComponent(path);
-
-        await supabaseClient
-          .storage
-          .from("contracte")
-          .remove([path]);
-      }
-    }
-
-    // ===== sterge din tabel =====
-    await supabaseClient
-      .from("documente_contract")
-      .delete()
-      .eq("id", id);
-
-    // ===== curata fisiere orfane din storage (fara inregistrare in tabel) =====
-    const { data: ramaseTabel } = await supabaseClient
-      .from("documente_contract")
-      .select("link_drive")
-      .eq("contract_id", contractId);
-
-    const { data: storageFiles } = await supabaseClient.storage
-      .from("contracte")
-      .list("", { limit: 500, search: contractId });
-
-    if (storageFiles && storageFiles.length) {
-      const linkuriTabel = new Set((ramaseTabel || []).map(d => d.link_drive).filter(Boolean));
-      const orfane = storageFiles
-        .filter(f => {
-          if (!f.name.startsWith(contractId + "_")) return false;
-          const { data: urlData } = supabaseClient.storage.from("contracte").getPublicUrl(f.name);
-          return !linkuriTabel.has(urlData.publicUrl);
-        })
-        .map(f => f.name);
-      if (orfane.length) {
-        await supabaseClient.storage.from("contracte").remove(orfane);
-      }
-    }
-
+    if(link) await r2DeleteFile(link, "contracte");
+    await supabaseClient.from("documente_contract").delete().eq("id", id);
     incarcaDocumente();
 
   }catch(e){
@@ -861,31 +813,12 @@ async function stergeTotal(){
       .select("id, link_drive")
       .eq("contract_id", contractId);
 
-    // 2. Ștergem fișierele din storage care au link în tabel
+    // 2. Ștergem fișierele din R2
     if(docs && docs.length){
-      const paths = docs
-        .filter(d => d.link_drive)
-        .map(d => {
-          try{
-            const url = new URL(d.link_drive);
-            const path = url.pathname.split("/object/public/contracte/")[1];
-            return path ? decodeURIComponent(path) : null;
-          }catch(e){ return null; }
-        })
-        .filter(Boolean);
-      if(paths.length) await supabaseClient.storage.from("contracte").remove(paths);
+      for(const d of docs){ if(d.link_drive) await r2DeleteFile(d.link_drive, "contracte"); }
     }
 
-    // 3. Ștergem din storage și fișierele orfane (fără înregistrare în tabel)
-    const { data: storageFiles } = await supabaseClient.storage.from("contracte").list("", { limit: 500, search: contractId });
-    if(storageFiles && storageFiles.length){
-      const orphans = storageFiles
-        .filter(f => f.name.startsWith(contractId + "_"))
-        .map(f => f.name);
-      if(orphans.length) await supabaseClient.storage.from("contracte").remove(orphans);
-    }
-
-    // 4. Ștergem toate înregistrările din tabel
+    // 3. Ștergem toate înregistrările din tabel
     await supabaseClient
       .from("documente_contract")
       .delete()
@@ -1168,21 +1101,14 @@ if (vreaStampila && !saritPrimaPaginaImg) aplicaStampila(p, imaginiStampile);
   a.download = `Dosar_achizitie_${contractId}.pdf`;
   a.click();
 
-  // upload in storage + insert in tabel
+  // upload in R2 + insert in tabel
   const fileName = `DOSAR_${contractId}_${Date.now()}.pdf`;
 
-  const up = await supabaseClient
-  .storage
-  .from("contracte")
-  .upload(fileName, blob, { upsert: true, cacheControl: "0" });
-  if(up.error){
-    alert("PDF generat, dar nu s-a putut urca in storage: " + up.error.message);
-    return;
-  }
+  let dosarUrl;
+  try { dosarUrl = await r2UploadFile(fileName, blob, "contracte"); }
+  catch(e) { alert("PDF generat, dar nu s-a putut urca in storage: " + e.message); return; }
 
-  const { data:urlData } = supabaseClient.storage.from("contracte").getPublicUrl(fileName);
-
-  // sterge vechiul dosar din storage (daca exista)
+  // sterge vechiul dosar din R2 (daca exista)
   const { data: dosarVechi } = await supabaseClient
     .from("documente_contract")
     .select("link_drive")
@@ -1190,29 +1116,21 @@ if (vreaStampila && !saritPrimaPaginaImg) aplicaStampila(p, imaginiStampile);
     .eq("tip_document", "DOSAR ACHIZIȚIE PDF")
     .single();
   if (dosarVechi && dosarVechi.link_drive) {
-    try {
-      const url = new URL(dosarVechi.link_drive);
-      const path = url.pathname.split("/object/public/contracte/")[1];
-      if (path) await supabaseClient.storage.from("contracte").remove([decodeURIComponent(path)]);
-    } catch(e) {}
+    await r2DeleteFile(dosarVechi.link_drive, "contracte");
   }
 
-    // sterge vechea inregistrare dosar
-await supabaseClient
-.from("documente_contract")
-.delete()
-.eq("contract_id", contractId)
-.eq("tip_document","DOSAR ACHIZIȚIE PDF");
+  await supabaseClient.from("documente_contract").delete()
+    .eq("contract_id", contractId)
+    .eq("tip_document","DOSAR ACHIZIȚIE PDF");
 
-// insereaza noul dosar
-await supabaseClient.from("documente_contract").insert([{
-  contract_id: contractId,
-  nume_contract: nume || "",
-  furnizor: furn || "",
-  tip_document: "DOSAR ACHIZIȚIE PDF",
-  nume_fisier: fileName,
-  link_drive: urlData.publicUrl
-}]);
+  await supabaseClient.from("documente_contract").insert([{
+    contract_id: contractId,
+    nume_contract: nume || "",
+    furnizor: furn || "",
+    tip_document: "DOSAR ACHIZIȚIE PDF",
+    nume_fisier: fileName,
+    link_drive: dosarUrl
+  }]);
 
   alert("DOSAR GENERAT ✔");
   incarcaDocumente();

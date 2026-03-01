@@ -544,6 +544,49 @@
         const supabaseKey = 'sb_publishable_KPV__0BA9z4EvRl5eqC0FQ_hmBLOLYv';
         const supabaseClient = window.supabase.createClient(supabaseUrl, supabaseKey);
 
+/* ===== CLOUDFLARE R2 — WORKER PROXY ===== */
+// ⚠️  Înlocuiește URL-ul de mai jos cu URL-ul Worker-ului tău după deploy
+const WORKER_URL = "https://r2-proxy.belcesti-pnras2024.workers.dev";
+
+const PUBLIC_URLS = {
+  contracte: "https://pub-21fd5af81dd046f08d14c67f1291f051.r2.dev",
+  audit:     "https://pub-4ea8aba91932467f8f7714b866438f3a.r2.dev",
+  arhiva:    "https://pub-13cf388dd61a492191d7381c33a367b5.r2.dev",
+};
+
+async function r2UploadFile(fileName, fileBlob, bucketKey) {
+  const resp = await fetch(`${WORKER_URL}/upload`, {
+    method: "PUT",
+    headers: {
+      "X-Bucket": bucketKey,
+      "X-File-Name": fileName,
+      "Content-Type": fileBlob.type || "application/octet-stream",
+    },
+    body: fileBlob,
+  });
+  if (!resp.ok) {
+    const txt = await resp.text();
+    throw new Error("Upload eșuat: " + txt);
+  }
+  const data = await resp.json();
+  return data.url;
+}
+
+async function r2DeleteFile(publicUrl, bucketKey) {
+  try {
+    const baseUrl = PUBLIC_URLS[bucketKey];
+    const fileName = decodeURIComponent(publicUrl.replace(baseUrl + "/", ""));
+    await fetch(`${WORKER_URL}/delete`, {
+      method: "DELETE",
+      headers: {
+        "X-Bucket": bucketKey,
+        "X-File-Name": fileName,
+      },
+    });
+  } catch(e) { console.log("Eroare ștergere R2:", e); }
+}
+
+
         let rawData = [];
         let anSelectat = 2025; 
         let pilonSelectat = 'II'; 
@@ -1312,27 +1355,19 @@ async function uploadFacturaPdf(facturaId, contractId, inputEl) {
     const file = inputEl.files[0];
     if (!file) return;
 
-    // Șterge documentul vechi dacă există
     const { data: docVechi } = await supabaseClient.from('documente_contract')
         .select('*').eq('furnizor', facturaId).eq('tip_document', '13. Factura').maybeSingle();
     if (docVechi) {
-        const marker = '/storage/v1/object/public/contracte/';
-        const idx = docVechi.link_drive.indexOf(marker);
-        if (idx !== -1) {
-            const path = docVechi.link_drive.substring(idx + marker.length);
-            await supabaseClient.storage.from('contracte').remove([decodeURIComponent(path)]);
-        }
+        await r2DeleteFile(docVechi.link_drive, "contracte");
         await supabaseClient.from('documente_contract').delete().eq('id', docVechi.id);
     }
 
     const safe = sanitizeNumeFisier(file.name);
     const fileName = `${contractId}_${Date.now()}_${safe}`;
 
-    const { error } = await supabaseClient.storage.from('contracte').upload(fileName, file, { upsert: false });
-    if (error) { alert('Eroare upload: ' + error.message); return; }
-
-    const { data: linkData } = supabaseClient.storage.from('contracte').getPublicUrl(fileName);
-    const url = linkData.publicUrl;
+    let url;
+    try { url = await r2UploadFile(fileName, file, "contracte"); }
+    catch(e) { alert('Eroare upload: ' + e.message); return; }
 
     const { error: insError } = await supabaseClient.from('documente_contract').insert([{
         contract_id: contractId,
@@ -1350,13 +1385,7 @@ async function uploadFacturaPdf(facturaId, contractId, inputEl) {
 
 async function stergePdfFactura(docId, url) {
     if (!confirm('Ștergi PDF-ul facturii? Înregistrarea facturii rămâne neatinsă.')) return;
-    // Extrage path-ul din URL
-    const marker = '/storage/v1/object/public/contracte/';
-    const idx = url.indexOf(marker);
-    if (idx !== -1) {
-        const path = url.substring(idx + marker.length);
-        await supabaseClient.storage.from('contracte').remove([decodeURIComponent(path)]);
-    }
+    await r2DeleteFile(url, "contracte");
     await supabaseClient.from('documente_contract').delete().eq('id', docId);
     await randeazaContinutul();
 }
