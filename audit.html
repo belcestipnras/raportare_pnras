@@ -1057,6 +1057,7 @@ async function r2DeleteFile(publicUrl, bucketKey) {
             '<span class="file-icon">&#128193;</span>' +
             '<div class="file-info"><div class="file-name">' + item.titlu + '</div><div class="file-date">Folder</div></div>' +
             '<div class="file-actions">' +
+            '<button class="btn-small" style="background:#059669;" onclick="event.stopPropagation(); descarcaFolder(\'' + item.id + '\', \'' + item.card_id + '\', \'' + titluSafe + '\')">&#128230;</button>' +
             '<button class="btn-small btn-rename" onclick="event.stopPropagation(); redenumesteFolderul(\'' + item.id + '\', \'' + titluSafe + '\')">&#9998;</button>' +
             '<button class="btn-small btn-del" onclick="event.stopPropagation(); stergeItem(\'' + item.id + '\')">&#10005;</button>' +
             '</div></div>';
@@ -1375,6 +1376,53 @@ async function r2DeleteFile(publicUrl, bucketKey) {
         }
     }
 
+
+    async function descarcaFolder(folderId, cardId, titluFolder) {
+        aratToast('📦 Se pregătește descărcarea...', 'success');
+        try {
+            const { data: allItems } = await db.from('audit_continut').select('*')
+                .eq('card_id', cardId).eq('sters', false).neq('tip', 'notita')
+                .order('ordine', { ascending: true });
+
+            if (!allItems || allItems.length === 0) {
+                aratToast('⚠️ Folderul este gol, nimic de descărcat.', 'error');
+                return;
+            }
+
+            const zip = new JSZip();
+
+            async function adaugaInZip(parentId, zipFolder) {
+                const children = allItems.filter(i => i.parent_id === parentId);
+                for (const item of children) {
+                    if (item.tip === 'folder') {
+                        const subFolder = zipFolder.folder(item.titlu || 'Folder');
+                        await adaugaInZip(item.id, subFolder);
+                    } else if (item.tip === 'fisier' && item.fisier_url) {
+                        try {
+                            const response = await fetch(item.fisier_url);
+                            if (response.ok) {
+                                const blob = await response.blob();
+                                const numeFisier = item.fisier_nume || item.titlu || 'fisier';
+                                zipFolder.file(numeFisier, blob);
+                            }
+                        } catch (e) {
+                            console.warn('Nu s-a putut descărca:', item.titlu, e);
+                        }
+                    }
+                }
+            }
+
+            await adaugaInZip(folderId, zip);
+
+            const content = await zip.generateAsync({ type: 'blob' });
+            const numeZip = (titluFolder || 'Folder').replace(/[^a-zA-Z0-9ăâîșțĂÂÎȘȚ ]/g, '_') + '.zip';
+            saveAs(content, numeZip);
+            aratToast('✅ Descărcare completă!', 'success');
+        } catch (err) {
+            console.error('Eroare descărcare ZIP:', err);
+            aratToast('❌ Eroare: ' + err.message, 'error');
+        }
+    }
 
     // Recalculează numerele crt vizual după reordonare
     function recalcNrCrt(container) {
