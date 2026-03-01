@@ -5,7 +5,10 @@
     <title>Management Fișe PNRAS</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        @page { size: A4; margin: 1.5cm; }
+        @page { 
+    size: A4; 
+    margin: 1.5cm !important; 
+}
         body { background: #f0f2f5; margin: 0; padding: 80px 0; font-family: "Times New Roman", serif; }
         .no-print { 
             position: fixed; top: 0; left: 0; width: 100%; 
@@ -34,6 +37,77 @@
         .caseta { border: 1px solid #cbd5e1; padding: 12px; border-radius: 0 8px 8px 8px; min-height: 1.4em; font-size: 11.5pt; outline: none; white-space: pre-wrap; width: 100%; box-sizing: border-box; background: #fff; color: #000; }
         .signature-block { margin-top: 40px; padding: 20px; border: 1px dashed #cbd5e1; border-radius: 12px; background: #fcfcfc; }
         #save-status { color: #10b981; font-family: sans-serif; font-size: 13px; font-weight: 600; margin-left: 10px; }
+
+        /* SIDEBAR FISIERE */
+        #sidebar-fisiere {
+            position: fixed; top: 56px; left: 0; bottom: 0;
+            width: 260px; background: #0f172a; border-right: 1px solid #1e293b;
+            overflow-y: auto; z-index: 900; font-family: sans-serif;
+            display: flex; flex-direction: column;
+        }
+        #sidebar-fisiere .sf-header {
+            padding: 12px 14px; background: #1e293b;
+            font-size: 11px; font-weight: 800; color: #10b981;
+            text-transform: uppercase; letter-spacing: 1px;
+            border-bottom: 1px solid #334155; flex-shrink: 0;
+        }
+        #sidebar-fisiere .sf-body { flex: 1; overflow-y: auto; padding: 6px 0; }
+        /* Grup per dată (= per fișă) */
+        .sf-data-grup { margin-bottom: 2px; }
+        .sf-data-label {
+            padding: 8px 10px 8px 14px; font-size: 11px; font-weight: 800;
+            color: #f8fafc; background: #1e293b;
+            border-left: 3px solid #10b981; cursor: pointer;
+            display: flex; align-items: center; gap: 6px;
+            user-select: none; transition: 0.15s;
+        }
+        .sf-data-label:hover { background: #273549; }
+        .sf-data-label .sf-data-text { flex: 1; }
+        .sf-data-label .sf-arrow { font-size: 10px; color: #64748b; transition: 0.15s; }
+        .sf-data-label.activa { border-left-color: #f59e0b; background: #1c2a3a; }
+        /* Continut expandabil */
+        .sf-fisiere { padding: 4px 0; display: none; }
+        .sf-fisiere.deschis { display: block; }
+        /* Actiuni sub header data */
+        .sf-actiuni-data {
+            display: flex; gap: 4px; padding: 4px 10px 4px 14px;
+            border-bottom: 1px solid #1e293b;
+        }
+        .sf-btn-data {
+            flex: 1; padding: 4px 0; border: none; border-radius: 4px;
+            font-size: 10px; font-family: sans-serif; cursor: pointer;
+            font-weight: 600; transition: 0.15s;
+        }
+        .sf-btn-data.fisa  { background: #1e3a5f; color: #93c5fd; border: 1px solid #2563eb; }
+        .sf-btn-data.foto  { background: #3b1f5f; color: #d8b4fe; border: 1px solid #7c3aed; }
+        .sf-btn-data.print { background: #064e3b; color: #6ee7b7; border: 1px solid #059669; }
+        .sf-btn-data:hover { filter: brightness(1.3); }
+        /* Rand fisier cu drag & drop */
+        .sf-fisier-row {
+            display: flex; align-items: center; gap: 4px;
+            padding: 4px 8px 4px 14px; border-radius: 4px;
+            cursor: grab; transition: 0.15s;
+            border-left: 2px solid transparent;
+        }
+        .sf-fisier-row:hover { background: #1e293b; }
+        .sf-fisier-row:hover .sf-fisier-actions { opacity: 1; }
+        .sf-fisier-row.dragging { opacity: 0.4; background: #334155; }
+        .sf-fisier-row.drag-over { border-top: 2px solid #10b981; }
+        .sf-drag-handle { color: #334155; font-size: 12px; cursor: grab; flex-shrink: 0; }
+        .sf-fisier-name {
+            flex: 1; font-size: 11px; color: #94a3b8; text-decoration: none;
+            overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+            padding-left: 4px;
+        }
+        .sf-fisier-name.tip-fisa { color: #93c5fd; }
+        .sf-fisier-name.tip-foto { color: #d8b4fe; }
+        .sf-fisier-name:hover { color: #f8fafc; }
+        .sf-fisier-actions { opacity: 0; display: flex; gap: 3px; flex-shrink: 0; transition: 0.15s; }
+        .sf-act-btn { background: none; border: none; cursor: pointer; padding: 2px 4px; border-radius: 4px; font-size: 11px; }
+        .sf-act-btn:hover { background: #334155; }
+        .sf-empty { padding: 20px 14px; font-size: 11px; color: #475569; text-align: center; }
+        body.cu-sidebar { margin-left: 260px; }
+        @media print { #sidebar-fisiere { display: none !important; } body { margin-left: 0 !important; } }
         @media print {
     /* Resetăm tot ce ține de corpul paginii */
     html, body { 
@@ -67,6 +141,12 @@
 </head>
 <body>
 
+    <div id="sidebar-fisiere">
+        <div class="sf-header">📁 Fișiere încărcate</div>
+        <div class="sf-body" id="sf-body">
+            <div class="sf-empty">Se încarcă...</div>
+        </div>
+    </div>
     <div class="no-print">
         <div class="nav-left">
             <button id="btn-back-dinamic" class="btn btn-back">⬅️ Înapoi</button>
@@ -80,7 +160,7 @@
             <button class="btn" style="background: #059669; color: white;" onclick="document.getElementById('input-fise').click()">📄 Încarcă Fișă</button>
             <button class="btn" style="background: #d97706; color: white;" onclick="document.getElementById('input-foto').click()">📸 Fotografii</button>
             <button class="btn btn-reset" onclick="reseteazaLaPlanificare()">🧹 Reset</button>
-            <input type="file" id="input-fise" style="display: none;" accept="application/pdf" onchange="incarcaInCloud(this, 'FISA')">
+            <input type="file" id="input-fise" style="display: none;" accept="application/pdf" onchange="incarcaInCloud(this, 'FISA')" multiple>
             <input type="file" id="input-foto" style="display: none;" accept="image/*" onchange="incarcaInCloud(this, 'FOTO')" multiple>
         </div>
     </div>
@@ -287,6 +367,21 @@ REGULI: NU scrie altceva în afară de aceste 5 secțiuni. Fiecare secțiune pe 
     setStatus('saved', '✅ Rezolvat!');
 }
 
+    // =============================================
+    // CLOUDFLARE R2 — UPLOAD & VIZUALIZARE
+    // =============================================
+
+    // URL-ul Supabase Edge Function pentru R2
+    const R2_FUNCTION_URL = `${URL_S}/functions/v1/r2-upload`;
+
+    // Elimină diacritice și caractere speciale pentru nume sigure în R2
+    function normalizeaza(str) {
+        return str
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "")
+            .replace(/[^a-zA-Z0-9_\-\.]/g, "_");
+    }
+
     async function incarcaInCloud(inputElement, tip) {
         const fisiere = inputElement.files;
         if (fisiere.length === 0) return;
@@ -296,49 +391,583 @@ REGULI: NU scrie altceva în afară de aceste 5 secțiuni. Fiecare secțiune pe 
         const index = parseInt(nr) - 1;
         const dataFisa = pagini[index].querySelector('.data-val').innerText.trim().replace(/\./g, '-');
 
+        const urlsIncarcate = [];
+
         for (let i = 0; i < fisiere.length; i++) {
             const fisier = fisiere[i];
             const nrOrdine = i + 1;
-            const numeFinal = `${tip}_${nr}_${nrOrdine}_${config.expert.replace(/\s+/g, '_')}_${config.clasa}.${tip === 'FOTO' ? 'jpg' : 'pdf'}`;
-            
+            const extensie = tip === 'FOTO' ? fisier.name.split('.').pop() : 'pdf';
+            const expertNorm = normalizeaza(config.expert);
+            const clasaNorm  = normalizeaza(config.clasa);
+            const lunaNorm   = normalizeaza(config.luna);
+            const numeFinal  = `${tip}_${nr}_${nrOrdine}_${expertNorm}_${clasaNorm}.${extensie}`;
+            // Structură folder: expert/clasa/luna_an/fisier
+            const objectKey = `${expertNorm}/${clasaNorm}/${lunaNorm}_${config.an}/${numeFinal}`;
+
             setStatus('loading', `🚀 Se încarcă ${nrOrdine}/${fisiere.length}...`);
 
-            await new Promise((resolve) => {
-                const reader = new FileReader();
-                reader.readAsDataURL(fisier);
-                reader.onloadend = async () => {
-                    const base64data = reader.result.split(',')[1];
-                    const googleScriptUrl = "https://script.google.com/macros/s/AKfycbwt8PX04jDM4a4vCbenf66TCixs47DwX8Ab8Ij6z580NxgsoNqqusdCKNjklzJ36qHUtA/exec";
-                    try {
-                        await fetch(googleScriptUrl, { 
-                            method: "POST", 
-                            mode: "no-cors", 
-                            body: JSON.stringify({ 
-                                fileName: numeFinal, 
-                                fileType: fisier.type, 
-                                fileBase64: base64data, 
-                                rootFolderId: '173Qq7JNoOEHL2ZnG4At2zH1MxzUiACvn', 
-                                expertName: config.expert, 
-                                clasa: config.clasa, 
-                                dataFisa: dataFisa 
-                            })
-                        });
-                        resolve();
-                    } catch (err) { 
-                        setStatus('error', "❌ Eroare la poza " + nrOrdine);
-                        resolve(); 
-                    }
-                };
-            });
-        } // Închidere buclă for
+            try {
+                // 1. Cerem presigned URL de la Edge Function
+                const resp = await fetch(R2_FUNCTION_URL, {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${KEY_S}`
+                    },
+                    body: JSON.stringify({ 
+                        action: 'upload',
+                        fileName: numeFinal, 
+                        fileType: fisier.type,
+                        objectKey: objectKey
+                    })
+                });
 
-        alert("✅ Toate documentele au fost trimise!");
-        setStatus('saved', "✅ Finalizat");
+                const { presignedUrl, publicUrl } = await resp.json();
+
+                // 2. Uploadăm direct în R2 cu presigned URL
+                await fetch(presignedUrl, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': fisier.type },
+                    body: fisier
+                });
+
+                urlsIncarcate.push({ 
+                    tip, 
+                    numeFinal, 
+                    publicUrl, 
+                    objectKey,
+                    dataFisa 
+                });
+
+                // 3. Salvăm metadata în Supabase pentru vizualizare ulterioară
+                await supabaseClient.from('documente_r2').upsert({
+                    expert: config.expert,
+                    clasa: config.clasa,
+                    luna: config.luna,
+                    an: config.an,
+                    tip_fisier: tip,
+                    nume_fisier: numeFinal,
+                    object_key: objectKey,
+                    public_url: publicUrl,
+                    data_fisa: dataFisa,
+                    creat_la: new Date().toISOString()
+                }, { onConflict: 'object_key' });
+
+            } catch (err) {
+                console.error(err);
+                setStatus('error', `❌ Eroare la fișierul ${nrOrdine}`);
+            }
+        }
+
+        if (urlsIncarcate.length > 0) {
+            alert(`✅ ${urlsIncarcate.length} fișier(e) încărcate în cloud!`);
+            setStatus('saved', "✅ Finalizat");
+            afiseazaFisiereleIncarcate(); // Reîncărcăm lista
+        }
     }
+
+    // =============================================
+    // SIDEBAR — Date din fișe + documente R2
+    // =============================================
+
+    // Stocăm ordinea documentelor per dată
+    const ordineFisiere = {}; // { "data": [id1, id2, ...] }
+
+    async function afiseazaFisiereleIncarcate() {
+        const sfBody = document.getElementById('sf-body');
+        sfBody.innerHTML = '<div class="sf-empty">Se încarcă...</div>';
+
+        // Luăm datele din paginile fișelor (generate din planificare)
+        const pagini = document.querySelectorAll('.page');
+        const datedinFise = Array.from(pagini).map(p => p.querySelector('.data-val')?.innerText?.trim()).filter(Boolean);
+
+        // Luăm documentele încărcate din Supabase
+        const { data: fisiere } = await supabaseClient
+            .from('documente_r2')
+            .select('*')
+            .match({ expert: config.expert, clasa: config.clasa, luna: config.luna, an: config.an })
+            .order('sort_order', { ascending: true })
+            .order('creat_la', { ascending: true });
+
+        const fisierePeData = {};
+        (fisiere || []).forEach(f => {
+            const d = f.data_fisa || 'Fără dată';
+            if (!fisierePeData[d]) fisierePeData[d] = [];
+            fisierePeData[d].push(f);
+        });
+
+        document.body.classList.add('cu-sidebar');
+        sfBody.innerHTML = '';
+
+        // Construim sidebar cu câte un grup per fișă (dată)
+        datedinFise.forEach((data, idx) => {
+            // Normalizăm data pentru lookup: "15.02.2025" sau "15-02-2025"
+            const dataLookup1 = data; // ex: 15.02.2025
+            const dataLookup2 = data.replace(/\./g, '-'); // ex: 15-02-2025
+            const docs = fisierePeData[dataLookup1] || fisierePeData[dataLookup2] || [];
+
+            const grupDiv = document.createElement('div');
+            grupDiv.className = 'sf-data-grup';
+            grupDiv.dataset.data = data;
+
+            // Header dată — click => scroll la fișa respectivă + expand
+            const label = document.createElement('div');
+            label.className = 'sf-data-label';
+            const nrDoc = docs.length;
+            label.innerHTML = `<span class="sf-data-text">📅 ${data}</span><span style="font-size:9px;color:#64748b;">${nrDoc > 0 ? nrDoc + ' doc' : ''}</span>`;
+            // Click pe label => scroll la fisa, fara collapse
+            label.onclick = () => {
+                if (pagini[idx]) {
+                    pagini[idx].scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    document.querySelectorAll('.sf-data-label').forEach(l => l.classList.remove('activa'));
+                    label.classList.add('activa');
+                }
+            };
+
+            // Zona expandabila
+            const fisiereLista = document.createElement('div');
+            fisiereLista.className = 'sf-fisiere deschis';
+
+            // Butoane actiuni: + Fișă, + Foto, Printează
+            const actiuni = document.createElement('div');
+            actiuni.className = 'sf-actiuni-data';
+
+            const btnFisa = document.createElement('button');
+            btnFisa.className = 'sf-btn-data fisa';
+            btnFisa.innerHTML = '📄 Fișă';
+            btnFisa.onclick = (e) => { e.stopPropagation(); triggerUploadPeData('FISA', data, grupDiv, fisiereLista); };
+
+            const btnFoto = document.createElement('button');
+            btnFoto.className = 'sf-btn-data foto';
+            btnFoto.innerHTML = '📸 Foto';
+            btnFoto.onclick = (e) => { e.stopPropagation(); triggerUploadPeData('FOTO', data, grupDiv, fisiereLista); };
+
+            const btnPrint = document.createElement('button');
+            btnPrint.className = 'sf-btn-data print';
+            btnPrint.innerHTML = '🖨️ PDF';
+            btnPrint.onclick = (e) => { e.stopPropagation(); printeazaFisaCuDocumente(idx, data, docs); };
+
+            const labelAdauga = document.createElement('div');
+            labelAdauga.style.cssText = 'padding: 4px 14px 2px; font-size: 9px; color: #334155; letter-spacing: 0.5px; text-transform: uppercase;';
+            labelAdauga.innerText = 'adaugă document';
+            fisiereLista.appendChild(labelAdauga);
+
+            actiuni.appendChild(btnFisa);
+            actiuni.appendChild(btnFoto);
+            actiuni.appendChild(btnPrint);
+            fisiereLista.appendChild(actiuni);
+
+            // Lista documente cu drag & drop
+            const listaDoc = document.createElement('div');
+            listaDoc.className = 'sf-doc-lista';
+            listaDoc.style.cssText = 'padding: 4px 0;';
+
+            let nrFisa = 0, nrFoto = 0;
+            docs.forEach(f => {
+                const isFisa = f.tip_fisier === 'FISA';
+                if (isFisa) nrFisa++; else nrFoto++;
+                const nr = isFisa ? nrFisa : nrFoto;
+                const numeAfisat = f.nume_custom || (isFisa ? `Fișă ${nr}` : `Foto ${nr}`);
+                listaDoc.appendChild(creeazaRandFisier(f, numeAfisat, listaDoc));
+            });
+
+            fisiereLista.appendChild(listaDoc);
+            grupDiv.appendChild(label);
+            grupDiv.appendChild(fisiereLista);
+            sfBody.appendChild(grupDiv);
+
+            // Initializeaza drag & drop pe lista
+            initDragDrop(listaDoc, data);
+        });
+
+        // Adaugam si datele care exista in R2 dar NU sunt in planificare (fișiere orfane)
+        Object.keys(fisierePeData).forEach(data => {
+            if (!datedinFise.includes(data) && !datedinFise.includes(data.replace(/-/g, '.'))) {
+                // Afisam oricum
+                const docs = fisierePeData[data];
+                const grupDiv = document.createElement('div');
+                grupDiv.className = 'sf-data-grup';
+
+                const label = document.createElement('div');
+                label.className = 'sf-data-label';
+                label.style.borderLeftColor = '#64748b';
+                label.innerHTML = `<span class="sf-data-text">📁 ${data}</span><span class="sf-arrow">▸</span>`;
+
+                const fisiereLista = document.createElement('div');
+                fisiereLista.className = 'sf-fisiere deschis';
+
+                const listaDoc = document.createElement('div');
+                listaDoc.style.cssText = 'padding: 4px 0;';
+                let nrF = 0, nrFt = 0;
+                docs.forEach(f => {
+                    const isFisa = f.tip_fisier === 'FISA';
+                    if (isFisa) nrF++; else nrFt++;
+                    const numeAfisat = f.nume_custom || (isFisa ? `Fișă ${nrF}` : `Foto ${nrFt}`);
+                    listaDoc.appendChild(creeazaRandFisier(f, numeAfisat, listaDoc));
+                });
+
+                label.onclick = () => {
+                    fisiereLista.classList.add('deschis');
+                };
+                fisiereLista.classList.add('deschis');
+
+                fisiereLista.appendChild(listaDoc);
+                grupDiv.appendChild(label);
+                grupDiv.appendChild(fisiereLista);
+                sfBody.appendChild(grupDiv);
+                initDragDrop(listaDoc, data);
+            }
+        });
+    }
+
+    function creeazaRandFisier(f, numeAfisat, listaDoc) {
+        const isFisa = f.tip_fisier === 'FISA';
+        const row = document.createElement('div');
+        row.className = 'sf-fisier-row';
+        row.draggable = true;
+        row.dataset.id = f.id;
+
+        row.innerHTML = `
+            <span class="sf-drag-handle" title="Trage pentru reordonare">⠿</span>
+            <a class="sf-fisier-name ${isFisa ? 'tip-fisa' : 'tip-foto'}" href="${f.public_url}" target="_blank" title="${f.nume_fisier}">
+                ${isFisa ? '📄' : '📸'} <span class="sf-label">${numeAfisat}</span>
+            </a>
+            <div class="sf-fisier-actions">
+                <button class="sf-act-btn" title="Redenumește">✏️</button>
+                <button class="sf-act-btn" title="Șterge">🗑️</button>
+            </div>`;
+
+        const [btnEdit, btnDel] = row.querySelectorAll('.sf-act-btn');
+
+        btnEdit.onclick = async (e) => {
+            e.preventDefault();
+            const nouNume = prompt('Nume nou:', numeAfisat);
+            if (!nouNume || nouNume === numeAfisat) return;
+            await supabaseClient.from('documente_r2').update({ nume_custom: nouNume }).eq('id', f.id);
+            row.querySelector('.sf-label').innerText = nouNume;
+        };
+
+        btnDel.onclick = async (e) => {
+            e.preventDefault();
+            if (!confirm(`Ștergi "${numeAfisat}"?`)) return;
+            try {
+                await fetch(R2_FUNCTION_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${KEY_S}` },
+                    body: JSON.stringify({ action: 'delete', objectKey: f.object_key })
+                });
+            } catch(err) { console.warn(err); }
+            await supabaseClient.from('documente_r2').delete().eq('id', f.id);
+            row.remove();
+        };
+
+        return row;
+    }
+
+    // ---- Drag & Drop reordonare ----
+    function initDragDrop(lista, data) {
+        let dragEl = null;
+
+        lista.addEventListener('dragstart', e => {
+            dragEl = e.target.closest('.sf-fisier-row');
+            if (dragEl) dragEl.classList.add('dragging');
+        });
+
+        lista.addEventListener('dragend', e => {
+            if (dragEl) {
+                dragEl.classList.remove('dragging');
+                // Salvăm noua ordine în Supabase
+                salveazaOrdine(lista);
+                dragEl = null;
+            }
+        });
+
+        lista.addEventListener('dragover', e => {
+            e.preventDefault();
+            const target = e.target.closest('.sf-fisier-row');
+            if (!target || target === dragEl) return;
+            const rect = target.getBoundingClientRect();
+            const mid = rect.top + rect.height / 2;
+            if (e.clientY < mid) {
+                lista.insertBefore(dragEl, target);
+            } else {
+                lista.insertBefore(dragEl, target.nextSibling);
+            }
+        });
+    }
+
+    async function salveazaOrdine(lista) {
+        const rows = lista.querySelectorAll('.sf-fisier-row');
+        const updates = Array.from(rows).map((r, i) => 
+            supabaseClient.from('documente_r2').update({ sort_order: i }).eq('id', r.dataset.id)
+        );
+        await Promise.all(updates);
+    }
+
+    // ---- Upload fisier pe o data specifica ----
+    function triggerUploadPeData(tip, data, grupDiv, fisiereLista) {
+        const inp = document.createElement('input');
+        inp.type = 'file';
+        inp.accept = tip === 'FOTO' ? 'image/*' : 'application/pdf';
+        inp.multiple = true;
+        inp.style.display = 'none';
+        document.body.appendChild(inp);
+        inp.onchange = async () => {
+            await incarcaInCloudPeData(inp, tip, data, fisiereLista);
+            document.body.removeChild(inp);
+        };
+        inp.click();
+    }
+
+    async function incarcaInCloudPeData(inputEl, tip, dataFisa, fisiereLista) {
+        const fisiere = inputEl.files;
+        if (!fisiere || fisiere.length === 0) return;
+
+        const dataKey = dataFisa.replace(/\./g, '-');
+
+        const { data: existente } = await supabaseClient
+            .from('documente_r2').select('id')
+            .match({ expert: config.expert, clasa: config.clasa, luna: config.luna, an: config.an, tip_fisier: tip })
+            .or(`data_fisa.eq.${dataFisa},data_fisa.eq.${dataKey}`);
+
+        let nrStart = (existente ? existente.length : 0) + 1;
+
+        const listaDoc = fisiereLista.querySelector('.sf-doc-lista') || fisiereLista;
+
+        for (let i = 0; i < fisiere.length; i++) {
+            const fisier = fisiere[i];
+            const nrOrdine = nrStart + i;
+            const extensie = tip === 'FOTO' ? fisier.name.split('.').pop() : 'pdf';
+            const expertNorm = normalizeaza(config.expert);
+            const clasaNorm  = normalizeaza(config.clasa);
+            const lunaNorm   = normalizeaza(config.luna);
+            const numeFinal  = `${tip}_${nrOrdine}_${nrOrdine}_${expertNorm}_${clasaNorm}.${extensie}`;
+            const objectKey  = `${expertNorm}/${clasaNorm}/${lunaNorm}_${config.an}/${dataKey}/${numeFinal}`;
+
+            setStatus('loading', `🚀 ${i+1}/${fisiere.length}...`);
+
+            try {
+                const resp = await fetch(R2_FUNCTION_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${KEY_S}` },
+                    body: JSON.stringify({ action: 'upload', fileName: numeFinal, fileType: fisier.type, objectKey })
+                });
+                const { presignedUrl, publicUrl } = await resp.json();
+
+                await fetch(presignedUrl, { method: 'PUT', headers: { 'Content-Type': fisier.type }, body: fisier });
+
+                const { data: newRec } = await supabaseClient.from('documente_r2').upsert({
+                    expert: config.expert, clasa: config.clasa, luna: config.luna, an: config.an,
+                    tip_fisier: tip, nume_fisier: numeFinal, object_key: objectKey,
+                    public_url: publicUrl, data_fisa: dataFisa, sort_order: nrOrdine,
+                    creat_la: new Date().toISOString()
+                }, { onConflict: 'object_key' }).select().single();
+
+                if (newRec) {
+                    const numeAfisat = tip === 'FISA' ? `Fișă ${nrOrdine}` : `Foto ${nrOrdine}`;
+                    listaDoc.appendChild(creeazaRandFisier(newRec, numeAfisat, listaDoc));
+                    initDragDrop(listaDoc, dataFisa);
+                }
+            } catch (err) {
+                console.error(err);
+                setStatus('error', `❌ Eroare`);
+            }
+        }
+        setStatus('saved', '✅ Încărcat!');
+    }
+
+    // ---- Printare fișă + documente ca PDF ----
+    async function printeazaFisaCuDocumente(idxFisa, data, docs) {
+        const pagini = document.querySelectorAll('.page');
+        const paginaFisa = pagini[idxFisa];
+        if (!paginaFisa) { alert('Fișa nu a fost găsită!'); return; }
+
+        setStatus('loading', '🖨️ Se pregătește PDF-ul...');
+
+        // Determinam ordinea documentelor dupa drag & drop
+        const grupDiv = document.querySelector(`.sf-data-grup[data-data="${data}"]`);
+        let docsOrdered = [...docs];
+        if (grupDiv) {
+            const rows = grupDiv.querySelectorAll('.sf-fisier-row');
+            const idMap = {};
+            docs.forEach(d => idMap[d.id] = d);
+            docsOrdered = Array.from(rows).map(r => idMap[r.dataset.id]).filter(Boolean);
+            if (docsOrdered.length === 0) docsOrdered = [...docs];
+        }
+
+        // Deschidem fereastra de print
+        const win = window.open('', '_blank');
+
+        // Copiem stilurile din pagina curenta
+        const stiluri = Array.from(document.styleSheets).map(ss => {
+            try { return Array.from(ss.cssRules).map(r => r.cssText).join('\n'); } catch(e) { return ''; }
+        }).join('\n');
+
+        win.document.write(`<!DOCTYPE html><html><head>
+        <meta charset="UTF-8">
+        <title>Fișă ${data} - ${config.expert}</title>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"><\/script>
+        <style>
+            ${stiluri}
+            body { margin: 0 !important; padding: 0 !important; background: white !important; }
+            .no-print, #sidebar-fisiere { display: none !important; }
+            .page {
+                width: 210mm !important; min-height: 297mm !important;
+                padding: 1.5cm !important; margin: 0 auto !important;
+                box-shadow: none !important; page-break-after: always !important;
+                page-break-inside: avoid !important; box-sizing: border-box !important;
+            }
+            .pdf-page-wrap {
+                width: 210mm; height: 297mm;
+                margin: 0 auto;
+                page-break-after: always; page-break-inside: avoid;
+                overflow: hidden;
+            }
+            .pdf-page-wrap canvas {
+                width: 210mm !important; height: 297mm !important;
+                display: block; margin: 0;
+            }
+            .foto-wrap {
+                width: 210mm; margin: 0 auto;
+                page-break-after: always; page-break-inside: avoid;
+                text-align: center; padding: 1cm; box-sizing: border-box;
+            }
+            .foto-wrap img { max-width: 100%; max-height: 270mm; object-fit: contain; }
+            @page { size: A4; margin: 0; }
+            @media print {
+                body { margin: 0 !important; }
+                .page { box-shadow: none !important; }
+            }
+        </style>
+        </head><body>`);
+
+        // Fisa principala
+        win.document.write(`<div class="page">${paginaFisa.innerHTML}</div>`);
+
+        // Placeholder pentru documente (le vom adauga async)
+        win.document.write(`<div id="docs-container"></div>`);
+        win.document.write(`</body></html>`);
+        win.document.close();
+
+        // Asteptam sa se incarce pdf.js in fereastra noua
+        await new Promise(r => setTimeout(r, 800));
+
+        const container = win.document.getElementById('docs-container');
+        if (!container) { win.print(); return; }
+
+        // Configurare pdf.js worker
+        const PDFJS_VERSION = '3.11.174';
+        let pdfjsLib = null;
+        try {
+            pdfjsLib = win.pdfjsLib;
+            if (pdfjsLib) {
+                pdfjsLib.GlobalWorkerOptions.workerSrc =
+                    `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${PDFJS_VERSION}/pdf.worker.min.js`;
+            }
+        } catch(e) {}
+
+        // Procesam documentele in ordine
+        const imgPromises = [];
+
+        for (const doc of docsOrdered) {
+            if (doc.tip_fisier === 'FOTO') {
+                // Imagine — afisam direct cu <img>, fiecare pe pagina A4 proprie
+                const wrap = win.document.createElement('div');
+                wrap.className = 'foto-wrap';
+                const img = win.document.createElement('img');
+                img.src = doc.public_url;
+                img.crossOrigin = 'anonymous';
+                wrap.appendChild(img);
+                container.appendChild(wrap);
+                // Colectam promise-ul de incarcare
+                imgPromises.push(new Promise(r => {
+                    img.onload = r; img.onerror = r; setTimeout(r, 5000);
+                }));
+            } else {
+                // PDF — convertim fiecare pagina in canvas cu pdf.js
+                if (!pdfjsLib) {
+                    // Fallback daca pdf.js nu e disponibil
+                    const wrap = win.document.createElement('div');
+                    wrap.className = 'pdf-page-wrap';
+                    wrap.style.cssText = 'display:flex;align-items:center;justify-content:center;height:297mm;';
+                    wrap.innerHTML = `<p style="color:#333;font-family:sans-serif;">
+                        📄 ${doc.nume_fisier}<br>
+                        <a href="${doc.public_url}" style="color:#2563eb;">Deschide documentul</a>
+                    </p>`;
+                    container.appendChild(wrap);
+                    continue;
+                }
+                try {
+                    const pdfDoc = await pdfjsLib.getDocument({
+                        url: doc.public_url,
+                        cMapUrl: `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${PDFJS_VERSION}/cmaps/`,
+                        cMapPacked: true,
+                    }).promise;
+
+                    // Scala pentru A4 la 150dpi (bun compromis calitate/viteza)
+                    // Randare la 150dpi pentru calitate buna
+                    const DPI = 150;
+                    const MM_TO_INCH = 1 / 25.4;
+                    const A4_W_PX = Math.round(210 * MM_TO_INCH * DPI); // 1240px
+                    const A4_H_PX = Math.round(297 * MM_TO_INCH * DPI); // 1754px
+
+                    for (let pg = 1; pg <= pdfDoc.numPages; pg++) {
+                        const page = await pdfDoc.getPage(pg);
+                        const baseViewport = page.getViewport({ scale: 1 });
+
+                        // Scala sa umple A4 (fit proportional - cel mai mare fit fara taiere)
+                        const scaleW = A4_W_PX / baseViewport.width;
+                        const scaleH = A4_H_PX / baseViewport.height;
+                        const scale = Math.min(scaleW, scaleH);
+                        const viewport = page.getViewport({ scale });
+
+                        const canvas = win.document.createElement('canvas');
+                        canvas.width = A4_W_PX;
+                        canvas.height = A4_H_PX;
+
+                        const ctx = canvas.getContext('2d');
+                        // Fundal alb
+                        ctx.fillStyle = 'white';
+                        ctx.fillRect(0, 0, A4_W_PX, A4_H_PX);
+                        // Centrat pe A4
+                        const offsetX = (A4_W_PX - viewport.width) / 2;
+                        const offsetY = (A4_H_PX - viewport.height) / 2;
+                        ctx.translate(offsetX, offsetY);
+                        await page.render({ canvasContext: ctx, viewport }).promise;
+
+                        // Canvas arata exact ca A4
+                        canvas.style.cssText = 'width:210mm;height:297mm;display:block;margin:0 auto;';
+
+                        const wrap = win.document.createElement('div');
+                        wrap.className = 'pdf-page-wrap';
+                        wrap.appendChild(canvas);
+                        container.appendChild(wrap);
+                    }
+                } catch(e) {
+                    console.error('PDF render error:', e);
+                    const wrap = win.document.createElement('div');
+                    wrap.className = 'pdf-page-wrap';
+                    wrap.style.cssText = 'display:flex;align-items:center;justify-content:center;height:297mm;';
+                    wrap.innerHTML = `<p style="color:#e11d48;font-family:sans-serif;">Eroare la randarea PDF: ${doc.nume_fisier}</p>`;
+                    container.appendChild(wrap);
+                }
+            }
+        }
+
+        // Asteptam toate imaginile sa se incarce
+        if (imgPromises.length > 0) await Promise.all(imgPromises);
+
+        setStatus('saved', '✅ Se deschide dialogul de print...');
+        await new Promise(r => setTimeout(r, 400));
+        win.focus();
+        win.print();
+    }
+
+    // Încarcă fișierele la pornirea paginii
+    window.addEventListener('load', () => setTimeout(afiseazaFisiereleIncarcate, 1500));
 </script>
 </body>
 </html>
-
 
 
 
