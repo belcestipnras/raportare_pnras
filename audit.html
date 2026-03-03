@@ -811,14 +811,17 @@ async function r2DeleteFile(publicUrl, bucketKey) {
             (complet ? '✅ DOSAR COMPLET (' + totalOk + '/' + listaCartonase.length + ')' :
                        '❌ DOSAR INCOMPLET (' + totalOk + '/' + listaCartonase.length + ')') + '</div>';
 
+        const titluSafeZip = titlu.replace(/'/g, "\\'");
+        html += '<div style="margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;">';
         if (dosarPdf && dosarPdf.link_drive) {
-            html += '<div style="margin-bottom:16px;">' +
-                '<button class="btn-action btn-dosar" onclick="window.open(\'' + dosarPdf.link_drive + '\', \'_blank\')">' +
-                '&#128214; Deschide dosarul complet PDF</button></div>';
+            html += '<button class="btn-action btn-dosar" onclick="window.open(\'' + dosarPdf.link_drive + '\', \'_blank\')">' +
+                '&#128214; Deschide dosarul complet PDF</button>';
         } else {
-            html += '<div style="margin-bottom:16px;padding:10px;background:#f3f4f6;border-radius:8px;font-size:12px;color:#888;">' +
+            html += '<div style="padding:10px;background:#f3f4f6;border-radius:8px;font-size:12px;color:#888;">' +
                 'Dosarul PDF nu a fost generat încă.</div>';
         }
+        html += '<button class="btn-action" style="background:#059669;margin-left:auto;" onclick="descarcaDosarContract(\'' + contractId + '\', \'' + titluSafeZip + '\')">&#128230; Descarcă dosar ZIP</button>';
+        html += '</div>';
 
         html += '<div class="checklist">';
         listaCartonase.forEach(tip => {
@@ -930,6 +933,9 @@ async function r2DeleteFile(publicUrl, bucketKey) {
                 '</div>' +
             '</div>';
 
+        // Titlul folderului curent (din ultimul element din navigationStack)
+        const titluFolderCurent = navigationStack.length > 0 ? (navigationStack[navigationStack.length - 1].titlu || 'Folder') : 'Folder';
+
         // Coloana dreapta: butoane + documente
         let rightCol =
             '<div class="folder-right">' +
@@ -937,6 +943,7 @@ async function r2DeleteFile(publicUrl, bucketKey) {
                     '<button class="btn-action btn-folder" onclick="adaugaSubfolder(\'' + cardId + '\', ' + parentArg + ')">&#128193; Subfolder</button>' +
                     '<button class="btn-action btn-file" onclick="adaugaFisier(\'' + cardId + '\', ' + parentArg + ')">&#128196; Fișier</button>' +
                     '<button class="btn-action btn-history" onclick="veziIstoricCard(\'' + cardId + '\')">&#128337; Istoric</button>' +
+                    '<button class="btn-action" style="background:#059669;" onclick="descarcaDosarCurent(\'' + cardId + '\', ' + parentArg + ', \'' + titluFolderCurent.replace(/'/g, "\\'") + '\')">&#128230; Descarcă dosar</button>' +
                 '</div>';
 
         if (itemsFiltrate.length === 0) {
@@ -1420,6 +1427,117 @@ async function r2DeleteFile(publicUrl, bucketKey) {
             aratToast('✅ Descărcare completă!', 'success');
         } catch (err) {
             console.error('Eroare descărcare ZIP:', err);
+            aratToast('❌ Eroare: ' + err.message, 'error');
+        }
+    }
+
+    // ===================== DESCARCĂ DOSAR CONTRACT (ZIP) =====================
+    async function descarcaDosarContract(contractId, titluContract) {
+        aratToast('📦 Se pregătește descărcarea...', 'success');
+        try {
+            const { data: docs } = await db.from('documente_contract').select('*').eq('contract_id', contractId);
+
+            const fisiere = (docs || []).filter(d => d.link_drive && d.tip_document !== 'DOSAR ACHIZIȚIE PDF');
+            if (fisiere.length === 0) {
+                aratToast('⚠️ Nu există fișiere de descărcat.', 'error');
+                return;
+            }
+
+            const zip = new JSZip();
+            const folderZip = zip.folder(titluContract || 'Dosar');
+
+            for (const doc of fisiere) {
+                try {
+                    const response = await fetch(doc.link_drive);
+                    if (response.ok) {
+                        const blob = await response.blob();
+                        // Nume fișier: tip_document + extensie .pdf
+                        let numeFisier = doc.nume_fisier || (doc.tip_document + '.pdf');
+                        if (!numeFisier.toLowerCase().endsWith('.pdf')) {
+                            numeFisier = numeFisier.replace(/\.[^/.]+$/, '') + '.pdf';
+                        }
+                        folderZip.file(numeFisier, blob);
+                    }
+                } catch (e) {
+                    console.warn('Nu s-a putut descărca:', doc.tip_document, e);
+                }
+            }
+
+            const content = await zip.generateAsync({ type: 'blob' });
+            const numeZip = (titluContract || 'Dosar').replace(/[^a-zA-Z0-9ăâîșțĂÂÎȘȚ ]/g, '_') + '.zip';
+            saveAs(content, numeZip);
+            aratToast('✅ Descărcare completă! (' + fisiere.length + ' fișiere)', 'success');
+        } catch (err) {
+            console.error('Eroare descărcare dosar contract:', err);
+            aratToast('❌ Eroare: ' + err.message, 'error');
+        }
+    }
+
+    // ===================== DESCARCĂ DOSAR CURENT =====================
+    async function descarcaDosarCurent(cardId, parentId, titluDosar) {
+        aratToast('📦 Se pregătește descărcarea dosarului...', 'success');
+        try {
+            // Luăm TOATE itemele din card (pentru a putea traversa subfolderele)
+            const { data: allItems } = await db.from('audit_continut').select('*')
+                .eq('card_id', cardId).eq('sters', false).neq('tip', 'notita')
+                .order('ordine', { ascending: true });
+
+            if (!allItems || allItems.length === 0) {
+                aratToast('⚠️ Dosarul este gol, nimic de descărcat.', 'error');
+                return;
+            }
+
+            // Verificăm dacă există fișiere sub parentId (recursiv)
+            function areChildren(pid) {
+                const children = allItems.filter(i => i.parent_id === (pid || null));
+                if (children.some(i => i.tip === 'fisier' && i.fisier_url)) return true;
+                for (const c of children) {
+                    if (c.tip === 'folder' && areChildren(c.id)) return true;
+                }
+                return false;
+            }
+            if (!areChildren(parentId || null)) {
+                aratToast('⚠️ Dosarul este gol, nimic de descărcat.', 'error');
+                return;
+            }
+
+            const zip = new JSZip();
+            // Folderul rădăcină din ZIP are denumirea dosarului
+            const rootFolder = zip.folder(titluDosar || 'Dosar');
+
+            async function adaugaRecursiv(pid, zipFolder) {
+                const children = allItems.filter(i => i.parent_id === (pid || null));
+                for (const item of children) {
+                    if (item.tip === 'folder') {
+                        const sub = zipFolder.folder(item.titlu || 'Folder');
+                        await adaugaRecursiv(item.id, sub);
+                    } else if (item.tip === 'fisier' && item.fisier_url) {
+                        try {
+                            const response = await fetch(item.fisier_url);
+                            if (response.ok) {
+                                const blob = await response.blob();
+                                // Asigurăm extensia .pdf
+                                let numeFisier = item.fisier_nume || item.titlu || 'fisier';
+                                if (!numeFisier.toLowerCase().endsWith('.pdf')) {
+                                    numeFisier = numeFisier.replace(/\.[^/.]+$/, '') + '.pdf';
+                                }
+                                zipFolder.file(numeFisier, blob);
+                            }
+                        } catch (e) {
+                            console.warn('Nu s-a putut descărca:', item.titlu, e);
+                        }
+                    }
+                }
+            }
+
+            await adaugaRecursiv(parentId || null, rootFolder);
+
+            const content = await zip.generateAsync({ type: 'blob' });
+            const numeZip = (titluDosar || 'Dosar').replace(/[^a-zA-Z0-9ăâîșțĂÂÎȘȚ ]/g, '_') + '.zip';
+            saveAs(content, numeZip);
+            aratToast('✅ Descărcare completă!', 'success');
+        } catch (err) {
+            console.error('Eroare descărcare dosar:', err);
             aratToast('❌ Eroare: ' + err.message, 'error');
         }
     }
