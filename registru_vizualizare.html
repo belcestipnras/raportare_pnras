@@ -180,10 +180,22 @@
 
     async function refreshDate() {
         const indexLuna = luniText.indexOf(currentLuna);
-    // 1. Preluăm datele de pornire pentru numerotare
-    const { data: toate } = await _SB.from('registru_master').select('luna_inreg').eq('an_inreg', currentAn).eq('stare', 'activ');
-    let countAnt = toate ? toate.filter(r => luniText.indexOf(r.luna_inreg) < indexLuna).length : 0;
-    document.getElementById('start-nr').value = countAnt + 1;
+    // 1. Calculăm startNr corect: primul număr liber după toate înregistrările din lunile anterioare
+    const { data: toate } = await _SB.from('registru_master').select('luna_inreg, blocat, numar_fix').eq('an_inreg', currentAn).eq('stare', 'activ');
+    const rAnderioare = toate ? toate.filter(r => luniText.indexOf(r.luna_inreg) < indexLuna) : [];
+    // Simulăm numerotarea lunilor anterioare pentru a afla ultimul nr folosit
+    let autoNrAnt = 1;
+    const blocateAnt = rAnderioare.filter(r => r.blocat).map(r => parseInt(r.numar_fix));
+    rAnderioare.forEach(row => {
+        if (row.blocat) {
+            // număr fix — actualizăm autoNrAnt dacă e mai mare
+            autoNrAnt = Math.max(autoNrAnt, parseInt(row.numar_fix) + 1);
+        } else {
+            while (blocateAnt.includes(autoNrAnt)) autoNrAnt++;
+            autoNrAnt++;
+        }
+    });
+    document.getElementById('start-nr').value = autoNrAnt;
 
         const { data: rows } = await _SB.from('registru_master').select('*').eq('luna_inreg', currentLuna).eq('an_inreg', currentAn);
     localRows = rows || [];
@@ -472,8 +484,26 @@ function initDragDrop() {
         totRegistrul.sort((a, b) => {
             const lA = luniText.indexOf(a.luna_inreg), lB = luniText.indexOf(b.luna_inreg);
             if (lA !== lB) return lA - lB;
-            return (parseInt(a.zi_inreg) || 0) - (parseInt(b.zi_inreg) || 0);
+            const soA = a.sort_order != null ? a.sort_order : a.id;
+            const soB = b.sort_order != null ? b.sort_order : b.id;
+            if (parseInt(a.zi_inreg) !== parseInt(b.zi_inreg))
+                return (parseInt(a.zi_inreg) || 0) - (parseInt(b.zi_inreg) || 0);
+            return soA - soB;
         });
+
+        // Calculăm numerele de înregistrare global (cu startNr=1 pentru registrul întreg)
+        let autoNrRegistru = 1;
+        const numereBlocateTotal = totRegistrul.filter(r => r.blocat).map(r => parseInt(r.numar_fix));
+        totRegistrul.forEach(row => {
+            if (row.blocat) {
+                row.tempNr = parseInt(row.numar_fix);
+            } else {
+                while (numereBlocateTotal.includes(autoNrRegistru)) autoNrRegistru++;
+                row.tempNr = autoNrRegistru;
+                autoNrRegistru++;
+            }
+        });
+        totRegistrul.sort((a, b) => a.tempNr - b.tempNr);
 
         const totalPozitii = totRegistrul.length;
         const printWindow = window.open('', '_blank');
@@ -481,7 +511,7 @@ function initDragDrop() {
         let rowsHtml = "";
         let ultimaLuna = "";
         totRegistrul.forEach((row, i) => {
-            const nr = i + 1;
+            const nr = row.tempNr;
             const lunaNr = (luniText.indexOf(row.luna_inreg) + 1).toString().padStart(2, '0');
             
             if (row.luna_inreg !== ultimaLuna) {
@@ -758,10 +788,13 @@ async function proceseazaSchimbareData(id, ziNoua) {
 
 async function printLuna() {
     // 1. Filtrăm datele din variabila localRows (care conține deja luna curentă)
-    const dateLuna = localRows.filter(r => r.stare === 'activ').sort((a, b) => {
-        const ziA = parseInt(a.zi_inreg) || 0;
-        const ziB = parseInt(b.zi_inreg) || 0;
-        return ziA - ziB;
+    let dateLuna = localRows.filter(r => r.stare === 'activ').sort((a, b) => {
+        const ziA = parseInt(a.zi_inreg) || 999;
+        const ziB = parseInt(b.zi_inreg) || 999;
+        if (ziA !== ziB) return ziA - ziB;
+        const soA = a.sort_order != null ? a.sort_order : a.id;
+        const soB = b.sort_order != null ? b.sort_order : b.id;
+        return soA - soB;
     });
 
     if (dateLuna.length === 0) {
@@ -769,13 +802,41 @@ async function printLuna() {
         return;
     }
 
+    // Calculăm startNr direct din DB, identic cu refreshDate()
+    const indexLunaPrint = luniText.indexOf(currentLuna);
+    const { data: toateAn } = await _SB.from('registru_master').select('luna_inreg, blocat, numar_fix').eq('an_inreg', currentAn).eq('stare', 'activ');
+    const rAnterioare = toateAn ? toateAn.filter(r => luniText.indexOf(r.luna_inreg) < indexLunaPrint) : [];
+    let autoNrCalc = 1;
+    const blocateCalc = rAnterioare.filter(r => r.blocat).map(r => parseInt(r.numar_fix));
+    rAnterioare.forEach(row => {
+        if (row.blocat) {
+            autoNrCalc = Math.max(autoNrCalc, parseInt(row.numar_fix) + 1);
+        } else {
+            while (blocateCalc.includes(autoNrCalc)) autoNrCalc++;
+            autoNrCalc++;
+        }
+    });
+    const startNr = autoNrCalc;
+    let currentAutoNr = startNr;
+    const numereBlocate = dateLuna.filter(r => r.blocat).map(r => parseInt(r.numar_fix));
+    dateLuna.forEach(row => {
+        if (row.blocat) {
+            row.tempNr = parseInt(row.numar_fix);
+        } else {
+            while (numereBlocate.includes(currentAutoNr)) currentAutoNr++;
+            row.tempNr = currentAutoNr;
+            currentAutoNr++;
+        }
+    });
+    dateLuna.sort((a, b) => a.tempNr - b.tempNr);
+
     const totalPozitii = dateLuna.length;
     const printWindow = window.open('', '_blank');
 
     // 2. Construim rândurile tabelului
     let rowsHtml = "";
     dateLuna.forEach((row, i) => {
-        const nr = i + 1;
+        const nr = row.tempNr;
         const lunaNr = (luniText.indexOf(row.luna_inreg) + 1).toString().padStart(2, '0');
         
         rowsHtml += `
