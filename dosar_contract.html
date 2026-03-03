@@ -1076,13 +1076,13 @@ if((d.link_drive || "").toLowerCase().includes(".pdf")){
         // Procesăm paginile secvential (calitate maxima, scale 3x, PNG lossless)
         for (let pi = 1; pi <= numPages; pi++) {
           const page = await pdfDoc.getPage(pi);
-          const viewport = page.getViewport({ scale: 3.0 }); // calitate maxima
+          const viewport = page.getViewport({ scale: 1.8 }); // calitate redusa pentru fisiere mai mici
           const canvas = document.createElement('canvas');
           canvas.width = viewport.width;
           canvas.height = viewport.height;
           const ctx = canvas.getContext('2d');
           await page.render({ canvasContext: ctx, viewport }).promise;
-          const jpgDataUrl = canvas.toDataURL('image/jpeg', 0.92); // JPEG calitate 92%
+          const jpgDataUrl = canvas.toDataURL('image/jpeg', 0.72); // JPEG calitate 72%
           const jpgBase64 = jpgDataUrl.split(',')[1];
           const jpgBytes = Uint8Array.from(atob(jpgBase64), c => c.charCodeAt(0));
           const img = await pdfFinal.embedJpg(jpgBytes);
@@ -1097,13 +1097,34 @@ if((d.link_drive || "").toLowerCase().includes(".pdf")){
         continue;
       }
 
-      // imagine
+      // imagine — comprimam prin canvas inainte de embed
       docProcesate++;
       const progImg = 15 + (docProcesate / Math.max(totalDocs, 1)) * 75;
       updateProgress(progImg, `Procesare: ${d.nume_fisier || tip} (${docProcesate}/${totalDocs})`);
       let img;
-      if((d.link_drive || "").toLowerCase().includes(".png")) img = await pdfFinal.embedPng(bytes);
-      else img = await pdfFinal.embedJpg(bytes);
+      try {
+        // Comprimam imaginea prin canvas la calitate redusa
+        const blob2 = new Blob([bytes], { type: (d.link_drive||'').toLowerCase().includes('.png') ? 'image/png' : 'image/jpeg' });
+        const bitmapUrl = URL.createObjectURL(blob2);
+        const bmp = await createImageBitmap(await fetch(bitmapUrl).then(r => r.blob()));
+        URL.revokeObjectURL(bitmapUrl);
+        const cvs = document.createElement('canvas');
+        // Limitam dimensiunea maxima la 1400px pe latura mai mare
+        const maxSide = 1400;
+        const scaleC = Math.min(1, maxSide / Math.max(bmp.width, bmp.height));
+        cvs.width = Math.round(bmp.width * scaleC);
+        cvs.height = Math.round(bmp.height * scaleC);
+        const ctxC = cvs.getContext('2d');
+        ctxC.drawImage(bmp, 0, 0, cvs.width, cvs.height);
+        const jpgUrl = cvs.toDataURL('image/jpeg', 0.72);
+        const jpgB64 = jpgUrl.split(',')[1];
+        const jpgBytes2 = Uint8Array.from(atob(jpgB64), c => c.charCodeAt(0));
+        img = await pdfFinal.embedJpg(jpgBytes2);
+      } catch(e) {
+        // fallback la embed direct
+        if((d.link_drive || "").toLowerCase().includes(".png")) img = await pdfFinal.embedPng(bytes);
+        else img = await pdfFinal.embedJpg(bytes);
+      }
 
       const p = pdfFinal.addPage([595,842]);
       const scale = Math.min(500/img.width, 700/img.height);
