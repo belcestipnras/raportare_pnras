@@ -833,9 +833,47 @@ async function stergeTotal(){
   }
 }
 
+/* ===================== SELECTOR CALITATE ===================== */
+function intreabaCalitate() {
+  return new Promise((resolve) => {
+    const modal = document.createElement('div');
+    modal.style = "position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;z-index:10000;";
+    modal.innerHTML = `
+      <div style="background:white;padding:28px 32px;border-radius:14px;text-align:center;box-shadow:0 4px 20px rgba(0,0,0,0.25);max-width:420px;width:90%;">
+        <h3 style="margin:0 0 6px 0;font-size:17px;">⚙️ Calitate generare</h3>
+        <p style="font-size:13px;color:#64748b;margin:0 0 20px 0;">Alege calitatea imaginilor din dosarul PDF:</p>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <button id="calRapid" style="padding:12px 16px;border-radius:10px;border:2px solid #e2e8f0;background:#f8fafc;cursor:pointer;text-align:left;font-size:13px;">
+            <b style="font-size:15px;">⚡ Rapid</b><br>
+            <span style="color:#64748b;">Fișier mic, generare rapidă. Potrivit pentru arhivare.</span>
+          </button>
+          <button id="calNormal" style="padding:12px 16px;border-radius:10px;border:2px solid #3b82f6;background:#eff6ff;cursor:pointer;text-align:left;font-size:13px;">
+            <b style="font-size:15px;">✅ Normal</b> <span style="font-size:11px;color:#3b82f6;font-weight:600;">RECOMANDAT</span><br>
+            <span style="color:#64748b;">Echilibru între calitate și dimensiune.</span>
+          </button>
+          <button id="calMaxim" style="padding:12px 16px;border-radius:10px;border:2px solid #e2e8f0;background:#f8fafc;cursor:pointer;text-align:left;font-size:13px;">
+            <b style="font-size:15px;">🔍 Maxim</b><br>
+            <span style="color:#64748b;">Calitate maximă, fișier mare și generare lentă.</span>
+          </button>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(modal);
+    // Rapid: scale 1.0, quality 0.55, maxSide 800
+    document.getElementById('calRapid').onclick = () => { modal.remove(); resolve({ scale: 1.0, quality: 0.55, maxSide: 800 }); };
+    // Normal: scale 1.5, quality 0.72, maxSide 1200
+    document.getElementById('calNormal').onclick = () => { modal.remove(); resolve({ scale: 1.5, quality: 0.72, maxSide: 1200 }); };
+    // Maxim: scale 2.5, quality 0.90, maxSide 2000
+    document.getElementById('calMaxim').onclick = () => { modal.remove(); resolve({ scale: 2.5, quality: 0.90, maxSide: 2000 }); };
+  });
+}
+
 /* ===================== GENERARE DOSAR (LOCAL) ===================== */
 async function genereazaDosar(){
   const { PDFDocument, rgb, StandardFonts } = PDFLib;
+
+  // Alegere calitate
+  const calitate = await intreabaCalitate();
 
   // Bara de progres
   const progressModal = document.createElement('div');
@@ -1076,13 +1114,13 @@ if((d.link_drive || "").toLowerCase().includes(".pdf")){
         // Procesăm paginile secvential (calitate maxima, scale 3x, PNG lossless)
         for (let pi = 1; pi <= numPages; pi++) {
           const page = await pdfDoc.getPage(pi);
-          const viewport = page.getViewport({ scale: 1.8 }); // calitate redusa pentru fisiere mai mici
+          const viewport = page.getViewport({ scale: calitate.scale }); // scala din optiunea aleasa
           const canvas = document.createElement('canvas');
           canvas.width = viewport.width;
           canvas.height = viewport.height;
           const ctx = canvas.getContext('2d');
           await page.render({ canvasContext: ctx, viewport }).promise;
-          const jpgDataUrl = canvas.toDataURL('image/jpeg', 0.72); // JPEG calitate 72%
+          const jpgDataUrl = canvas.toDataURL('image/jpeg', calitate.quality); // calitate din optiunea aleasa
           const jpgBase64 = jpgDataUrl.split(',')[1];
           const jpgBytes = Uint8Array.from(atob(jpgBase64), c => c.charCodeAt(0));
           const img = await pdfFinal.embedJpg(jpgBytes);
@@ -1110,13 +1148,13 @@ if((d.link_drive || "").toLowerCase().includes(".pdf")){
         URL.revokeObjectURL(bitmapUrl);
         const cvs = document.createElement('canvas');
         // Limitam dimensiunea maxima la 1400px pe latura mai mare
-        const maxSide = 1400;
+        const maxSide = calitate.maxSide;
         const scaleC = Math.min(1, maxSide / Math.max(bmp.width, bmp.height));
         cvs.width = Math.round(bmp.width * scaleC);
         cvs.height = Math.round(bmp.height * scaleC);
         const ctxC = cvs.getContext('2d');
         ctxC.drawImage(bmp, 0, 0, cvs.width, cvs.height);
-        const jpgUrl = cvs.toDataURL('image/jpeg', 0.72);
+        const jpgUrl = cvs.toDataURL('image/jpeg', calitate.quality);
         const jpgB64 = jpgUrl.split(',')[1];
         const jpgBytes2 = Uint8Array.from(atob(jpgB64), c => c.charCodeAt(0));
         img = await pdfFinal.embedJpg(jpgBytes2);
