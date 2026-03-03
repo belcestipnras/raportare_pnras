@@ -113,7 +113,7 @@
         <div class="titlu-central">AVIZ DE ÎNSOȚIRE A MĂRFII</div>
         
         <div class="serie-data-container">
-            <div>Nr. <input type="text" class="input-caseta" maxlength="3" placeholder="___"></div>
+            <div>Nr. <input type="text" class="input-caseta" id="nr-aviz" maxlength="3" placeholder="___"></div>
             <div>Data: <span id="data-automata"></span></div>
         </div>
         
@@ -204,9 +204,27 @@
                 document.getElementById('spec-meniu').innerHTML = meniuriConfig[data.tip_meniu] || "Meniu nespecificat";
                 document.getElementById('cantitate-celula').innerText = cantitate;
                 document.getElementById('valoare-totala').innerText = totalVal;
+
+                // Încarcă nr_aviz salvat (dacă există)
+                if (data.nr_aviz) {
+                    document.getElementById('nr-aviz').value = data.nr_aviz;
+                }
             }
         }
         loadData();
+
+        // Salvare automată nr_aviz în Supabase la modificare (cu debounce)
+        let saveTimeout;
+        document.getElementById('nr-aviz').addEventListener('input', function() {
+            clearTimeout(saveTimeout);
+            const val = this.value.trim();
+            saveTimeout = setTimeout(async () => {
+                await supabaseClient
+                    .from('setari_pontaj')
+                    .update({ nr_aviz: val })
+                    .match({ zi, luna: lunaText, an });
+            }, 500);
+        });
     </script>
 </body>
 </html>
