@@ -6,6 +6,7 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
   <script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 
   <style>
     body{font-family:Arial, sans-serif;background:#f5f6fa;margin:0;padding:20px;}
@@ -834,13 +835,31 @@ async function stergeTotal(){
 
 /* ===================== GENERARE DOSAR (LOCAL) ===================== */
 async function genereazaDosar(){
-  // Chemăm fereastra cu butoane DA/NU
-  const vreaStampila = await intreabaStampila();
-  
-  // Mesajul de confirmare finală (opțional)
-  if(!confirm("Începeți generarea dosarului PDF?")) return;
-
   const { PDFDocument, rgb, StandardFonts } = PDFLib;
+
+  // Bara de progres
+  const progressModal = document.createElement('div');
+  progressModal.id = 'progressModal';
+  progressModal.style = "position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center;z-index:10000;";
+  progressModal.innerHTML = `
+    <div style="background:white;padding:30px 40px;border-radius:14px;min-width:380px;box-shadow:0 8px 30px rgba(0,0,0,0.3);text-align:center;">
+      <div style="font-size:18px;font-weight:bold;margin-bottom:6px;">⏳ Generare dosar PDF</div>
+      <div id="progressText" style="font-size:13px;color:#64748b;margin-bottom:16px;">Inițializare...</div>
+      <div style="background:#e2e8f0;border-radius:99px;height:12px;overflow:hidden;">
+        <div id="progressBar" style="height:100%;width:0%;background:linear-gradient(90deg,#3b82f6,#6366f1);border-radius:99px;transition:width 0.3s ease;"></div>
+      </div>
+      <div id="progressPercent" style="font-size:13px;color:#3b82f6;font-weight:bold;margin-top:8px;">0%</div>
+    </div>
+  `;
+  document.body.appendChild(progressModal);
+
+  function updateProgress(percent, text) {
+    document.getElementById('progressBar').style.width = percent + '%';
+    document.getElementById('progressPercent').textContent = Math.round(percent) + '%';
+    if (text) document.getElementById('progressText').textContent = text;
+  }
+
+  try {
 
   const { data:docs } = await supabaseClient
     .from("documente_contract")
@@ -856,6 +875,7 @@ async function genereazaDosar(){
   // Folosim lista de cartonase configurata (din Supabase), nu cea hardcodata
   const ordine = [...listaDocumente];
 
+  updateProgress(2, 'Se încarcă documentele...');
   const pdfFinal = await PDFDocument.create();
 // ===== COPERTA DIN SUPABASE =====
 const coverUrl = "https://aexjrbdgajurxzngfkpx.supabase.co/storage/v1/object/public/contracte/coperta_template.pdf";
@@ -898,6 +918,7 @@ pageCover.drawText(text2,{
 // adauga coperta prima
 const pages = await pdfFinal.copyPages(coverDoc, coverDoc.getPageIndices());
 pages.forEach(p=>pdfFinal.addPage(p));
+updateProgress(8, 'Copertă generată...');
 
   const font = await pdfFinal.embedFont(StandardFonts.Helvetica);
   const bold = await pdfFinal.embedFont(StandardFonts.HelveticaBold);
@@ -914,21 +935,9 @@ const fontOpisBold = await opisDoc.embedFont(PDFLib.StandardFonts.HelveticaBold)
 const fontOpisItalic = await opisDoc.embedFont(PDFLib.StandardFonts.HelveticaOblique);
 const fontOpisBoldItalic = await opisDoc.embedFont(PDFLib.StandardFonts.HelveticaBoldOblique);
 
-// --- ÎNCĂRCARE ȘTAMPILE DIN STORAGE ---
-let imaginiStampile = [];
-if (vreaStampila) { // Verificăm dacă utilizatorul a ales OK
-  try {
-    for (let i = 1; i <= 5; i++) {
-      const urlS = `${SUPABASE_URL}/storage/v1/object/public/contracte/stampila_${i}.png`;
-      const response = await fetch(urlS);
-      if (response.ok) {
-        const bytesS = await response.arrayBuffer();
-        const imgS = await pdfFinal.embedPng(bytesS);
-        imaginiStampile.push(imgS);
-      }
-    }
-  } catch (e) { console.error("Eroare incarcare stampile:", e); }
-}
+// Ștampilele sunt deja aplicate pe documente la upload — nu mai aplicăm la generare
+const imaginiStampile = [];
+const vreaStampila = false;
 
 let y = 520;
 let randIndex = 0;
@@ -983,12 +992,8 @@ function deseneazaRand(text, nrInreg, dataInreg, fmt) {
   y -= 18; randIndex++;
 }
 
-// Iteram prin tipurile reale din documente, sortate numeric
-const tipuriReale = [...new Set(
-  docs
-    .filter(d => d.tip_document !== 'DOSAR ACHIZIȚIE PDF')
-    .map(d => d.tip_document)
-)].sort((a, b) => a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' }));
+// Iteram doar prin cartonasele configurate (listaDocumente), in ordinea lor
+const tipuriReale = listaDocumente.filter(t => t && t !== 'DOSAR ACHIZIȚIE PDF');
 
 for (const tip of tipuriReale) {
   if (y < 40) break;
@@ -1022,8 +1027,13 @@ for (const tip of tipuriReale) {
 
 const opisPages = await pdfFinal.copyPages(opisDoc, opisDoc.getPageIndices());
 opisPages.forEach(p => pdfFinal.addPage(p));
+updateProgress(15, 'Opis generat...');
 
   // foi + documente
+  // Calculam totalul documentelor pentru progress
+  const totalDocs = ordine.reduce((acc, tip) => acc + docs.filter(d => d.tip_document === tip).length, 0);
+  let docProcesate = 0;
+
   for(const tip of ordine){
     // separator
     // Filtrăm documentele de acest tip
@@ -1051,33 +1061,46 @@ try{
   continue; // trece la urmatorul document
 }
 
-      // PDF
-      // PDF + ȘTAMPILĂ (Varianta corectă)
+      // PDF — rasterizare prin PDF.js (păstrează semnăturile vizuale, calitate maximă)
 if((d.link_drive || "").toLowerCase().includes(".pdf")){
-        const src = await PDFDocument.load(bytes);
-        const sourcePages = await pdfFinal.copyPages(src, src.getPageIndices());
-        const saritPrimaPagina = ['9. Contract', '13. Factura', '14. OP'].includes(tip);
-        for (let pi = 0; pi < sourcePages.length; pi++) {
-          const srcPage = sourcePages[pi];
-          const { width: srcW, height: srcH } = srcPage.getSize();
-          // Creăm pagină A4 și desenăm conținutul scalat
+        docProcesate++;
+        const progDoc = 15 + (docProcesate / Math.max(totalDocs, 1)) * 75;
+        updateProgress(progDoc, `Procesare: ${d.nume_fisier || tip} (${docProcesate}/${totalDocs})`);
+
+        if (!pdfjsLib.GlobalWorkerOptions.workerSrc) {
+          pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+        }
+        const pdfDoc = await pdfjsLib.getDocument({ data: bytes.buffer }).promise;
+        const numPages = pdfDoc.numPages;
+
+        // Procesăm paginile secvential (calitate maxima, scale 3x, PNG lossless)
+        for (let pi = 1; pi <= numPages; pi++) {
+          const page = await pdfDoc.getPage(pi);
+          const viewport = page.getViewport({ scale: 3.0 }); // calitate maxima
+          const canvas = document.createElement('canvas');
+          canvas.width = viewport.width;
+          canvas.height = viewport.height;
+          const ctx = canvas.getContext('2d');
+          await page.render({ canvasContext: ctx, viewport }).promise;
+          const jpgDataUrl = canvas.toDataURL('image/jpeg', 0.92); // JPEG calitate 92%
+          const jpgBase64 = jpgDataUrl.split(',')[1];
+          const jpgBytes = Uint8Array.from(atob(jpgBase64), c => c.charCodeAt(0));
+          const img = await pdfFinal.embedJpg(jpgBytes);
           const a4Page = pdfFinal.addPage([595, 842]);
-          const scaleX = 595 / srcW;
-          const scaleY = 842 / srcH;
-          const scaleF = Math.min(scaleX, scaleY);
-          const drawW = srcW * scaleF;
-          const drawH = srcH * scaleF;
+          const scale = Math.min(595 / img.width, 842 / img.height);
+          const drawW = img.width * scale;
+          const drawH = img.height * scale;
           const offX = (595 - drawW) / 2;
           const offY = (842 - drawH) / 2;
-          // Embed pagina sursă ca XObject și desenează pe A4
-          const [embeddedPage] = await pdfFinal.embedPages([srcPage]);
-          a4Page.drawPage(embeddedPage, { x: offX, y: offY, width: drawW, height: drawH });
-          if (vreaStampila && !(saritPrimaPagina && pi === 0)) aplicaStampila(a4Page, imaginiStampile);
+          a4Page.drawImage(img, { x: offX, y: offY, width: drawW, height: drawH });
         }
         continue;
       }
 
       // imagine
+      docProcesate++;
+      const progImg = 15 + (docProcesate / Math.max(totalDocs, 1)) * 75;
+      updateProgress(progImg, `Procesare: ${d.nume_fisier || tip} (${docProcesate}/${totalDocs})`);
       let img;
       if((d.link_drive || "").toLowerCase().includes(".png")) img = await pdfFinal.embedPng(bytes);
       else img = await pdfFinal.embedJpg(bytes);
@@ -1087,11 +1110,10 @@ if((d.link_drive || "").toLowerCase().includes(".pdf")){
       const w = img.width * scale;
       const h = img.height * scale;
       p.drawImage(img, {x:(595-w)/2, y:(842-h)/2, width:w, height:h});
-const saritPrimaPaginaImg = ['9. Contract', '13. Factura', '14. OP'].includes(tip);
-if (vreaStampila && !saritPrimaPaginaImg) aplicaStampila(p, imaginiStampile);
     }
   }
 
+  updateProgress(92, 'Se salvează PDF-ul...');
   // save local
   const pdfBytes = await pdfFinal.save();
   const blob = new Blob([pdfBytes], {type:"application/pdf"});
@@ -1104,6 +1126,7 @@ if (vreaStampila && !saritPrimaPaginaImg) aplicaStampila(p, imaginiStampile);
   // upload in R2 + insert in tabel
   const fileName = `DOSAR_${contractId}_${Date.now()}.pdf`;
 
+  updateProgress(96, 'Se urcă în storage...');
   let dosarUrl;
   try { dosarUrl = await r2UploadFile(fileName, blob, "contracte"); }
   catch(e) { alert("PDF generat, dar nu s-a putut urca in storage: " + e.message); return; }
@@ -1132,8 +1155,18 @@ if (vreaStampila && !saritPrimaPaginaImg) aplicaStampila(p, imaginiStampile);
     link_drive: dosarUrl
   }]);
 
-  alert("DOSAR GENERAT ✔");
-  incarcaDocumente();
+  updateProgress(100, 'Gata!');
+  setTimeout(() => {
+    progressModal.remove();
+    alert("DOSAR GENERAT ✔");
+    incarcaDocumente();
+  }, 600);
+
+  } catch(err) {
+    progressModal.remove();
+    alert("Eroare la generare dosar: " + err.message);
+    console.error(err);
+  }
 }
 
 /* ===================== START ===================== */
