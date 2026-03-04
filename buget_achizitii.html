@@ -417,7 +417,12 @@
 
         <div class="divider"></div>
         <div class="section-title">⏱️ Execuție la Dată</div>
+        <div class="form-group" style="margin-bottom:6px;">
+            <label style="font-size:0.75rem; font-weight:600; color:#555; margin-bottom:2px; display:block;">De la:</label>
+            <input type="date" id="input-data-inceput" style="width:100%; padding:8px; border:1px solid #ddd; border-radius:4px;">
+        </div>
         <div class="form-group" style="margin-bottom:10px;">
+            <label style="font-size:0.75rem; font-weight:600; color:#555; margin-bottom:2px; display:block;">Până la:</label>
             <input type="date" id="input-data-executie" style="width:100%; padding:8px; border:1px solid #ddd; border-radius:4px;">
         </div>
         <button class="btn-raport" style="width:100%; margin-bottom:0;" onclick="genereazaExecutieLaData()">📊 Vezi Situația la Dată</button>
@@ -757,10 +762,25 @@ async function r2DeleteFile(publicUrl, bucketKey) {
 
         function genereazaExecutieLaData() {
             const dataLimita = document.getElementById('input-data-executie').value;
-            if(!dataLimita) { alert("Vă rugăm selectați o dată!"); return; }
+            const dataInceput = document.getElementById('input-data-inceput').value;
+            if(!dataLimita) { alert("Vă rugăm selectați cel puțin data de sfârșit (Până la)!"); return; }
 
             const dLim = new Date(dataLimita);
             dLim.setHours(23, 59, 59); 
+
+            let dInc = null;
+            if(dataInceput) {
+                dInc = new Date(dataInceput);
+                dInc.setHours(0, 0, 0);
+                if(dInc > dLim) { alert("Data de început nu poate fi după data de sfârșit!"); return; }
+            }
+
+            // Helper: verifică dacă o dată e în interval
+            const inInterval = (dDoc) => {
+                if(dDoc > dLim) return false;
+                if(dInc && dDoc < dInc) return false;
+                return true;
+            };
 
             let totalB = 0, totalC = 0, totalP = 0;
 
@@ -769,12 +789,12 @@ async function r2DeleteFile(publicUrl, bucketKey) {
             
             rawData.filter(r => r.tip_rand === 'CONTRACT').forEach(r => {
                 const dDoc = new Date(r.data_document);
-                if(dDoc <= dLim) totalC += parseFloat(r.valoare);
+                if(inInterval(dDoc)) totalC += parseFloat(r.valoare);
             });
 
             rawData.forEach(r => {
                 const dDoc = new Date(r.data_document);
-                if(dDoc <= dLim) {
+                if(inInterval(dDoc)) {
                     if (r.tip_rand === 'FACTURA') {
                         totalP += parseFloat(r.valoare);
                     } else if (r.tip_rand === 'CONTRACT' && r.subcategorie === 'c') {
@@ -798,7 +818,7 @@ async function r2DeleteFile(publicUrl, bucketKey) {
                 if (r.tip_rand === 'BUGET' && mapCategorii[r.subcategorie]) {
                      mapCategorii[r.subcategorie].alocat += parseFloat(r.valoare);
                 }
-                if (dDoc <= dLim) {
+                if (inInterval(dDoc)) {
                     if (r.tip_rand === 'CONTRACT' && mapCategorii[r.subcategorie]) {
                         mapCategorii[r.subcategorie].contractat += parseFloat(r.valoare);
                         if (r.subcategorie === 'c') mapCategorii[r.subcategorie].platit += parseFloat(r.valoare);
@@ -851,10 +871,10 @@ async function r2DeleteFile(publicUrl, bucketKey) {
                 let pB = 0, pC = 0, pP = 0;
                 rawData.filter(r => r.tip_rand === 'BUGET' && r.pilon === p).forEach(r => pB += parseFloat(r.valoare));
                 rawData.filter(r => r.tip_rand === 'CONTRACT' && r.pilon === p).forEach(r => {
-                    if(new Date(r.data_document) <= dLim) pC += parseFloat(r.valoare);
+                    if(inInterval(new Date(r.data_document))) pC += parseFloat(r.valoare);
                 });
                 rawData.forEach(r => {
-                    if(r.pilon === p && new Date(r.data_document) <= dLim) {
+                    if(r.pilon === p && inInterval(new Date(r.data_document))) {
                          if(r.tip_rand === 'FACTURA') pP += parseFloat(r.valoare);
                          else if(r.tip_rand === 'CONTRACT' && r.subcategorie === 'c') pP += parseFloat(r.valoare);
                     }
@@ -868,7 +888,7 @@ async function r2DeleteFile(publicUrl, bucketKey) {
             let detaliereHtml = '<div class="audit-section"><div class="section-h">Detaliere Încrucișată (Pilon x Categorie)</div>';
             
             ['I', 'II', 'III', 'IV'].forEach(p => {
-                const hasActivity = rawData.some(r => r.pilon === p && (r.tip_rand === 'BUGET' || new Date(r.data_document) <= dLim));
+                const hasActivity = rawData.some(r => r.pilon === p && (r.tip_rand === 'BUGET' || inInterval(new Date(r.data_document))));
                 
                 if(hasActivity) {
                     detaliereHtml += `<div style="margin-bottom:15px; border:1px solid #eee; padding:10px; border-radius:4px; page-break-inside: avoid;">
@@ -890,10 +910,10 @@ async function r2DeleteFile(publicUrl, bucketKey) {
                         let subB = 0, subC = 0, subP = 0;
                         rawData.filter(r => r.pilon === p && r.subcategorie === l && r.tip_rand === 'BUGET').forEach(r => subB += parseFloat(r.valoare));
                         rawData.filter(r => r.pilon === p && r.subcategorie === l && r.tip_rand === 'CONTRACT').forEach(r => {
-                            if(new Date(r.data_document) <= dLim) subC += parseFloat(r.valoare);
+                            if(inInterval(new Date(r.data_document))) subC += parseFloat(r.valoare);
                         });
                         rawData.forEach(r => {
-                            if(r.pilon === p && r.subcategorie === l && new Date(r.data_document) <= dLim) {
+                            if(r.pilon === p && r.subcategorie === l && inInterval(new Date(r.data_document))) {
                                 if(r.tip_rand === 'FACTURA') subP += parseFloat(r.valoare);
                                 else if(r.tip_rand === 'CONTRACT' && r.subcategorie === 'c') subP += parseFloat(r.valoare);
                             }
@@ -920,16 +940,23 @@ async function r2DeleteFile(publicUrl, bucketKey) {
 
             // --- AFISARE FINALĂ (Antet, Titlu, Semnături) ---
             const htmlAntet = `<img src="antet_pnras.jpeg" class="antet-img" alt="Antet PNRAS">`;
-            const htmlTitlu = `<h2 style="text-align:center; margin-bottom:20px; font-family:'Times New Roman', serif;">EXECUȚIE BUGETARĂ LA DATA DE ${formatDataRo(dataLimita)}</h2>`;
+            const perioadaText = dataInceput 
+                ? `DIN ${formatDataRo(dataInceput)} PÂNĂ LA ${formatDataRo(dataLimita)}`
+                : `LA DATA DE ${formatDataRo(dataLimita)}`;
+            const htmlTitlu = `<h2 style="text-align:center; margin-bottom:20px; font-family:'Times New Roman', serif;">EXECUȚIE BUGETARĂ ${perioadaText}</h2>`;
 
             // Ascundem titlul vechi al ferestrei
             document.getElementById('exec-data-titlu').style.display = 'none';
 
+            const kpiPerioadaLabel = dataInceput 
+                ? `în perioada ${formatDataRo(dataInceput)} - ${formatDataRo(dataLimita)}`
+                : `până la ${formatDataRo(dataLimita)}`;
+
             let htmlSinteza = `
                 <div class="kpi-grid">
                     <div class="kpi-box"><div class="kpi-label">Buget Proiect</div><div class="kpi-val">${formatBani(totalB)}</div></div>
-                    <div class="kpi-box"><div class="kpi-label">Contractat până la ${formatDataRo(dataLimita)}</div><div class="kpi-val" style="color:var(--orange);">${formatBani(totalC)}</div></div>
-                    <div class="kpi-box"><div class="kpi-label">Plătit până la ${formatDataRo(dataLimita)}</div><div class="kpi-val" style="color:var(--red);">${formatBani(totalP)}</div></div>
+                    <div class="kpi-box"><div class="kpi-label">Contractat ${kpiPerioadaLabel}</div><div class="kpi-val" style="color:var(--orange);">${formatBani(totalC)}</div></div>
+                    <div class="kpi-box"><div class="kpi-label">Plătit ${kpiPerioadaLabel}</div><div class="kpi-val" style="color:var(--red);">${formatBani(totalP)}</div></div>
                 </div>
                 <div class="audit-section">
                     <div class="section-h">Indicatori de Performanță (Sinteză)</div>
