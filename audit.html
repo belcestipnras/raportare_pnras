@@ -542,15 +542,18 @@ async function r2DeleteFile(publicUrl, bucketKey) {
     ];
 
     // ===================== DIALOG =====================
-    function arataDialog(titlu, mesaj, butoane, cuInput, placeholder) {
+    function arataDialog(titlu, mesaj, butoane, cuInput, placeholder, valoareInitiala) {
         return new Promise(resolve => {
             const c = document.getElementById('dialog-container');
             let btns = '';
             butoane.forEach(b => {
                 btns += '<button class="dialog-btn ' + (b.clasa || 'dialog-btn-cancel') + '" data-val="' + b.valoare + '">' + b.text + '</button>';
             });
+            const valInit = valoareInitiala !== undefined ? valoareInitiala : '';
+            const placeholderSafe = (placeholder || '').replace(/"/g, '&quot;');
+            const valInitSafe = valInit.replace(/"/g, '&quot;');
             c.innerHTML = '<div class="overlay"><div class="dialog"><h3>' + titlu + '</h3><p>' + mesaj + '</p>' +
-                (cuInput ? '<input type="text" id="dialog-input" placeholder="' + (placeholder || '') + '">' : '') +
+                (cuInput ? '<input type="text" id="dialog-input" placeholder="' + placeholderSafe + '" value="' + valInitSafe + '">' : '') +
                 '<div class="dialog-btns">' + btns + '</div></div></div>';
             c.querySelectorAll('.dialog-btn').forEach(btn => {
                 btn.addEventListener('click', () => {
@@ -560,7 +563,10 @@ async function r2DeleteFile(publicUrl, bucketKey) {
                     resolve({ actiune: val, text: txt });
                 });
             });
-            if (cuInput) setTimeout(() => { const el = document.getElementById('dialog-input'); if (el) el.focus(); }, 100);
+            if (cuInput) setTimeout(() => {
+                const el = document.getElementById('dialog-input');
+                if (el) { el.focus(); el.select(); }
+            }, 100);
         });
     }
 
@@ -1283,7 +1289,7 @@ async function r2DeleteFile(publicUrl, bucketKey) {
         const r = await arataDialog('&#9998; Redenumire folder', 'Noul nume al folderului:', [
             { text: 'Salvează', valoare: 'da', clasa: 'dialog-btn-primary' },
             { text: 'Anulează', valoare: 'nu', clasa: 'dialog-btn-cancel' }
-        ], true, numeVechi);
+        ], true, numeVechi, numeVechi);
         if (r.actiune !== 'da' || !r.text.trim()) return;
         const { error } = await db.from('audit_continut').update({ titlu: r.text.trim() }).eq('id', id);
         if (error) { aratToast('❌ Eroare la redenumire!', 'error'); return; }
@@ -1295,7 +1301,7 @@ async function r2DeleteFile(publicUrl, bucketKey) {
         const r = await arataDialog('&#9998; Editează titlul fișierului', 'Noul titlu:', [
             { text: 'Salvează', valoare: 'da', clasa: 'dialog-btn-primary' },
             { text: 'Anulează', valoare: 'nu', clasa: 'dialog-btn-cancel' }
-        ], true, numeVechi);
+        ], true, numeVechi, numeVechi);
         if (r.actiune !== 'da' || !r.text.trim()) return;
         const { error } = await db.from('audit_continut').update({ titlu: r.text.trim() }).eq('id', id);
         if (error) { aratToast('❌ Eroare la editare!', 'error'); return; }
