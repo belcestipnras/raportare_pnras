@@ -515,7 +515,7 @@ async function r2DeleteFile(publicUrl, bucketKey) {
     let uploadTargetCardId = null;
     let uploadTargetParentId = null;
     let arataBlocate = false;
-    let tabActiv = 'contracte'; // 'contracte' sau 'state_plata'
+    let tabActiv = 'contracte'; // 'contracte', 'state_plata' sau 'anexe'
 
     const CARDURI_FIXE = [
         { id: '00000000-0000-0000-0000-000000000001', titlu: 'DOSARE ACHIZIȚII', icon: '📁', tip: 'special_dosare' },
@@ -844,6 +844,10 @@ async function r2DeleteFile(publicUrl, bucketKey) {
         }
 
         // ===== TAB-URI =====
+        const { data: anexeItems } = await db.from('audit_continut').select('id')
+            .eq('card_id', '00000000-0000-0000-0000-000000000002').eq('sters', false);
+        const nrAnexe = (anexeItems || []).length;
+
         html += '<div class="tabs-bar">' +
             '<button class="tab-btn ' + (tabActiv === 'contracte' ? 'activ' : '') + '" onclick="schimbaTab(\'contracte\')">' +
                 '&#128196; Contracte <span class="tab-badge">' + nrContracte + '</span>' +
@@ -851,13 +855,18 @@ async function r2DeleteFile(publicUrl, bucketKey) {
             '<button class="tab-btn ' + (tabActiv === 'state_plata' ? 'activ' : '') + '" onclick="schimbaTab(\'state_plata\')">' +
                 '&#128188; State de plată <span class="tab-badge verde">' + nrState + '</span>' +
             '</button>' +
+            '<button class="tab-btn ' + (tabActiv === 'anexe' ? 'activ' : '') + '" onclick="schimbaTab(\'anexe\')">' +
+                '&#128206; Anexe <span class="tab-badge">' + nrAnexe + '</span>' +
+            '</button>' +
         '</div>';
 
         // ===== CONȚINUT TAB ACTIV =====
         if (tabActiv === 'contracte') {
             html += genListaItemuri(contractePropriu, 'Contracte blocate');
-        } else {
+        } else if (tabActiv === 'state_plata') {
             html += genListaItemuri(statePlata, 'State de plată blocate');
+        } else if (tabActiv === 'anexe') {
+            html += await genContinutAnexe();
         }
 
         cont.innerHTML = html;
@@ -882,6 +891,39 @@ async function r2DeleteFile(publicUrl, bucketKey) {
         }
     }
 
+
+
+    // ===================== ANEXE =====================
+    const ANEXE_CARD_ID = '00000000-0000-0000-0000-000000000002';
+
+    async function genContinutAnexe() {
+        const { data: items } = await db.from('audit_continut').select('*')
+            .eq('card_id', ANEXE_CARD_ID).eq('sters', false)
+            .order('ordine', { ascending: true });
+
+        let h = '<div style="margin-bottom:14px;display:flex;gap:10px;flex-wrap:wrap;">' +
+            '<button class="btn-action btn-file" onclick="adaugaFisierAnexa()">&#128196; Adaugă fișier</button>' +
+            '<button class="btn-action btn-history" onclick="veziIstoricCard(\'' + ANEXE_CARD_ID + '\')">&#128337; Istoric</button>' +
+            '</div>';
+
+        if (!items || items.length === 0) {
+            h += '<div class="empty">Nu există anexe încărcate. Apasă „Adaugă fișier" pentru a încărca.</div>';
+        } else {
+            h += '<div class="file-list">';
+            items.forEach((item, idx) => {
+                h += genFisierItem(item, idx, items.length);
+            });
+            h += '</div>';
+        }
+
+        return h;
+    }
+
+    function adaugaFisierAnexa() {
+        uploadTargetCardId = ANEXE_CARD_ID;
+        uploadTargetParentId = null;
+        document.getElementById('file-input-audit').click();
+    }
 
 
     function toggleArataBlocate(btn) {
@@ -931,6 +973,37 @@ async function r2DeleteFile(publicUrl, bucketKey) {
         const { data: contractRow } = await db.from('buget_pnras').select('subcategorie').eq('id', contractId).maybeSingle();
         const esteStatPlata = contractRow && contractRow.subcategorie === 'c';
 
+        // ===== STATE DE PLATĂ — afișare simplificată (fără checklist achiziții) =====
+        if (esteStatPlata) {
+            let html = '<div style="padding:14px 18px;border-radius:10px;margin-bottom:16px;font-size:15px;font-weight:700;background:#eff6ff;color:#1e40af;">💼 Stat de plată</div>';
+
+            const allDocs = docs || [];
+            if (allDocs.length === 0) {
+                html += '<div class="empty">Nu există documente încărcate pentru acest stat de plată.</div>';
+            } else {
+                html += '<div class="file-list">';
+                allDocs.forEach((f, idx) => {
+                    const tipDoc = f.tip_document || 'Document';
+                    const numeFisier = f.nume_fisier || 'Fișier';
+                    const link = f.link_drive || '';
+                    html += '<div class="file-item">' +
+                        '<span class="file-icon">📄</span>' +
+                        '<div class="file-info">' +
+                            '<div class="file-name">' + numeFisier + '</div>' +
+                            '<div class="file-date">' + tipDoc + '</div>' +
+                        '</div>' +
+                        '<div class="file-actions">' +
+                        (link ? '<button class="btn-small btn-open" onclick="event.stopPropagation(); window.open(\'' + link + '\', \'_blank\')" title="Deschide">Deschide</button>' : '') +
+                        '</div></div>';
+                });
+                html += '</div>';
+            }
+
+            cont.innerHTML = html;
+            return;
+        }
+
+        // ===== CONTRACTE — checklist documente achiziție =====
         const existente = docs ? docs.map(d => d.tip_document) : [];
         const grupate = {};
         if (docs) docs.forEach(d => {
