@@ -284,6 +284,47 @@
         .file-item.dragging { opacity: 0.35; border: 2px dashed #1a56db; }
         .file-item.drag-over { border-color: #1a56db; background: #f0f4ff; transform: scale(1.01); }
 
+        /* ===== PROGRESS UPLOAD ===== */
+        .upload-progress-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.45); display: flex; align-items: center;
+            justify-content: center; z-index: 2000;
+        }
+        .upload-progress-box {
+            background: #fff; border-radius: 16px; padding: 32px 36px;
+            min-width: 360px; max-width: 480px; width: 90%;
+            box-shadow: 0 12px 48px rgba(0,0,0,0.25);
+        }
+        .upload-progress-title {
+            font-size: 16px; font-weight: 700; color: #1a1a2e; margin-bottom: 6px;
+        }
+        .upload-progress-subtitle {
+            font-size: 12px; color: #888; margin-bottom: 20px;
+        }
+        .upload-progress-file {
+            font-size: 13px; font-weight: 600; color: #333; margin-bottom: 8px;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        .upload-progress-bar-bg {
+            background: #e8ecf1; border-radius: 8px; height: 10px; overflow: hidden; margin-bottom: 8px;
+        }
+        .upload-progress-bar-fill {
+            height: 100%; background: linear-gradient(90deg, #1a56db, #6366f1);
+            border-radius: 8px; transition: width 0.25s ease;
+        }
+        .upload-progress-pct {
+            font-size: 12px; color: #1a56db; font-weight: 700; text-align: right; margin-bottom: 16px;
+        }
+        .upload-progress-overall-bg {
+            background: #e8ecf1; border-radius: 8px; height: 6px; overflow: hidden; margin-top: 4px;
+        }
+        .upload-progress-overall-fill {
+            height: 100%; background: #0d9488; border-radius: 8px; transition: width 0.3s ease;
+        }
+        .upload-progress-overall-label {
+            font-size: 11px; color: #888; margin-top: 6px;
+        }
+
         /* ===== NR. CRT. BADGE ===== */
         .nr-crt {
             min-width: 32px; height: 32px;
@@ -330,21 +371,116 @@ const PUBLIC_URLS = {
   arhiva:    "https://pub-13cf388dd61a492191d7381c33a367b5.r2.dev",
 };
 
-async function r2UploadFile(fileName, fileBlob, bucketKey) {
-  const resp = await fetch(`${WORKER_URL}/upload`, {
-    method: "PUT",
+/* ===== CHUNKED UPLOAD (fișiere mari până la 500 MB) ===== */
+const CHUNK_SIZE = 5 * 1024 * 1024; // 5 MB per bucată
+
+async function r2UploadFile(fileName, fileBlob, bucketKey, onProgress) {
+  const fileSize = fileBlob.size;
+
+  // Fișiere mici (sub 5 MB) — upload direct ca înainte
+  if (fileSize <= CHUNK_SIZE) {
+    const resp = await fetch(`${WORKER_URL}/upload`, {
+      method: "PUT",
+      headers: {
+        "X-Bucket": bucketKey,
+        "X-File-Name": fileName,
+        "Content-Type": fileBlob.type || "application/octet-stream",
+      },
+      body: fileBlob,
+    });
+    if (!resp.ok) {
+      const txt = await resp.text();
+      throw new Error("Upload eșuat: " + txt);
+    }
+    if (onProgress) onProgress(100);
+    const data = await resp.json();
+    return data.url;
+  }
+
+  // Fișiere mari — upload pe bucăți (multipart)
+  const totalChunks = Math.ceil(fileSize / CHUNK_SIZE);
+  const contentType = fileBlob.type || "application/octet-stream";
+
+  // 1. Inițializare multipart upload
+  const initResp = await fetch(`${WORKER_URL}/multipart/create`, {
+    method: "POST",
     headers: {
       "X-Bucket": bucketKey,
       "X-File-Name": fileName,
-      "Content-Type": fileBlob.type || "application/octet-stream",
+      "Content-Type": contentType,
     },
-    body: fileBlob,
   });
-  if (!resp.ok) {
-    const txt = await resp.text();
-    throw new Error("Upload eșuat: " + txt);
+  if (!initResp.ok) {
+    const txt = await initResp.text();
+    throw new Error("Inițializare upload eșuată: " + txt);
   }
-  const data = await resp.json();
+  const { uploadId } = await initResp.json();
+
+  // 2. Upload fiecare bucată
+  const parts = [];
+  for (let i = 0; i < totalChunks; i++) {
+    const start = i * CHUNK_SIZE;
+    const end = Math.min(start + CHUNK_SIZE, fileSize);
+    const chunk = fileBlob.slice(start, end);
+    const partNumber = i + 1;
+
+    let attempts = 0;
+    let partResp;
+    while (attempts < 3) {
+      try {
+        partResp = await fetch(`${WORKER_URL}/multipart/upload-part`, {
+          method: "PUT",
+          headers: {
+            "X-Bucket": bucketKey,
+            "X-File-Name": fileName,
+            "X-Upload-Id": uploadId,
+            "X-Part-Number": String(partNumber),
+          },
+          body: chunk,
+        });
+        if (partResp.ok) break;
+      } catch(e) { /* retry */ }
+      attempts++;
+      if (attempts < 3) await new Promise(r => setTimeout(r, 1000 * attempts));
+    }
+
+    if (!partResp || !partResp.ok) {
+      // Abort upload dacă o bucată eșuează
+      await fetch(`${WORKER_URL}/multipart/abort`, {
+        method: "POST",
+        headers: {
+          "X-Bucket": bucketKey,
+          "X-File-Name": fileName,
+          "X-Upload-Id": uploadId,
+        },
+      }).catch(() => {});
+      throw new Error(`Upload eșuat la partea ${partNumber}/${totalChunks}`);
+    }
+
+    const partData = await partResp.json();
+    parts.push({ partNumber, etag: partData.etag });
+
+    if (onProgress) onProgress(Math.round((partNumber / totalChunks) * 95));
+  }
+
+  // 3. Finalizare — asamblare fișier
+  const completeResp = await fetch(`${WORKER_URL}/multipart/complete`, {
+    method: "POST",
+    headers: {
+      "X-Bucket": bucketKey,
+      "X-File-Name": fileName,
+      "X-Upload-Id": uploadId,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ parts }),
+  });
+  if (!completeResp.ok) {
+    const txt = await completeResp.text();
+    throw new Error("Finalizare upload eșuată: " + txt);
+  }
+
+  if (onProgress) onProgress(100);
+  const data = await completeResp.json();
   return data.url;
 }
 
@@ -1183,20 +1319,69 @@ async function r2DeleteFile(publicUrl, bucketKey) {
         document.getElementById('file-input-audit').click();
     }
 
+    function aratProgressUpload(fisierCurent, indexCurent, total, progres) {
+        let overlay = document.getElementById('upload-progress-overlay');
+        if (!overlay) {
+            overlay = document.createElement('div');
+            overlay.id = 'upload-progress-overlay';
+            overlay.className = 'upload-progress-overlay';
+            overlay.innerHTML = `
+                <div class="upload-progress-box">
+                    <div class="upload-progress-title">⬆️ Se încarcă fișierele...</div>
+                    <div class="upload-progress-subtitle" id="upl-subtitle"></div>
+                    <div class="upload-progress-file" id="upl-file-name"></div>
+                    <div class="upload-progress-bar-bg">
+                        <div class="upload-progress-bar-fill" id="upl-bar" style="width:0%"></div>
+                    </div>
+                    <div class="upload-progress-pct" id="upl-pct">0%</div>
+                    <div class="upload-progress-overall-bg">
+                        <div class="upload-progress-overall-fill" id="upl-overall" style="width:0%"></div>
+                    </div>
+                    <div class="upload-progress-overall-label" id="upl-overall-label"></div>
+                </div>`;
+            document.body.appendChild(overlay);
+        }
+        const overallPct = total > 1 ? Math.round(((indexCurent) / total) * 100) : 0;
+        document.getElementById('upl-subtitle').textContent = `Fișier ${indexCurent + 1} din ${total}`;
+        document.getElementById('upl-file-name').textContent = '📄 ' + fisierCurent;
+        document.getElementById('upl-bar').style.width = progres + '%';
+        document.getElementById('upl-pct').textContent = progres + '%';
+        document.getElementById('upl-overall').style.width = overallPct + '%';
+        document.getElementById('upl-overall-label').textContent = total > 1 ? `Total: ${overallPct}% (${indexCurent}/${total} completate)` : '';
+    }
+
+    function ascundeProgressUpload() {
+        const overlay = document.getElementById('upload-progress-overlay');
+        if (overlay) overlay.remove();
+    }
+
     document.getElementById('file-input-audit').addEventListener('change', async function(e) {
         const files = e.target.files;
         if (!files || files.length === 0) return;
 
-        document.getElementById('continut').innerHTML = '<div class="loading">Se încarcă fișierele...</div>';
-
         let uploadErrors = [];
-        for (const file of files) {
+        const total = files.length;
+
+        for (let i = 0; i < total; i++) {
+            const file = files[i];
+            aratProgressUpload(file.name, i, total, 10);
+
             const uniqueId = Math.random().toString(36).substring(2, 10) + '_' + Date.now();
             const fileName = uniqueId + '_' + file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
             console.log('[UPLOAD] Încerc upload:', fileName);
+
+            aratProgressUpload(file.name, i, total, 30);
+
             let auditUrl;
-            try { auditUrl = await r2UploadFile(fileName, file, "audit"); }
-            catch(e) { uploadErrors.push(file.name + ': ' + e.message); continue; }
+            try {
+                auditUrl = await r2UploadFile(fileName, file, "audit", (pct) => {
+                    aratProgressUpload(file.name, i, total, pct);
+                });
+            } catch(err) {
+                uploadErrors.push(file.name + ': ' + err.message);
+                continue;
+            }
+
             console.log('[UPLOAD] URL:', auditUrl);
 
             let maxOrdQ = db.from('audit_continut').select('ordine')
@@ -1214,7 +1399,12 @@ async function r2DeleteFile(publicUrl, bucketKey) {
             });
             console.log('[UPLOAD] DB insert error:', dbError);
             if (dbError) uploadErrors.push(file.name + ' (DB): ' + (dbError.message || JSON.stringify(dbError)));
+
+            aratProgressUpload(file.name, i, total, 100);
+            await new Promise(res => setTimeout(res, 200));
         }
+
+        ascundeProgressUpload();
         e.target.value = '';
         if (uploadErrors.length > 0) {
             alert('Erori la upload:\n' + uploadErrors.join('\n'));
