@@ -116,8 +116,36 @@
         window.location.href = expert ? `dosar-expert.html?expert=${encodeURIComponent(expert)}` : 'index.html';
     }
 
-    function salveaza(id, val) { localStorage.setItem('PNRAS_FINAL_v8_' + id, val); }
-    function incarca(id, implicit) { const s = localStorage.getItem('PNRAS_FINAL_v8_' + id); return (s !== null) ? s : implicit; }
+    // Cache local pentru datele din Supabase
+    let _docCache = {};
+    let _profIdCurent = '';
+
+    function salveaza(id, val) {
+        _docCache[id] = val;
+        triggerSalveazaSupabase();
+    }
+    function incarca(id, implicit) {
+        return (_docCache[id] !== undefined) ? _docCache[id] : implicit;
+    }
+
+    let _saveTimer = null;
+    function triggerSalveazaSupabase() {
+        clearTimeout(_saveTimer);
+        _saveTimer = setTimeout(async () => {
+            if (!_profIdCurent) return;
+            const expert = localStorage.getItem('expertPNRAS');
+            if (!expert) return;
+            const lunaCod = MAP_LUNI_COD[selectatLuna] || '01';
+            const tipDoc = `RAPORT_${expert.replace(/\s+/g, '')}_${lunaCod}_${selectatAn}`;
+            await _supabase.from('planificari_documente').upsert({
+                expert: expert,
+                tip_document: tipDoc,
+                luna: selectatLuna,
+                an: String(selectatAn),
+                continut_json: _docCache
+            }, { onConflict: 'tip_document' });
+        }, 1000);
+    }
 
     function init() {
         const c = document.getElementById('luna-buttons');
@@ -139,10 +167,18 @@
         document.querySelectorAll('.btn-an').forEach(b => b.classList.toggle('active', b.innerText == selectatAn));
 
         const info = DATE_EXPERTI[expert];
-        const lunaCod = MAP_LUNI_COD[selectatLuna];
-        const profId = `${expert.replace(/\s+/g, '')}_${lunaCod}_${selectatAn}`;
+        const lunaCod = MAP_LUNI_COD[selectatLuna] || '01';
 
         container.innerHTML = "<div style='text-align:center; padding:50px;'>⌛ Actualizăm datele...</div>";
+
+        // Încărcăm datele salvate ale raportului din Supabase
+        const tipDocRaport = `RAPORT_${expert.replace(/\s+/g, '')}_${lunaCod}_${selectatAn}`;
+        _profIdCurent = tipDocRaport;
+        const { data: docRaport } = await _supabase.from('planificari_documente')
+            .select('continut_json')
+            .eq('tip_document', tipDocRaport)
+            .maybeSingle();
+        _docCache = (docRaport && docRaport.continut_json) ? docRaport.continut_json : {};
 
         const { data: pontaje } = await _supabase.from('pontaj_detaliat').select('*').eq('expert', expert).eq('luna', selectatLuna).eq('an', selectatAn).order('zi', { ascending: true });
         const { data: documente } = await _supabase.from('planificari_documente').select('*').eq('expert', expert).ilike('tip_document', `%${selectatLuna}_${selectatAn}%`);
@@ -251,7 +287,7 @@ nrActivitate++;
         container.innerHTML = `
         <div class="page">
             <img src="antet_pnras.jpeg" class="antet-img">
-            <div class="nr-inreg-container">Nr. înregistrare: <span class="edit-nr" contenteditable="true" onblur="salveaza('${profId}_C', this.innerText)">${incarca(profId+'_C', '___')}</span> / <span class="edit-nr" contenteditable="true" onblur="salveaza('${profId}_D', this.innerText)">${incarca(profId+'_D', lunaCod+'.'+selectatAn)}</span></div>
+            <div class="nr-inreg-container">Nr. înregistrare: <span class="edit-nr" contenteditable="true" onblur="salveaza('nr', this.innerText)">${incarca('nr', '___')}</span> / <span class="edit-nr" contenteditable="true" onblur="salveaza('dataReg', this.innerText)">${incarca('dataReg', lunaCod+'.'+selectatAn)}</span></div>
             <div class="titlu-container"><div class="titlu-raport">RAPORT DE ACTIVITATE</div><div style="font-weight:700; color:#475569;">Luna: ${selectatLuna} ${selectatAn}</div></div>
             <div class="activitate-card"><div class="act-cod">${info.act}</div><div class="act-desc">${info.desc}</div></div>
             <div class="info-line"><div class="icon-circle"><svg viewBox="0 0 24 24"><path d="M18,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V4A2,2 0 0,0 18,2M18,20H6V4H18V20M15,7H9V9H15V7M15,11H9V13H15V11M15,15H9V17H15V15Z"/></svg></div><div class="info-content"><div class="info-label">Disciplina / Activitatea specifică</div><div class="info-val">${info.disc}</div></div></div>
@@ -269,22 +305,22 @@ nrActivitate++;
             <div class="sub-sectiune">1. Planificarea activităților pentru luna ${selectatLuna} ${selectatAn};</div>
             <div class="sub-sectiune">2. Proiectarea, organizarea și susținerea a ${nrActivitate} activități:</div>
             <div class="lista-activitati-container">${htmlActivitati || 'Nicio activitate înregistrată.'}</div>
-            <div class="extra-activities-zone" contenteditable="true" onblur="salveaza('${profId}_extra', this.innerHTML)">${incarca(profId+'_extra', '')}</div>
+            <div class="extra-activities-zone" contenteditable="true" onblur="salveaza('extra', this.innerHTML)">${incarca('extra', '')}</div>
 
             <div class="sectiune-titlu">Responsabilități și sarcini conform contractului</div>
-            <div class="caseta-text" contenteditable="true" onblur="salveaza('${profId}_resp', this.innerHTML)">${incarca(profId+'_resp', textRespImplicit)}</div>
+            <div class="caseta-text" contenteditable="true" onblur="salveaza('resp', this.innerHTML)">${incarca('resp', textRespImplicit)}</div>
 
             <div class="grid-info-finale">
                 <div>
                     <div class="sectiune-titlu">Rezultate obținute</div>
-                    <div class="col-editabila" contenteditable="true" onblur="salveaza('${profId}_rez', this.innerHTML)">
-                        ${incarca(profId+'_rez', rezultateImplicite)}
+                    <div class="col-editabila" contenteditable="true" onblur="salveaza('rez', this.innerHTML)">
+                        ${incarca('rez', rezultateImplicite)}
                     </div>
                 </div>
                 <div>
                     <div class="sectiune-titlu">Livrabile</div>
-                    <div class="col-editabila" contenteditable="true" onblur="salveaza('${profId}_livr', this.innerHTML)">
-                        ${incarca(profId+'_livr', livrabileImplicite)}
+                    <div class="col-editabila" contenteditable="true" onblur="salveaza('livr', this.innerHTML)">
+                        ${incarca('livr', livrabileImplicite)}
                     </div>
                 </div>
             </div>

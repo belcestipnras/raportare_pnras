@@ -417,6 +417,30 @@ function initDragDrop() {
     });
 }
 
+    // Calculează numerele de înregistrare pentru toate rândurile active ale lunii curente
+    function calculeazaNumerele(rows, startNr) {
+        const active = rows.filter(r => r.stare !== 'sters').sort((a, b) => {
+            const ziA = parseInt(a.zi_inreg) || 999;
+            const ziB = parseInt(b.zi_inreg) || 999;
+            if (ziA !== ziB) return ziA - ziB;
+            const soA = a.sort_order != null ? a.sort_order : a.id;
+            const soB = b.sort_order != null ? b.sort_order : b.id;
+            return soA - soB;
+        });
+        const blocate = active.filter(r => r.blocat).map(r => parseInt(r.numar_fix));
+        let autoNr = startNr;
+        active.forEach(row => {
+            if (row.blocat) {
+                row.tempNr = parseInt(row.numar_fix);
+            } else {
+                while (blocate.includes(autoNr)) autoNr++;
+                row.tempNr = autoNr;
+                autoNr++;
+            }
+        });
+        return active;
+    }
+
     async function adaugaGrup(tip, zi) {
         let payload = [];
         const lunaNr = (luniText.indexOf(currentLuna)+1).toString().padStart(2,'0');
@@ -428,7 +452,8 @@ function initDragDrop() {
                 payload.push({
                     zi_inreg: zi, luna_inreg: currentLuna, an_inreg: currentAn,
                     cuprins_act: `${item.expert}. Planificare ${currentLuna.toLowerCase()} ${currentAn}, ${prefixClasa}`,
-                    stare: 'activ', doc_id: `PLAN_${Date.now()}_${i}`
+                    stare: 'activ', doc_id: `PLAN_${Date.now()}_${i}`,
+                    _meta: { tip: 'PLAN', expert: item.expert, clasa: item.clasa }
                 });
             });
         } else if(tip === 'ORAR') {
@@ -436,7 +461,8 @@ function initDragDrop() {
                 payload.push({
                     zi_inreg: zi, luna_inreg: currentLuna, an_inreg: currentAn,
                     cuprins_act: `${nume}. Orar ${currentLuna.toLowerCase()} ${currentAn}`,
-                    stare: 'activ', doc_id: `ORAR_${Date.now()}_${i}`
+                    stare: 'activ', doc_id: `ORAR_${Date.now()}_${i}`,
+                    _meta: { tip: 'ORAR', expert: nume }
                 });
             });
         } else if(tip === 'RAPORT') {
@@ -444,7 +470,8 @@ function initDragDrop() {
                 payload.push({
                     zi_inreg: zi, luna_inreg: currentLuna, an_inreg: currentAn,
                     cuprins_act: `${nume}. Raport de activitate, ${currentLuna.toLowerCase()} ${currentAn}`,
-                    stare: 'activ', doc_id: `RAP_${Date.now()}_${i}`
+                    stare: 'activ', doc_id: `RAP_${Date.now()}_${i}`,
+                    _meta: { tip: 'RAPORT', expert: nume }
                 });
             });
         } else if(tip === 'PONT') {
@@ -452,7 +479,8 @@ function initDragDrop() {
                 payload.push({
                     zi_inreg: zi, luna_inreg: currentLuna, an_inreg: currentAn,
                     cuprins_act: `${nume}. Fișă individuală de pontaj, ${currentLuna.toLowerCase()} ${currentAn}`,
-                    stare: 'activ', doc_id: `PONT_${Date.now()}_${i}`
+                    stare: 'activ', doc_id: `PONT_${Date.now()}_${i}`,
+                    _meta: { tip: 'PONT', expert: nume }
                 });
             });
         } else if(tip === 'AVIZ') {
@@ -465,8 +493,68 @@ function initDragDrop() {
                 });
             });
         }
-        await _SB.from('registru_master').insert(payload);
+
+        // Extragem _meta înainte de insert (Supabase nu acceptă coloane inexistente)
+        const metaMap = {};
+        const payloadCurat = payload.map((row, i) => {
+            if (row._meta) { metaMap[i] = row._meta; }
+            const { _meta, ...rest } = row;
+            return rest;
+        });
+
+        const { data: inserate } = await _SB.from('registru_master').insert(payloadCurat).select();
         await refreshDate();
+
+        // După refresh, localRows conține rândurile actualizate cu id-urile noi
+        // Calculăm numerele pe baza stării curente
+        const startNr = parseInt(document.getElementById('start-nr').value);
+        const rowsCalculate = calculeazaNumerele([...localRows], startNr);
+
+        // Construim upsert-urile pentru planificari_documente
+        const docUpserts = [];
+        Object.entries(metaMap).forEach(([i, meta]) => {
+            const idInsertat = inserate && inserate[i] ? inserate[i].id : null;
+            if (!idInsertat) return;
+
+            // Găsim rândul cu id-ul respectiv în lista calculată
+            const rand = rowsCalculate.find(r => r.id === idInsertat);
+            if (!rand) return;
+
+            const nr = rand.tempNr;
+            const ziPad = (rand.zi_inreg || '..').toString().padStart(2, '0');
+            const dataFormatata = `${ziPad}.${lunaNr}.${currentAn}`;
+
+            let tipDoc = '';
+            let continutNou = {};
+
+            if (meta.tip === 'PLAN') {
+                tipDoc = `PLAN_${meta.expert}_${meta.clasa}_${currentLuna}_${currentAn}`;
+                continutNou = { nr: String(nr), dataReg: dataFormatata };
+            } else if (meta.tip === 'ORAR') {
+                tipDoc = `INFO_ORAR_${meta.expert.replace(/\s+/g, '')}_${lunaNr}_${currentAn}`;
+                continutNou = { nr_inreg: String(nr), data_inreg: dataFormatata };
+            } else if (meta.tip === 'RAPORT') {
+                tipDoc = `RAPORT_${meta.expert.replace(/\s+/g, '')}_${lunaNr}_${currentAn}`;
+                continutNou = { nr: String(nr), dataReg: dataFormatata };
+            } else if (meta.tip === 'PONT') {
+                tipDoc = `PONTAJ_${meta.expert.replace(/\s+/g, '')}_${lunaNr}_${currentAn}`;
+                continutNou = { nr: String(nr), data: dataFormatata };
+            }
+
+            if (tipDoc) {
+                docUpserts.push({
+                    expert: meta.expert,
+                    tip_document: tipDoc,
+                    luna: currentLuna,
+                    an: currentAn,
+                    continut_json: continutNou
+                });
+            }
+        });
+
+        if (docUpserts.length > 0) {
+            await _SB.from('planificari_documente').upsert(docUpserts, { onConflict: 'tip_document', ignoreDuplicates: false });
+        }
     }
 
     async function printMod(tip) {
