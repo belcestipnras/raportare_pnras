@@ -71,7 +71,7 @@
 
 <div class="sheet">
     <img src="antet_pnras.jpeg" class="antet-img">
-    <div class="nr-inregistrare">Nr. înregistrare: <input type="text" class="input-nr"> / <input type="text" class="input-data" placeholder="__.__.2025"></div>
+    <div class="nr-inregistrare">Nr. înregistrare: <input type="text" class="input-nr" id="raport-nr"> / <input type="text" class="input-data" id="raport-data" placeholder="__.__.2025"></div>
     <div class="titlu-doc">Raport lunar de distribuire a pachetului alimentar de tip masă caldă</div>
     <div class="subtitlu"><span class="luna-nume">...</span> <span class="an-nume">...</span></div>
 
@@ -102,7 +102,7 @@
 
 <div class="sheet">
     <img src="antet_pnras.jpeg" class="antet-img">
-    <div class="nr-inregistrare">Nr. înregistrare: <input type="text" class="input-nr"> / <input type="text" class="input-data" placeholder="__.__.2025"></div>
+    <div class="nr-inregistrare">Nr. înregistrare: <input type="text" class="input-nr" id="raport-nr"> / <input type="text" class="input-data" id="raport-data" placeholder="__.__.2025"></div>
     <div class="titlu-doc">Proces verbal de recepție</div>
     <div class="subtitlu">Luna: <span class="luna-nume">...</span> <span class="an-nume">...</span></div>
 
@@ -153,6 +153,14 @@
         5: "<strong>Meniu 5: Mâncare cartofi cu porc</strong> (Carne porc >130g, Mâncărică cartofi >150g, Murături asortate, 3 felii pâine, Tacâmuri)"
     };
 
+    async function salveazaNrInregistrare() {
+        const nr = document.getElementById('raport-nr').value;
+        const data = document.getElementById('raport-data').value;
+        await supabaseClient.from('setari_pontaj')
+            .update({ nr_raport: nr, data_raport: data })
+            .match({ luna: luna, an: an, zi: 1 });
+    }
+
     async function incarcaDate() {
         document.querySelectorAll('.luna-nume').forEach(el => el.innerText = luna);
         document.querySelectorAll('.an-nume').forEach(el => el.innerText = an);
@@ -160,7 +168,12 @@
 
         const { data: records } = await supabaseClient.from('setari_pontaj').select('*').match({ luna: luna, an: an }).order('zi', { ascending: true });
 
-        if (records) {
+        if (records && records.length > 0) {
+            // Restaurează nr. înregistrare din primul rând al lunii (zi: 1)
+            const primaZi = records.find(r => r.zi === 1) || records[0];
+            if (primaZi.nr_raport) document.getElementById('raport-nr').value = primaZi.nr_raport;
+            if (primaZi.data_raport) document.getElementById('raport-data').value = primaZi.data_raport;
+
             let index = 1, rowsHtml = "";
             const activeRecords = records.filter(r => r.valoare_aviz > 0);
             
@@ -175,6 +188,10 @@
             document.getElementById('tbody-raport').innerHTML = rowsHtml;
             document.getElementById('tbody-pv').innerHTML = rowsHtml;
         }
+
+        // Salvează automat când utilizatorul termină de completat câmpul (on blur)
+        document.getElementById('raport-nr').addEventListener('change', salveazaNrInregistrare);
+        document.getElementById('raport-data').addEventListener('change', salveazaNrInregistrare);
     }
     incarcaDate();
 </script>
