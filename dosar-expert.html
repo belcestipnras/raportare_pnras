@@ -239,6 +239,7 @@
                 ${docItemStyled('Raport Activitate', '📊', 'raport.html', luna, an, 'General', 'common-card')}
                 ${docItemStyled('Pontaj Lunar', '⏱️', 'pontaj_individual.html', luna, an, 'General', 'common-card')}
                 ${docItemStyled('Orar General', '🕒', 'orar_individual.html', luna, an, 'General', 'common-card')}
+                ${docItemDosar('📁 Dosar Lunar', luna, an)}
             </div>
         `;
 
@@ -272,6 +273,17 @@
             <div class="doc-btn ${extraClass}" onclick="window.open('${link}?luna=${luna}&an=${an}&clasa=${clasa}', '_blank')" 
                  style="padding: 15px 25px; display: flex; align-items: center; gap: 10px; border-radius: 8px; cursor: pointer; font-weight: 600;">
                 <span style="font-size: 1.2em;">${icon}</span>
+                <span>${label}</span>
+            </div>
+        `;
+    }
+
+    function docItemDosar(label, luna, an) {
+        return `
+            <div class="doc-btn" 
+                 onclick="window.open('dosar_lunar_v10.html?expert=${encodeURIComponent(expert)}&luna=${luna}&an=${an}', '_blank')"
+                 style="padding: 15px 25px; display: flex; align-items: center; gap: 10px; border-radius: 8px; cursor: pointer; font-weight: 700; background: linear-gradient(135deg, #f59e0b, #ea580c); color: white; border: none;">
+                <span style="font-size: 1.3em;">📁</span>
                 <span>${label}</span>
             </div>
         `;

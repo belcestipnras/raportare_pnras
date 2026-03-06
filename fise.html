@@ -81,6 +81,10 @@
         .sf-btn-data.fisa  { background: #1e3a5f; color: #93c5fd; border: 1px solid #2563eb; }
         .sf-btn-data.foto  { background: #3b1f5f; color: #d8b4fe; border: 1px solid #7c3aed; }
         .sf-btn-data.print { background: #064e3b; color: #6ee7b7; border: 1px solid #059669; }
+        .sf-btn-data.prezenta { background: #1e3a5f; color: #7dd3fc; border: 1px solid #0284c7; position: relative; overflow: hidden; }
+        .sf-btn-data.masa     { background: #3b2a0a; color: #fcd34d; border: 1px solid #d97706; position: relative; overflow: hidden; }
+        .sf-btn-data.are-fisier::after { content: '✓'; position: absolute; top: 1px; right: 3px; font-size: 8px; color: #10b981; font-weight: 900; }
+        .sf-btn-data input[type=file] { position: absolute; inset: 0; opacity: 0; cursor: pointer; font-size: 0; }
         .sf-btn-data:hover { filter: brightness(1.3); }
         /* Rand fisier cu drag & drop */
         .sf-fisier-row {
@@ -274,6 +278,85 @@
         });
     }
     init();
+
+    // =============================================
+    // UPLOAD LISTE PREZENȚĂ & MASĂ
+    // =============================================
+
+    async function incarcaLista(inputEl, tip, dataFisa, btn) {
+        const fisier = inputEl.files[0];
+        if (!fisier) return;
+
+        // Extragem ziua din data fișei (ex: "15.02.2026" → "15")
+        const zi = dataFisa.split(/[.\-]/)[0];
+
+        const expertNorm = normalizeaza(config.expert);
+        const clasaNorm  = normalizeaza(config.clasa);
+        const dataNorm   = dataFisa.replace(/[.\-]/g, '_');
+        const ext        = fisier.name.split('.').pop().toLowerCase();
+        const numeFinal  = `LISTA_${tip.toUpperCase()}_${dataNorm}_${clasaNorm}.${ext}`;
+        const objectKey  = `${expertNorm}/${clasaNorm}/${normalizeaza(config.luna)}_${config.an}/liste/${numeFinal}`;
+
+        setStatus('loading', '⏳ Se încarcă lista...');
+        btn.style.opacity = '0.6';
+        btn.style.pointerEvents = 'none';
+
+        try {
+            const resp = await fetch(R2_FUNCTION_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${KEY_S}` },
+                body: JSON.stringify({ action: 'upload', fileName: numeFinal, fileType: fisier.type, objectKey })
+            });
+            const { presignedUrl, publicUrl } = await resp.json();
+
+            await fetch(presignedUrl, { method: 'PUT', headers: { 'Content-Type': fisier.type }, body: fisier });
+
+            await supabaseClient.from('liste_fisiere').upsert({
+                expert:     config.expert,
+                luna:       config.luna,
+                an:         config.an,
+                zi:         parseInt(zi),
+                clasa:      config.clasa,
+                tip:        tip,
+                public_url: publicUrl,
+                object_key: objectKey,
+                creat_la:   new Date().toISOString()
+            }, { onConflict: 'expert,luna,an,zi,clasa,tip' });
+
+            btn.classList.add('are-fisier');
+            btn.title = `${tip === 'prezenta' ? 'Prezență' : 'Masă'} încărcată ✅ — click pentru a înlocui`;
+            setStatus('saved', `✅ Lista de ${tip} încărcată!`);
+            setTimeout(() => setStatus('none', ''), 3000);
+
+        } catch (err) {
+            console.error(err);
+            setStatus('error', `❌ Eroare upload listă ${tip}`);
+        } finally {
+            btn.style.opacity = '';
+            btn.style.pointerEvents = '';
+            inputEl.value = '';
+        }
+    }
+
+    async function verificaListeExistente() {
+        const { data } = await supabaseClient
+            .from('liste_fisiere')
+            .select('zi,clasa,tip')
+            .match({ expert: config.expert, luna: config.luna, an: config.an, clasa: config.clasa });
+
+        if (!data || data.length === 0) return;
+
+        const existente = new Set(data.map(l => `${l.zi}_${l.tip}`));
+
+        document.querySelectorAll('.sf-btn-data[data-zi]').forEach(btn => {
+            const key = `${parseInt(btn.dataset.zi)}_${btn.dataset.tip}`;
+            if (existente.has(key)) {
+                btn.classList.add('are-fisier');
+                const tip = btn.dataset.tip;
+                btn.title = `${tip === 'prezenta' ? 'Prezență' : 'Masă'} încărcată ✅ — click pentru a înlocui`;
+            }
+        });
+    }
 
     function setStatus(tip, mesaj) {
         const el = document.getElementById('save-status');
@@ -485,6 +568,20 @@ REGULI: NU scrie altceva în afară de aceste 5 secțiuni. Fiecare secțiune pe 
             .order('sort_order', { ascending: true })
             .order('creat_la', { ascending: true });
 
+        // Luăm și listele de prezență/masă
+        const { data: listeDb } = await supabaseClient
+            .from('liste_fisiere')
+            .select('*')
+            .match({ expert: config.expert, clasa: config.clasa, luna: config.luna, an: config.an });
+
+        // Grupăm listele pe zi (ex: { "15": [{tip:'prezenta',...}, {tip:'masa',...}] })
+        const listePeZi = {};
+        (listeDb || []).forEach(l => {
+            const k = String(l.zi);
+            if (!listePeZi[k]) listePeZi[k] = [];
+            listePeZi[k].push(l);
+        });
+
         const fisierePeData = {};
         (fisiere || []).forEach(f => {
             const d = f.data_fisa || 'Fără dată';
@@ -543,6 +640,32 @@ REGULI: NU scrie altceva în afară de aceste 5 secțiuni. Fiecare secțiune pe 
             btnPrint.innerHTML = '🖨️ PDF';
             btnPrint.onclick = (e) => { e.stopPropagation(); printeazaFisaCuDocumente(idx, data, docs); };
 
+            // Buton Prezență
+            const btnPrezenta = document.createElement('button');
+            btnPrezenta.className = 'sf-btn-data prezenta';
+            btnPrezenta.title = 'Încarcă lista de prezență';
+            btnPrezenta.innerHTML = '👥 Prez.<input type="file" accept=".pdf,image/*">';
+            btnPrezenta.querySelector('input').onchange = (e) => {
+                e.stopPropagation();
+                incarcaLista(e.target, 'prezenta', data, btnPrezenta);
+            };
+
+            // Buton Masă
+            const btnMasa = document.createElement('button');
+            btnMasa.className = 'sf-btn-data masa';
+            btnMasa.title = 'Încarcă lista de masă';
+            btnMasa.innerHTML = '🍱 Masă<input type="file" accept=".pdf,image/*">';
+            btnMasa.querySelector('input').onchange = (e) => {
+                e.stopPropagation();
+                incarcaLista(e.target, 'masa', data, btnMasa);
+            };
+
+            // Marcăm dacă există deja fișiere (se actualizează la verificaListeExistente)
+            btnPrezenta.dataset.zi = data.split(/[.\-]/)[0];
+            btnPrezenta.dataset.tip = 'prezenta';
+            btnMasa.dataset.zi = data.split(/[.\-]/)[0];
+            btnMasa.dataset.tip = 'masa';
+
             const labelAdauga = document.createElement('div');
             labelAdauga.style.cssText = 'padding: 4px 14px 2px; font-size: 9px; color: #334155; letter-spacing: 0.5px; text-transform: uppercase;';
             labelAdauga.innerText = 'adaugă document';
@@ -550,6 +673,8 @@ REGULI: NU scrie altceva în afară de aceste 5 secțiuni. Fiecare secțiune pe 
 
             actiuni.appendChild(btnFisa);
             actiuni.appendChild(btnFoto);
+            actiuni.appendChild(btnPrezenta);
+            actiuni.appendChild(btnMasa);
             actiuni.appendChild(btnPrint);
             fisiereLista.appendChild(actiuni);
 
@@ -565,6 +690,25 @@ REGULI: NU scrie altceva în afară de aceste 5 secțiuni. Fiecare secțiune pe 
                 const nr = isFisa ? nrFisa : nrFoto;
                 const numeAfisat = f.nume_custom || (isFisa ? `Fișă ${nr}` : `Foto ${nr}`);
                 listaDoc.appendChild(creeazaRandFisier(f, numeAfisat, listaDoc));
+            });
+
+            // Adăugăm rândurile pentru prezență și masă (din liste_fisiere)
+            const zi = String(parseInt(data.split(/[.\-]/)[0]));
+            (listePeZi[zi] || []).forEach(l => {
+                const numeAfisat = l.tip === 'prezenta' ? '👥 Prezență' : '🍱 Masă';
+                const culoare = l.tip === 'prezenta' ? '#7dd3fc' : '#fcd34d';
+                const rand = document.createElement('div');
+                rand.className = 'sf-fisier-row';
+                rand.style.borderLeftColor = culoare;
+                rand.innerHTML = `
+                    <span style="font-size:11px; color:${culoare}; flex:1; padding-left:4px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
+                        ${numeAfisat}
+                    </span>
+                    <div class="sf-fisier-actions" style="opacity:1;">
+                        <a href="${l.public_url}" target="_blank" class="sf-act-btn" title="Deschide">🔗</a>
+                        <button class="sf-act-btn" title="Șterge" onclick="stergeLista(${l.id},'${zi}','${l.tip}',this)">🗑️</button>
+                    </div>`;
+                listaDoc.appendChild(rand);
             });
 
             fisiereLista.appendChild(listaDoc);
@@ -959,8 +1103,19 @@ REGULI: NU scrie altceva în afară de aceste 5 secțiuni. Fiecare secțiune pe 
         win.print();
     }
 
-    // Încarcă fișierele la pornirea paginii
+    async function stergeLista(id, zi, tip, btnEl) {
+        if (!confirm(`Ștergi lista de ${tip === 'prezenta' ? 'prezență' : 'masă'} pentru ziua ${zi}?`)) return;
+        const { error } = await supabaseClient.from('liste_fisiere').delete().eq('id', id);
+        if (!error) {
+            afiseazaFisiereleIncarcate();
+            setStatus('saved', '✅ Listă ștearsă');
+            setTimeout(() => setStatus('none', ''), 2000);
+        } else {
+            setStatus('error', '❌ Eroare la ștergere');
+        }
+    }
     window.addEventListener('load', () => setTimeout(afiseazaFisiereleIncarcate, 1500));
+    window.addEventListener('load', () => setTimeout(verificaListeExistente, 2000));
 </script>
 </body>
 </html>
