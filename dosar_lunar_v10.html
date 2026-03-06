@@ -411,11 +411,70 @@ select:focus{ outline:none; border-color:#10b981; }
 .r2-foto{ width:100%; max-height:calc(297mm - 35mm); object-fit:contain; display:block; }
 .r2-foto-label{ font-size:9pt; color:#475569; text-align:center; margin-bottom:8px; font-family:sans-serif; }
 
-/* ===== PRINT ===== */
+/* ===== SIDEBAR DOSARE SALVATE ===== */
+#dosare-sidebar {
+  position: fixed; top: 0; left: 0; bottom: 0; width: 230px;
+  background: #0f172a; border-right: 1px solid #1e293b;
+  display: flex; flex-direction: column; z-index: 500;
+  font-family: sans-serif; transition: transform 0.25s;
+}
+#dosare-sidebar .ds-header {
+  padding: 14px 14px 10px;
+  background: #020617; border-bottom: 1px solid #1e293b;
+  flex-shrink: 0;
+}
+#dosare-sidebar .ds-title {
+  font-size: 10px; font-weight: 800; color: #10b981;
+  text-transform: uppercase; letter-spacing: 1.5px;
+}
+#dosare-sidebar .ds-expert {
+  font-size: 12px; font-weight: 700; color: #f8fafc;
+  margin-top: 4px; white-space: nowrap; overflow: hidden;
+  text-overflow: ellipsis;
+}
+#dosare-sidebar .ds-body {
+  flex: 1; overflow-y: auto; padding: 8px 0;
+}
+#dosare-sidebar .ds-an {
+  font-size: 9px; font-weight: 800; color: #475569;
+  text-transform: uppercase; letter-spacing: 1px;
+  padding: 10px 14px 4px;
+}
+#dosare-sidebar .ds-item {
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 14px; cursor: pointer;
+  border-left: 3px solid transparent;
+  transition: 0.15s;
+}
+#dosare-sidebar .ds-item:hover { background: #1e293b; border-left-color: #334155; }
+#dosare-sidebar .ds-item.activ { background: #1e293b; border-left-color: #10b981; }
+#dosare-sidebar .ds-luna {
+  flex: 1; font-size: 12px; font-weight: 700; color: #cbd5e1;
+}
+#dosare-sidebar .ds-item.activ .ds-luna { color: #10b981; }
+#dosare-sidebar .ds-data {
+  font-size: 9px; color: #475569;
+}
+#dosare-sidebar .ds-empty {
+  padding: 20px 14px; font-size: 11px; color: #334155;
+  text-align: center; line-height: 1.6;
+}
+#dosare-sidebar .ds-footer {
+  padding: 10px 14px; border-top: 1px solid #1e293b;
+  font-size: 9px; color: #334155; text-align: center; flex-shrink: 0;
+}
+/* Mutăm conținutul principal când sidebar-ul e vizibil */
+body.cu-dosare-sidebar .cp,
+body.cu-dosare-sidebar #pp,
+body.cu-dosare-sidebar #dc { margin-left: 230px; }
+@media print { #dosare-sidebar { display: none !important; } }
 @media print{
   body{ background:white!important; margin:0; padding:0; }
   .cp,#pp{ display:none!important; }
-  #dc{ padding:0; display:block; }
+  #dc{ padding:0; display:block; margin-left:0!important; }
+  body.cu-dosare-sidebar .cp,
+  body.cu-dosare-sidebar #pp,
+  body.cu-dosare-sidebar #dc { margin-left:0!important; }
 
   /* Fiecare pagina A4 = o pagina fizica */
   .A4,.cover,.sec-sep,.cls-sep{
@@ -530,6 +589,17 @@ select:focus{ outline:none; border-color:#10b981; }
 </style>
 </head>
 <body>
+
+<div id="dosare-sidebar">
+  <div class="ds-header">
+    <div class="ds-title">📂 Dosare salvate</div>
+    <div class="ds-expert" id="ds-expert-name">—</div>
+  </div>
+  <div class="ds-body" id="ds-body">
+    <div class="ds-empty">Selectați un expert pentru a vedea dosarele salvate.</div>
+  </div>
+  <div class="ds-footer">Click pe lună pentru a încărca dosarul</div>
+</div>
 
 <div class="cp">
   <div class="cp-row">
@@ -713,6 +783,33 @@ async function renderPdfFromBuffer(arrayBuffer,url,ec,showAnexa=false){
   }
 }
 
+function afiseazaProbleme(probs){
+  const pp=document.getElementById('pp');
+  const pps=document.getElementById('pps');
+  const ppl=document.getElementById('ppl');
+  pp.style.display='block';
+
+  if(!probs||probs.length===0){
+    // ===== DOSAR PERFECT =====
+    pps.innerHTML='';
+    ppl.innerHTML=`
+      <div style="text-align:center; padding:30px 20px;">
+        <div style="font-size:52px; margin-bottom:12px;">🏆</div>
+        <div style="font-size:22px; font-weight:900; color:#10b981; letter-spacing:1px; margin-bottom:8px;">DOSAR PERFECT!</div>
+        <div style="font-size:15px; font-weight:700; color:#f8fafc; margin-bottom:16px;">FELICITĂRI! Nicio problemă detectată.</div>
+        <div style="display:inline-flex; align-items:center; gap:10px; background:linear-gradient(135deg,#10b981,#059669);
+             color:white; padding:14px 28px; border-radius:12px; font-size:14px; font-weight:800;
+             box-shadow:0 4px 20px rgba(16,185,129,0.4); letter-spacing:0.5px;">
+          🖨️ POATE FI PRINTAT
+        </div>
+      </div>`;
+    return;
+  }
+
+  // ===== PROBLEME EXISTENTE =====
+  showP(probs);
+}
+
 // ===== SHOW PROBLEMS =====
 function showP(probs){
   const pp=document.getElementById('pp'),pps=document.getElementById('pps'),ppl=document.getElementById('ppl');
@@ -781,10 +878,13 @@ function initUI(){
     document.getElementById('btnAll').style.display='flex';
   }
 
-  // Actualizează butonul "Ultimul dosar" la orice schimbare
-  se.addEventListener('change',checkLastExists);
+  // Actualizează butonul "Ultimul dosar" și sidebar-ul la orice schimbare
+  se.addEventListener('change', () => { checkLastExists(); incarcaSidebar(getExpert()); });
   sl.addEventListener('change',checkLastExists);
   document.getElementById('sa').addEventListener('change',checkLastExists);
+
+  // Încărcăm sidebar-ul imediat dacă avem expert din URL sau din selector
+  incarcaSidebar(getExpert());
 }
 
 // ===== BUILD DOSAR =====
@@ -1050,7 +1150,7 @@ async function build(expert,luna,an){
         // Fallback — generat automat din baza de date
         H+=pg(ec,`<div class="antet-wrap">${antetImg()}</div><h2 style="font-family:sans-serif;text-align:center;text-transform:uppercase;margin:10px 0;font-size:18px;">Listă de prezență</h2><div class="prez-info"><div style="grid-column:span 2;"><span class="pi-l">Activitate:</span><br><span class="pi-v">${DA[actCod]||'---'}</span></div><div><span class="pi-l">Disciplina / Tip Activitate:</span><br><span class="pi-v">${MD[expert]||'---'}</span></div><div><span class="pi-l">Expert:</span><br><span class="pi-v">${expert}</span></div><div><span class="pi-l">Data:</span><br><span class="pi-v">${p.zi} ${luna} ${an}</span></div><div><span class="pi-l">Clasa / Grupa:</span><br><span class="pi-v">${cn}</span></div></div><table class="tbl prez-tbl"><thead><tr><th style="width:5%;">Nr.</th><th style="width:50%;">Nume și prenume elev</th><th style="width:10%;">P</th><th style="width:10%;">A</th><th style="width:25%;">Semnătura</th></tr></thead><tbody>${eRows}</tbody></table><div style="margin-top:40px;text-align:center;font-size:14px;">Întocmit,<br>Expert: <b style="text-decoration:underline;">${expert}</b></div>${ftr()}`);
         cnt.pr++;
-        if(allListe.length===0)P.push({t:'warn',s:`III. Prezență ${normClasa(cls)} ${z2(p.zi)}.${lc}.${an}`,m:'Listă prezență generată automat (fișier nescanat încă).'});
+        P.push({t:'warn',s:`III. Prezență — ${normClasa(cls)} — ${z2(p.zi)}.${lc}.${an}`,m:`Lista de prezență a fost generată automat. Încarcă lista semnată din fise.html → butonul 👥 Prezență.`});
       }
 
       // ===== LISTĂ MASĂ: fișier CF dacă există, altfel generat =====
@@ -1071,7 +1171,7 @@ async function build(expert,luna,an){
           // Fallback — generat automat
           H+=pg(ec,`<div class="antet-wrap">${antetImg()}</div><div class="masa-title">Listă de primire a pachetului alimentar de tip masă caldă</div><div class="prez-info"><div style="grid-column:span 2;"><span class="pi-l">Activitate:</span><br><span class="pi-v">${DA[actCod]||'---'}</span></div><div><span class="pi-l">Disciplina:</span><br><span class="pi-v">${MD[expert]||'---'}</span></div><div><span class="pi-l">Expert:</span><br><span class="pi-v">${expert}</span></div><div><span class="pi-l">Data:</span><br><span class="pi-v">${p.zi} ${luna} ${an}</span></div><div><span class="pi-l">Clasa / Grupa:</span><br><span class="pi-v">${cn}</span></div></div><table class="tbl"><thead><tr><th style="width:5%;">Nr.</th><th style="width:50%;">Nume elev</th><th style="width:10%;">Da</th><th style="width:10%;">Nu</th><th style="width:25%;">Semnătura</th></tr></thead><tbody>${eRows}</tbody></table><div style="margin-top:40px;text-align:center;font-size:14px;">Întocmit,<br>Expert: <b>${expert}</b></div>${ftr()}`);
           cnt.ma++;
-          if(allListe.length===0)P.push({t:'warn',s:`III. Masă ${normClasa(cls)} ${z2(p.zi)}.${lc}.${an}`,m:'Listă masă generată automat (fișier nescanat încă).'});
+          P.push({t:'warn',s:`III. Masă — ${normClasa(cls)} — ${z2(p.zi)}.${lc}.${an}`,m:`Lista de masă a fost generată automat. Încarcă lista semnată din fise.html → butonul 🍱 Masă.`});
         }
       }
     }
@@ -1234,7 +1334,95 @@ async function build(expert,luna,an){
   return{h:H,p:P};
 }
 
-// ===== SUPABASE SAVE / LOAD =====
+// ===== SIDEBAR DOSARE SALVATE =====
+let _dosarActiv = null; // { expert, luna, an }
+
+async function incarcaSidebar(expert) {
+  const body = document.getElementById('ds-body');
+  const nameEl = document.getElementById('ds-expert-name');
+  if (!expert) { body.innerHTML = '<div class="ds-empty">Selectați un expert.</div>'; return; }
+
+  nameEl.textContent = expert;
+  body.innerHTML = '<div class="ds-empty">Se încarcă...</div>';
+  document.body.classList.add('cu-dosare-sidebar');
+
+  try {
+    const { data } = await db.from('dosare_salvate')
+      .select('expert,luna,an,creat_la')
+      .eq('expert', expert)
+      .order('an', { ascending: false })
+      .order('creat_la', { ascending: false });
+
+    if (!data || data.length === 0) {
+      body.innerHTML = '<div class="ds-empty">Niciun dosar salvat încă pentru acest expert.</div>';
+      return;
+    }
+
+    // Grupăm pe an
+    const peAn = {};
+    data.forEach(d => {
+      if (!peAn[d.an]) peAn[d.an] = [];
+      peAn[d.an].push(d);
+    });
+
+    body.innerHTML = '';
+    Object.keys(peAn).sort((a,b) => b-a).forEach(an => {
+      const anLabel = document.createElement('div');
+      anLabel.className = 'ds-an';
+      anLabel.textContent = an;
+      body.appendChild(anLabel);
+
+      peAn[an].forEach(d => {
+        const item = document.createElement('div');
+        item.className = 'ds-item';
+        item.dataset.luna = d.luna;
+        item.dataset.an = d.an;
+        const salvat = new Date(d.creat_la).toLocaleDateString('ro-RO', { day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit' });
+        item.innerHTML = `<span class="ds-luna">${d.luna}</span><span class="ds-data">${salvat}</span>`;
+
+        // Marcăm activ dacă e dosarul curent afișat
+        if (_dosarActiv && _dosarActiv.expert === d.expert && _dosarActiv.luna === d.luna && _dosarActiv.an === d.an) {
+          item.classList.add('activ');
+        }
+
+        item.onclick = () => incarcaDosarDinSidebar(d.expert, d.luna, d.an, item);
+        body.appendChild(item);
+      });
+    });
+  } catch(e) {
+    body.innerHTML = `<div class="ds-empty">Eroare: ${e.message}</div>`;
+  }
+}
+
+async function incarcaDosarDinSidebar(expert, luna, an, itemEl) {
+  // Marcăm activ
+  document.querySelectorAll('#ds-body .ds-item').forEach(i => i.classList.remove('activ'));
+  itemEl.classList.add('activ');
+  _dosarActiv = { expert, luna, an };
+
+  // Pre-selectăm în selectoare (util în modul admin)
+  const se = document.getElementById('se');
+  const sl = document.getElementById('sl');
+  const sa = document.getElementById('sa');
+  if (se) se.value = expert;
+  if (sl) sl.value = luna;
+  if (sa) sa.value = an;
+
+  st(`⏳ Se încarcă dosarul: ${expert} — ${luna} ${an}...`, 'load');
+  try {
+    const { data, error } = await db.from('dosare_salvate')
+      .select('expert,luna,an,public_url,creat_la,probleme_json')
+      .eq('expert', expert).eq('luna', luna).eq('an', an)
+      .order('creat_la', { ascending: false })
+      .limit(1).single();
+    if (error || !data) { st(`❌ Dosar negăsit pentru ${luna} ${an}`, 'err'); return; }
+    const html = await loadDosarDinUrl(data.public_url);
+    document.getElementById('dc').innerHTML = html;
+    afiseazaProbleme(data.probleme_json||[]);
+    st(`✅ ${data.expert} — ${data.luna} ${data.an} (salvat: ${new Date(data.creat_la).toLocaleString('ro-RO')})`, 'ok');
+    setTimeout(hprg, 3000);
+  } catch(e) { st('❌ Eroare: ' + e.message, 'err'); }
+}
 // ===== HELPER: expert corect (URL are prioritate față de selector) =====
 function getExpert(){
   const urlExpert=new URLSearchParams(window.location.search).get('expert');
@@ -1242,11 +1430,43 @@ function getExpert(){
   return document.getElementById('se').value;
 }
 
-async function saveLast(expert,luna,an,html){
+async function saveLast(expert,luna,an,html,problems){
   try{
+    const expertNorm=expert.normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-zA-Z0-9_\-]/g,"_");
+    const lunaNorm=luna.normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-zA-Z0-9_\-]/g,"_");
+    const objectKey=`dosare/${expertNorm}/${lunaNorm}_${an}/dosar.html`;
+    const blob=new Blob([html],{type:'text/html'});
+
+    const R2_URL=`${SB_URL}/functions/v1/r2-upload`;
+    const resp=await fetch(R2_URL,{
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':`Bearer ${SB_KEY}`},
+      body:JSON.stringify({action:'upload',fileName:'dosar.html',fileType:'text/html',objectKey})
+    });
+    if(!resp.ok)throw new Error('R2 presign failed: '+resp.status);
+    const {presignedUrl,publicUrl}=await resp.json();
+
+    const up=await fetch(presignedUrl,{method:'PUT',headers:{'Content-Type':'text/html'},body:blob});
+    if(!up.ok)throw new Error('R2 upload failed: '+up.status);
+
     await db.from('dosare_salvate').delete().match({expert,luna,an});
-    await db.from('dosare_salvate').insert({expert,luna,an,html_content:html});
-  }catch(e){console.warn('Save failed:',e);}
+    await db.from('dosare_salvate').insert({
+      expert,luna,an,
+      public_url:publicUrl,
+      object_key:objectKey,
+      html_content:null,
+      probleme_json: problems||[]
+    });
+
+    _dosarActiv={expert,luna,an};
+    await incarcaSidebar(expert);
+  }catch(e){console.warn('Save failed:',e);throw e;}
+}
+
+async function loadDosarDinUrl(publicUrl){
+  const resp=await fetch(publicUrl+'?t='+Date.now()); // cache-bust
+  if(!resp.ok)throw new Error('HTTP '+resp.status);
+  return await resp.text();
 }
 
 async function loadLast(){
@@ -1257,16 +1477,14 @@ async function loadLast(){
   st('⏳ Se încarcă dosarul pentru '+expert+' — '+luna+' '+an+'...','load');
   try{
     const {data,error}=await db.from('dosare_salvate')
-      .select('expert,luna,an,html_content,creat_la')
-      .eq('expert',expert)
-      .eq('luna',luna)
-      .eq('an',an)
-      .order('creat_la',{ascending:false})
-      .limit(1)
-      .single();
+      .select('expert,luna,an,public_url,creat_la,probleme_json')
+      .eq('expert',expert).eq('luna',luna).eq('an',an)
+      .order('creat_la',{ascending:false}).limit(1).single();
     if(error||!data){st('❌ Nu există dosar salvat pentru '+expert+' — '+luna+' '+an,'err');return;}
-    document.getElementById('dc').innerHTML=data.html_content;
-    st(`✅ Încarcat: ${data.expert} — ${data.luna} ${data.an}  (salvat: ${new Date(data.creat_la).toLocaleString('ro-RO')})`,'ok');
+    const html=await loadDosarDinUrl(data.public_url);
+    document.getElementById('dc').innerHTML=html;
+    st(`✅ Încărcat: ${data.expert} — ${data.luna} ${data.an} (salvat: ${new Date(data.creat_la).toLocaleString('ro-RO')})`,'ok');
+    afiseazaProbleme(data.probleme_json||[]);
     setTimeout(hprg,3000);
   }catch(e){st('❌ Eroare la încărcare: '+e.message,'err');}
 }
@@ -1297,10 +1515,10 @@ async function gen(){
     const r=await build(expert,luna,an);prg(98);
     document.getElementById('dc').innerHTML=r.h;prg(100);
     st('💾 Se salvează dosarul...','load');
-    await saveLast(expert,luna,an,r.h);
+    await saveLast(expert,luna,an,r.h,r.p);
     document.getElementById('btnLast').style.display='flex';
     st('✅ Dosar generat și salvat: '+expert+' — '+luna+' '+an,'ok');
-    showP(r.p);setTimeout(hprg,2000);
+    afiseazaProbleme(r.p);setTimeout(hprg,2000);
   }catch(e){console.error(e);st('❌ '+e.message,'err');hprg();}
 }
 
