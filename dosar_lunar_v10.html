@@ -1091,13 +1091,25 @@ async function build(expert,luna,an){
           continue;
         }
         // Detectam tipul real dupa magic bytes (ignaram tip_fisier si extensie)
-        const bytes=new Uint8Array(fileBuffer.slice(0,8));
+        const bytes=new Uint8Array(fileBuffer.slice(0,16));
         const isPDF=bytes[0]===0x25&&bytes[1]===0x50&&bytes[2]===0x44&&bytes[3]===0x46; // %PDF
         const isPK=bytes[0]===0x50&&bytes[1]===0x4B; // PK/ZIP = docx
-        const isImg=(bytes[0]===0xFF&&bytes[1]===0xD8)||(bytes[0]===0x89&&bytes[1]===0x50)||(bytes[0]===0x47&&bytes[1]===0x49); // JPEG, PNG, GIF
+        // Detectie imagine extinsa: JPEG, PNG, GIF, WebP, BMP, TIFF
+        const isJPEG=bytes[0]===0xFF&&bytes[1]===0xD8;
+        const isPNG=bytes[0]===0x89&&bytes[1]===0x50&&bytes[2]===0x4E&&bytes[3]===0x47;
+        const isGIF=bytes[0]===0x47&&bytes[1]===0x49&&bytes[2]===0x46;
+        const isWebP=bytes[0]===0x52&&bytes[1]===0x49&&bytes[2]===0x46&&bytes[3]===0x46&&bytes[8]===0x57&&bytes[9]===0x45&&bytes[10]===0x42&&bytes[11]===0x50;
+        const isBMP=bytes[0]===0x42&&bytes[1]===0x4D;
+        const isTIFF=(bytes[0]===0x49&&bytes[1]===0x49&&bytes[2]===0x2A&&bytes[3]===0x00)||(bytes[0]===0x4D&&bytes[1]===0x4D&&bytes[2]===0x00&&bytes[3]===0x2A);
+        // Fallback pe extensie din URL pentru formate care nu au magic bytes unici (HEIC etc.)
+        const urlExt=((doc.public_url||doc.nume_fisier||'').split('?')[0].split('.').pop()||'').toLowerCase();
+        const isImgByExt=['jpg','jpeg','png','gif','webp','bmp','tiff','tif','heic','heif','avif','svg','jfif'].includes(urlExt);
+        const isImg=isJPEG||isPNG||isGIF||isWebP||isBMP||isTIFF||isImgByExt;
+        // Determinam MIME type corect
+        const imgMime=isJPEG?'image/jpeg':isPNG?'image/png':isGIF?'image/gif':isWebP?'image/webp':isBMP?'image/bmp':isTIFF?'image/tiff':urlExt==='heic'||urlExt==='heif'?'image/heic':urlExt==='avif'?'image/avif':urlExt==='svg'?'image/svg+xml':'image/jpeg';
         if(isImg){
-          // Imagine (jpg/png/gif) — tratata ca FOTO
-          const blob=new Blob([fileBuffer]);
+          // Imagine — tratata ca FOTO
+          const blob=new Blob([fileBuffer],{type:imgMime});
           const blobUrl=URL.createObjectURL(blob);
           const label=anexaFotoIdx===0?'<div style="text-align:center;font-weight:bold;font-size:13pt;margin-bottom:8px;">Anexa 2</div>':'';
           H+=pg(ec,`<div class="antet-wrap">${antetImg()}</div>${label}<img src="${blobUrl}" class="r2-foto">`);
