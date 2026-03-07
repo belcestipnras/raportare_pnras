@@ -1,0 +1,957 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8"/>
+  <title>Aplică Ștampilă</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+  <script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: #f0f2f7;
+      min-height: 100vh;
+      color: #1e293b;
+    }
+
+    header {
+      background: #fff;
+      border-bottom: 1px solid #e2e8f0;
+      padding: 14px 32px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+    }
+    header .logo { font-size: 22px; }
+    header h1 { font-size: 17px; font-weight: 700; color: #1e293b; }
+    header p  { font-size: 12px; color: #94a3b8; }
+
+    .main {
+      max-width: 960px;
+      margin: 36px auto;
+      padding: 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 22px;
+    }
+
+    .card {
+      background: #fff;
+      border-radius: 14px;
+      border: 1px solid #e2e8f0;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      padding: 28px 32px;
+    }
+
+    .card h2 {
+      font-size: 14px;
+      font-weight: 700;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 18px;
+    }
+
+    /* ── DROP ZONE ── */
+    .drop-zone {
+      border: 2px dashed #cbd5e1;
+      border-radius: 12px;
+      padding: 48px 24px;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color .2s, background .2s;
+      background: #f8fafc;
+    }
+    .drop-zone:hover, .drop-zone.over {
+      border-color: #3b82f6;
+      background: #eff6ff;
+    }
+    .drop-zone .icon { font-size: 44px; margin-bottom: 12px; }
+    .drop-zone .title { font-size: 16px; font-weight: 600; color: #334155; margin-bottom: 6px; }
+    .drop-zone .sub   { font-size: 13px; color: #94a3b8; }
+
+    .file-info {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      background: #f1f5f9;
+      border-radius: 10px;
+      padding: 14px 18px;
+      margin-top: 14px;
+    }
+    .file-info .fname { font-weight: 600; font-size: 14px; flex: 1; }
+    .file-info .fpages { font-size: 12px; color: #64748b; }
+    .file-info .btn-change {
+      font-size: 12px;
+      padding: 5px 12px;
+      border-radius: 7px;
+      border: 1px solid #e2e8f0;
+      background: #fff;
+      cursor: pointer;
+      font-weight: 600;
+      color: #64748b;
+    }
+
+    /* ── PAGE SELECTOR ── */
+    .page-options {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .page-option {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 18px;
+      border-radius: 10px;
+      border: 2px solid #e2e8f0;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      background: #f8fafc;
+      color: #334155;
+      transition: border-color .15s, background .15s;
+      user-select: none;
+    }
+    .page-option input[type=radio] { display: none; }
+    .page-option.selected {
+      border-color: #3b82f6;
+      background: #eff6ff;
+      color: #1d4ed8;
+    }
+    .page-option .opt-icon { font-size: 18px; }
+
+    /* pagini specifice input */
+    #customPagesWrap {
+      display: none;
+      margin-top: 14px;
+    }
+    #customPagesWrap.visible { display: block; }
+    #customPagesInput {
+      padding: 9px 14px;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      font-size: 13px;
+      width: 100%;
+      max-width: 360px;
+      outline: none;
+    }
+    #customPagesInput:focus { border-color: #3b82f6; }
+    .hint-text { font-size: 12px; color: #94a3b8; margin-top: 6px; }
+
+    /* ── PREVIEW ── */
+    #previewSection { display: none; }
+    #previewSection.visible { display: block; }
+
+    .preview-nav {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+    }
+    .nav-btn {
+      width: 32px; height: 32px;
+      border-radius: 8px;
+      border: 1px solid #e2e8f0;
+      background: #fff;
+      cursor: pointer;
+      font-size: 16px;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: bold;
+      color: #334155;
+    }
+    .nav-btn:disabled { opacity: .35; cursor: default; }
+    .page-counter { font-size: 13px; color: #64748b; min-width: 70px; text-align: center; }
+    .stamp-badge {
+      font-size: 12px;
+      padding: 4px 10px;
+      border-radius: 99px;
+      background: #dcfce7;
+      color: #16a34a;
+      font-weight: 600;
+    }
+    .no-stamp-badge {
+      font-size: 12px;
+      padding: 4px 10px;
+      border-radius: 99px;
+      background: #f1f5f9;
+      color: #94a3b8;
+      font-weight: 600;
+    }
+    .canvas-wrap {
+      overflow: auto;
+      display: flex;
+      justify-content: center;
+      background: #e2e8f0;
+      border-radius: 10px;
+      padding: 16px;
+      max-height: 540px;
+    }
+    #previewCanvas {
+      border-radius: 6px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+      max-width: 100%;
+      display: block;
+    }
+
+    /* ── APPLY BTN ── */
+    .apply-btn {
+      width: 100%;
+      padding: 15px;
+      background: linear-gradient(135deg, #3b82f6, #6366f1);
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      letter-spacing: .3px;
+      transition: opacity .15s, transform .1s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+    .apply-btn:hover:not(:disabled) { opacity: .9; transform: translateY(-1px); }
+    .apply-btn:disabled { opacity: .45; cursor: not-allowed; transform: none; }
+
+    /* ── PROGRESS ── */
+    .progress-wrap {
+      display: none;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .progress-wrap.visible { display: flex; }
+    .progress-bar-bg {
+      background: #e2e8f0;
+      border-radius: 99px;
+      height: 10px;
+      overflow: hidden;
+    }
+    .progress-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #3b82f6, #6366f1);
+      border-radius: 99px;
+      width: 0%;
+      transition: width .3s ease;
+    }
+    .progress-text { font-size: 13px; color: #64748b; text-align: center; }
+
+    /* ── RESULT ── */
+    .result-box {
+      display: none;
+      background: #f0fdf4;
+      border: 1px solid #86efac;
+      border-radius: 12px;
+      padding: 18px 22px;
+      align-items: center;
+      gap: 14px;
+    }
+    .result-box.visible { display: flex; }
+    .result-box .result-icon { font-size: 28px; }
+    .result-box .result-text { flex: 1; }
+    .result-box .result-title { font-weight: 700; color: #15803d; font-size: 15px; }
+    .result-box .result-sub   { font-size: 13px; color: #4ade80; margin-top: 2px; }
+    .result-box .dl-btn {
+      padding: 9px 20px;
+      background: #16a34a;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-weight: 700;
+      cursor: pointer;
+      font-size: 13px;
+      white-space: nowrap;
+    }
+
+    .err-box {
+      display: none;
+      background: #fef2f2;
+      border: 1px solid #fca5a5;
+      border-radius: 10px;
+      padding: 14px 18px;
+      color: #dc2626;
+      font-size: 13px;
+    }
+    .err-box.visible { display: block; }
+
+    #istoricTable tr:hover td { background: #f8fafc; }
+    #istoricTable td { padding: 10px 12px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; }
+    .btn-del-istor {
+      padding: 5px 12px;
+      background: #fee2e2;
+      color: #dc2626;
+      border: 1px solid #fca5a5;
+      border-radius: 7px;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .btn-dl-istor {
+      padding: 5px 12px;
+      background: #eff6ff;
+      color: #2563eb;
+      border: 1px solid #93c5fd;
+      border-radius: 7px;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 600;
+      text-decoration: none;
+      display: inline-block;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo">🔖</div>
+  <div>
+    <h1>Aplică Ștampilă</h1>
+    <p>Încarcă un PDF, alege paginile, descarcă ștampilat</p>
+  </div>
+</header>
+
+<div class="main">
+
+  <!-- 1. UPLOAD -->
+  <div class="card">
+    <h2>1. Document PDF</h2>
+    <div class="drop-zone" id="dropZone">
+      <input type="file" id="pdfInput" accept=".pdf" style="display:none">
+      <div class="icon">📄</div>
+      <div class="title">Trage PDF-ul aici</div>
+      <div class="sub">sau click pentru a selecta</div>
+    </div>
+    <div class="file-info" id="fileInfo" style="display:none">
+      <span style="font-size:22px">📄</span>
+      <span class="fname" id="fileName">—</span>
+      <span class="fpages" id="filePages">—</span>
+      <button class="btn-change" id="btnChange">Schimbă</button>
+    </div>
+  </div>
+
+  <!-- 2. PAGINI -->
+  <div class="card" id="pagesCard" style="display:none">
+    <h2>2. Pe ce pagini aplicăm ștampila?</h2>
+    <div class="page-options">
+      <label class="page-option selected" id="opt-all">
+        <input type="radio" name="pageOpt" value="all" checked>
+        <span class="opt-icon">📋</span> Toate paginile
+      </label>
+      <label class="page-option" id="opt-first">
+        <input type="radio" name="pageOpt" value="first">
+        <span class="opt-icon">1️⃣</span> Prima pagină
+      </label>
+      <label class="page-option" id="opt-last">
+        <input type="radio" name="pageOpt" value="last">
+        <span class="opt-icon">🔚</span> Ultima pagină
+      </label>
+      <label class="page-option" id="opt-custom">
+        <input type="radio" name="pageOpt" value="custom">
+        <span class="opt-icon">✏️</span> Pagini specifice
+      </label>
+    </div>
+    <div id="customPagesWrap">
+      <input type="text" id="customPagesInput" placeholder="ex: 1, 3, 5-8, 10">
+      <div class="hint-text">Separă cu virgulă. Poți folosi intervale: 2-5 înseamnă paginile 2, 3, 4, 5.</div>
+    </div>
+  </div>
+
+  <!-- 3. PREVIZUALIZARE -->
+  <div class="card" id="previewSection">
+    <h2>3. Previzualizare</h2>
+    <div class="preview-nav">
+      <button class="nav-btn" id="prevPage">‹</button>
+      <span class="page-counter" id="pageCounter">1 / 1</span>
+      <button class="nav-btn" id="nextPage">›</button>
+      <span id="stampBadge" class="no-stamp-badge">fără ștampilă</span>
+      <span style="font-size:12px;color:#94a3b8;margin-left:auto">Previzualizare aproximativă — ștampila finală va fi aplicată la procesare</span>
+    </div>
+    <div class="canvas-wrap">
+      <canvas id="previewCanvas"></canvas>
+    </div>
+  </div>
+
+  <!-- 4. APLICĂ -->
+  <div class="card" id="applyCard" style="display:none">
+    <h2>4. Aplică și descarcă</h2>
+
+    <div class="err-box" id="errBox"></div>
+
+    <div class="progress-wrap" id="progressWrap">
+      <div class="progress-text" id="progressText">Se procesează...</div>
+      <div class="progress-bar-bg">
+        <div class="progress-bar-fill" id="progressFill"></div>
+      </div>
+    </div>
+
+    <div class="result-box" id="resultBox">
+      <div class="result-icon">✅</div>
+      <div class="result-text">
+        <div class="result-title">Document ștampilat cu succes!</div>
+        <div class="result-sub" id="resultSub">—</div>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <button class="dl-btn" id="dlBtn">⬇ Descarcă din nou</button>
+        <button class="dl-btn" id="reapplyBtn" style="background:#6366f1;">🔄 Aplică din nou</button>
+      </div>
+    </div>
+
+    <button class="apply-btn" id="applyBtn" disabled>
+      <span>🔖</span> Aplică Ștampilă & Descarcă
+    </button>
+  </div>
+
+  <!-- 5. ISTORIC -->
+  <div class="card" id="istoricCard">
+    <h2>5. Istoric ștampilări</h2>
+    <div id="istoricLoading" style="color:#94a3b8;font-size:13px;padding:10px 0;">Se încarcă...</div>
+    <div id="istoricGol" style="display:none;color:#94a3b8;font-size:13px;padding:10px 0;">Niciun document ștampilat încă.</div>
+    <table id="istoricTable" style="display:none;width:100%;border-collapse:collapse;font-size:13px;">
+      <thead>
+        <tr style="background:#f8fafc;color:#64748b;text-align:left;">
+          <th style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Fișier original</th>
+          <th style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Pagini ștampilate</th>
+          <th style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Data</th>
+          <th style="padding:10px 12px;border-bottom:1px solid #e2e8f0;text-align:center;">Acțiuni</th>
+        </tr>
+      </thead>
+      <tbody id="istoricBody"></tbody>
+    </table>
+  </div>
+
+</div>
+
+<script>
+/* ===================== CONFIG ===================== */
+const SUPABASE_URL = "https://aexjrbdgajurxzngfkpx.supabase.co";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFleGpyYmRnYWp1cnh6bmdma3B4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgxMzE3NTYsImV4cCI6MjA4MzcwNzc1Nn0.VUx0QOKgjX4m23HOF2rBpE9vWA3T18KtjLc0w_iXhqA";
+const WORKER_URL   = "https://r2-proxy.belcesti-pnras2024.workers.dev";
+const BUCKET_KEY   = "contracte";
+const PUBLIC_BASE  = "https://pub-21fd5af81dd046f08d14c67f1291f051.r2.dev";
+const NR_STAMPILE  = 16;
+const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+/* ===================== STATE ===================== */
+let pdfFile      = null;
+let pdfDoc       = null;   // pdf.js doc
+let totalPages   = 0;
+let currentPage  = 1;
+let lastResultUrl  = null;
+let lastResultName = null;
+let reapplyId      = null;  // id-ul înregistrării din istoric când se face "Aplică din nou"
+let reapplyLinkOld = null;  // link-ul vechiului fișier ștampilat de șters
+let reapplyLinkOrig = null; // link-ul originalului (se păstrează)
+
+pdfjsLib.GlobalWorkerOptions.workerSrc =
+  'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+/* ===================== UTILS ===================== */
+function getSelectedOption() {
+  return document.querySelector('input[name="pageOpt"]:checked').value;
+}
+
+function parseCustomPages(str, total) {
+  const pages = new Set();
+  str.split(',').forEach(part => {
+    part = part.trim();
+    const range = part.match(/^(\d+)\s*-\s*(\d+)$/);
+    if (range) {
+      const a = parseInt(range[1]), b = parseInt(range[2]);
+      for (let i = Math.min(a,b); i <= Math.max(a,b); i++) {
+        if (i >= 1 && i <= total) pages.add(i);
+      }
+    } else {
+      const n = parseInt(part);
+      if (!isNaN(n) && n >= 1 && n <= total) pages.add(n);
+    }
+  });
+  return [...pages].sort((a,b) => a-b);
+}
+
+function getPagesToStamp() {
+  const opt = getSelectedOption();
+  if (opt === 'all')    return Array.from({length: totalPages}, (_,i) => i+1);
+  if (opt === 'first')  return [1];
+  if (opt === 'last')   return [totalPages];
+  if (opt === 'custom') return parseCustomPages(
+    document.getElementById('customPagesInput').value, totalPages
+  );
+  return [];
+}
+
+function setProgress(pct, text) {
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressText').textContent = text;
+}
+
+function showErr(msg) {
+  const b = document.getElementById('errBox');
+  b.textContent = msg;
+  b.classList.add('visible');
+}
+function hideErr() {
+  document.getElementById('errBox').classList.remove('visible');
+}
+
+/* ===================== PDF LOAD ===================== */
+async function loadPdf(file) {
+  pdfFile = file;
+  const arr = await file.arrayBuffer();
+  pdfDoc = await pdfjsLib.getDocument({ data: arr }).promise;
+  totalPages = pdfDoc.numPages;
+  currentPage = 1;
+
+  document.getElementById('fileName').textContent = file.name;
+  document.getElementById('filePages').textContent = totalPages + (totalPages === 1 ? ' pagină' : ' pagini');
+  document.getElementById('dropZone').style.display  = 'none';
+  document.getElementById('fileInfo').style.display  = 'flex';
+  document.getElementById('pagesCard').style.display = 'block';
+  document.getElementById('previewSection').classList.add('visible');
+  document.getElementById('applyCard').style.display = 'block';
+  document.getElementById('applyBtn').disabled = false;
+
+  updatePageCounter();
+  renderPreview();
+}
+
+/* ===================== PREVIEW ===================== */
+async function renderPreview() {
+  if (!pdfDoc) return;
+  const page      = await pdfDoc.getPage(currentPage);
+  const vpNatural = page.getViewport({ scale: 1 });
+
+  // Calculează scala în funcție de lățimea containerului
+  const wrap      = document.getElementById('previewCanvas').parentElement;
+  const maxWidth  = wrap.clientWidth - 32; // padding
+  const scale     = Math.min(maxWidth / vpNatural.width, 2.0);
+
+  const viewport  = page.getViewport({ scale });
+  const canvas    = document.getElementById('previewCanvas');
+  const ctx       = canvas.getContext('2d');
+  canvas.width    = viewport.width;
+  canvas.height   = viewport.height;
+  canvas.style.width  = viewport.width  + 'px';
+  canvas.style.height = viewport.height + 'px';
+  await page.render({ canvasContext: ctx, viewport }).promise;
+
+  // badge
+  const pages  = getPagesToStamp();
+  const hasStamp = pages.includes(currentPage);
+  const badge    = document.getElementById('stampBadge');
+  if (hasStamp) {
+    badge.className  = 'stamp-badge';
+    badge.textContent = '✔ ștampilă aplicată';
+  } else {
+    badge.className  = 'no-stamp-badge';
+    badge.textContent = 'fără ștampilă';
+  }
+}
+
+function updatePageCounter() {
+  document.getElementById('pageCounter').textContent = `${currentPage} / ${totalPages}`;
+  document.getElementById('prevPage').disabled = currentPage <= 1;
+  document.getElementById('nextPage').disabled = currentPage >= totalPages;
+}
+
+document.getElementById('prevPage').addEventListener('click', () => {
+  if (currentPage > 1) { currentPage--; updatePageCounter(); renderPreview(); }
+});
+document.getElementById('nextPage').addEventListener('click', () => {
+  if (currentPage < totalPages) { currentPage++; updatePageCounter(); renderPreview(); }
+});
+
+/* ===================== DROP / INPUT ===================== */
+const dropZone = document.getElementById('dropZone');
+const pdfInput = document.getElementById('pdfInput');
+
+dropZone.addEventListener('click',     () => pdfInput.click());
+dropZone.addEventListener('dragover',  e => { e.preventDefault(); dropZone.classList.add('over'); });
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('over'));
+dropZone.addEventListener('drop', e => {
+  e.preventDefault();
+  dropZone.classList.remove('over');
+  const f = e.dataTransfer.files[0];
+  if (f && f.type === 'application/pdf') loadPdf(f);
+});
+pdfInput.addEventListener('change', e => {
+  const f = e.target.files[0];
+  if (f) loadPdf(f);
+  pdfInput.value = '';
+});
+
+document.getElementById('btnChange').addEventListener('click', () => {
+  pdfFile = null; pdfDoc = null;
+  document.getElementById('dropZone').style.display = 'block';
+  document.getElementById('fileInfo').style.display = 'none';
+  document.getElementById('pagesCard').style.display = 'none';
+  document.getElementById('previewSection').classList.remove('visible');
+  document.getElementById('applyCard').style.display = 'none';
+  document.getElementById('resultBox').classList.remove('visible');
+  document.getElementById('progressWrap').classList.remove('visible');
+  hideErr();
+});
+
+/* ===================== PAGE OPTION TOGGLE ===================== */
+document.querySelectorAll('input[name="pageOpt"]').forEach(radio => {
+  radio.addEventListener('change', () => {
+    document.querySelectorAll('.page-option').forEach(el => el.classList.remove('selected'));
+    radio.closest('.page-option').classList.add('selected');
+    const wrap = document.getElementById('customPagesWrap');
+    wrap.classList.toggle('visible', radio.value === 'custom');
+    renderPreview();
+  });
+});
+document.getElementById('customPagesInput').addEventListener('input', () => renderPreview());
+
+/* ===================== APPLY ===================== */
+async function aplicaStampilaLaPdf() {
+  hideErr();
+  document.getElementById('resultBox').classList.remove('visible');
+  document.getElementById('progressWrap').classList.add('visible');
+  document.getElementById('applyBtn').disabled = true;
+  setProgress(2, 'Se inițializează...');
+
+  try {
+    const { PDFDocument } = PDFLib;
+
+    // 1. Citim PDF-ul original
+    setProgress(10, 'Se citește documentul...');
+    const originalBytes = await pdfFile.arrayBuffer();
+    const pdfDoc2 = await PDFDocument.load(originalBytes);
+    const pages   = pdfDoc2.getPages();
+
+    // 2. Încarcă ștampilele A4 PNG (stampila_01 ... stampila_25)
+    setProgress(15, 'Se încarcă ștampilele...');
+    const stampilaUrls = Array.from({length: 25}, (_, i) =>
+      `${SUPABASE_URL}/storage/v1/object/public/contracte/stampila_${String(i+1).padStart(2,'0')}.png`
+    );
+    const embeddedStamps = [];
+    for (const url of stampilaUrls) {
+      try {
+        const resp = await fetch(url);
+        if (!resp.ok) continue;
+        const buf      = await resp.arrayBuffer();
+        const embedded = await pdfDoc2.embedPng(new Uint8Array(buf));
+        embeddedStamps.push(embedded);
+      } catch(e) { console.warn('Ștampilă lipsă:', url); }
+    }
+    if (!embeddedStamps.length) throw new Error('Nu s-au putut încărca ștampilele din Supabase.');
+
+    // 3. Aplică ștampilă pe paginile selectate — shuffle-deck (epuizează toate 25 înainte de repetare)
+    const pagesToStamp = getPagesToStamp();
+    if (!pagesToStamp.length) throw new Error('Nicio pagină selectată pentru ștampilare.');
+
+    // Fisher-Yates shuffle
+    function shuffleDeck(arr) {
+      const a = [...arr];
+      for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+      }
+      return a;
+    }
+
+    // Epuizează un pachet de 25 înainte de a relua, fiecare pachet amestecat diferit
+    let deck = shuffleDeck(embeddedStamps), deckIdx = 0;
+    function urmatoareaStampila() {
+      if (deckIdx >= deck.length) { deck = shuffleDeck(embeddedStamps); deckIdx = 0; }
+      return deck[deckIdx++];
+    }
+
+    setProgress(40, 'Se aplică ștampila...');
+    for (const pageNum of pagesToStamp) {
+      const page = pages[pageNum - 1];
+      const { width, height } = page.getSize();
+      page.drawImage(urmatoareaStampila(), {
+        x: 0, y: 0,
+        width:  width,
+        height: height,
+        opacity: 1.0,
+      });
+    }
+
+    // 5. Salvează PDF
+    setProgress(65, 'Se generează PDF-ul final...');
+    const outBytes = await pdfDoc2.save();
+    const blob     = new Blob([outBytes], { type: 'application/pdf' });
+
+    // 6. Descarcă local
+    const outName = pdfFile.name.replace(/\.pdf$/i, '') + '_stampilat.pdf';
+    const href    = URL.createObjectURL(blob);
+    const a       = document.createElement('a');
+    a.href = href; a.download = outName; a.click();
+    lastResultUrl  = href;
+    lastResultName = outName;
+
+    // 7. Upload original în R2 (doar la prima ștampilare, nu la re-aplicare)
+    setProgress(75, 'Se salvează originalul...');
+    let linkOriginal = reapplyLinkOrig || null;
+    if (!reapplyId) {
+      const origName     = `original_${Date.now()}_${pdfFile.name}`;
+      const origNameSafe = encodeURIComponent(origName);
+      const origBlob     = new Blob([originalBytes], { type: 'application/pdf' });
+      const origResp     = await fetch(`${WORKER_URL}/upload`, {
+        method: 'PUT',
+        headers: { 'X-Bucket': BUCKET_KEY, 'X-File-Name': origNameSafe, 'Content-Type': 'application/pdf' },
+        body: origBlob,
+      });
+      if (origResp.ok) {
+        const origData = await origResp.json();
+        linkOriginal = origData.url || `${PUBLIC_BASE}/${origNameSafe}`;
+      }
+    }
+
+    // 8. Upload ștampilat în R2
+    setProgress(85, 'Se urcă documentul ștampilat...');
+    const fileName     = `stampilat_${Date.now()}_${outName}`;
+    const fileNameSafe = encodeURIComponent(fileName);
+    const uploadResp   = await fetch(`${WORKER_URL}/upload`, {
+      method: 'PUT',
+      headers: { 'X-Bucket': BUCKET_KEY, 'X-File-Name': fileNameSafe, 'Content-Type': 'application/pdf' },
+      body: blob,
+    });
+    if (!uploadResp.ok) {
+      const txt = await uploadResp.text();
+      throw new Error('Upload R2 eșuat: ' + txt);
+    }
+    const uploadData = await uploadResp.json();
+    const linkR2 = uploadData.url || `${PUBLIC_BASE}/${fileNameSafe}`;
+
+    // 9. Salvează în istoricul_stampilari
+    setProgress(95, 'Se salvează în istoric...');
+    if (reapplyId) {
+      // Șterge vechiul fișier ștampilat din R2
+      if (reapplyLinkOld) {
+        const fnOld = decodeURIComponent(reapplyLinkOld.split('?')[0].replace(PUBLIC_BASE + '/', ''));
+        await fetch(`${WORKER_URL}/delete`, { method: 'DELETE', headers: { 'X-Bucket': BUCKET_KEY, 'X-File-Name': fnOld } });
+      }
+      // Actualizează înregistrarea existentă
+      await supabaseClient.from('istoricul_stampilari').update({
+        nume_fisier_stampilat: outName,
+        nr_pagini_stampilate:  pagesToStamp.length,
+        pagini_stampilate:     pagesToStamp.join(', '),
+        link_r2:               linkR2,
+        link_original:         reapplyLinkOrig,
+        created_at:            new Date().toISOString(),
+      }).eq('id', reapplyId);
+      // Resetează starea
+      reapplyId = null; reapplyLinkOld = null; reapplyLinkOrig = null;
+    } else {
+      const { error: sbErr } = await supabaseClient.from('istoricul_stampilari').insert([{
+        nume_fisier:           pdfFile.name,
+        nume_fisier_stampilat: outName,
+        nr_pagini_total:       totalPages,
+        nr_pagini_stampilate:  pagesToStamp.length,
+        pagini_stampilate:     pagesToStamp.join(', '),
+        link_r2:               linkR2,
+        link_original:         linkOriginal,
+      }]);
+      if (sbErr) {
+        console.error('Eroare salvare istoric:', sbErr);
+        throw new Error('Nu s-a putut salva în istoric: ' + sbErr.message);
+      }
+    }
+
+    setProgress(100, 'Gata!');
+    document.getElementById('progressWrap').classList.remove('visible');
+
+    const resultSub = document.getElementById('resultSub');
+    resultSub.textContent = `${outName} • ${pagesToStamp.length} pagini ștampilate`;
+    document.getElementById('resultBox').classList.add('visible');
+
+  } catch(e) {
+    document.getElementById('progressWrap').classList.remove('visible');
+    showErr('Eroare: ' + e.message);
+    console.error(e);
+  } finally {
+    document.getElementById('applyBtn').disabled = false;
+  }
+}
+
+document.getElementById('applyBtn').addEventListener('click', aplicaStampilaLaPdf);
+document.getElementById('dlBtn').addEventListener('click', () => {
+  if (lastResultUrl) {
+    const a = document.createElement('a');
+    a.href = lastResultUrl;
+    a.download = lastResultName;
+    a.click();
+  }
+});
+
+document.getElementById('reapplyBtn').addEventListener('click', () => {
+  // Resetează result box și permite re-ștampilare pe același fișier (fără suprascrierea istoricului)
+  reapplyId = null; reapplyLinkOld = null; reapplyLinkOrig = null;
+  document.getElementById('resultBox').classList.remove('visible');
+  document.getElementById('applyBtn').disabled = false;
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+});
+
+/* ===================== ISTORIC ===================== */
+async function incarcaIstoric() {
+  const loading = document.getElementById('istoricLoading');
+  const gol     = document.getElementById('istoricGol');
+  const tabel   = document.getElementById('istoricTable');
+  const body    = document.getElementById('istoricBody');
+
+  loading.style.display = 'block';
+  gol.style.display     = 'none';
+  tabel.style.display   = 'none';
+
+  const { data, error } = await supabaseClient
+    .from('istoricul_stampilari')
+    .select('*')
+    .order('created_at', { ascending: false });
+
+  loading.style.display = 'none';
+
+  if (error) { loading.style.display='block'; loading.textContent='Eroare la încărcare: ' + error.message; return; }
+  if (!data || !data.length) { gol.style.display = 'block'; return; }
+
+  body.innerHTML = data.map(row => {
+    const data_fmt = new Date(row.created_at).toLocaleString('ro-RO', {
+      day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit'
+    });
+    return `<tr>
+      <td>
+        <div style="font-weight:600;color:#1e293b;">${row.nume_fisier || '—'}</div>
+        <div style="font-size:11px;color:#94a3b8;margin-top:2px;">${row.nume_fisier_stampilat || ''}</div>
+      </td>
+      <td>
+        <span style="font-weight:600;">${row.nr_pagini_stampilate || '—'}</span>
+        <span style="color:#94a3b8;"> / ${row.nr_pagini_total || '—'} total</span>
+        ${row.pagini_stampilate ? `<div style="font-size:11px;color:#94a3b8;margin-top:2px;">pag: ${row.pagini_stampilate}</div>` : ''}
+      </td>
+      <td style="color:#64748b;white-space:nowrap;">${data_fmt}</td>
+      <td style="text-align:center;">
+        <div style="display:flex;gap:8px;justify-content:center;align-items:center;flex-wrap:wrap;">
+          ${row.link_r2 ? `<a class="btn-dl-istor" href="${row.link_r2}" target="_blank">👁️ Vizualizare</a>` : ''}
+          ${row.link_r2 ? `<a class="btn-dl-istor" href="${row.link_r2}" download style="text-decoration:none;">⬇ Descarcă</a>` : ''}
+          <button class="btn-dl-istor" style="background:#ede9fe;color:#6d28d9;border-color:#c4b5fd;" onclick="aplicaDinNouDinIstoric('${row.id}','${(row.link_original||'').replace(/'/g,"\\'")}','${(row.nume_fisier||'').replace(/'/g,"\\'")}','${(row.link_r2||'').replace(/'/g,"\\'")}')">🔄 Aplică din nou</button>
+          ${row.link_original ? `<button class="btn-dl-istor" style="background:#fff7ed;color:#c2410c;border-color:#fdba74;" onclick="stergeStampilaIstoric('${row.id}','${(row.link_r2||'').replace(/'/g,"\\'")}','${(row.link_original||'').replace(/'/g,"\\'")}','${(row.nume_fisier||'').replace(/'/g,"\\'")}')">✖ Șterge ștampila</button>` : ''}
+          <button class="btn-del-istor" onclick="stergeIstoric('${row.id}','${(row.link_r2||'').replace(/'/g,"\\'")}','${(row.link_original||'').replace(/'/g,"\\'")}')">🗑️ Șterge tot</button>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+
+  tabel.style.display = 'table';
+}
+
+async function stergeIstoric(id, linkR2, linkOriginal) {
+  if (!confirm('Ștergi această înregistrare și toate fișierele din storage?')) return;
+  try {
+    if (linkR2) {
+      const fnR2 = decodeURIComponent(linkR2.split('?')[0].replace(PUBLIC_BASE + '/', ''));
+      await fetch(`${WORKER_URL}/delete`, { method: 'DELETE', headers: { 'X-Bucket': BUCKET_KEY, 'X-File-Name': fnR2 } });
+    }
+    if (linkOriginal) {
+      const fnOrig = decodeURIComponent(linkOriginal.split('?')[0].replace(PUBLIC_BASE + '/', ''));
+      await fetch(`${WORKER_URL}/delete`, { method: 'DELETE', headers: { 'X-Bucket': BUCKET_KEY, 'X-File-Name': fnOrig } });
+    }
+    const { error } = await supabaseClient.from('istoricul_stampilari').delete().eq('id', id);
+    if (error) throw new Error(error.message);
+    incarcaIstoric();
+  } catch(e) {
+    alert('Eroare la ștergere: ' + e.message);
+  }
+}
+
+async function aplicaDinNouDinIstoric(id, linkOriginal, numeFisier, linkR2Vechi) {
+  const linkDeFolosit = linkOriginal || linkR2Vechi;
+  if (!linkDeFolosit) { alert('Nu există fișier disponibil pentru această înregistrare.'); return; }
+  try {
+    const resp = await fetch(linkDeFolosit);
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+    const blob = await resp.blob();
+    const file = new File([blob], numeFisier || 'document.pdf', { type: 'application/pdf' });
+
+    reapplyId       = id;
+    reapplyLinkOld  = linkR2Vechi;
+    reapplyLinkOrig = linkOriginal || null;
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    await loadPdf(file);
+    document.getElementById('resultBox').classList.remove('visible');
+    document.getElementById('progressWrap').classList.remove('visible');
+  } catch(e) {
+    alert('Eroare la încărcare: ' + e.message);
+  }
+}
+
+async function stergeStampilaIstoric(id, linkR2, linkOriginal, numeFisier) {
+  if (!linkOriginal) { alert('Nu există fișier original salvat. Nu se poate șterge ștampila.'); return; }
+  if (!confirm(`Ștergi ștampila din "${numeFisier}"?\nFișierul ștampilat va fi înlocuit cu originalul.`)) return;
+
+  const pm = document.createElement('div');
+  pm.style = "position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center;z-index:10000;";
+  pm.innerHTML = `<div style="background:white;padding:28px 36px;border-radius:14px;min-width:300px;text-align:center;box-shadow:0 8px 30px rgba(0,0,0,0.3);">
+    <div style="font-size:16px;font-weight:bold;margin-bottom:10px;">🗑️ Se șterge ștampila...</div>
+    <div id="ssProgTxt" style="font-size:13px;color:#64748b;">Inițializare...</div>
+  </div>`;
+  document.body.appendChild(pm);
+  const setTxt = t => document.getElementById('ssProgTxt').textContent = t;
+
+  try {
+    // Descarcă originalul
+    setTxt('Se descarcă originalul...');
+    const respOrig = await fetch(linkOriginal);
+    if (!respOrig.ok) throw new Error('HTTP ' + respOrig.status);
+    const origBytes = await respOrig.arrayBuffer();
+
+    // Șterge fișierul ștampilat din R2
+    setTxt('Se șterge fișierul ștampilat...');
+    if (linkR2) {
+      const fnR2 = decodeURIComponent(linkR2.split('?')[0].replace(PUBLIC_BASE + '/', ''));
+      await fetch(`${WORKER_URL}/delete`, { method: 'DELETE', headers: { 'X-Bucket': BUCKET_KEY, 'X-File-Name': fnR2 } });
+    }
+
+    // Re-uploadează originalul ca fișier principal
+    setTxt('Se restaurează originalul...');
+    const outName      = numeFisier.replace(/\.pdf$/i, '') + '_stampilat.pdf';
+    const newFileName  = encodeURIComponent(`stampilat_${Date.now()}_${outName}`);
+    const newBlob      = new Blob([origBytes], { type: 'application/pdf' });
+    const upResp       = await fetch(`${WORKER_URL}/upload`, {
+      method: 'PUT',
+      headers: { 'X-Bucket': BUCKET_KEY, 'X-File-Name': newFileName, 'Content-Type': 'application/pdf' },
+      body: newBlob,
+    });
+    if (!upResp.ok) throw new Error('Upload eșuat');
+    const upData   = await upResp.json();
+    const newLinkR2 = upData.url || `${PUBLIC_BASE}/${newFileName}`;
+
+    // Șterge originalul din R2
+    setTxt('Se curăță fișierele temporare...');
+    const fnOrig = decodeURIComponent(linkOriginal.split('?')[0].replace(PUBLIC_BASE + '/', ''));
+    await fetch(`${WORKER_URL}/delete`, { method: 'DELETE', headers: { 'X-Bucket': BUCKET_KEY, 'X-File-Name': fnOrig } });
+
+    // Actualizează Supabase
+    setTxt('Se actualizează istoricul...');
+    await supabaseClient.from('istoricul_stampilari').update({ link_r2: newLinkR2, link_original: null }).eq('id', id);
+
+    pm.remove();
+    alert(`✔ Ștampila a fost ștearsă. Originalul "${numeFisier}" a fost restaurat.`);
+    incarcaIstoric();
+  } catch(e) {
+    pm.remove();
+    alert('Eroare: ' + e.message);
+  }
+}
+
+// Reîncarcă istoricul după o ștampilare reușită
+const origAplica = aplicaStampilaLaPdf;
+document.getElementById('applyBtn').removeEventListener('click', aplicaStampilaLaPdf);
+document.getElementById('applyBtn').addEventListener('click', async () => {
+  await aplicaStampilaLaPdf();
+  incarcaIstoric();
+});
+
+// Încarcă la pornire
+window.addEventListener('load', incarcaIstoric);
+</script>
+</body>
+</html>
