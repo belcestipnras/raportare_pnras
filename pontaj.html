@@ -83,6 +83,38 @@
 
         .aviz-input { width: 100%; height: 100%; background: transparent; border: none; color: #fff; text-align: center; font-weight: bold; font-size: 14px; outline: none; }
 
+        /* Tooltip hover clase */
+        .cell { position: relative; }
+        .cell .tooltip-clase {
+            display: none;
+            position: absolute;
+            bottom: calc(100% + 6px);
+            left: 50%;
+            transform: translateX(-50%);
+            background: #161b22;
+            border: 1px solid var(--accent);
+            color: var(--text);
+            padding: 6px 10px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 600;
+            white-space: nowrap;
+            z-index: 999;
+            pointer-events: none;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+            line-height: 1.5;
+        }
+        .cell .tooltip-clase::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 5px solid transparent;
+            border-top-color: var(--accent);
+        }
+        .cell:hover .tooltip-clase { display: block; }
+
         .btn { padding: 8px 12px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 11px; color: white; }
         .btn-excel { background: #1d6f42; }
         .btn-back { background: #444; }
@@ -235,7 +267,7 @@
                 const date = new Date(`${state.luna} ${i}, ${state.an}`);
                 const isSun = date.getDay() === 0;
                 const d = dataExp.find(x => x.zi === i);
-                tr.innerHTML += `<td class="col-zi cell ${isSun?'sun':''} ${d?'filled':''}" onclick="openO('${name}',${i})">${d?`<span class="h-big">${d.nr_ore}</span><span class="c-small">${d.clase_grupe}</span>`:''}</td>`;
+                tr.innerHTML += `<td class="col-zi cell ${isSun?'sun':''} ${d?'filled':''}" onclick="openO('${name}',${i})">${d?`<span class="h-big">${d.nr_ore}</span><span class="c-small">${d.clase_grupe}</span><div class="tooltip-clase">${d.clase_grupe.split(',').map(c => c.trim() + ' (' + (ratii[c.trim()]||0) + ' elevi)').join('<br>')}</div>`:''}</td>`;
             }
             b.appendChild(tr);
         });
@@ -393,4 +425,5 @@ async function resetarePontajLuna() {
 }	
 </script>
 </body>
+
 </html>
