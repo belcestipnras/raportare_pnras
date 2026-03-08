@@ -453,6 +453,43 @@ REGULI: NU scrie altceva în afară de aceste 5 secțiuni. Fiecare secțiune pe 
     // URL-ul Supabase Edge Function pentru R2
     const R2_FUNCTION_URL = `${URL_S}/functions/v1/r2-upload`;
 
+    // Convertește orice imagine în JPEG folosind canvas (suportă HEIC, WEBP, BMP, TIFF, PNG, etc.)
+    async function convertToJpeg(fisier) {
+        // Dacă e deja JPEG, returnăm fișierul original
+        if (fisier.type === 'image/jpeg' || fisier.type === 'image/jpg') {
+            return fisier;
+        }
+        return new Promise((resolve, reject) => {
+            const img = new Image();
+            const url = URL.createObjectURL(fisier);
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                canvas.width = img.naturalWidth;
+                canvas.height = img.naturalHeight;
+                const ctx = canvas.getContext('2d');
+                ctx.fillStyle = '#FFFFFF';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.drawImage(img, 0, 0);
+                URL.revokeObjectURL(url);
+                canvas.toBlob(blob => {
+                    if (blob) {
+                        const converted = new File([blob], fisier.name.replace(/\.[^.]+$/, '.jpg'), { type: 'image/jpeg' });
+                        resolve(converted);
+                    } else {
+                        reject(new Error('Conversie imagine eșuată'));
+                    }
+                }, 'image/jpeg', 0.92);
+            };
+            img.onerror = () => {
+                URL.revokeObjectURL(url);
+                // Dacă browserul nu poate decoda (ex: HEIC fără suport), returnăm originalul
+                console.warn('Nu s-a putut converti imaginea, se folosește originalul:', fisier.name);
+                resolve(fisier);
+            };
+            img.src = url;
+        });
+    }
+
     // Elimină diacritice și caractere speciale pentru nume sigure în R2
     function normalizeaza(str) {
         return str
@@ -473,9 +510,15 @@ REGULI: NU scrie altceva în afară de aceste 5 secțiuni. Fiecare secțiune pe 
         const urlsIncarcate = [];
 
         for (let i = 0; i < fisiere.length; i++) {
-            const fisier = fisiere[i];
+            let fisier = fisiere[i];
             const nrOrdine = i + 1;
-            const extensie = tip === 'FOTO' ? fisier.name.split('.').pop() : 'pdf';
+
+            // Conversie imagine -> JPEG dacă e FOTO
+            if (tip === 'FOTO') {
+                try { fisier = await convertToJpeg(fisier); } catch(e) { console.warn('Conversie fallback:', e); }
+            }
+
+            const extensie = tip === 'FOTO' ? 'jpg' : 'pdf';
             const expertNorm = normalizeaza(config.expert);
             const clasaNorm  = normalizeaza(config.clasa);
             const lunaNorm   = normalizeaza(config.luna);
@@ -875,9 +918,15 @@ REGULI: NU scrie altceva în afară de aceste 5 secțiuni. Fiecare secțiune pe 
         const listaDoc = fisiereLista.querySelector('.sf-doc-lista') || fisiereLista;
 
         for (let i = 0; i < fisiere.length; i++) {
-            const fisier = fisiere[i];
+            let fisier = fisiere[i];
             const nrOrdine = nrStart + i;
-            const extensie = tip === 'FOTO' ? fisier.name.split('.').pop() : 'pdf';
+
+            // Conversie imagine -> JPEG dacă e FOTO
+            if (tip === 'FOTO') {
+                try { fisier = await convertToJpeg(fisier); } catch(e) { console.warn('Conversie fallback:', e); }
+            }
+
+            const extensie = tip === 'FOTO' ? 'jpg' : 'pdf';
             const expertNorm = normalizeaza(config.expert);
             const clasaNorm  = normalizeaza(config.clasa);
             const lunaNorm   = normalizeaza(config.luna);
