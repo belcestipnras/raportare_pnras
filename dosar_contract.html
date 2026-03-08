@@ -6,6 +6,7 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
   <script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"></script>
+  <script src="https://unpkg.com/@pdf-lib/fontkit/dist/fontkit.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 
   <style>
@@ -32,6 +33,8 @@
     </button>
     📁 Dosar contract
     <button class="btn" onclick="genereazaDosar()">Generează dosar</button>
+    <button class="btn" onclick="stampilaToate()" style="background:#eff6ff;color:#2563eb;border-color:#93c5fd;">🖋️ Ștampilă pe toate</button>
+    <button class="btn" id="btnStampilaSelectate" onclick="stampilaSelectate()" style="display:none;background:#f0fdf4;color:#16a34a;border-color:#86efac;">🖋️ Ștampilă selectate</button>
     <button class="btn" onclick="stergeTotal()" style="background:#fee2e2;color:#dc2626;border-color:#fca5a5;">🗑️ Șterge tot</button>
   </h1>
 
@@ -54,7 +57,13 @@
 
   <h3>Documente contract</h3>
   <table>
-    <thead><tr><th>Documente</th></tr></thead>
+    <thead><tr><th style="display:flex;align-items:center;gap:10px;">
+      <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-weight:600;font-size:13px;">
+        <input type="checkbox" id="chkSelectAll" onchange="toggleSelectAll(this.checked)" title="Selectează/deselectează toate PDF-urile">
+        Selectează tot
+      </label>
+      <span style="font-weight:400;color:#94a3b8;font-size:12px;">(doar PDF-uri)</span>
+    </th></tr></thead>
     <tbody id="lista-docuri"></tbody>
   </table>
 
@@ -88,14 +97,84 @@ const PUBLIC_URLS = {
   arhiva:    "https://pub-13cf388dd61a492191d7381c33a367b5.r2.dev",
 };
 
-async function r2UploadFile(fileName, fileBlob, bucketKey) {
-  const resp = await fetch(`${WORKER_URL}/upload`, {
-    method: "PUT",
-    headers: { "X-Bucket": bucketKey, "X-File-Name": fileName, "Content-Type": fileBlob.type || "application/octet-stream" },
-    body: fileBlob,
+async function r2UploadFile(fileName, fileBlob, bucketKey, onProgress) {
+  const MULTIPART_THRESHOLD = 90 * 1024 * 1024; // 90 MB → folosește multipart
+  const CHUNK_SIZE = 20 * 1024 * 1024;           // 20 MB per chunk
+
+  const contentType = fileBlob.type || "application/octet-stream";
+
+  // Fișiere mici → upload simplu
+  if (fileBlob.size <= MULTIPART_THRESHOLD) {
+    const resp = await fetch(`${WORKER_URL}/upload`, {
+      method: "PUT",
+      headers: { "X-Bucket": bucketKey, "X-File-Name": fileName, "Content-Type": contentType },
+      body: fileBlob,
+    });
+    if (!resp.ok) throw new Error("Upload eșuat: " + await resp.text());
+    return (await resp.json()).url;
+  }
+
+  // Fișiere mari → multipart upload
+  // 1. Inițializare
+  const createResp = await fetch(`${WORKER_URL}/multipart/create`, {
+    method: "POST",
+    headers: { "X-Bucket": bucketKey, "X-File-Name": fileName, "Content-Type": contentType },
   });
-  if (!resp.ok) throw new Error("Upload eșuat: " + await resp.text());
-  return (await resp.json()).url;
+  if (!createResp.ok) throw new Error("Multipart create eșuat: " + await createResp.text());
+  const { uploadId } = await createResp.json();
+
+  // 2. Upload chunks
+  const totalChunks = Math.ceil(fileBlob.size / CHUNK_SIZE);
+  const parts = [];
+  try {
+    for (let i = 0; i < totalChunks; i++) {
+      const start = i * CHUNK_SIZE;
+      const end = Math.min(start + CHUNK_SIZE, fileBlob.size);
+      const chunk = fileBlob.slice(start, end);
+
+      if (onProgress) onProgress(Math.round((i / totalChunks) * 90), `Se urcă partea ${i + 1}/${totalChunks}...`);
+
+      const partResp = await fetch(`${WORKER_URL}/multipart/upload-part`, {
+        method: "PUT",
+        headers: {
+          "X-Bucket": bucketKey,
+          "X-File-Name": fileName,
+          "X-Upload-Id": uploadId,
+          "X-Part-Number": String(i + 1),
+          "Content-Type": "application/octet-stream",
+        },
+        body: chunk,
+      });
+      if (!partResp.ok) throw new Error(`Upload parte ${i + 1} eșuat: ` + await partResp.text());
+      const { etag } = await partResp.json();
+      parts.push({ partNumber: i + 1, etag });
+    }
+
+    // 3. Finalizare
+    if (onProgress) onProgress(95, "Se finalizează upload-ul...");
+    const completeResp = await fetch(`${WORKER_URL}/multipart/complete`, {
+      method: "POST",
+      headers: {
+        "X-Bucket": bucketKey,
+        "X-File-Name": fileName,
+        "X-Upload-Id": uploadId,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ parts }),
+    });
+    if (!completeResp.ok) throw new Error("Multipart complete eșuat: " + await completeResp.text());
+    return (await completeResp.json()).url;
+
+  } catch (err) {
+    // Abort în caz de eroare
+    try {
+      await fetch(`${WORKER_URL}/multipart/abort`, {
+        method: "POST",
+        headers: { "X-Bucket": bucketKey, "X-File-Name": fileName, "X-Upload-Id": uploadId },
+      });
+    } catch(e) {}
+    throw err;
+  }
 }
 
 async function r2DeleteFile(publicUrl, bucketKey) {
@@ -549,14 +628,12 @@ async function incarcaDocumente(){
         const isPdf = (doc.link_drive||'').toLowerCase().split('?')[0].endsWith('.pdf');
         const isStampilat = doc.stampilat === true;
 
-        html += `<tr><td>
+        html += `<tr style="${isStampilat ? 'background:#dcfce7;' : ''}"><td style="${isStampilat ? 'background:#dcfce7;' : ''}">
           <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+            ${isPdf ? `<input type="checkbox" class="chk-doc" data-docid="${eid}" data-slink="${elink}" data-snume="${enume}" data-stip="${etip}" onchange="actualizezaBtnSelectate()" style="width:16px;height:16px;cursor:pointer;flex-shrink:0;">` : '<span style="width:16px;flex-shrink:0;"></span>'}
             <input class="small" type="text" value="${(doc.tip_document||'').replace(/"/g,'&quot;')}"
               onchange="salveazaTip('${eid}', this.value)"
               style="min-width:160px;padding:4px;border:1px solid #fbbf24;border-radius:6px;font-size:13px;background:#fffbeb;">
-            <input class="small" type="text" value="${enume}"
-              onchange="salveazaTitlu('${eid}', this.value)"
-              style="min-width:240px;padding:4px;border:1px solid #e2e8f0;border-radius:6px;font-size:13px;">
             <input class="small" type="text" placeholder="Nr" value="${doc.nr_inregistrare||''}"
               onchange="salveazaNr('${eid}', this.value)" style="width:95px;padding:4px">
             <input class="small" type="date" value="${doc.data_inregistrare||''}"
@@ -798,6 +875,7 @@ async function genereazaDosar(){
 
     upd(2,'Se încarcă documentele...');
     const pdfFinal=await PDFDocument.create();
+    pdfFinal.registerFontkit(fontkit);
 
     const coverBytes=await fetch("https://aexjrbdgajurxzngfkpx.supabase.co/storage/v1/object/public/contracte/coperta_template.pdf").then(r=>r.arrayBuffer());
     const coverDoc=await PDFDocument.load(coverBytes);
@@ -814,6 +892,61 @@ async function genereazaDosar(){
 
     const font=await pdfFinal.embedFont(StandardFonts.Helvetica);
     const bold=await pdfFinal.embedFont(StandardFonts.HelveticaBold);
+
+    // Încarcă FontAwesome Solid pentru iconițe
+    upd(9, 'Se încarcă font iconițe...');
+    let fontIco = null;
+    try {
+      const faUrl = `${SUPABASE_URL}/storage/v1/object/public/contracte/fa-solid-900.ttf`;
+      console.log('[FA] Încerc să încarc:', faUrl);
+      const faResp = await fetch(faUrl);
+      console.log('[FA] Status răspuns:', faResp.status, faResp.statusText);
+      if (!faResp.ok) throw new Error(`HTTP ${faResp.status}`);
+      const faBytes = await faResp.arrayBuffer();
+      console.log('[FA] Bytes descărcați:', faBytes.byteLength);
+      fontIco = await pdfFinal.embedFont(faBytes, { subset: false });
+      console.log('[FA] Font embed reușit:', fontIco);
+      // Test rapid — încearcă să măsori un caracter
+      const testW = fontIco.widthOfTextAtSize('\uf15b', 50);
+      console.log('[FA] Test lățime caracter \\uf15b la 50pt:', testW);
+    } catch(e) {
+      console.error('[FA] EROARE la încărcare font:', e);
+      alert('DEBUG font: ' + e.message);
+    }
+
+    // Mapare tip document → codepoint FontAwesome Solid (Unicode)
+    const FA_ICONS = {
+      "referat":    "\uf15c", // file-alt
+      "nota":       "\uf249", // sticky-note
+      "cerere":     "\uf303", // pen
+      "anunt":      "\uf0a1", // bullhorn
+      "oferta":     "\uf0c5", // copy
+      "cif":        "\uf1c9", // file-code
+      "certificat": "\uf0a3", // certificate
+      "declaratie": "\uf46d", // file-signature
+      "proces":     "\uf0f6", // file-medical-alt → clipboard-list
+      "receptie":   "\uf46c", // clipboard-check
+      "selectie":   "\uf0ae", // tasks
+      "comunicare": "\uf0e0", // envelope
+      "dovada":     "\uf108", // desktop
+      "sicap":      "\uf108", // desktop
+      "contract":   "\uf56d", // file-contract
+      "decizie":    "\uf24e", // balance-scale
+      "comisie":    "\uf0c0", // users
+      "factura":    "\uf571", // file-invoice-dollar
+      "op":         "\uf53d", // money-check
+      "fotograf":   "\uf030", // camera
+      "alte":       "\uf07b", // folder
+      "default":    "\uf15b", // file
+    };
+
+    function getFaIcon(tip) {
+      const tl = (tip||"").toLowerCase();
+      for (const [key, val] of Object.entries(FA_ICONS)) {
+        if (key !== "default" && tl.includes(key)) return val;
+      }
+      return FA_ICONS.default;
+    }
 
     const opisBytes=await fetch("https://aexjrbdgajurxzngfkpx.supabase.co/storage/v1/object/public/contracte/opis_template.pdf").then(r=>r.arrayBuffer());
     const opisDoc=await PDFDocument.load(opisBytes);
@@ -873,14 +1006,208 @@ async function genereazaDosar(){
     (await pdfFinal.copyPages(opisDoc,opisDoc.getPageIndices())).forEach(p=>pdfFinal.addPage(p));
     upd(15,'Opis generat...');
 
+    // Mapare tip document → culoare + emoji (ca text Unicode)
+    const SECTIUNE_STYLE = {
+      default:          { r:0.22, g:0.48, b:0.87, icon:"D" }, // albastru
+      "referat":        { r:0.13, g:0.55, b:0.45, icon:"R" },
+      "nota":           { r:0.47, g:0.20, b:0.78, icon:"N" },
+      "cerere":         { r:0.90, g:0.45, b:0.10, icon:"C" },
+      "anunt":          { r:0.13, g:0.55, b:0.45, icon:"A" },
+      "oferta":         { r:0.22, g:0.48, b:0.87, icon:"O" },
+      "cif":            { r:0.55, g:0.35, b:0.10, icon:"F" },
+      "certificat":     { r:0.10, g:0.50, b:0.30, icon:"C" },
+      "declaratie":     { r:0.60, g:0.15, b:0.55, icon:"D" },
+      "proces":         { r:0.80, g:0.30, b:0.10, icon:"P" },
+      "comunicare":     { r:0.10, g:0.40, b:0.70, icon:"C" },
+      "dovada":         { r:0.20, g:0.55, b:0.35, icon:"V" },
+      "contract":       { r:0.75, g:0.28, b:0.02, icon:"K" },
+      "decizie":        { r:0.55, g:0.10, b:0.10, icon:"D" },
+      "factura":        { r:0.10, g:0.50, b:0.20, icon:"F" },
+      "op":             { r:0.20, g:0.45, b:0.65, icon:"P" },
+      "fotograf":       { r:0.40, g:0.20, b:0.60, icon:"F" },
+      "alte":           { r:0.35, g:0.35, b:0.35, icon:"X" },
+    };
+
+    function getSectiuteStyle(tip) {
+      const tl = (tip||"").toLowerCase();
+      for (const [key, val] of Object.entries(SECTIUNE_STYLE)) {
+        if (key !== "default" && tl.includes(key)) return val;
+      }
+      return SECTIUNE_STYLE.default;
+    }
+
+    function deseneazaPaginasectiune(page, tip, nrSectiune, imgAntet, imgCrai, listaDocs, fontIco, getFaIcon) {
+      const W = 595, H = 842;
+      const { rgb } = PDFLib;
+      const st = getSectiuteStyle(tip);
+      const culoare      = rgb(st.r, st.g, st.b);
+      const culoareDark  = rgb(st.r*0.7, st.g*0.7, st.b*0.7);
+      const culoareMediu = rgb(Math.min(1,st.r+0.20), Math.min(1,st.g+0.20), Math.min(1,st.b+0.20));
+      const alb  = rgb(1,1,1);
+
+      // ── FUNDAL ALB SUS ──
+      page.drawRectangle({ x:0, y:H/2, width:W, height:H/2, color:alb });
+
+      // ── ANTET PNRAS ──
+      if (imgAntet) {
+        const d = imgAntet.scale(1);
+        const aW = W - 40;
+        const aH = (d.height / d.width) * aW;
+        page.drawImage(imgAntet, { x:20, y:H - aH - 18, width:aW, height:aH });
+      }
+
+      // ── CRAI — centrat în zona albă, sub antet ──
+      if (imgCrai) {
+        const d = imgCrai.scale(1);
+        const cH = 165;
+        const cW = (d.width / d.height) * cH;
+        const antetH = imgAntet ? (imgAntet.scale(1).height / imgAntet.scale(1).width) * (W-40) + 18 : 80;
+        const antetBottom = H - antetH - 18; // Y-ul de jos al antetului
+        const spatAlb = antetBottom - H/2;   // spațiu alb disponibil între antet și separator
+        const cY = H/2 + (spatAlb - cH) / 2; // centrat vertical în spațiul rămas
+        page.drawImage(imgCrai, { x:(W - cW)/2, y:cY, width:cW, height:cH });
+      }
+
+      // Linie separator
+      page.drawLine({ start:{x:0, y:H/2}, end:{x:W, y:H/2}, thickness:2, color:culoare });
+
+      // ── ZONA COLORATĂ JOS ──
+      page.drawRectangle({ x:0, y:0, width:W, height:H/2, color:culoare });
+      page.drawRectangle({ x:0, y:0, width:12, height:H/2, color:culoareDark, opacity:0.4 });
+      page.drawEllipse({ x:W+50, y:-50, xScale:200, yScale:200, color:culoareMediu, opacity:0.15 });
+
+      // ── ICOANĂ FontAwesome centrată în zona colorată ──
+      if (fontIco && getFaIcon) {
+        const icoChar = getFaIcon(tip);
+        const icoSize = 82;
+        const icoW = fontIco.widthOfTextAtSize(icoChar, icoSize);
+        const icoCenterY = H/4 - 50;
+        page.drawText(icoChar, {
+          x: (W - icoW) / 2,
+          y: icoCenterY - icoSize * 0.35,
+          size: icoSize,
+          font: fontIco,
+          color: alb,
+          opacity: 0.90,
+        });
+      }
+
+      // ── TITLU — sus în zona colorată ──
+      const tipCurat = roPDF(tip.toUpperCase());
+      const maxChars = 34;
+      let lines = [];
+      if (tipCurat.length <= maxChars) {
+        lines = [tipCurat];
+      } else {
+        const words = tipCurat.split(' ');
+        let l1='', l2='';
+        for (const w of words) {
+          if ((l1+' '+w).trim().length <= maxChars) l1=(l1+' '+w).trim();
+          else l2=(l2+' '+w).trim();
+        }
+        lines = l2 ? [l1, l2] : [l1];
+      }
+      const titleSize = lines.length > 1 ? 23 : 26;
+      const lineSpacing = titleSize + 9;
+
+      // Titlul sus în zona colorată, cu margine de 28px față de separator
+      const titluTopY = H/2 - 28 - titleSize;
+      lines.forEach((line, i) => {
+        const tw = bold.widthOfTextAtSize(line, titleSize);
+        page.drawText(line, {
+          x: (W - tw) / 2,
+          y: titluTopY - i * lineSpacing,
+          size: titleSize, font: bold, color: alb
+        });
+      });
+
+      // Linie subțire sub titlu
+      const subTitluY = titluTopY - lines.length * lineSpacing + lineSpacing - 14;
+      page.drawRectangle({ x:36, y:subTitluY, width:W-72, height:1, color:alb, opacity:0.30 });
+
+      // ── INFO DOCUMENTE — sub titlu ──
+      const infoStartY = subTitluY - 18;
+      let iy = infoStartY;
+      const infoSize = 9.5;
+      const infoLineH = infoSize + 7;
+
+      // Furnizor
+      if (furn) {
+        const label = roPDF("Furnizor: ");
+        const val   = roPDF(furn);
+        const lw = font.widthOfTextAtSize(label, infoSize);
+        page.drawText(label, { x:36, y:iy, size:infoSize, font:font,  color:alb, opacity:0.65 });
+        page.drawText(val,   { x:36+lw, y:iy, size:infoSize, font:bold, color:alb, opacity:0.92 });
+        iy -= infoLineH;
+      }
+
+      // Contract
+      if (nume) {
+        const label = roPDF("Contract: ");
+        const val   = roPDF(nume);
+        const lw = font.widthOfTextAtSize(label, infoSize);
+        page.drawText(label, { x:36, y:iy, size:infoSize, font:font,  color:alb, opacity:0.65 });
+        page.drawText(val,   { x:36+lw, y:iy, size:infoSize, font:bold, color:alb, opacity:0.92 });
+        iy -= infoLineH + 3;
+      }
+
+      // Documente din secțiune
+      if (listaDocs && listaDocs.length) {
+        listaDocs.forEach(d => {
+          if (iy < 40) return;
+          let info = '';
+          if (d.nr_inregistrare) {
+            info += 'Nr. ' + d.nr_inregistrare;
+            if (d.data_inregistrare) {
+              const p = d.data_inregistrare.split('-');
+              if (p.length === 3) info += '/' + p[2] + '.' + p[1] + '.' + p[0];
+            }
+          } else if (d.data_inregistrare) {
+            const p = d.data_inregistrare.split('-');
+            if (p.length === 3) info = p[2] + '.' + p[1] + '.' + p[0];
+          }
+
+          const tipDoc = roPDF((d.tip_document || tip) + ': ');
+          const valDoc = roPDF(info || (d.nume_fisier || '-'));
+          const tw = font.widthOfTextAtSize(tipDoc, infoSize);
+          page.drawText(tipDoc, { x:36, y:iy, size:infoSize, font:font,  color:alb, opacity:0.65 });
+          page.drawText(valDoc, { x:36+tw, y:iy, size:infoSize, font:bold, color:alb, opacity:0.92 });
+          iy -= infoLineH;
+        });
+      }
+
+      // Nr secțiune jos
+      const nrText = roPDF("Sectiunea " + String(nrSectiune).padStart(2,'0'));
+      const nrTW = font.widthOfTextAtSize(nrText, 9);
+      page.drawText(nrText, { x:(W-nrTW)/2, y:38, size:9, font:font, color:alb, opacity:0.55 });
+
+      // ── FOOTER ──
+      page.drawRectangle({ x:0, y:0, width:W, height:32, color:culoareDark, opacity:0.55 });
+      page.drawText(roPDF("Dosar achizitie publica  |  " + (furn||"PNRAS 2024")),
+        { x:36, y:11, size:9, font:font, color:alb, opacity:0.82 });
+    }
+
     const totalDocs=ordine.reduce((a,t)=>a+docs.filter(d=>d.tip_document===t).length,0);
-    let dp=0;
+    let dp=0, nrSectiuneCurent=0;
+
+    // Încarcă antetul și logo-ul din Supabase (bucket arhiva_pnras)
+    upd(15,'Se încarcă antet și logo...');
+    let imgAntet = null, imgCrai = null;
+    try {
+      const antetResp = await fetch(`${SUPABASE_URL}/storage/v1/object/public/arhiva_pnras/antet_pnras.jpeg`);
+      if (antetResp.ok) imgAntet = await pdfFinal.embedJpg(new Uint8Array(await antetResp.arrayBuffer()));
+    } catch(e) { console.warn('Nu s-a putut încărca antet_pnras.jpeg:', e); }
+    try {
+      const craiResp = await fetch(`${SUPABASE_URL}/storage/v1/object/public/arhiva_pnras/crai.jpeg`);
+      if (craiResp.ok) imgCrai = await pdfFinal.embedJpg(new Uint8Array(await craiResp.arrayBuffer()));
+    } catch(e) { console.warn('Nu s-a putut încărca crai.jpeg:', e); }
 
     for(const tip of ordine){
       const list=docs.filter(d=>d.tip_document===tip);
       if(!list.length)continue;
+      nrSectiuneCurent++;
       let page=pdfFinal.addPage([595,842]);
-      page.drawText(roPDF(tip.toUpperCase()),{x:80,y:420,size:22,font:bold});
+      deseneazaPaginasectiune(page, tip, nrSectiuneCurent, imgAntet, imgCrai, list, fontIco, getFaIcon);
 
       for(const d of list){
         let bytes;
@@ -945,8 +1272,9 @@ async function genereazaDosar(){
     const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download=`Dosar_achizitie_${contractId}.pdf`; a.click();
 
     const fn=`DOSAR_${contractId}_${Date.now()}.pdf`;
+
     upd(96,'Se urcă în storage...');
-    let dosarUrl; try{dosarUrl=await r2UploadFile(fn,blob,"contracte");}catch(e){alert("PDF generat, dar nu s-a putut urca: "+e.message);return;}
+    let dosarUrl; try{dosarUrl=await r2UploadFile(fn,blob,"contracte",(pct,txt)=>upd(96+(pct/100)*3,txt));}catch(e){alert("PDF generat și descărcat local, dar nu s-a putut urca în storage: "+e.message);return;}
 
     const{data:dv}=await supabaseClient.from("documente_contract").select("link_drive").eq("contract_id",contractId).eq("tip_document","DOSAR ACHIZIȚIE PDF").single();
     if(dv&&dv.link_drive)await r2DeleteFile(dv.link_drive,"contracte");
@@ -957,6 +1285,150 @@ async function genereazaDosar(){
     setTimeout(()=>{pm.remove();alert("DOSAR GENERAT ✔");incarcaDocumente();},600);
 
   }catch(err){pm.remove();alert("Eroare la generare dosar: "+err.message);console.error(err);}
+}
+
+/* ===================== ȘTAMPILĂ BULK ===================== */
+
+function actualizezaBtnSelectate() {
+  const checked = document.querySelectorAll('.chk-doc:checked');
+  const btn = document.getElementById('btnStampilaSelectate');
+  if (btn) btn.style.display = checked.length > 0 ? '' : 'none';
+  // Actualizează starea checkbox-ului "selectează tot"
+  const all = document.querySelectorAll('.chk-doc');
+  const chkAll = document.getElementById('chkSelectAll');
+  if (chkAll) {
+    chkAll.indeterminate = checked.length > 0 && checked.length < all.length;
+    chkAll.checked = all.length > 0 && checked.length === all.length;
+  }
+}
+
+function toggleSelectAll(checked) {
+  document.querySelectorAll('.chk-doc').forEach(c => c.checked = checked);
+  actualizezaBtnSelectate();
+}
+
+async function stampilaToate() {
+  const { data: docs } = await supabaseClient.from("documente_contract").select("*").eq("contract_id", contractId);
+  const pdfDocs = (docs || []).filter(d => (d.link_drive || '').toLowerCase().split('?')[0].endsWith('.pdf') && d.tip_document !== 'DOSAR ACHIZIȚIE PDF');
+  if (!pdfDocs.length) { alert('Nu există documente PDF de ștampilat.'); return; }
+  if (!confirm(`Se va aplica ștampila pe ${pdfDocs.length} document(e) PDF. Continuați?`)) return;
+  await stampilaLista(pdfDocs.map(d => ({ id: d.id, link: d.link_drive, nume: d.nume_fisier, tip: d.tip_document })));
+}
+
+function stampilaSelectate() {
+  const checked = document.querySelectorAll('.chk-doc:checked');
+  if (!checked.length) { alert('Niciun document selectat.'); return; }
+  const lista = [...checked].map(c => ({ id: c.dataset.docid, link: c.dataset.slink, nume: c.dataset.snume, tip: c.dataset.stip }));
+  if (!confirm(`Se va aplica ștampila pe ${lista.length} document(e) selectat(e). Continuați?`)) return;
+  stampilaLista(lista);
+}
+
+async function stampilaLista(lista) {
+  // Întreabă o singură dată opțiunea de pagini, aplicată la toate
+  // Luăm primul document pentru a afla numărul de pagini (ca referință pentru UI)
+  if (!pdfjsLib.GlobalWorkerOptions.workerSrc)
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+  // Citim nr pagini primul doc
+  let totalPaginiRef = 1;
+  try {
+    const respRef = await fetch(lista[0].link);
+    if (respRef.ok) {
+      const bytesRef = new Uint8Array(await respRef.arrayBuffer());
+      const pRef = await pdfjsLib.getDocument({ data: bytesRef.buffer }).promise;
+      totalPaginiRef = pRef.numPages;
+    }
+  } catch(e) {}
+
+  // Modal selecție pagini (o singură dată pentru toate)
+  const selectie = await intreabaSelectiePagini(totalPaginiRef);
+  if (!selectie) return;
+
+  // Modal progres global
+  const pm = document.createElement('div');
+  pm.style = "position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center;z-index:10000;";
+  pm.innerHTML = `
+    <div style="background:white;padding:28px 36px;border-radius:14px;min-width:380px;box-shadow:0 8px 30px rgba(0,0,0,0.3);text-align:center;">
+      <div style="font-size:17px;font-weight:bold;margin-bottom:6px;">🖋️ Se aplică ștampilele...</div>
+      <div id="bulkTxt" style="font-size:13px;color:#64748b;margin-bottom:14px;">Inițializare...</div>
+      <div style="background:#e2e8f0;border-radius:99px;height:10px;overflow:hidden;">
+        <div id="bulkBar" style="height:100%;width:0%;background:linear-gradient(90deg,#3b82f6,#6366f1);border-radius:99px;transition:width 0.3s;"></div>
+      </div>
+      <div id="bulkCount" style="font-size:12px;color:#94a3b8;margin-top:8px;"></div>
+    </div>`;
+  document.body.appendChild(pm);
+  const setBulk = (p, t, cnt) => {
+    document.getElementById('bulkBar').style.width = p + '%';
+    document.getElementById('bulkTxt').textContent = t;
+    if (cnt !== undefined) document.getElementById('bulkCount').textContent = cnt;
+  };
+
+  let reusit = 0, esuat = 0;
+  try {
+    for (let i = 0; i < lista.length; i++) {
+      const doc = lista[i];
+      const pct = Math.round((i / lista.length) * 95);
+      setBulk(pct, `Se procesează: ${doc.nume || doc.tip}`, `${i + 1} / ${lista.length}`);
+
+      try {
+        // Descarcă documentul
+        const resp = await fetch(doc.link);
+        if (!resp.ok) throw new Error('HTTP ' + resp.status);
+        const originalBytes = new Uint8Array(await resp.arrayBuffer());
+
+        // Citește paginile
+        const pdfjs = await pdfjsLib.getDocument({ data: originalBytes.slice(0).buffer }).promise;
+        const totalPagini = pdfjs.numPages;
+        const paginiDeStampilat = getPagini(selectie.optiune, selectie.specifice, totalPagini);
+        if (!paginiDeStampilat.length) { esuat++; continue; }
+
+        // Aplică ștampila (refolosim logica din aplicaStampilaDocument)
+        const { PDFDocument } = PDFLib;
+        const pdfDoc2 = await PDFDocument.load(originalBytes);
+        const pagini = pdfDoc2.getPages();
+
+        const linkCuratSP = doc.link.split('?')[0];
+        const oldFileName = decodeURIComponent(linkCuratSP.replace(PUBLIC_URLS['contracte'] + '/', ''));
+        const originalBlob = new Blob([originalBytes], { type: 'application/pdf' });
+        const originalFileName = oldFileName.replace(/\.pdf$/i, '_original.pdf');
+        await r2DeleteFile(PUBLIC_URLS['contracte'] + '/' + originalFileName, 'contracte');
+        const originalUrl = await r2UploadFile(originalFileName, originalBlob, 'contracte');
+
+        const stampile = await incarcaStampileFullPage(pdfDoc2);
+        if (!stampile.length) throw new Error('Ștampile indisponibile');
+
+        const secventaStampile = genereazaSecventaStampile(stampile, paginiDeStampilat.length);
+        paginiDeStampilat.forEach((nr, idx) => aplicaStampila(pagini[nr - 1], secventaStampile[idx]));
+
+        const blob = new Blob([await pdfDoc2.save()], { type: 'application/pdf' });
+        await r2DeleteFile(linkCuratSP, 'contracte');
+        const newUrl = await r2UploadFile(oldFileName, blob, 'contracte');
+        const newUrlNoCache = newUrl.split('?')[0] + '?t=' + Date.now();
+
+        await supabaseClient.from('documente_contract').update({
+          link_drive: newUrlNoCache,
+          stampilat: true,
+          link_original: originalUrl
+        }).eq('id', doc.id);
+
+        reusit++;
+      } catch(e) {
+        console.error(`Eroare la doc ${doc.nume}:`, e);
+        esuat++;
+      }
+    }
+
+    setBulk(100, 'Gata!', `${reusit} reușite, ${esuat} eșuate`);
+    setTimeout(() => {
+      pm.remove();
+      alert(`✔ Ștampilare finalizată!\n✅ Reușite: ${reusit}\n❌ Eșuate: ${esuat}`);
+      incarcaDocumente();
+    }, 600);
+  } catch(e) {
+    pm.remove();
+    alert('Eroare la ștampilare bulk: ' + e.message);
+    console.error(e);
+  }
 }
 
 /* ===================== START ===================== */
