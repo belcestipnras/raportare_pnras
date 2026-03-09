@@ -2270,19 +2270,47 @@ async function deschideRegistruMaster() {
         const { data: documente } = await supabaseClient
             .from('numere_inregistrare')
             .select('*')
-            .like('tip_registru', '1_%')
-            .order('nr_d', { ascending: true });
+            .like('tip_registru', '1_%');
+
+        // Funcție pentru a parsa data din formatul zz.ll.aaaa în obiect Date
+        function parseData(dataStr) {
+            if (!dataStr) return new Date(0);
+            const parts = dataStr.trim().split('.');
+            if (parts.length === 3) {
+                const zi = parseInt(parts[0], 10);
+                const luna = parseInt(parts[1], 10) - 1;
+                const an = parseInt(parts[2], 10);
+                return new Date(an, luna, zi);
+            }
+            return new Date(0);
+        }
+
+        // Funcție pentru a extrage anul din data zz.ll.aaaa
+        function getAnul(dataStr) {
+            if (!dataStr) return 0;
+            const parts = dataStr.trim().split('.');
+            if (parts.length === 3) return parseInt(parts[2], 10);
+            return 0;
+        }
 
         const hotarari = [], decizii = [], pvuri = [], alte = [];
 
         if (documente) {
             documente.forEach(d => {
+                const an = getAnul(d.nr_d);
+                // Filtrăm doar documentele din 2025 și 2026
+                if (an !== 2025 && an !== 2026) return;
                 if (d.tip_registru === '1_HOTARARE') hotarari.push(d);
                 else if (d.tip_registru === '1_DECIZIE') decizii.push(d);
                 else if (d.tip_registru === '1_PROCES_VERBAL') pvuri.push(d);
                 else if (d.tip_registru && d.tip_registru.startsWith('1_')) alte.push(d);
             });
         }
+
+        // Sortare cronologică corectă pentru fiecare categorie
+        [hotarari, decizii, pvuri, alte].forEach(lista => {
+            lista.sort((a, b) => parseData(a.nr_d) - parseData(b.nr_d));
+        });
 
         function populateTabel(tbodyId, lista) {
             const tbody = regWin.document.getElementById(tbodyId);
@@ -2292,14 +2320,36 @@ async function deschideRegistruMaster() {
                 tbody.appendChild(tr);
                 return;
             }
-            lista.forEach((doc, idx) => {
-                const tr = regWin.document.createElement('tr');
-                tr.innerHTML = 
-                    '<td class="col-nr">' + (idx + 1) + '</td>' +
-                    '<td class="col-data">' + (doc.nr_d || '') + '</td>' +
-                    '<td style="font-size: 9pt;">' + (doc.nr_inreg || '') + '</td>';
-                tbody.appendChild(tr);
+
+            // Construim un map: numarul documentului -> document
+            const docMap = {};
+            let maxNr = 0;
+            lista.forEach(doc => {
+                const nr = parseInt(doc.nr_c, 10);
+                if (!isNaN(nr)) {
+                    docMap[nr] = doc;
+                    if (nr > maxNr) maxNr = nr;
+                }
             });
+
+            // Generam randuri pentru toate numerele de la 1 la maxNr
+            for (let i = 1; i <= maxNr; i++) {
+                const tr = regWin.document.createElement('tr');
+                const doc = docMap[i];
+                if (doc) {
+                    tr.innerHTML =
+                        '<td class="col-nr">' + i + '</td>' +
+                        '<td class="col-data">' + (doc.nr_d || '') + '</td>' +
+                        '<td style="font-size: 9pt;">' + (doc.nr_inreg || '') + '</td>';
+                } else {
+                    // Rand gol pentru numarul lipsa
+                    tr.innerHTML =
+                        '<td class="col-nr" style="color:#bbb;">' + i + '</td>' +
+                        '<td class="col-data"></td>' +
+                        '<td></td>';
+                }
+                tbody.appendChild(tr);
+            }
         }
 
         populateTabel('reg-hotarari', hotarari);
