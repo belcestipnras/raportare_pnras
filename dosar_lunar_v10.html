@@ -1076,7 +1076,9 @@ async function build(expert,luna,an){
 
       let anexaFisaIdx=0;
       let anexaFotoIdx=0;
-      for(const doc of r2D){
+      // Sortăm: FISA (Anexa 1) întâi, apoi FOTO (Anexa 2)
+      const r2DSorted=[...r2D].sort((a,b)=>{const ord={FISA:0,FOTO:1};return (ord[a.tip_fisier]??2)-(ord[b.tip_fisier]??2);});
+      for(const doc of r2DSorted){
         st(`⏳ Se descarcă: ${doc.nume_fisier||'fișier'}...`,'load');
         // Descarcam fișierul indiferent de tip declarat
         let fileBuffer=null;
@@ -1110,9 +1112,9 @@ async function build(expert,luna,an){
         if(isImg){
           // Imagine — tratata ca FOTO
           const blob=new Blob([fileBuffer],{type:imgMime});
-          const blobUrl=URL.createObjectURL(blob);
+          const imgB64=await new Promise(res=>{const rd=new FileReader();rd.onload=()=>res(rd.result);rd.readAsDataURL(blob);});
           const label=anexaFotoIdx===0?'<div style="text-align:center;font-weight:bold;font-size:13pt;margin-bottom:8px;">Anexa 2</div>':'';
-          H+=pg(ec,`<div class="antet-wrap">${antetImg()}</div>${label}<img src="${blobUrl}" class="r2-foto">`);
+          H+=pg(ec,`<div class="antet-wrap">${antetImg()}</div>${label}<img src="${imgB64}" class="r2-foto">`);
           cnt.r2f++;anexaFotoIdx++;
         }else if(isPDF){
           st(`📄 Randare PDF: ${doc.nume_fisier||'fișier'}...`,'load');
