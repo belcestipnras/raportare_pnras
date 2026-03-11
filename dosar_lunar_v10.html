@@ -43,7 +43,7 @@ select:focus{ outline:none; border-color:#10b981; }
 .pb{ height:100%; background:linear-gradient(90deg,#10b981,#0d9488,#2563eb); border-radius:4px; transition:width 0.3s; }
 
 /* ===== PROBLEMS PANEL ===== */
-#pp{ display:none; max-width:900px; margin:20px auto; padding:20px;
+#pp{ display:none; margin:10px 20px; padding:12px 16px;
      background:linear-gradient(135deg,#1e293b,#0f172a); border:2px solid #f59e0b;
      border-radius:12px; font-family:sans-serif; }
 .pp-title{ font-size:16px; font-weight:800; color:#f59e0b; margin-bottom:12px; }
@@ -862,15 +862,24 @@ function afiseazaProbleme(probs){
   if(!probs||probs.length===0){
     // ===== DOSAR PERFECT =====
     pps.innerHTML='';
+    const nrPagini=document.querySelectorAll('#dc .A4, #dc .cover, #dc .sec-sep, #dc .cls-sep').length;
     ppl.innerHTML=`
-      <div style="text-align:center; padding:30px 20px;">
-        <div style="font-size:52px; margin-bottom:12px;">🏆</div>
-        <div style="font-size:22px; font-weight:900; color:#10b981; letter-spacing:1px; margin-bottom:8px;">DOSAR PERFECT!</div>
-        <div style="font-size:15px; font-weight:700; color:#f8fafc; margin-bottom:16px;">FELICITĂRI! Nicio problemă detectată.</div>
-        <div style="display:inline-flex; align-items:center; gap:10px; background:linear-gradient(135deg,#10b981,#059669);
-             color:white; padding:14px 28px; border-radius:12px; font-size:14px; font-weight:800;
-             box-shadow:0 4px 20px rgba(16,185,129,0.4); letter-spacing:0.5px;">
-          🖨️ POATE FI PRINTAT
+      <div style="text-align:center; padding:14px 12px;">
+        <div style="font-size:40px; margin-bottom:8px;">🏆</div>
+        <div style="font-size:18px; font-weight:900; color:#10b981; letter-spacing:1px; margin-bottom:4px;">DOSAR PERFECT!</div>
+        <div style="font-size:13px; font-weight:700; color:#f8fafc; margin-bottom:4px;">FELICITĂRI! Nicio problemă detectată.</div>
+        <div style="font-size:12px; font-weight:600; color:#94a3b8; margin-bottom:10px;">📄 Dosarul conține <b style="color:#e2e8f0;">${nrPagini}</b> pagini.</div>
+        <div style="display:flex; justify-content:center; gap:10px; flex-wrap:wrap;">
+          <button onclick="salveazaDosarCurent()" style="display:inline-flex; align-items:center; gap:8px; background:linear-gradient(135deg,#2563eb,#1e3a8a);
+               color:white; padding:10px 22px; border-radius:10px; font-size:13px; font-weight:800;
+               box-shadow:0 4px 20px rgba(37,99,235,0.4); letter-spacing:0.5px; border:none; cursor:pointer;">
+            💾 SALVEAZĂ
+          </button>
+          <button onclick="window.print()" style="display:inline-flex; align-items:center; gap:8px; background:linear-gradient(135deg,#10b981,#059669);
+               color:white; padding:10px 22px; border-radius:10px; font-size:13px; font-weight:800;
+               box-shadow:0 4px 20px rgba(16,185,129,0.4); letter-spacing:0.5px; border:none; cursor:pointer;">
+            🖨️ PRINTEAZĂ DOSARUL
+          </button>
         </div>
       </div>`;
     return;
@@ -1591,6 +1600,7 @@ async function incarcaDosarDinSidebar(expert, luna, an, itemEl) {
     document.getElementById('dc').innerHTML = html;
     afiseazaProbleme(data.probleme_json||[]);
     st(`✅ ${data.expert} — ${data.luna} ${data.an} (salvat: ${new Date(data.creat_la).toLocaleString('ro-RO')})`, 'ok');
+    incarcaDocsSidebar(expert, luna, an);
     setTimeout(hprg, 3000);
   } catch(e) { st('❌ Eroare: ' + e.message, 'err'); }
 }
@@ -1675,6 +1685,20 @@ async function checkLastExists(){
       .limit(1);
     document.getElementById('btnLast').style.display=(data&&data.length>0)?'flex':'none';
   }catch(e){document.getElementById('btnLast').style.display='none';}
+}
+
+// ===== SAVE AS (descarcă dosarul curent ca fișier HTML) =====
+function salveazaDosarCurent(){
+  const expert=getExpert();const luna=document.getElementById('sl').value;const an=document.getElementById('sa').value;
+  const dcHtml=document.getElementById('dc').innerHTML;
+  if(!dcHtml||dcHtml.trim().length<100){alert('Nu există un dosar generat de descărcat.');return;}
+  const blob=new Blob([dcHtml],{type:'text/html;charset=utf-8'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;
+  a.download=`Dosar_${expert.replace(/\s+/g,'_')}_${luna}_${an}.html`;
+  document.body.appendChild(a);a.click();document.body.removeChild(a);
+  URL.revokeObjectURL(url);
 }
 
 // ===== GENERATE =====
