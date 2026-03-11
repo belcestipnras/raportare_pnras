@@ -169,7 +169,7 @@ select:focus{ outline:none; border-color:#10b981; }
 .cv-logo-wrap{
   background:white;
   border-radius:20px;
-  padding:16px 24px;
+  padding:20px 32px;
   box-shadow:0 8px 32px rgba(0,0,0,0.25);
   margin:10px 0 22px;
   display:inline-block;
@@ -184,7 +184,7 @@ select:focus{ outline:none; border-color:#10b981; }
 }
 .cv-expert-label{ font-size:8pt; text-transform:uppercase; letter-spacing:2px; opacity:0.7; margin-bottom:4px; }
 .cv-expert{ font-size:17pt; font-weight:800; color:white; letter-spacing:1px; }
-.cv-luna{ font-size:13pt; font-weight:700; color:rgba(255,255,255,0.85); margin:6px 0 18px; }
+.cv-luna{ font-size:18pt; font-weight:700; color:rgba(255,255,255,0.85); margin:6px 0 18px; }
 .cv-meta{
   font-size:9pt; color:rgba(255,255,255,0.95); line-height:1.9;
   text-align:left; background:rgba(0,0,0,0.45);
@@ -412,7 +412,65 @@ select:focus{ outline:none; border-color:#10b981; }
 .r2-foto{ width:100%; max-height:calc(297mm - 35mm); object-fit:contain; display:block; }
 .r2-foto-label{ font-size:9pt; color:#475569; text-align:center; margin-bottom:8px; font-family:sans-serif; }
 
-/* ===== SIDEBAR DOSARE SALVATE ===== */
+/* ===== SIDEBAR DOCUMENTE DREAPTA ===== */
+#docs-sidebar {
+  position: fixed; top: 0; right: 0; bottom: 0; width: 260px;
+  background: #0f172a; border-left: 1px solid #1e293b;
+  display: flex; flex-direction: column; z-index: 500;
+  font-family: sans-serif;
+}
+#docs-sidebar .ds2-header {
+  padding: 12px 14px; background: #1e293b;
+  font-size: 11px; font-weight: 800; color: #10b981;
+  text-transform: uppercase; letter-spacing: 1px;
+  border-bottom: 1px solid #334155; flex-shrink: 0;
+}
+#docs-sidebar .ds2-subheader {
+  padding: 6px 14px; background: #0f172a;
+  font-size: 10px; color: #475569;
+  border-bottom: 1px solid #1e293b; flex-shrink: 0;
+}
+#docs-sidebar .ds2-body { flex: 1; overflow-y: auto; padding: 6px 0; }
+.sf2-data-grup { margin-bottom: 2px; }
+.sf2-data-label {
+  padding: 8px 10px 8px 14px; font-size: 11px; font-weight: 800;
+  color: #f8fafc; background: #1e293b;
+  border-left: 3px solid #10b981; cursor: pointer;
+  display: flex; align-items: center; gap: 6px;
+  user-select: none; transition: 0.15s;
+}
+.sf2-data-label:hover { background: #273549; }
+.sf2-data-label .sf2-data-text { flex: 1; }
+.sf2-data-label .sf2-count { font-size: 9px; color: #64748b; }
+.sf2-fisiere { padding: 4px 0; }
+.sf2-fisier-row {
+  display: flex; align-items: center; gap: 4px;
+  padding: 4px 8px 4px 22px;
+  border-left: 2px solid transparent;
+  transition: 0.15s;
+}
+.sf2-fisier-row:hover { background: #1e293b; }
+.sf2-tip-badge {
+  font-size: 9px; font-weight: 700; padding: 1px 5px;
+  border-radius: 3px; flex-shrink: 0;
+}
+.sf2-tip-fisa { background: #1e3a5f; color: #93c5fd; }
+.sf2-tip-foto { background: #3b1f5f; color: #d8b4fe; }
+.sf2-fisier-name {
+  flex: 1; font-size: 11px; color: #94a3b8;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  text-decoration: none;
+}
+.sf2-fisier-name:hover { color: #f8fafc; }
+.sf2-empty { padding: 20px 14px; font-size: 11px; color: #475569; text-align: center; line-height: 1.6; }
+.sf2-clasa-label {
+  padding: 6px 14px 2px; font-size: 9px; font-weight: 700;
+  color: #334155; text-transform: uppercase; letter-spacing: 0.5px;
+}
+body.cu-docs-sidebar .cp,
+body.cu-docs-sidebar #pp,
+body.cu-docs-sidebar #dc { margin-right: 260px; }
+@media print { #docs-sidebar { display: none !important; } body.cu-docs-sidebar .cp, body.cu-docs-sidebar #pp, body.cu-docs-sidebar #dc { margin-right: 0 !important; } }
 #dosare-sidebar {
   position: fixed; top: 0; left: 0; bottom: 0; width: 230px;
   background: #0f172a; border-right: 1px solid #1e293b;
@@ -603,6 +661,14 @@ body.cu-dosare-sidebar #dc { margin-left: 230px; }
     <div class="ds-empty">Selectați un expert pentru a vedea dosarele salvate.</div>
   </div>
   <div class="ds-footer">Click pe lună pentru a încărca dosarul</div>
+</div>
+
+<div id="docs-sidebar">
+  <div class="ds2-header">📁 Documente încărcate</div>
+  <div class="ds2-subheader" id="docs-sidebar-sub">Selectați expert și lună</div>
+  <div class="ds2-body" id="docs-sidebar-body">
+    <div class="sf2-empty">Selectați un expert și o lună pentru a vedea documentele.</div>
+  </div>
 </div>
 
 <div class="cp">
@@ -873,6 +939,7 @@ function initUI(){
     // 5. Mesaj informativ
     st('✅ Dosar pre-completat: <b>'+urlExpert+'</b> — <b>'+(urlLuna||sl.value)+' '+(urlAn||document.getElementById('sa').value)+'</b>. Apasă <b>GENEREAZĂ DOSAR</b>.','ok');
     setTimeout(()=>{document.getElementById('status').style.display='none';},5000);
+    incarcaDocsSidebar(urlExpert, urlLuna||sl.value, urlAn||document.getElementById('sa').value);
 
   } else {
     // ===== MOD ADMIN — acces direct fără parametri URL =====
@@ -883,9 +950,9 @@ function initUI(){
   }
 
   // Actualizează butonul "Ultimul dosar" și sidebar-ul la orice schimbare
-  se.addEventListener('change', () => { checkLastExists(); incarcaSidebar(getExpert()); });
-  sl.addEventListener('change',checkLastExists);
-  document.getElementById('sa').addEventListener('change',checkLastExists);
+  se.addEventListener('change', () => { checkLastExists(); incarcaSidebar(getExpert()); incarcaDocsSidebar(getExpert(), document.getElementById('sl').value, document.getElementById('sa').value); });
+  sl.addEventListener('change', () => { checkLastExists(); incarcaDocsSidebar(getExpert(), document.getElementById('sl').value, document.getElementById('sa').value); });
+  document.getElementById('sa').addEventListener('change', () => { checkLastExists(); incarcaDocsSidebar(getExpert(), document.getElementById('sl').value, document.getElementById('sa').value); });
 
   // Încărcăm sidebar-ul imediat dacă avem expert din URL sau din selector
   incarcaSidebar(getExpert());
@@ -928,7 +995,7 @@ async function build(expert,luna,an){
       <div class="cv-title">Dosar Lunar</div>
       <div class="cv-subtitle">Programul Național de Reducere a Abandonului Școlar</div>
       <div class="cv-logo-wrap">
-        <img src="${CRAI_IMG}" style="max-width:320px;max-height:200px;object-fit:contain;display:block;" alt="CRAI">
+        <img src="${CRAI_IMG}" style="max-width:440px;max-height:280px;object-fit:contain;display:block;" alt="CRAI">
       </div>
       <div class="cv-expert-card">
         <div class="cv-expert-label">Expert</div>
@@ -1362,6 +1429,82 @@ async function build(expert,luna,an){
   H=H.replace('%%OPIS%%',opisH);
 
   return{h:H,p:P};
+}
+
+// ===== SIDEBAR DOCUMENTE DREAPTA =====
+async function incarcaDocsSidebar(expert, luna, an) {
+  const body = document.getElementById('docs-sidebar-body');
+  const sub = document.getElementById('docs-sidebar-sub');
+  if (!expert || !luna) {
+    body.innerHTML = '<div class="sf2-empty">Selectați expert și lună.</div>';
+    sub.textContent = 'Selectați expert și lună';
+    return;
+  }
+  body.innerHTML = '<div class="sf2-empty">⏳ Se încarcă...</div>';
+  sub.textContent = expert + ' — ' + luna + ' ' + an;
+  document.body.classList.add('cu-docs-sidebar');
+
+  try {
+    const { data: fisiere } = await db
+      .from('documente_r2')
+      .select('*')
+      .eq('expert', expert).eq('luna', luna).eq('an', an)
+      .order('sort_order', { ascending: true })
+      .order('creat_la', { ascending: true });
+
+    if (!fisiere || !fisiere.length) {
+      body.innerHTML = '<div class="sf2-empty">Niciun document încărcat pentru această lună.</div>';
+      return;
+    }
+
+    // Grupăm pe clasă, apoi pe dată
+    const peClasa = {};
+    fisiere.forEach(f => {
+      const cls = f.clasa || '—';
+      if (!peClasa[cls]) peClasa[cls] = {};
+      const data = f.data_fisa || 'Fără dată';
+      if (!peClasa[cls][data]) peClasa[cls][data] = [];
+      peClasa[cls][data].push(f);
+    });
+
+    let html = '';
+    Object.keys(peClasa).sort().forEach(cls => {
+      html += `<div class="sf2-clasa-label">🏫 ${normClasa(cls)}</div>`;
+      const peData = peClasa[cls];
+      Object.keys(peData).sort().forEach(data => {
+        const docs = peData[data];
+        const nrFisa = docs.filter(d => d.tip_fisier === 'FISA').length;
+        const nrFoto = docs.filter(d => d.tip_fisier === 'FOTO').length;
+        const badges = [];
+        if (nrFisa) badges.push(`<span style="font-size:9px;background:#1e3a5f;color:#93c5fd;padding:1px 5px;border-radius:3px;">📄 ${nrFisa}</span>`);
+        if (nrFoto) badges.push(`<span style="font-size:9px;background:#3b1f5f;color:#d8b4fe;padding:1px 5px;border-radius:3px;">📸 ${nrFoto}</span>`);
+        html += `<div class="sf2-data-grup">
+          <div class="sf2-data-label">
+            <span class="sf2-data-text">📅 ${data}</span>
+            <span style="display:flex;gap:3px;">${badges.join('')}</span>
+          </div>
+          <div class="sf2-fisiere">`;
+        let nrF = 0, nrP = 0;
+        docs.forEach(f => {
+          const isFisa = f.tip_fisier === 'FISA';
+          if (isFisa) nrF++; else nrP++;
+          const nr = isFisa ? nrF : nrP;
+          const nume = f.nume_custom || (isFisa ? `Fișă ${nr}` : `Foto ${nr}`);
+          const tipClass = isFisa ? 'sf2-tip-fisa' : 'sf2-tip-foto';
+          const tipLabel = isFisa ? 'FIȘĂ' : 'FOTO';
+          html += `<div class="sf2-fisier-row">
+            <span class="sf2-tip-badge ${tipClass}">${tipLabel}</span>
+            <a href="${f.public_url}" target="_blank" class="sf2-fisier-name" title="${f.nume_fisier || nume}">${f.nume_fisier || nume}</a>
+          </div>`;
+        });
+        html += `</div></div>`;
+      });
+    });
+
+    body.innerHTML = html;
+  } catch(e) {
+    body.innerHTML = `<div class="sf2-empty">❌ Eroare: ${e.message}</div>`;
+  }
 }
 
 // ===== SIDEBAR DOSARE SALVATE =====
