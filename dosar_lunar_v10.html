@@ -1480,7 +1480,8 @@ async function saveLast(expert,luna,an,html,problems){
 async function loadDosarDinUrl(publicUrl){
   const resp=await fetch(publicUrl+'?t='+Date.now()); // cache-bust
   if(!resp.ok)throw new Error('HTTP '+resp.status);
-  return await resp.text();
+  const html=await resp.text();
+  return html.replace(/data:image\/jfif/gi,'data:image/jpeg').replace(/data:image\/pjpeg/gi,'data:image/jpeg');
 }
 
 async function loadLast(){
