@@ -414,7 +414,7 @@ select:focus{ outline:none; border-color:#10b981; }
 
 /* ===== SIDEBAR DOCUMENTE DREAPTA ===== */
 #docs-sidebar {
-  position: fixed; top: 0; right: 0; bottom: 0; width: 260px;
+  position: fixed; top: 0; right: 0; bottom: 0; width: 270px;
   background: #0f172a; border-left: 1px solid #1e293b;
   display: flex; flex-direction: column; z-index: 500;
   font-family: sans-serif;
@@ -431,6 +431,13 @@ select:focus{ outline:none; border-color:#10b981; }
   border-bottom: 1px solid #1e293b; flex-shrink: 0;
 }
 #docs-sidebar .ds2-body { flex: 1; overflow-y: auto; padding: 6px 0; }
+/* Clasă */
+.sf2-clasa-label {
+  padding: 8px 14px 4px; font-size: 9px; font-weight: 800;
+  color: #10b981; text-transform: uppercase; letter-spacing: 1px;
+  border-top: 1px solid #1e293b; margin-top: 4px;
+}
+/* Grup per dată */
 .sf2-data-grup { margin-bottom: 2px; }
 .sf2-data-label {
   padding: 8px 10px 8px 14px; font-size: 11px; font-weight: 800;
@@ -442,34 +449,30 @@ select:focus{ outline:none; border-color:#10b981; }
 .sf2-data-label:hover { background: #273549; }
 .sf2-data-label .sf2-data-text { flex: 1; }
 .sf2-data-label .sf2-count { font-size: 9px; color: #64748b; }
-.sf2-fisiere { padding: 4px 0; }
+.sf2-data-label.activa { border-left-color: #f59e0b; background: #1c2a3a; }
+.sf2-fisiere { padding: 4px 0; display: none; }
+.sf2-fisiere.deschis { display: block; }
+/* Rând fișier */
 .sf2-fisier-row {
-  display: flex; align-items: center; gap: 4px;
-  padding: 4px 8px 4px 22px;
-  border-left: 2px solid transparent;
-  transition: 0.15s;
+  display: flex; align-items: center; gap: 6px;
+  padding: 5px 10px 5px 14px;
+  border-left: 2px solid transparent; transition: 0.15s;
 }
 .sf2-fisier-row:hover { background: #1e293b; }
-.sf2-tip-badge {
-  font-size: 9px; font-weight: 700; padding: 1px 5px;
-  border-radius: 3px; flex-shrink: 0;
-}
-.sf2-tip-fisa { background: #1e3a5f; color: #93c5fd; }
-.sf2-tip-foto { background: #3b1f5f; color: #d8b4fe; }
 .sf2-fisier-name {
   flex: 1; font-size: 11px; color: #94a3b8;
   overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
   text-decoration: none;
 }
+.sf2-fisier-name.tip-fisa { color: #93c5fd; }
+.sf2-fisier-name.tip-foto { color: #d8b4fe; }
+.sf2-fisier-name.tip-prez { color: #7dd3fc; }
+.sf2-fisier-name.tip-masa { color: #fcd34d; }
 .sf2-fisier-name:hover { color: #f8fafc; }
 .sf2-empty { padding: 20px 14px; font-size: 11px; color: #475569; text-align: center; line-height: 1.6; }
-.sf2-clasa-label {
-  padding: 6px 14px 2px; font-size: 9px; font-weight: 700;
-  color: #334155; text-transform: uppercase; letter-spacing: 0.5px;
-}
 body.cu-docs-sidebar .cp,
 body.cu-docs-sidebar #pp,
-body.cu-docs-sidebar #dc { margin-right: 260px; }
+body.cu-docs-sidebar #dc { margin-right: 270px; }
 @media print { #docs-sidebar { display: none !important; } body.cu-docs-sidebar .cp, body.cu-docs-sidebar #pp, body.cu-docs-sidebar #dc { margin-right: 0 !important; } }
 #dosare-sidebar {
   position: fixed; top: 0; left: 0; bottom: 0; width: 230px;
@@ -1438,35 +1441,44 @@ async function build(expert,luna,an){
   return{h:H,p:P};
 }
 
-// ===== SIDEBAR DOCUMENTE DREAPTA =====
+// ===== SIDEBAR DOCUMENTE DREAPTA — vizualizare =====
 async function incarcaDocsSidebar(expert, luna, an) {
   const body = document.getElementById('docs-sidebar-body');
   const sub = document.getElementById('docs-sidebar-sub');
   if (!expert || !luna) {
     body.innerHTML = '<div class="sf2-empty">Selectați expert și lună.</div>';
-    sub.textContent = 'Selectați expert și lună';
+    if (sub) sub.textContent = 'Selectați expert și lună';
     return;
   }
   body.innerHTML = '<div class="sf2-empty">⏳ Se încarcă...</div>';
-  sub.textContent = expert + ' — ' + luna + ' ' + an;
+  if (sub) sub.textContent = expert + ' — ' + luna + ' ' + an;
   document.body.classList.add('cu-docs-sidebar');
 
   try {
-    const { data: fisiere } = await db
-      .from('documente_r2')
-      .select('*')
-      .eq('expert', expert).eq('luna', luna).eq('an', an)
-      .order('sort_order', { ascending: true })
-      .order('creat_la', { ascending: true });
+    const luniMap = { Ianuarie:'01',Februarie:'02',Martie:'03',Aprilie:'04',Mai:'05',Iunie:'06',
+                      Iulie:'07',August:'08',Septembrie:'09',Octombrie:'10',Noiembrie:'11',Decembrie:'12' };
+    const lc = luniMap[luna] || luna;
 
-    if (!fisiere || !fisiere.length) {
-      body.innerHTML = '<div class="sf2-empty">Niciun document încărcat pentru această lună.</div>';
-      return;
-    }
+    const [{ data: fisiere }, { data: listeDb }] = await Promise.all([
+      db.from('documente_r2').select('*')
+        .eq('expert', expert).eq('luna', luna).eq('an', an)
+        .order('sort_order', { ascending: true })
+        .order('creat_la', { ascending: true }),
+      db.from('liste_fisiere').select('*')
+        .eq('expert', expert).eq('luna', luna).eq('an', an)
+    ]);
 
-    // Grupăm pe clasă, apoi pe dată
+    // Grupăm listele pe clasă + zi
+    const listePeClasaZi = {};
+    (listeDb || []).forEach(l => {
+      const k = (l.clasa || '') + '|' + String(l.zi);
+      if (!listePeClasaZi[k]) listePeClasaZi[k] = [];
+      listePeClasaZi[k].push(l);
+    });
+
+    // Grupăm documentele pe clasă → dată
     const peClasa = {};
-    fisiere.forEach(f => {
+    (fisiere || []).forEach(f => {
       const cls = f.clasa || '—';
       if (!peClasa[cls]) peClasa[cls] = {};
       const data = f.data_fisa || 'Fără dată';
@@ -1474,41 +1486,105 @@ async function incarcaDocsSidebar(expert, luna, an) {
       peClasa[cls][data].push(f);
     });
 
-    let html = '';
-    Object.keys(peClasa).sort().forEach(cls => {
-      html += `<div class="sf2-clasa-label">🏫 ${normClasa(cls)}</div>`;
-      const peData = peClasa[cls];
-      Object.keys(peData).sort().forEach(data => {
-        const docs = peData[data];
-        const nrFisa = docs.filter(d => d.tip_fisier === 'FISA').length;
-        const nrFoto = docs.filter(d => d.tip_fisier === 'FOTO').length;
-        const badges = [];
-        if (nrFisa) badges.push(`<span style="font-size:9px;background:#1e3a5f;color:#93c5fd;padding:1px 5px;border-radius:3px;">📄 ${nrFisa}</span>`);
-        if (nrFoto) badges.push(`<span style="font-size:9px;background:#3b1f5f;color:#d8b4fe;padding:1px 5px;border-radius:3px;">📸 ${nrFoto}</span>`);
-        html += `<div class="sf2-data-grup">
-          <div class="sf2-data-label">
-            <span class="sf2-data-text">📅 ${data}</span>
-            <span style="display:flex;gap:3px;">${badges.join('')}</span>
-          </div>
-          <div class="sf2-fisiere">`;
-        let nrF = 0, nrP = 0;
+    // Adăugăm clasele care au doar liste (fără documente_r2)
+    (listeDb || []).forEach(l => {
+      const cls = l.clasa || '—';
+      if (!peClasa[cls]) peClasa[cls] = {};
+    });
+
+    const allClase = Object.keys(peClasa).sort();
+    if (!allClase.length && (!listeDb || !listeDb.length)) {
+      body.innerHTML = '<div class="sf2-empty">Niciun document încărcat pentru această lună.</div>';
+      return;
+    }
+
+    body.innerHTML = '';
+
+    allClase.forEach(cls => {
+      // Header clasă
+      const clsLabel = document.createElement('div');
+      clsLabel.className = 'sf2-clasa-label';
+      clsLabel.textContent = '🏫 ' + normClasa(cls);
+      body.appendChild(clsLabel);
+
+      const peData = peClasa[cls] || {};
+
+      // Colectăm toate datele (din documente + din liste)
+      const dateSet = new Set(Object.keys(peData));
+      (listeDb || []).filter(l => (l.clasa || '—') === cls).forEach(l => {
+        const zi = String(l.zi).padStart(2, '0');
+        dateSet.add(`${zi}.${lc}.${an}`);
+      });
+
+      // Sortăm cronologic
+      const dateArr = Array.from(dateSet).sort((a, b) => {
+        const pa = a.split(/[.\-]/).map(Number);
+        const pb = b.split(/[.\-]/).map(Number);
+        return (pa[2]-pb[2]) || (pa[1]-pb[1]) || (pa[0]-pb[0]);
+      });
+
+      dateArr.forEach(data => {
+        const dataAlt = data.replace(/\./g, '-');
+        const docs = peData[data] || peData[dataAlt] || [];
+        const zi = String(parseInt(data.split(/[.\-]/)[0]));
+        const listeZi = listePeClasaZi[cls + '|' + zi] || [];
+        const nrTotal = docs.length + listeZi.length;
+
+        const grupDiv = document.createElement('div');
+        grupDiv.className = 'sf2-data-grup';
+
+        // Header dată — click toggle
+        const label = document.createElement('div');
+        label.className = 'sf2-data-label';
+        label.innerHTML = `<span class="sf2-data-text">📅 ${data}</span>
+          <span class="sf2-count">${nrTotal > 0 ? nrTotal + ' doc' : ''}</span>`;
+        label.onclick = () => {
+          fisiereLista.classList.toggle('deschis');
+          document.querySelectorAll('.sf2-data-label').forEach(l => l.classList.remove('activa'));
+          label.classList.add('activa');
+        };
+
+        const fisiereLista = document.createElement('div');
+        fisiereLista.className = 'sf2-fisiere deschis';
+
+        // Documente Fișă + Foto
+        let nrFisa = 0, nrFoto = 0;
         docs.forEach(f => {
           const isFisa = f.tip_fisier === 'FISA';
-          if (isFisa) nrF++; else nrP++;
-          const nr = isFisa ? nrF : nrP;
+          if (isFisa) nrFisa++; else nrFoto++;
+          const nr = isFisa ? nrFisa : nrFoto;
           const nume = f.nume_custom || (isFisa ? `Fișă ${nr}` : `Foto ${nr}`);
-          const tipClass = isFisa ? 'sf2-tip-fisa' : 'sf2-tip-foto';
-          const tipLabel = isFisa ? 'FIȘĂ' : 'FOTO';
-          html += `<div class="sf2-fisier-row">
-            <span class="sf2-tip-badge ${tipClass}">${tipLabel}</span>
-            <a href="${f.public_url}" target="_blank" class="sf2-fisier-name" title="${f.nume_fisier || nume}">${f.nume_fisier || nume}</a>
-          </div>`;
+          const row = document.createElement('div');
+          row.className = 'sf2-fisier-row';
+          row.style.borderLeftColor = isFisa ? '#2563eb' : '#7c3aed';
+          row.innerHTML = `
+            <a class="sf2-fisier-name ${isFisa ? 'tip-fisa' : 'tip-foto'}"
+               href="${f.public_url}" target="_blank" title="${f.nume_fisier || nume}">
+              ${isFisa ? '📄' : '📸'} ${nume}
+            </a>`;
+          fisiereLista.appendChild(row);
         });
-        html += `</div></div>`;
+
+        // Liste prezență + masă
+        listeZi.forEach(l => {
+          const isPrez = l.tip === 'prezenta';
+          const row = document.createElement('div');
+          row.className = 'sf2-fisier-row';
+          row.style.borderLeftColor = isPrez ? '#0284c7' : '#d97706';
+          row.innerHTML = `
+            <a class="sf2-fisier-name ${isPrez ? 'tip-prez' : 'tip-masa'}"
+               href="${l.public_url}" target="_blank">
+              ${isPrez ? '👥 Prezență' : '🍱 Masă'}
+            </a>`;
+          fisiereLista.appendChild(row);
+        });
+
+        grupDiv.appendChild(label);
+        grupDiv.appendChild(fisiereLista);
+        body.appendChild(grupDiv);
       });
     });
 
-    body.innerHTML = html;
   } catch(e) {
     body.innerHTML = `<div class="sf2-empty">❌ Eroare: ${e.message}</div>`;
   }
