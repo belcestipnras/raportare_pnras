@@ -8,6 +8,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js"></script>
 <style>
 /* ===== PAGE SETUP ===== */
 @page            { size: A4; margin: 15mm 18mm; }
@@ -540,12 +541,13 @@ body.cu-dosare-sidebar #dc { margin-left: 230px; }
   /* Sectiunile colorate si cover: pagina fizica fara margini */
   .sec-sep,.cls-sep,.cover{
     page: no-margin;
-    height:297mm!important;
+    height:100vh!important;
     min-height:0!important;
     overflow:hidden!important;
     margin:0!important;
     width:100%!important;
     max-width:100%!important;
+    box-sizing:border-box!important;
   }
 
   /* Sectiunile colorate: continut centrat */
@@ -555,6 +557,7 @@ body.cu-dosare-sidebar #dc { margin-left: 230px; }
     align-items:center!important;
     justify-content:center!important;
     padding:0!important;
+    box-sizing:border-box!important;
   }
 
   /* Cover */
@@ -564,9 +567,10 @@ body.cu-dosare-sidebar #dc { margin-left: 230px; }
     overflow:hidden!important;
     -webkit-print-color-adjust:exact!important;
     print-color-adjust:exact!important;
+    align-items:stretch!important;
   }
   .cover::before,.cover::after{ display:none!important; }
-  .cv-antet{ padding:10px 18mm!important; }
+  .cv-antet{ padding:10px 18mm!important; flex-shrink:0!important; }
   .cv-body{ padding:6mm 18mm!important; }
   .cv-bottom-bar{ padding:8px 18mm!important; }
 
@@ -701,8 +705,8 @@ const s3=e=>`<div class="sig3"><div class="sb"><b>Întocmit,</b>Expert: ${e}<br>
 const lsG=(k,d)=>{const v=localStorage.getItem('PNRAS_FINAL_v8_'+k);return v!==null?v:d;};
 // Shorthand: A4 page cu clasa de expert
 const pg=(ec,content)=>`<div class="A4 ${ec}">${content}</div>`;
-const sep=(ec,content)=>`<div class="sec-sep ${ec}">${content}</div>`;
-const clsSep=(ec,content)=>`<div class="cls-sep ${ec}">${content}</div>`;
+const sep=(ec,content)=>`<div class="sec-sep ${ec}"><div style="flex:1"></div>${content}<div style="flex:1"></div></div>`;
+const clsSep=(ec,content)=>`<div class="cls-sep ${ec}"><div style="flex:1"></div>${content}<div style="flex:1"></div></div>`;
 const cvr=(ec,content)=>`<div class="cover ${ec}">${content}</div>`;
 
 // ===== LOAD ANTET =====
@@ -1106,12 +1110,24 @@ async function build(expert,luna,an){
         // Fallback pe extensie din URL pentru formate care nu au magic bytes unici (HEIC etc.)
         const urlExt=((doc.public_url||doc.nume_fisier||'').split('?')[0].split('.').pop()||'').toLowerCase();
         const isImgByExt=['jpg','jpeg','png','gif','webp','bmp','tiff','tif','heic','heif','avif','svg','jfif'].includes(urlExt);
-        const isImg=isJPEG||isPNG||isGIF||isWebP||isBMP||isTIFF||isImgByExt;
+        // isPDF are prioritate absoluta — un PDF cu extensie .jpg trebuie tratat ca PDF
+        const isImg=(isJPEG||isPNG||isGIF||isWebP||isBMP||isTIFF||isImgByExt)&&!isPDF&&!isPK;
         // Determinam MIME type corect
         const imgMime=isJPEG?'image/jpeg':isPNG?'image/png':isGIF?'image/gif':isWebP?'image/webp':isBMP?'image/bmp':isTIFF?'image/tiff':urlExt==='heic'||urlExt==='heif'?'image/heic':urlExt==='avif'?'image/avif':urlExt==='svg'?'image/svg+xml':'image/jpeg';
         if(isImg){
           // Imagine — tratata ca FOTO
-          const blob=new Blob([fileBuffer],{type:imgMime});
+          let blob=new Blob([fileBuffer],{type:imgMime});
+          // Conversie HEIC/HEIF → JPEG (browserele nu suporta HEIC nativ)
+          if(urlExt==='heic'||urlExt==='heif'){
+            try{
+              st('🔄 Conversie HEIC → JPEG...','load');
+              blob=await heic2any({blob,toType:'image/jpeg',quality:0.92});
+              if(Array.isArray(blob))blob=blob[0];
+            }catch(heicErr){
+              console.warn('heic2any error:',heicErr);
+              // fallback: continuam cu blob-ul original, poate browserul il afiseaza
+            }
+          }
           const imgB64=await new Promise(res=>{const rd=new FileReader();rd.onload=()=>res(rd.result);rd.readAsDataURL(blob);});
           const label=anexaFotoIdx===0?'<div style="text-align:center;font-weight:bold;font-size:13pt;margin-bottom:8px;">Anexa 2</div>':'';
           H+=pg(ec,`<div class="antet-wrap">${antetImg()}</div>${label}<img src="${imgB64}" class="r2-foto">`);
