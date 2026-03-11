@@ -238,6 +238,28 @@
         let rows = [];
         if (saved && saved.continut_json.fise) {
             rows = saved.continut_json.fise;
+            // ===== SINCRONIZARE DATE DIN PLANIFICARE =====
+            // Datele din planificare sunt sursa de adevăr pentru câmpul "data".
+            // Dacă expertul a corectat data în planificare, o propagăm și în fișe.
+            let { data: plan } = await supabaseClient.from('planificari_documente').select('continut_json').eq('tip_document', config.idDoc).maybeSingle();
+            if (plan && plan.continut_json.tableRows) {
+                const planDates = plan.continut_json.tableRows.map(r => r.data);
+                let changed = false;
+                rows.forEach((row, i) => {
+                    if (i < planDates.length && planDates[i] && row.data !== planDates[i]) {
+                        console.log(`[sync] Fișa ${i+1}: data corectată ${row.data} → ${planDates[i]}`);
+                        row.data = planDates[i];
+                        changed = true;
+                    }
+                });
+                if (changed) {
+                    await supabaseClient.from('planificari_documente').upsert(
+                        { tip_document: config.idData, expert: config.expert, continut_json: { fise: rows } },
+                        { onConflict: 'tip_document' }
+                    );
+                    console.log('[sync] Datele fișelor au fost sincronizate cu planificarea.');
+                }
+            }
         } else {
             let { data: plan } = await supabaseClient.from('planificari_documente').select('continut_json').eq('tip_document', config.idDoc).maybeSingle();
             if (plan) {
