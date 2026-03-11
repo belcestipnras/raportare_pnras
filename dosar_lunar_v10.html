@@ -818,21 +818,21 @@ async function renderWordPages(url,ec){
     return pg(ec,`<div style="text-align:center;padding:40px;color:red;">Eroare Word: ${e.message}<br><a href="${url}" target="_blank">Deschide manual</a></div>`);
   }
 }
-async function renderWordFromBuffer(arrayBuffer,url,ec,showAnexa=false){
+async function renderWordFromBuffer(arrayBuffer,url,ec,anexaLabel=''){
   try{
     const result=await mammoth.convertToHtml({arrayBuffer});
     // Fixam imaginile si tabelele sa nu depaseasca pagina
     let html=result.value
       .replace(/<img /g,'<img style="max-width:100%;height:auto;display:block;margin:4px auto;" ')
       .replace(/<table /g,'<table style="width:100%;table-layout:fixed;word-break:break-word;" ');
-    const label=showAnexa?'<div style="text-align:center;font-weight:bold;font-size:14pt;margin-bottom:10px;">Anexa 1</div>':'';
+    const label=anexaLabel?`<div style="text-align:center;font-weight:bold;font-size:14pt;margin-bottom:10px;">${anexaLabel}</div>`:'';
     return pg(ec,`${label}<div class="word-content" style="font-family:'Times New Roman',serif;font-size:11pt;line-height:1.5;">${html}</div>`);
   }catch(e){
     console.error('Word render error:',e);
     return pg(ec,`<div style="text-align:center;padding:60px 40px;"><div style="font-size:13pt;color:#dc2626;font-weight:bold;margin-bottom:12px;">⚠️ Fișierul Word nu poate fi afișat</div><div style="font-size:10pt;color:#64748b;margin-bottom:20px;">${e.message}</div><a href="${url}" target="_blank" style="background:#2563eb;color:white;padding:10px 24px;border-radius:6px;text-decoration:none;font-weight:bold;">Deschide fișierul original</a></div>`);
   }
 }
-async function renderPdfFromBuffer(arrayBuffer,url,ec,showAnexa=false){
+async function renderPdfFromBuffer(arrayBuffer,url,ec,anexaLabel=''){
   try{
     const pdf=await pdfjsLib.getDocument({data:arrayBuffer,cMapUrl:'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/cmaps/',cMapPacked:true}).promise;
     let html='';
@@ -843,7 +843,7 @@ async function renderPdfFromBuffer(arrayBuffer,url,ec,showAnexa=false){
       canvas.width=vp.width; canvas.height=vp.height;
       await page.render({canvasContext:canvas.getContext('2d'),viewport:vp}).promise;
       const imgData=canvas.toDataURL('image/jpeg',0.92);
-      const label=(showAnexa&&pgN===1)?'<div style="text-align:center;font-weight:bold;font-size:14pt;margin-bottom:8px;">Anexa 1</div>':'';
+      const label=(anexaLabel&&pgN===1)?`<div style="text-align:center;font-weight:bold;font-size:14pt;margin-bottom:8px;">${anexaLabel}</div>`:'';
       html+=pg(ec,`${label}<img src="${imgData}" style="width:100%;height:auto;display:block;" alt="Pagina ${pgN}">`);
     }
     return html;
@@ -1153,76 +1153,74 @@ async function build(expert,luna,an){
         st(`⏳ Se descarcă: ${doc.nume_fisier||'fișier'}...`,'load');
         // Descarcam fișierul indiferent de tip declarat
         let fileBuffer=null;
-        let fetchOk=false;
         try{
           const fetchResp=await fetch(doc.public_url,{mode:'cors'});
           if(!fetchResp.ok)throw new Error('HTTP '+fetchResp.status);
           fileBuffer=await fetchResp.arrayBuffer();
-          fetchOk=true;
         }catch(e){
           H+=pg(ec,`<div style="text-align:center;padding:60px 40px;"><div style="font-size:13pt;color:#dc2626;font-weight:bold;margin-bottom:12px;">⚠️ Eroare la descărcarea fișierului</div><div style="font-size:10pt;color:#64748b;margin-bottom:20px;">${e.message}</div><a href="${doc.public_url}" target="_blank" style="background:#2563eb;color:white;padding:10px 24px;border-radius:6px;text-decoration:none;font-weight:bold;">Deschide fișierul original</a></div>`);
           continue;
         }
-        // Detectam tipul real dupa magic bytes (ignaram tip_fisier si extensie)
+        // Detectam tipul real dupa magic bytes — doar pentru a ști CUM să randăm
         const bytes=new Uint8Array(fileBuffer.slice(0,16));
-        const isPDF=bytes[0]===0x25&&bytes[1]===0x50&&bytes[2]===0x44&&bytes[3]===0x46; // %PDF
-        const isPK=bytes[0]===0x50&&bytes[1]===0x4B; // PK/ZIP = docx
-        // Detectie imagine extinsa: JPEG, PNG, GIF, WebP, BMP, TIFF
+        const isPDF=bytes[0]===0x25&&bytes[1]===0x50&&bytes[2]===0x44&&bytes[3]===0x46;
+        const isPK=bytes[0]===0x50&&bytes[1]===0x4B;
         const isJPEG=bytes[0]===0xFF&&bytes[1]===0xD8;
         const isPNG=bytes[0]===0x89&&bytes[1]===0x50&&bytes[2]===0x4E&&bytes[3]===0x47;
         const isGIF=bytes[0]===0x47&&bytes[1]===0x49&&bytes[2]===0x46;
         const isWebP=bytes[0]===0x52&&bytes[1]===0x49&&bytes[2]===0x46&&bytes[3]===0x46&&bytes[8]===0x57&&bytes[9]===0x45&&bytes[10]===0x42&&bytes[11]===0x50;
         const isBMP=bytes[0]===0x42&&bytes[1]===0x4D;
         const isTIFF=(bytes[0]===0x49&&bytes[1]===0x49&&bytes[2]===0x2A&&bytes[3]===0x00)||(bytes[0]===0x4D&&bytes[1]===0x4D&&bytes[2]===0x00&&bytes[3]===0x2A);
-        // Fallback pe extensie din URL pentru formate care nu au magic bytes unici (HEIC etc.)
         const urlExt=((doc.public_url||doc.nume_fisier||'').split('?')[0].split('.').pop()||'').toLowerCase();
         const isImgByExt=['jpg','jpeg','png','gif','webp','bmp','tiff','tif','heic','heif','avif','svg','jfif'].includes(urlExt);
-        // isPDF are prioritate absoluta — un PDF cu extensie .jpg trebuie tratat ca PDF
         const isImg=(isJPEG||isPNG||isGIF||isWebP||isBMP||isTIFF||isImgByExt)&&!isPDF&&!isPK;
-        // Determinam MIME type corect
         const imgMime=isJPEG?'image/jpeg':isPNG?'image/png':isGIF?'image/gif':isWebP?'image/webp':isBMP?'image/bmp':isTIFF?'image/tiff':urlExt==='heic'||urlExt==='heif'?'image/heic':urlExt==='avif'?'image/avif':urlExt==='svg'?'image/svg+xml':'image/jpeg';
+
+        // ===== DECIZIA ANEXĂ: bazată pe tip_fisier din DB (butonul de upload), NU pe format =====
+        const esteFisa=doc.tip_fisier==='FISA';
+        const esteFoto=doc.tip_fisier==='FOTO';
+
+        // Eticheta Anexa — doar pe primul document din fiecare categorie
+        let anexaLabel='';
+        if(esteFisa&&anexaFisaIdx===0) anexaLabel='Anexa 1';
+        if(esteFoto&&anexaFotoIdx===0) anexaLabel='Anexa 2';
+
+        // ===== RANDARE: detectăm formatul real doar pentru a ști CUM afișăm =====
         if(isImg){
-          // Imagine — tratata ca FOTO
           let blob=new Blob([fileBuffer],{type:imgMime});
-          // Conversie HEIC/HEIF → JPEG (browserele nu suporta HEIC nativ)
           if(urlExt==='heic'||urlExt==='heif'){
             try{
               st('🔄 Conversie HEIC → JPEG...','load');
               blob=await heic2any({blob,toType:'image/jpeg',quality:0.92});
               if(Array.isArray(blob))blob=blob[0];
-            }catch(heicErr){
-              console.warn('heic2any error:',heicErr);
-              // fallback: continuam cu blob-ul original, poate browserul il afiseaza
-            }
+            }catch(heicErr){console.warn('heic2any error:',heicErr);}
           }
           const imgB64=await new Promise(res=>{const rd=new FileReader();rd.onload=()=>res(rd.result);rd.readAsDataURL(blob);});
-          const label=anexaFotoIdx===0?'<div style="text-align:center;font-weight:bold;font-size:13pt;margin-bottom:8px;">Anexa 2</div>':'';
-          H+=pg(ec,`<div class="antet-wrap">${antetImg()}</div>${label}<img src="${imgB64}" class="r2-foto">`);
-          cnt.r2f++;anexaFotoIdx++;
+          const labelHtml=anexaLabel?`<div style="text-align:center;font-weight:bold;font-size:13pt;margin-bottom:8px;">${anexaLabel}</div>`:'';
+          H+=pg(ec,`<div class="antet-wrap">${antetImg()}</div>${labelHtml}<img src="${imgB64}" class="r2-foto">`);
         }else if(isPDF){
           st(`📄 Randare PDF: ${doc.nume_fisier||'fișier'}...`,'load');
-          const label=anexaFisaIdx===0?'anexa1':'';
-          H+=await renderPdfFromBuffer(fileBuffer,doc.public_url,ec,anexaFisaIdx===0);
-          cnt.r2p++;anexaFisaIdx++;
+          H+=await renderPdfFromBuffer(fileBuffer,doc.public_url,ec,anexaLabel);
         }else if(isPK){
           st(`📝 Randare Word: ${doc.nume_fisier||'fișier'}...`,'load');
-          H+=await renderWordFromBuffer(fileBuffer,doc.public_url,ec,anexaFisaIdx===0);
-          cnt.r2p++;anexaFisaIdx++;
+          H+=await renderWordFromBuffer(fileBuffer,doc.public_url,ec,anexaLabel);
         }else{
-          // Tip necunoscut — incercam PDF, apoi Word, apoi afisam link
           st(`🔍 Tip necunoscut, se încearcă PDF: ${doc.nume_fisier||'fișier'}...`,'load');
           try{
-            H+=await renderPdfFromBuffer(fileBuffer,doc.public_url,ec,anexaFisaIdx===0);
-            cnt.r2p++;anexaFisaIdx++;
+            H+=await renderPdfFromBuffer(fileBuffer,doc.public_url,ec,anexaLabel);
           }catch(e1){
             try{
-              H+=await renderWordFromBuffer(fileBuffer,doc.public_url,ec,anexaFisaIdx===0);
-              cnt.r2p++;anexaFisaIdx++;
+              H+=await renderWordFromBuffer(fileBuffer,doc.public_url,ec,anexaLabel);
             }catch(e2){
               H+=pg(ec,`<div style="text-align:center;padding:60px 40px;"><div style="font-size:13pt;color:#dc2626;font-weight:bold;margin-bottom:12px;">⚠️ Format necunoscut</div><a href="${doc.public_url}" target="_blank" style="background:#2563eb;color:white;padding:10px 24px;border-radius:6px;text-decoration:none;font-weight:bold;">Deschide fișierul original</a></div>`);
             }
           }
         }
+
+        // ===== CONTOARE: bazate pe tip_fisier din DB =====
+        if(esteFisa){cnt.r2p++;anexaFisaIdx++;}
+        else if(esteFoto){cnt.r2f++;anexaFotoIdx++;}
+        else{cnt.r2p++;}
       }
 
       let eRows='';
