@@ -1763,18 +1763,24 @@ async function checkLastExists(){
   }catch(e){document.getElementById('btnLast').style.display='none';}
 }
 
-// ===== SAVE AS (descarcă dosarul curent ca fișier HTML) =====
+// ===== SAVE AS (descarcă dosarul curent ca fișier PDF) =====
 function salveazaDosarCurent(){
   const expert=getExpert();const luna=document.getElementById('sl').value;const an=document.getElementById('sa').value;
   const dcHtml=document.getElementById('dc').innerHTML;
   if(!dcHtml||dcHtml.trim().length<100){alert('Nu există un dosar generat de descărcat.');return;}
-  const blob=new Blob([dcHtml],{type:'text/html;charset=utf-8'});
-  const url=URL.createObjectURL(blob);
-  const a=document.createElement('a');
-  a.href=url;
-  a.download=`Dosar_${expert.replace(/\s+/g,'_')}_${luna}_${an}.html`;
-  document.body.appendChild(a);a.click();document.body.removeChild(a);
-  URL.revokeObjectURL(url);
+  
+  // Pregătim numele fișierului pentru dialog
+  const fileName=`Dosar_${expert.replace(/\s+/g,'_')}_${luna}_${an}.pdf`;
+  
+  // Setăm titlul documentului pentru PDF
+  const oldTitle=document.title;
+  document.title=fileName.replace('.pdf','');
+  
+  // Deschide dialog-ul de print (care permite salvare ca PDF)
+  window.print();
+  
+  // Restaurăm titlul original
+  setTimeout(()=>{document.title=oldTitle;},100);
 }
 
 // ===== GENERATE =====
