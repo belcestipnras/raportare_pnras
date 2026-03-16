@@ -30,6 +30,9 @@
 
         .data-table { width: 100%; border-collapse: collapse; margin-top: 10px; table-layout: fixed; }
         .data-table th, .data-table td { border: 1px solid #000; padding: 5px; text-align: center; font-size: 9pt; }
+        .data-table thead { display: table-header-group; }
+        .data-table tbody tr { page-break-inside: avoid; break-inside: avoid; }
+        .data-table tbody tr:last-child { page-break-after: avoid; break-after: avoid; }
         .data-table th { background: #f2f2f2; font-weight: bold; }
         
         .col-nr { width: 7%; }
@@ -39,7 +42,8 @@
 
         .keep-with-next { page-break-after: avoid; }
 
-        .section-signatures { page-break-inside: avoid; margin-top: 20px; }
+        .section-signatures { margin-top: 20px; }
+        .semnaturi-wrapper { page-break-inside: avoid; break-inside: avoid; margin-top: 20px; }
         .semnaturi-raport { display: flex; justify-content: space-between; margin-top: 25px; }
         .box-semnatura { width: 32%; text-align: center; font-size: 10.5pt; vertical-align: top; }
 
@@ -47,7 +51,6 @@
         .membru-pv { margin-bottom: 15px; display: block; font-size: 11pt; }
         .linie-semnatura { margin-top: 5px; border-top: 1px solid #000; width: 220px; margin-left: auto; margin-right: auto; }
 
-        .footer-content { text-align: center; font-size: 9pt; color: #333; border-top: 1px solid #ccc; padding-top: 8px; width: 100%; background: white; margin-top: auto; }
 
         .no-print { position: fixed; top: 20px; left: 20px; z-index: 1000; display: flex; gap: 10px; }
         .btn-print { padding: 10px 20px; background: #10b981; color: white; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; }
@@ -55,10 +58,8 @@
 
         @media print {
             body { background: none; }
-            .sheet { margin: 0; box-shadow: none; width: 100%; padding: 0; height: auto; }
+            .sheet { margin: 0; box-shadow: none; width: 100%; padding: 0; height: auto; min-height: unset; }
             .no-print { display: none; }
-            tfoot { display: table-footer-group; }
-            .footer-content { position: fixed; bottom: 0; left: 0; }
         }
     </style>
 </head>
@@ -90,27 +91,26 @@
         <tbody id="tbody-raport"></tbody>
     </table>
 
-    <div class="section-signatures">
+    <div class="semnaturi-wrapper">
         <div class="semnaturi-raport">
             <div class="box-semnatura"><strong>Întocmit,</strong><br><br>Pavel Ioan<br><br>_________________</div>
             <div class="box-semnatura"><strong>Avizat,</strong><br>Manager proiect,<br>prof. dr. Ciprian MIHAI<br><br>_________________</div>
             <div class="box-semnatura"><strong>Aprobat,</strong><br>Director,<br>prof. Cătălin-Ionuț BAZILUC<br><br>_________________</div>
         </div>
     </div>
-    <div class="footer-content">„PNRR. Finanțat de Uniunea Europeană – UrmătoareaGenerațieUE”<br>https://mfe.gov.ro/pnrr/</div>
 </div>
 
 <div class="sheet">
     <img src="antet_pnras.jpeg" class="antet-img">
-    <div class="nr-inregistrare">Nr. înregistrare: <input type="text" class="input-nr" id="raport-nr"> / <input type="text" class="input-data" id="raport-data" placeholder="__.__.2025"></div>
+    <div class="nr-inregistrare">Nr. înregistrare: <input type="text" class="input-nr" id="pv-nr"> / <input type="text" class="input-data" id="pv-data" placeholder="__.__.2025"></div>
     <div class="titlu-doc">Proces verbal de recepție</div>
     <div class="subtitlu">Luna: <span class="luna-nume">...</span> <span class="an-nume">...</span></div>
 
     <p style="text-align:center; font-weight:bold; margin-bottom:10px;">Achiziția de pachet alimentar de tip masă caldă, pentru activitățile remediale și extracurriculare</p>
     
-    <p class="alineat">Pachetul alimentar a fost livrat în luna <span class="luna-text-mic">...</span> <span class="an-nume">...</span>, în conformitate cu Contractul de furnizare nr. 143/06.12.2024, încheiat între Liceul Tehnologic ”Victor Mihăilescu Craiu” Belcești și SC PROCONS IASI SRL și Nota de comandă nr. <input type="text" style="width:40px; border-bottom:1px dotted #000; border-top:none; border-left:none; border-right:none; text-align:center;"> / <input type="text" style="width:90px; border-bottom:1px dotted #000; border-top:none; border-left:none; border-right:none;">.</p>
+    <p class="alineat">Pachetul alimentar a fost livrat în luna <span class="luna-text-mic">...</span> <span class="an-nume">...</span>, în conformitate cu Contractul de furnizare nr. 143/06.12.2024, încheiat între Liceul Tehnologic ”Victor Mihăilescu Craiu” Belcești și SC PROCONS IASI SRL și Nota de comandă nr. <input type="text" id="nc-nr" style="width:40px; border-bottom:1px dotted #000; border-top:none; border-left:none; border-right:none; text-align:center;"> / <input type="text" id="nc-data" style="width:90px; border-bottom:1px dotted #000; border-top:none; border-left:none; border-right:none;">.</p>
     
-    <p class="alineat">Comisia de recepție a procedat astăzi, <input type="text" class="input-data" placeholder="__.__.2025">, la inventarierea avizelor de însoțire a pachetului alimentar, după cum urmează:</p>
+    <p class="alineat">Comisia de recepție a procedat astăzi, <input type="text" class="input-data" id="pv-data-comisie" placeholder="__.__.2025">, la inventarierea avizelor de însoțire a pachetului alimentar, după cum urmează:</p>
 
     <table class="data-table">
         <thead>
@@ -122,7 +122,7 @@
     <div class="section-signatures">
         <p class="alineat">Comisia de recepție constată că pachetele alimentare de tip masă caldă au fost furnizate în conformitate cu specificațiile tehnice, cantitățile și perioada stipulate în contract.</p>
         <p class="alineat">Comisia de receptie constată că furnizorul și-a respectat obligațiile stabilite prin contract. Valoarea bunurilor corespunde cu prețul stabilit în contractul de furnizare semnat între părți.</p>
-        <p class="alineat">Procesul verbal conține 2 pagini și a fost semnat astăzi, <input type="text" class="input-data">, la sediul achizitorului, în două exemplare.</p>
+        <p class="alineat">Procesul verbal conține 2 pagini și a fost semnat astăzi, <input type="text" class="input-data" id="pv-data-semnat">, la sediul achizitorului, în două exemplare.</p>
 
         <div class="comisie-centrata">
             <p><strong>Beneficiar:</strong> Liceul Tehnologic ”Victor Mihăilescu Craiu” Belcești</p>
@@ -133,7 +133,6 @@
             <div class="membru-pv">3. prof. Scutaru Gabriela<div class="linie-semnatura"></div></div>
         </div>
     </div>
-    <div class="footer-content">„PNRR. Finanțat de Uniunea Europeană – UrmătoareaGenerațieUE”<br>https://mfe.gov.ro/pnrr/</div>
 </div>
 
 <script>
@@ -153,12 +152,33 @@
         5: "<strong>Meniu 5: Mâncare cartofi cu porc</strong> (Carne porc >130g, Mâncărică cartofi >150g, Murături asortate, 3 felii pâine, Tacâmuri)"
     };
 
-    async function salveazaNrInregistrare() {
-        const nr = document.getElementById('raport-nr').value;
-        const data = document.getElementById('raport-data').value;
-        await supabaseClient.from('setari_pontaj')
-            .update({ nr_raport: nr, data_raport: data })
-            .match({ luna: luna, an: an, zi: 1 });
+    const luniText = ["Ianuarie", "Februarie", "Martie", "Aprilie", "Mai", "Iunie", "Iulie", "August", "Septembrie", "Octombrie", "Noiembrie", "Decembrie"];
+
+    // Algoritmul de numerotare identic cu registru_vizualizare.html
+    function calculeazaNumereleRegistru(toateRandurile) {
+        const sorted = [...toateRandurile].sort((a, b) => {
+            const lA = luniText.indexOf(a.luna_inreg), lB = luniText.indexOf(b.luna_inreg);
+            if (lA !== lB) return lA - lB;
+            const ziA = parseInt(a.zi_inreg) || 999, ziB = parseInt(b.zi_inreg) || 999;
+            if (ziA !== ziB) return ziA - ziB;
+            const soA = a.sort_order != null ? a.sort_order : a.id;
+            const soB = b.sort_order != null ? b.sort_order : b.id;
+            return soA - soB;
+        });
+
+        let autoNr = 1;
+        const numereBlocate = sorted.filter(r => r.blocat).map(r => parseInt(r.numar_fix));
+        sorted.forEach(row => {
+            if (row.blocat) {
+                row.tempNr = parseInt(row.numar_fix);
+                autoNr = Math.max(autoNr, row.tempNr + 1);
+            } else {
+                while (numereBlocate.includes(autoNr)) autoNr++;
+                row.tempNr = autoNr;
+                autoNr++;
+            }
+        });
+        return sorted;
     }
 
     async function incarcaDate() {
@@ -166,14 +186,10 @@
         document.querySelectorAll('.an-nume').forEach(el => el.innerText = an);
         document.querySelectorAll('.luna-text-mic').forEach(el => el.innerText = luna.toLowerCase());
 
+        // 1. Încărcăm tabelul cu meniuri din setari_pontaj (neschimbat)
         const { data: records } = await supabaseClient.from('setari_pontaj').select('*').match({ luna: luna, an: an }).order('zi', { ascending: true });
 
         if (records && records.length > 0) {
-            // Restaurează nr. înregistrare din primul rând al lunii (zi: 1)
-            const primaZi = records.find(r => r.zi === 1) || records[0];
-            if (primaZi.nr_raport) document.getElementById('raport-nr').value = primaZi.nr_raport;
-            if (primaZi.data_raport) document.getElementById('raport-data').value = primaZi.data_raport;
-
             let index = 1, rowsHtml = "";
             const activeRecords = records.filter(r => r.valoare_aviz > 0);
             
@@ -189,9 +205,59 @@
             document.getElementById('tbody-pv').innerHTML = rowsHtml;
         }
 
-        // Salvează automat când utilizatorul termină de completat câmpul (on blur)
-        document.getElementById('raport-nr').addEventListener('change', salveazaNrInregistrare);
-        document.getElementById('raport-data').addEventListener('change', salveazaNrInregistrare);
+        // 2. Preluăm numerele de înregistrare din registru_master
+        const { data: toateRegistru } = await supabaseClient.from('registru_master')
+            .select('*')
+            .eq('an_inreg', an)
+            .eq('stare', 'activ');
+
+        if (toateRegistru && toateRegistru.length > 0) {
+            const cuNumere = calculeazaNumereleRegistru(toateRegistru);
+            const lunaNr = luniMapping[luna];
+            const lunaLower = luna.toLowerCase();
+
+            // Căutăm rândul "Raport de activitate masă caldă"
+            const randRaport = cuNumere.find(r => 
+                r.luna_inreg === luna && 
+                r.cuprins_act && r.cuprins_act.toLowerCase().includes('raport') && 
+                r.cuprins_act.toLowerCase().includes('masă caldă')
+            );
+            if (randRaport) {
+                const ziPad = (randRaport.zi_inreg || '..').toString().padStart(2, '0');
+                document.getElementById('raport-nr').value = randRaport.tempNr;
+                document.getElementById('raport-data').value = `${ziPad}.${lunaNr}.${an}`;
+            }
+
+            // Căutăm rândul "Proces verbal / Proces-verbal de recepție masă caldă"
+            const randPV = cuNumere.find(r => 
+                r.luna_inreg === luna && 
+                r.cuprins_act && r.cuprins_act.toLowerCase().includes('proces') && 
+                r.cuprins_act.toLowerCase().includes('verbal') && 
+                r.cuprins_act.toLowerCase().includes('recepție') && 
+                r.cuprins_act.toLowerCase().includes('masă caldă')
+            );
+            if (randPV) {
+                const ziPad = (randPV.zi_inreg || '..').toString().padStart(2, '0');
+                const dataPV = `${ziPad}.${lunaNr}.${an}`;
+                document.getElementById('pv-nr').value = randPV.tempNr;
+                document.getElementById('pv-data').value = dataPV;
+                document.getElementById('pv-data-comisie').value = dataPV;
+                document.getElementById('pv-data-semnat').value = dataPV;
+            }
+
+            // Căutăm rândul "Notă comandă / Notă de comandă masă caldă"
+            const randNC = cuNumere.find(r => 
+                r.luna_inreg === luna && 
+                r.cuprins_act && r.cuprins_act.toLowerCase().includes('notă') && 
+                r.cuprins_act.toLowerCase().includes('comandă') && 
+                r.cuprins_act.toLowerCase().includes('masă caldă')
+            );
+            if (randNC) {
+                const ziPad = (randNC.zi_inreg || '..').toString().padStart(2, '0');
+                document.getElementById('nc-nr').value = randNC.tempNr;
+                document.getElementById('nc-data').value = `${ziPad}.${lunaNr}.${an}`;
+            }
+        }
     }
     incarcaDate();
 </script>
