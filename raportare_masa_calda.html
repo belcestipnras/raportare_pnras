@@ -6,6 +6,7 @@
 <title>Raportare Masă Caldă PNRAS</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Montserrat:wght@700;800&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
@@ -36,6 +37,9 @@ body{font-family:'Inter',sans-serif;background:#0f172a;color:#e2e8f0;min-height:
 .btn{padding:7px 16px;border:none;border-radius:6px;font-weight:700;font-size:12px;cursor:pointer;display:inline-flex;align-items:center;gap:5px;color:white;transition:.15s;font-family:'Inter',sans-serif;}
 .btn:hover{filter:brightness(1.1);}
 .btn-back{background:#334155;}
+.btn-dosar-salvat{padding:7px 16px;border:none;border-radius:6px;font-weight:700;font-size:12px;cursor:pointer;display:inline-flex;align-items:center;gap:5px;background:linear-gradient(135deg,#065f46,#047857);color:#6ee7b7;transition:.15s;font-family:'Inter',sans-serif;white-space:nowrap;}
+.btn-dosar-salvat:hover{filter:brightness(1.15);}
+.btn-dosar-salvat-empty{font-size:11px;color:#334155;padding:7px 4px;}
 .btn-gen{background:linear-gradient(135deg,#10b981,#059669);font-size:13px;padding:9px 20px;}
 .btn-print{background:linear-gradient(135deg,#2563eb,#1e3a8a);}
 #status-bar{margin-top:6px;padding:5px 10px;border-radius:5px;font-size:11px;font-weight:600;display:none;}
@@ -92,6 +96,19 @@ body{font-family:'Inter',sans-serif;background:#0f172a;color:#e2e8f0;min-height:
 .aviz-table th{padding:4px 8px;background:#0f172a;border:1px solid #1e3a5f;font-size:10px;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:.5px;}
 .aviz-table td{padding:4px 8px;border:1px solid #1e3a5f;font-size:11px;color:#cbd5e1;}
 .aviz-table tfoot td{background:#0f172a;}
+.liste-sectiune{margin-top:10px;background:#0a1929;border:1px solid #1e3a5f;border-radius:6px;overflow:hidden;}
+.dosar-salvat-box{background:#0d2010;border:1px solid #10b981;border-radius:8px;padding:10px;margin-bottom:8px;}
+.dosar-salvat-box.dosar-salvat-empty{background:#0f172a;border-color:#1e293b;color:#334155;font-size:10px;text-align:center;padding:12px;}
+.dosar-salvat-title{font-size:9px;font-weight:800;color:#10b981;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;}
+.dosar-salvat-luna{font-size:13px;font-weight:700;color:#e2e8f0;margin-bottom:4px;}
+.dosar-salvat-data{font-size:9px;color:#475569;margin-bottom:8px;}
+.dosar-salvat-acts{display:flex;flex-direction:column;gap:4px;}
+.liste-sectiune-title{padding:5px 10px;font-size:9px;font-weight:800;color:#f59e0b;letter-spacing:1px;text-transform:uppercase;border-bottom:1px solid #1e3a5f;background:#1a1000;}
+.lista-clasa-row{display:flex;align-items:center;gap:8px;padding:5px 10px;border-bottom:1px solid #1e293b;flex-wrap:wrap;}
+.lista-clasa-row:last-child{border-bottom:none;}
+.lista-clasa-lbl{font-size:11px;font-weight:800;color:#10b981;min-width:36px;}
+.lista-expert-lbl{font-size:10px;color:#475569;flex:1;font-style:italic;}
+.lista-link{text-decoration:none;font-size:10px!important;padding:2px 8px!important;}
 
 /* Files */
 .file-list{display:flex;flex-direction:column;gap:5px;margin-bottom:8px;}
@@ -104,6 +121,11 @@ body{font-family:'Inter',sans-serif;background:#0f172a;color:#e2e8f0;min-height:
 .bv{background:#1e3a5f;color:#60a5fa;}
 .bd{background:#1e0000;color:#ef4444;}
 .no-docs{font-size:11px;color:#334155;padding:3px 0;}
+.fi-excluded{opacity:.45;}
+.fi-excluded .fi-name{text-decoration:line-through;color:#475569;}
+.toggle-print-wrap{display:inline-flex;align-items:center;gap:3px;cursor:pointer;}
+.toggle-print-wrap input[type=checkbox]{width:13px;height:13px;accent-color:#10b981;cursor:pointer;}
+.toggle-print-lbl{font-size:9px;font-weight:700;color:#64748b;white-space:nowrap;}
 
 /* Upload zone */
 .upzone{border:2px dashed #1e3a5f;border-radius:7px;padding:14px;text-align:center;cursor:pointer;transition:.2s;margin-top:4px;}
@@ -276,7 +298,7 @@ body{font-family:'Inter',sans-serif;background:#0f172a;color:#e2e8f0;min-height:
       <span class="cp-luna" id="cp-luna">—</span>
       <button class="btn btn-back" onclick="goBack()">⬅ Înapoi</button>
       <button class="btn btn-gen" onclick="genDosar()">🚀 GENEREAZĂ DOSAR</button>
-      <button class="btn btn-print" onclick="window.print()">🖨️ PDF</button>
+      <div id="dosar-salvat-header"></div>
     </div>
     <div id="status-bar"></div>
   </div>
@@ -322,9 +344,12 @@ const SECTIUNI=[
   {id:'S9',label:'Extras de Cont',icon:'🏧'},
 ];
 
-let _luna='',_an='',_pontaj=[],_pontDet=[],_byTip={},_ctrDocs=[],_facturi=[],_eleviPerClasa={};
+let _luna='',_an='',_pontaj=[],_pontDet=[],_byTip={},_ctrDocs=[],_facturi=[],_eleviPerClasa={},_listeZiClasa={};
 
-pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+// Carica worker pdf.js ca blob pentru a evita erori file://
+fetch('https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js')
+  .then(r=>r.blob()).then(b=>{pdfjsLib.GlobalWorkerOptions.workerSrc=URL.createObjectURL(b);})
+  .catch(()=>{pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';});
 
 // ===== R2 =====
 async function r2Up(fileName,blob){
@@ -389,18 +414,42 @@ function groupZile(pontaj){
 async function load(){
   setSt('⏳ Se încarcă...','load');
   try{
-    const[docsR,pontR,detR,ctrR,factR,eleviR]=await Promise.all([
+    const[docsR,pontR,detR,ctrR]=await Promise.all([
       db.from('documente_contract').select('*').eq('contract_id',CTR_ID).order('data_upload',{ascending:true}),
       db.from('setari_pontaj').select('*').match({luna:_luna,an:_an}).order('zi',{ascending:true}),
       db.from('pontaj_detaliat').select('zi,clase_grupe,expert').eq('luna',_luna).eq('an',_an),
-      db.from('documente_contract').select('*').eq('contract_id',CTR_ID).eq('tip_document','9. Contract'),
-      db.from('buget_pnras').select('id,titlu,numar,data_document,valoare,val_fara_tva').eq('parent_id',CTR_ID).eq('tip_rand','FACTURA').ilike('titlu','%'+_luna.toLowerCase()+'%'),
-      db.from('elevi').select('clasa_grupa')
+      db.from('documente_contract').select('*').eq('contract_id',CTR_ID).eq('tip_document','9. Contract')
+    ]);
+    // Fetch secundar — nu blochează dacă eșuează
+    const[factR,eleviR,listeR]=await Promise.all([
+      db.from('buget_pnras').select('id,titlu,numar,data_document,valoare,val_fara_tva').eq('parent_id',CTR_ID).eq('tip_rand','FACTURA').ilike('titlu','%'+_luna.toLowerCase()+'%').then(r=>r).catch(()=>({data:[]})),
+      db.from('elevi').select('clasa_grupa').then(r=>r).catch(()=>({data:[]})),
+      db.from('liste_fisiere').select('*').eq('luna',_luna).eq('an',_an).then(r=>r).catch(()=>({data:[]}))
     ]);
     _ctrDocs=ctrR.data||[];
     // Număr elevi per clasă
     _eleviPerClasa={};
     (eleviR.data||[]).forEach(e=>{const c=e.clasa_grupa;if(c)_eleviPerClasa[c]=(_eleviPerClasa[c]||0)+1;});
+    // Liste prezență/masă per zi+clasă — ancora: masa
+    // Dacă există masa pentru zi+clasă → afișăm masa + prezența aceluiași expert
+    // Dacă nu există masa → excludem complet clasa din zi respectivă
+    _listeZiClasa={};
+    const toateListe=listeR.data||[];
+    // Grupăm mai întâi toate listele pe zi|clasa
+    const _tmpListe={};
+    toateListe.forEach(l=>{
+      const k=String(l.zi)+'|'+(l.clasa||'');
+      if(!_tmpListe[k])_tmpListe[k]=[];
+      _tmpListe[k].push(l);
+    });
+    // Păstrăm doar zi+clase unde există masa
+    Object.entries(_tmpListe).forEach(([k,arr])=>{
+      const masa=arr.find(l=>l.tip==='masa');
+      if(!masa)return; // fără masă = excludem
+      // Prezența: doar a expertului care are masa
+      const prez=arr.find(l=>l.tip==='prezenta'&&l.expert===masa.expert);
+      _listeZiClasa[k]={masa,prez:prez||null,expert:masa.expert};
+    });
     // Pentru fiecare factură găsită după titlu, preia PDF-ul din documente_contract
     const facturiMeta=factR.data||[];
     if(facturiMeta.length){
@@ -419,10 +468,11 @@ async function load(){
     const byTip={};
     docs.forEach(d=>{if(!byTip[d.tip_document])byTip[d.tip_document]=[];byTip[d.tip_document].push(d);});
     _byTip=byTip;
-    renderSidebar(byTip);
-    renderMain(byTip);
+    try{renderSidebar(byTip);}catch(e){console.error('renderSidebar:',e);}
+    try{renderMain(byTip);}catch(e){console.error('renderMain:',e);}
+    await loadDosarSalvat().catch(e=>console.warn('loadDosarSalvat:',e));
     setSt('','');
-  }catch(e){setSt('❌ '+e.message,'err');}
+  }catch(e){console.error('load() catch:',e);setSt('❌ '+e.message,'err');}
 }
 
 // ===== SIDEBAR =====
@@ -527,6 +577,32 @@ function renderMain(byTip){
               <div class="day-body">
                 ${fileListHtml(docs,s.id,p.zi)}
                 ${upzoneHtml(s.id,p.zi)}
+                ${(()=>{
+                  // Liste din dosar_lunar per clasă — ancora: masa
+                  const clasecu=clase.filter(c=>_listeZiClasa[String(p.zi)+'|'+c]);
+                  if(!clasecu.length)return '';
+                  let lHtml='<div class="liste-sectiune">';
+                  lHtml+='<div class="liste-sectiune-title">📋 Liste din dosar expert</div>';
+                  clasecu.forEach(c=>{
+                    const entry=_listeZiClasa[String(p.zi)+'|'+c];
+                    lHtml+='<div class="lista-clasa-row">';
+                    lHtml+='<span class="lista-clasa-lbl">'+c+'</span>';
+                    lHtml+='<span class="lista-expert-lbl">'+entry.expert+'</span>';
+                    if(entry.masa){
+                      const lkm=(entry.masa.public_url||'').replace(/'/g,"\\'");
+                      lHtml+='<a class="bsm bv lista-link" href="'+lkm+'" target="_blank">🍽 Listă masă</a>';
+                    }
+                    if(entry.prez){
+                      const lkp=(entry.prez.public_url||'').replace(/'/g,"\\'");
+                      lHtml+='<a class="bsm bv lista-link" href="'+lkp+'" target="_blank">📋 Listă prezență</a>';
+                    } else {
+                      lHtml+='<span style="font-size:10px;color:#475569;">— fără prezență</span>';
+                    }
+                    lHtml+='</div>';
+                  });
+                  lHtml+='</div>';
+                  return lHtml;
+                })()}
               </div>
             </div>`;
           } else {
@@ -564,14 +640,11 @@ function renderMain(byTip){
           const icon={'pdf':'📄','doc':'📝','docx':'📝','jpg':'🖼️','jpeg':'🖼️','png':'🖼️'}[ext]||'📎';
           const nm=(d.nume_fisier||'Contract').replace(/'/g,"\'");
           const lk=(d.link_drive||'').replace(/'/g,"\'");
-          s1Html+=`<div class="file-item">
-            <span class="fi-icon">${icon}</span>
-            <span class="fi-name" title="${d.nume_fisier||'Contract'}">${d.nume_fisier||'Contract'}</span>
-            <div class="fi-acts">
-              <button class="bsm bv" onclick="viewDoc('${lk}','${nm}')">👁 Vezi</button>
-              <a class="bsm bv" href="${lk}" target="_blank" style="text-decoration:none;">🔗 Deschide</a>
-            </div>
-          </div>`;
+          s1Html+=fileItemToggle(d,icon,
+            `<span title="${d.nume_fisier||'Contract'}">${d.nume_fisier||'Contract'}</span>`,
+            `<button class="bsm bv" onclick="viewDoc('${lk}','${nm}')">👁 Vezi</button>`
+            +`<a class="bsm bv" href="${lk}" target="_blank" style="text-decoration:none;">🔗 Deschide</a>`
+          );
         });
         s1Html+='</div>';
       } else {
@@ -583,47 +656,6 @@ function renderMain(byTip){
       s1Html+=upzoneHtml(s.id);
       body=s1Html;
     } else if(s.id==='S2'){
-      let s2Html='';
-      if(_facturi.length){
-        s2Html+='<div class="file-list">';
-        _facturi.forEach(f=>{
-          const dataF=f.data_document?f.data_document.split('T')[0].split('-').reverse().join('.'):'—';
-          const valoare=parseFloat(f.valoare||0).toLocaleString('ro-RO',{minimumFractionDigits:2})+'  lei';
-          if(f.doc&&f.doc.link_drive){
-            const ext=(f.doc.link_drive.split('?')[0].split('.').pop()||'').toLowerCase();
-            const icon=ext==='pdf'?'📄':'📎';
-            const nm=(f.doc.nume_fisier||'Factură').replace(/'/g,"\'");
-            const lk=(f.doc.link_drive||'').replace(/'/g,"\'");
-            s2Html+=`<div class="file-item">
-              <span class="fi-icon">${icon}</span>
-              <div style="flex:1;min-width:0;">
-                <div class="fi-name" title="${f.doc.nume_fisier||'Factură'}">${f.doc.nume_fisier||'Factură'}</div>
-                <div style="font-size:9px;color:#475569;margin-top:1px;">Nr. ${f.numar||'—'} / ${dataF} &nbsp;·&nbsp; ${valoare}</div>
-              </div>
-              <div class="fi-acts">
-                <button class="bsm bv" onclick="viewDoc('${lk}','${nm}')">👁 Vezi</button>
-                <a class="bsm bv" href="${lk}" target="_blank" style="text-decoration:none;">🔗 Deschide</a>
-              </div>
-            </div>`;
-          } else {
-            s2Html+=`<div class="file-item" style="opacity:.6;">
-              <span class="fi-icon">⚠️</span>
-              <div style="flex:1;min-width:0;">
-                <div class="fi-name">${f.titlu||'Factură'}</div>
-                <div style="font-size:9px;color:#f59e0b;margin-top:1px;">Nr. ${f.numar||'—'} / ${dataF} &nbsp;·&nbsp; ${valoare} &nbsp;·&nbsp; PDF lipsă</div>
-              </div>
-            </div>`;
-          }
-        });
-        s2Html+='</div>';
-      } else {
-        s2Html='<div class="no-docs">Nicio factură găsită pentru această lună.</div>';
-      }
-      const docsS2=byTip[mk(s.id)]||[];
-      if(docsS2.length) s2Html+=fileListHtml(docsS2,s.id);
-      s2Html+=upzoneHtml(s.id);
-      body=s2Html;
-    } else if(s.id==='S2'){
       // Facturi — din buget_pnras filtrate pe luna, cu PDF din documente_contract
       let s2Html='';
       if(_facturi.length){
@@ -632,16 +664,12 @@ function renderMain(byTip){
           const label='Fact. Nr. '+(f.numar||'?')+' / '+(f.data_document?f.data_document.split('T')[0].split('-').reverse().join('.'):'—')+' — '+(f.titlu||'');
           const valoare=f.valoare?parseFloat(f.valoare).toLocaleString('ro-RO',{minimumFractionDigits:2})+' RON':'';
           if(f.doc&&f.doc.link_drive){
-            const lk=(f.doc.link_drive||'').replace(/'/g,"\'");
-            const nm=(f.doc.nume_fisier||label).replace(/'/g,"\'");
-            s2Html+='<div class="file-item">'+
-              '<span class="fi-icon">💰</span>'+
-              '<span class="fi-name" title="'+label+(valoare?' ('+valoare+')':'')+'">'+label+(valoare?' <span style="color:#10b981;font-size:10px;">('+valoare+')</span>':'')+'</span>'+
-              '<div class="fi-acts">'+
-                '<button class="bsm bv" onclick="viewDoc(\''+lk+'\',\''+nm+'\')">👁 Vezi</button>'+
-                '<a class="bsm bv" href="'+lk+'" target="_blank" style="text-decoration:none;">🔗 Deschide</a>'+
-              '</div>'+
-            '</div>';
+            const lk=(f.doc.link_drive||'').replace(/'/g,"\\'");
+            const nm=(f.doc.nume_fisier||label).replace(/'/g,"\\'");
+            const nameHtml='<span title="'+label+(valoare?' ('+valoare+')':'')+'">'+label+(valoare?' <span style="color:#10b981;font-size:10px;">('+valoare+')</span>':'')+'</span>';
+            const actsHtml='<button class="bsm bv" onclick="viewDoc(\''+lk+'\',\''+nm+'\')">👁 Vezi</button>'
+              +'<a class="bsm bv" href="'+lk+'" target="_blank" style="text-decoration:none;">🔗 Deschide</a>';
+            s2Html+=fileItemToggle(f.doc,'💰',nameHtml,actsHtml);
           } else {
             // Factură fără PDF atașat
             s2Html+='<div class="file-item" style="opacity:.6;">'+
@@ -680,10 +708,14 @@ function renderMain(byTip){
       const grupe2=groupZile(_pontaj);
       cnt=grupe2.reduce((a,g)=>{
         const gk=g.type==='livrat'?g.zile[0].zi:'com_'+g.zile[0].zi+'-'+g.zile[g.zile.length-1].zi;
-        return a+(byTip[mk(s.id,gk)]||[]).length;
+        return a+(byTip[mk(s.id,gk)]||[]).filter(d=>!d.exclude_print).length;
       },0);
-    } else {cnt=(byTip[mk(s.id)]||[]).length;}
-    return`<div class="sec-card" id="sc_${s.id}">
+    } else if(s.id==='S1'){
+      cnt=_ctrDocs.filter(d=>!d.exclude_print).length+(byTip[mk(s.id)]||[]).filter(d=>!d.exclude_print).length;
+    } else if(s.id==='S2'){
+      cnt=_facturi.filter(f=>f.doc&&!f.doc.exclude_print).length+(byTip[mk(s.id)]||[]).filter(d=>!d.exclude_print).length;
+    } else {cnt=(byTip[mk(s.id)]||[]).filter(d=>!d.exclude_print).length;}
+    return`<div class="sec-card collapsed" id="sc_${s.id}">
       <div class="sec-hdr" onclick="toggleSec('${s.id}')">
         <span class="sec-hdr-icon">${s.icon}</span>
         <div class="sec-hdr-info">
@@ -698,6 +730,21 @@ function renderMain(byTip){
   }).join('');
 }
 
+function fileItemToggle(d,icon,nameHtml,extraActsHtml=''){
+  const excluded=d.exclude_print===true;
+  return '<div class="file-item'+(excluded?' fi-excluded':'')+'">'
+    +'<span class="fi-icon">'+icon+'</span>'
+    +'<span class="fi-name">'+nameHtml+'</span>'
+    +'<div class="fi-acts">'
+    +extraActsHtml
+    +'<label class="toggle-print-wrap" title="'+(excluded?'Exclus din print':'Inclus \u00een print')+'">'
+    +'<input type="checkbox" class="toggle-print-cb" '+(excluded?'':'checked')+' onchange="toggleExcludePrint(\''+d.id+'\',!this.checked)">'
+    +'<span class="toggle-print-lbl">'+(excluded?'\u{1f6ab} Print':'\u{1f5a8} Print')+'</span>'
+    +'</label>'
+    +'</div>'
+    +'</div>';
+}
+
 function fileListHtml(docs,secId,zi=''){
   if(!docs.length)return`<div class="no-docs">Niciun document adăugat.</div>`;
   return`<div class="file-list">${docs.map(d=>{
@@ -705,12 +752,17 @@ function fileListHtml(docs,secId,zi=''){
     const icon={'pdf':'📄','doc':'📝','docx':'📝','jpg':'🖼️','jpeg':'🖼️','png':'🖼️','webp':'🖼️'}[ext]||'📎';
     const nm=(d.nume_fisier||'document').replace(/'/g,"\\'");
     const lk=(d.link_drive||'').replace(/'/g,"\\'");
-    return`<div class="file-item" id="fi_${d.id}">
+    const excluded=d.exclude_print===true;
+    return`<div class="file-item${excluded?' fi-excluded':''}" id="fi_${d.id}">
       <span class="fi-icon">${icon}</span>
       <span class="fi-name" title="${d.nume_fisier||'document'}">${d.nume_fisier||'document'}</span>
       <div class="fi-acts">
         <button class="bsm bv" onclick="viewDoc('${lk}','${nm}')">👁 Vezi</button>
-        <button class="bsm bd" onclick="delDoc('${d.id}','${lk}','${secId}','${zi}')">🗑 Șterge</button>
+        <label class="toggle-print-wrap" title="${excluded?'Exclus din print — click pentru a include':'Inclus în print — click pentru a exclude'}">
+          <input type="checkbox" class="toggle-print-cb" ${excluded?'':'checked'} onchange="toggleExcludePrint('${d.id}',!this.checked)">
+          <span class="toggle-print-lbl">${excluded?'🚫 Print':'🖨 Print'}</span>
+        </label>
+        <button class="bsm bd" onclick="delDoc('${d.id}','${lk}','${secId}','${zi}')">🗑 Şterge</button>
       </div>
     </div>`;
   }).join('')}</div>`;
@@ -781,6 +833,25 @@ async function uploadFiles(files,secId,zi){
 }
 
 // ===== DELETE =====
+async function toggleExcludePrint(id,exclude){
+  try{
+    await db.from('documente_contract').update({exclude_print:exclude}).eq('id',id);
+    // Update local byTip data without full reload
+    Object.values(_byTip).forEach(arr=>arr.forEach(d=>{if(d.id===id)d.exclude_print=exclude;}));
+    // Update visual state
+    const el=document.getElementById('fi_'+id);
+    if(el){
+      el.classList.toggle('fi-excluded',exclude);
+      const lbl=el.querySelector('.toggle-print-lbl');
+      if(lbl)lbl.textContent=exclude?'🚫 Print':'🖨 Print';
+      const cb=el.querySelector('.toggle-print-cb');
+      if(cb)cb.title=exclude?'Exclus din print — click pentru a include':'Inclus în print — click pentru a exclude';
+    }
+    // Refresh doc counts in section headers
+    renderSidebar(_byTip);
+  }catch(e){alert('Eroare: '+e.message);}
+}
+
 async function delDoc(id,link,secId,zi){
   if(!confirm('Ștergi documentul?'))return;
   try{
@@ -877,22 +948,47 @@ function printClasaPlaceholders(secId,idx,zi,dataF,claseProf){
 }
 
 async function pdfToImages(url,scale=1.8){
+  return fileToImages(url,scale);
+}
+async function fileToImages(url,scale=1.8){
   const images=[];
+  const ext=(url.split('?')[0].split('.').pop()||'').toLowerCase();
   try{
-    const pdf=await pdfjsLib.getDocument({
-      url,
-      cMapUrl:'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/cmaps/',
-      cMapPacked:true
-    }).promise;
-    for(let n=1;n<=pdf.numPages;n++){
-      const pg=await pdf.getPage(n);
-      const vp=pg.getViewport({scale});
-      const cv=document.createElement('canvas');
-      cv.width=vp.width;cv.height=vp.height;
-      await pg.render({canvasContext:cv.getContext('2d'),viewport:vp}).promise;
+    if(['jpg','jpeg','png','webp','gif','bmp','tiff','tif','avif'].includes(ext)){
+      // Imagine standard: fetch → canvas → jpeg
+      const resp=await fetch(url);
+      const blob=await resp.blob();
+      const dataUrl=await new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=rej;r.readAsDataURL(blob);});
+      const img=await new Promise((res,rej)=>{const i=new Image();i.onload=()=>res(i);i.onerror=rej;i.src=dataUrl;});
+      const cv=document.createElement('canvas');cv.width=img.naturalWidth;cv.height=img.naturalHeight;
+      cv.getContext('2d').drawImage(img,0,0);
       images.push(cv.toDataURL('image/jpeg',0.92));
+    } else if(['heic','heif'].includes(ext)){
+      // HEIC: fetch blob → heic2any → data URL
+      const resp=await fetch(url);
+      const blob=await resp.blob();
+      const converted=await heic2any({blob,toType:'image/jpeg',quality:0.92});
+      const arrBlob=Array.isArray(converted)?converted:[converted];
+      for(const b of arrBlob){
+        const dataUrl=await new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=rej;r.readAsDataURL(b);});
+        images.push(dataUrl);
+      }
+    } else {
+      // PDF (sau orice altceva) via pdf.js
+      const pdf=await pdfjsLib.getDocument({
+        url,
+        cMapUrl:'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/cmaps/',
+        cMapPacked:true
+      }).promise;
+      for(let n=1;n<=pdf.numPages;n++){
+        const pg=await pdf.getPage(n);
+        const vp=pg.getViewport({scale});
+        const cv=document.createElement('canvas');cv.width=vp.width;cv.height=vp.height;
+        await pg.render({canvasContext:cv.getContext('2d'),viewport:vp}).promise;
+        images.push(cv.toDataURL('image/jpeg',0.92));
+      }
     }
-  }catch(e){console.warn('pdfToImages error:',e);}
+  }catch(e){console.warn('fileToImages error ('+ext+'):',e);}
   return images;
 }
 
@@ -909,6 +1005,14 @@ async function genDosar(){
     const blob=await resp.blob();
     antetSrc=await new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=rej;r.readAsDataURL(blob);});
   }catch(e){console.warn('Antet fallback URL',e);}
+
+  // Cache imagini — populat secvential la procesare
+  const _imgCache={};
+  async function getImgs(key,url){
+    if(!_imgCache[key])_imgCache[key]=await pdfToImages(url);
+    return _imgCache[key];
+  }
+
 
   // Construiește paginile de print
   let printHtml='';
@@ -943,24 +1047,15 @@ async function genDosar(){
 
     if(s.id==='S1'){
       if(ctrDocs&&ctrDocs.length){
-        for(const d of ctrDocs){
+        for(const d of ctrDocs.filter(x=>!x.exclude_print)){
           const url=d.link_drive;
           if(!url){continue;}
           const ext=(url.split('?')[0].split('.').pop()||'').toLowerCase();
-          setSt('⏳ Se procesează contractul...','load');
-          if(ext==='pdf'){
-            const imgs=await pdfToImages(url);
-            if(imgs.length){
-              imgs.forEach(src=>{
-                printHtml+=`<div class="print-pdf-page"><img src="${src}" style="width:100%;display:block;"></div>`;
-              });
-            } else {
-              printHtml+=printPlaceholder(s.id,i,s.label,'CONTRACT — eroare la procesare PDF');
-            }
-          } else if(['jpg','jpeg','png','webp'].includes(ext)){
-            printHtml+=`<div class="print-pdf-page"><img src="${url}" style="width:100%;display:block;"></div>`;
+          const imgsS1=await getImgs('ctr_'+d.id,d.link_drive);
+          if(imgsS1.length){
+            imgsS1.forEach(src=>{printHtml+=`<div class="print-pdf-page"><img src="${src}" style="width:100%;display:block;"></div>`;});
           } else {
-            printHtml+=printPlaceholder(s.id,i,s.label,'CONTRACT — format nesuportat pentru print automat ('+ext+')');
+            printHtml+=printPlaceholder(s.id,i,s.label,'CONTRACT — eroare la procesare');
           }
         }
       } else {
@@ -972,13 +1067,8 @@ async function genDosar(){
           if(f.doc&&f.doc.link_drive){
             const url=f.doc.link_drive;
             const ext=(url.split('?')[0].split('.').pop()||'').toLowerCase();
-            setSt(`⏳ Se procesează factura nr. ${f.numar||''}...`,'load');
-            if(ext==='pdf'){
-              const imgs=await pdfToImages(url);
-              imgs.forEach(src=>{printHtml+=`<div class="print-pdf-page"><img src="${src}" style="width:100%;display:block;"></div>`;});
-            } else if(['jpg','jpeg','png','webp'].includes(ext)){
-              printHtml+=`<div class="print-pdf-page"><img src="${url}" style="width:100%;display:block;"></div>`;
-            }
+            const imgsS2=await getImgs('fact_'+f.doc.id,url);
+            imgsS2.forEach(src=>{printHtml+=`<div class="print-pdf-page"><img src="${src}" style="width:100%;display:block;"></div>`;});
           } else {
             const dataF=f.data_document?f.data_document.split('T')[0].split('-').reverse().join('.'):'—';
             printHtml+=printPlaceholder(s.id,i,s.label,`FACTURĂ NR. ${f.numar||'—'} / ${dataF} — PDF LIPSĂ`);
@@ -993,10 +1083,29 @@ async function genDosar(){
       printHtml+=printPlaceholder(s.id,i,s.label,'AICI TREBUIE SĂ INTRODUCI PROCESUL VERBAL DE RECEPȚIE SEMNAT');
     } else if(s.id==='S5'){
       printHtml+=printPlaceholder(s.id,i,s.label,'AICI TREBUIE SĂ INTRODUCI NOTA DE COMANDĂ SEMNATĂ');
+    } else if(!['S1','S2','S3','S4','S5'].includes(s.id)&&!s.avize){
+      // S7, S8, S9 — documente uploadate manual, filtrate exclude_print
+      const uploadedDocs=(_byTip[mk(s.id)]||[]).filter(d=>!d.exclude_print);
+      for(const d of uploadedDocs){
+        if(!d.link_drive)continue;
+        setSt('⏳ Se procesează '+s.label+'...','load');
+        const imgs=await getImgs('doc_'+d.id,d.link_drive);
+        if(imgs.length) imgs.forEach(src=>{printHtml+=`<div class="print-pdf-page"><img src="${src}" style="width:100%;display:block;"></div>`;});
+        else printHtml+=printPlaceholder(s.id,i,s.label,'Eroare la procesare: '+(d.nume_fisier||'document'));
+      }
+      if(!uploadedDocs.length){
+        const c7=SEC_COLORS[s.id]||{color:'#334155',bg:'#f8fafc',border:'#e2e8f0'};
+        printHtml+=`<div class="print-placeholder-page" style="border-color:${c7.border};">`
+          +`<div class="print-ph-tag" style="background:${c7.bg};color:${c7.color};border-color:${c7.border};">${s.label}</div>`
+          +`<div class="print-ph-icon">📂</div>`
+          +`<div class="print-ph-title" style="color:${c7.color};">Niciun document încărcat</div>`
+          +`<div class="print-ph-box" style="border-color:${c7.border};color:${c7.color};">Adaugă documentele pentru <strong>${s.label}</strong> din dosarul lunii.</div>`
+          +`</div>`;
+      }
     } else if(s.avize){
       // S6 — per zi livrată, adaugă placeholder clase
       const grupe=groupZile(_pontaj);
-      grupe.forEach(g=>{
+      for(const g of grupe){
         if(g.type==='livrat'){
           const p=g.zile[0];
           const zi=String(p.zi).padStart(2,'0');
@@ -1040,29 +1149,199 @@ async function genDosar(){
                 </tr></tfoot>
               </table>
             </div>`;
-            printHtml+=printClasaPlaceholders(s.id,i,p.zi,dataF,claseProf2);
+            // Per clasă: dacă are liste încărcate → randez PDF; altfel → disclaimer
+            const claseList3=Object.keys(claseProf2).sort();
+            for(const cl of claseList3){
+              const entry=_listeZiClasa[String(p.zi)+'|'+cl];
+              const profi=(claseProf2[cl]||[]).join(', ');
+              const nrElevi=_eleviPerClasa[cl]!==undefined?_eleviPerClasa[cl]:'';
+              const c3=SEC_COLORS[s.id]||{color:'#065f46',bg:'#ecfdf5',border:'#6ee7b7'};
+              const expertLipsa=profi||'expertul responsabil';
+              // Header pagina lista — apare intotdeauna
+              printHtml+=`<div class="print-placeholder-page" style="border-color:${c3.border};">
+                <div class="print-ph-tag" style="background:${c3.bg};color:${c3.color};border-color:${c3.border};">S6 — Avize / Liste &nbsp;·&nbsp; ${dataF}</div>
+                <div class="print-ph-title" style="color:${c3.color};">Lista de prezență și lista de masă<br>pentru clasa / grupa <strong>${cl}</strong>${profi?'<br><span style="font-size:14pt;font-weight:400;">Prof. '+profi+'</span>':''}</div>
+                <div class="print-ph-box" style="border-color:${c3.border};color:${c3.color};">
+                  <div style="margin-bottom:8px;">📋 <strong>Listă prezență</strong> — clasa/grupa <strong>${cl}</strong> — ${dataF}${nrElevi!==''?' — <strong>'+nrElevi+' elevi</strong>':''}</div>
+                  <div>🍽️ <strong>Listă masă</strong> — clasa/grupa <strong>${cl}</strong> — ${dataF}</div>
+                </div>
+              </div>`;
+              if(entry&&(entry.prez||entry.masa)){
+                // Randez prezenta
+                if(entry.prez&&entry.prez.public_url){
+                  setSt('⏳ Se procesează lista de prezență '+cl+'...','load');
+                  const imgsPrez=await getImgs('prez_'+entry.prez.id,entry.prez.public_url);
+                  if(imgsPrez.length) imgsPrez.forEach(src=>{printHtml+=`<div class="print-pdf-page"><img src="${src}" style="width:100%;display:block;"></div>`;});
+                  else printHtml+=`<div class="print-placeholder-page" style="border-color:${c3.border};"><div class="print-ph-tag" style="background:${c3.bg};color:${c3.color};">Listă prezență — ${cl} — ${dataF}</div><div class="print-ph-icon">⚠️</div><div class="print-ph-title" style="color:${c3.color};">Eroare la procesare PDF prezență</div></div>`;
+                }
+                // Randez masa
+                if(entry.masa&&entry.masa.public_url){
+                  setSt('⏳ Se procesează lista de masă '+cl+'...','load');
+                  const imgsMasa=await getImgs('masa_'+entry.masa.id,entry.masa.public_url);
+                  if(imgsMasa.length) imgsMasa.forEach(src=>{printHtml+=`<div class="print-pdf-page"><img src="${src}" style="width:100%;display:block;"></div>`;});
+                  else printHtml+=`<div class="print-placeholder-page" style="border-color:${c3.border};"><div class="print-ph-tag" style="background:${c3.bg};color:${c3.color};">Listă masă — ${cl} — ${dataF}</div><div class="print-ph-icon">⚠️</div><div class="print-ph-title" style="color:${c3.color};">Eroare la procesare PDF masă</div></div>`;
+                }
+              } else {
+                // Disclaimer imediat dupa header — lipsesc listele
+                printHtml+=`<div class="print-placeholder-page" style="border-color:${c3.border};">
+                  <div class="print-ph-tag" style="background:${c3.bg};color:${c3.color};border-color:${c3.border};">S6 — Liste lipsă — ${dataF}</div>
+                  <div class="print-ph-icon">⚠️</div>
+                  <div class="print-ph-title" style="color:${c3.color};">Lipsesc listele pentru clasa <strong>${cl}</strong></div>
+                  <div class="print-ph-box" style="border-color:${c3.border};color:${c3.color};">
+                    <div style="margin-bottom:12px;">📋 Încarcă / Adaugă <strong>lista de prezență</strong> pentru <strong>${cl}</strong>, <strong>${expertLipsa}</strong>, din data de <strong>${dataF}</strong></div>
+                    <div>🍽️ Încarcă / Adaugă <strong>lista de masă</strong> pentru <strong>${cl}</strong>, <strong>${expertLipsa}</strong>, din data de <strong>${dataF}</strong></div>
+                  </div>
+                </div>`;
+              }
+            }
           }
         }
-      });
+      }
     }
   }
 
-  // Inserează containerul de print
-  let printDiv=document.getElementById('print-dosar-container');
-  if(printDiv) printDiv.remove();
-  printDiv=document.createElement('div');
-  printDiv.id='print-dosar-container';
-  printDiv.innerHTML=printHtml;
-  document.body.appendChild(printDiv);
-
-  setSt('🖨️ Pregătit pentru print. Apasă CTRL+P sau butonul PDF.','ok');
-  setTimeout(()=>window.print(),300);
+  // ===== SALVEAZĂ DOSARUL =====
+  setSt('⏳ Se salvează dosarul...','load');
+  try{
+    // Construiește HTML standalone — vizualizator cu pagini A4
+    const fonts='<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Montserrat:wght@700;800&display=swap" rel="stylesheet">';
+    const viewerCss=`
+      *{box-sizing:border-box;margin:0;padding:0;}
+      body{background:#525659;font-family:'Inter',Arial,sans-serif;padding:0;}
+      .viewer-toolbar{position:fixed;top:0;left:0;right:0;z-index:1000;background:#323639;padding:10px 20px;display:flex;align-items:center;gap:12px;box-shadow:0 2px 8px rgba(0,0,0,.4);}
+      .viewer-title{color:#e2e8f0;font-size:13px;font-weight:700;flex:1;}
+      .viewer-btn{padding:7px 18px;border:none;border-radius:5px;font-weight:700;font-size:12px;cursor:pointer;font-family:'Inter',sans-serif;}
+      .viewer-btn-print{background:#10b981;color:#000;}
+      .viewer-btn-print:hover{background:#059669;}
+      .viewer-pages{padding:60px 20px 40px;display:flex;flex-direction:column;align-items:center;gap:16px;}
+      /* Pagini generale */
+      .print-sec-page,.print-placeholder-page,.print-cover-page,.print-pdf-page,.print-aviz-page,.print-doc-ref{
+        width:210mm;min-height:297mm;background:#fff;box-shadow:0 4px 20px rgba(0,0,0,.4);
+        box-sizing:border-box;position:relative;overflow:hidden;
+        -webkit-print-color-adjust:exact;print-color-adjust:exact;
+      }
+      .print-pdf-page img{width:100%;height:auto;display:block;}
+      /* Coperta */
+      .print-cover-page{display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:0 0 60px 0;border:10px solid #10b981;}
+      .print-cover-page::before,.print-cover-page::after{content:'';position:absolute;left:16px;right:16px;height:4px;background:#10b981;border-radius:2px;}
+      .print-cover-page::before{top:16px;}.print-cover-page::after{bottom:16px;}
+      .print-cover-antet{width:100%;max-width:100%;object-fit:cover;object-position:center top;display:block;flex-shrink:0;}
+      .print-cover-body{width:100%;padding:40px 80px 0 80px;box-sizing:border-box;display:flex;flex-direction:column;align-items:center;flex:1;}
+      .print-cover-divider{width:120px;height:4px;background:#10b981;border-radius:2px;margin:28px 0;}
+      .print-cover-title{font-size:32pt;font-weight:800;color:#0f172a;text-align:center;letter-spacing:1px;margin-bottom:16px;}
+      .print-cover-luna{font-size:20pt;font-weight:700;color:#10b981;text-align:center;letter-spacing:2px;text-transform:uppercase;}
+      .print-cover-meta{margin-top:28px;border:2px solid #10b981;border-radius:10px;padding:18px 36px;text-align:left;background:#f0fdf4;width:100%;}
+      .print-cover-meta-row{font-size:12pt;color:#0f172a;margin-bottom:10px;line-height:1.6;}
+      .print-cover-meta-row:last-child{margin-bottom:0;}
+      .print-cover-meta-lbl{font-weight:800;color:#065f46;}
+      .print-cover-opis{margin-top:24px;width:100%;border-top:2px solid #10b981;padding-top:16px;}
+      .print-cover-opis-title{font-size:7pt;font-weight:800;color:#065f46;letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;text-align:center;}
+      .print-cover-opis-row{display:flex;align-items:baseline;gap:6px;padding:3px 0;border-bottom:1px dotted #d1fae5;font-size:8pt;color:#374151;}
+      .print-cover-opis-row:last-child{border-bottom:none;}
+      .print-cover-opis-nr{font-weight:700;color:#10b981;min-width:16px;flex-shrink:0;}
+      .print-cover-opis-label{flex:1;}
+      /* Separator sectiuni */
+      .print-sec-page{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 80px;border:8px solid;}
+      .print-sec-num{font-size:16pt;font-weight:900;letter-spacing:4px;text-transform:uppercase;margin-bottom:28px;}
+      .print-sec-title{font-size:42pt;font-weight:900;text-align:center;margin-bottom:32px;letter-spacing:2px;}
+      .print-sec-line{height:6px;width:160px;border-radius:3px;margin-bottom:24px;}
+      .print-sec-sub{font-size:12pt;font-weight:600;text-align:center;letter-spacing:1px;}
+      /* Placeholder */
+      .print-placeholder-page{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 80px;border:3px dashed;}
+      .print-ph-tag{font-size:9pt;font-weight:700;padding:5px 14px;border-radius:20px;border:1.5px solid;margin-bottom:32px;letter-spacing:1px;text-transform:uppercase;}
+      .print-ph-icon{font-size:44pt;margin-bottom:20px;}
+      .print-ph-title{font-size:18pt;font-weight:800;text-align:center;margin-bottom:24px;line-height:1.4;}
+      .print-ph-box{font-size:11pt;text-align:center;padding:20px 32px;border:2px solid;border-radius:10px;line-height:2;}
+      /* Aviz */
+      .print-aviz-page{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 80px;border:6px solid;}
+      .print-aviz-tag{font-size:10pt;font-weight:700;padding:6px 18px;border-radius:20px;border:1.5px solid;margin-bottom:28px;letter-spacing:1px;text-transform:uppercase;}
+      .print-aviz-title{font-size:32pt;font-weight:900;text-align:center;margin-bottom:12px;}
+      .print-aviz-date{font-size:18pt;font-weight:700;text-align:center;margin-bottom:36px;opacity:.8;}
+      .print-aviz-table{width:100%;border-collapse:collapse;max-width:600px;}
+      /* Doc ref */
+      .print-doc-ref{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 80px;}
+      .print-doc-ref-icon{font-size:44pt;margin-bottom:16px;}
+      .print-doc-ref-name{font-size:16pt;font-weight:700;color:#1e293b;margin-bottom:12px;text-align:center;}
+      .print-doc-ref-note{font-size:10pt;color:#64748b;text-align:center;}
+      @media print{
+        .viewer-toolbar{display:none!important;}
+        body{background:#fff;padding:0;}
+        .viewer-pages{padding:0;gap:0;}
+        .print-sec-page,.print-placeholder-page,.print-cover-page,.print-pdf-page,.print-aviz-page,.print-doc-ref{
+          box-shadow:none;page-break-after:always;break-after:page;
+        }
+      }
+    `;
+    const standAlone=`<!DOCTYPE html><html lang="ro"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">${fonts}<style>${viewerCss}</style></head><body>`
+      +`<div class="viewer-toolbar">`
+      +`<div class="viewer-title">📂 Dosar masă caldă — ${_luna} ${_an}</div>`
+      +`<button class="viewer-btn viewer-btn-print" onclick="window.print()">🖨️ Printează / Salvează PDF</button>`
+      +`</div>`
+      +`<div class="viewer-pages">${printHtml}</div>`
+      +`</body></html>`;
+    const blob=new Blob([standAlone],{type:'text/html;charset=utf-8'});
+    const fn=`masa_calda/DOSAR_${_luna}_${_an}_${Date.now()}.html`;
+    const url=await r2Up(fn,blob);
+    // Șterge dosar vechi dacă există
+    const tipD=`DOSAR_MASA_${_luna}_${_an}`;
+    const{data:vechi}=await db.from('documente_contract').select('id,link_drive').eq('contract_id',CTR_ID).eq('tip_document',tipD);
+    if(vechi&&vechi.length){for(const v of vechi){if(v.link_drive)await r2Del(v.link_drive);}await db.from('documente_contract').delete().eq('contract_id',CTR_ID).eq('tip_document',tipD);}
+    // Salvează referința nouă
+    await db.from('documente_contract').insert({contract_id:CTR_ID,tip_document:tipD,nume_fisier:`Dosar masă caldă — ${_luna} ${_an}.html`,link_drive:url,furnizor:'dosar_masa_calda'});
+    // Inserează containerul de print
+    let printDiv=document.getElementById('print-dosar-container');
+    if(printDiv) printDiv.remove();
+    printDiv=document.createElement('div');
+    printDiv.id='print-dosar-container';
+    printDiv.innerHTML=printHtml;
+    document.body.appendChild(printDiv);
+    setSt('✅ Dosar salvat! Apasă CTRL+P sau butonul PDF.','ok');
+    // Actualizează sidebar cu dosarul salvat
+    await renderDosarSalvat(tipD,url);
+    setTimeout(()=>window.print(),400);
+  }catch(e){
+    // Chiar dacă salvarea eșuează, permite printul
+    let printDiv=document.getElementById('print-dosar-container');
+    if(printDiv) printDiv.remove();
+    printDiv=document.createElement('div');
+    printDiv.id='print-dosar-container';
+    printDiv.innerHTML=printHtml;
+    document.body.appendChild(printDiv);
+    setSt('⚠️ Salvare eșuată: '+e.message+' — dar poți printa.','err');
+    setTimeout(()=>window.print(),400);
+  }
 }
 
+async function renderDosarSalvat(tipD,url){
+  // Actualizează panoul dosar salvat din sidebar
+  const panel=document.getElementById('dosar-salvat-header');
+  if(!panel)return;
+  panel.innerHTML=`<a href="${url}" target="_blank" class="btn btn-dosar-salvat" style="text-decoration:none;">📂 DOSAR SALVAT — ${_luna} ${_an}</a>`;
+}
+
+async function loadDosarSalvat(){
+  const tipD=`DOSAR_MASA_${_luna}_${_an}`;
+  const{data}=await db.from('documente_contract').select('link_drive,data_upload').eq('contract_id',CTR_ID).eq('tip_document',tipD).order('data_upload',{ascending:false}).limit(1);
+  const panel=document.getElementById('dosar-salvat-header');
+  if(!panel)return;
+  if(data&&data.length&&data[0].link_drive){
+    const d=data[0];
+    const dataF=d.data_upload?new Date(d.data_upload).toLocaleDateString('ro-RO',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}):'';
+    panel.innerHTML=`<a href="${d.link_drive}" target="_blank" class="btn btn-dosar-salvat" title="Generat: ${dataF}" style="text-decoration:none;">📂 DOSAR SALVAT — ${_luna} ${_an}</a>`;
+  } else {
+    panel.innerHTML=`<span class="btn-dosar-salvat-empty">📂 Niciun dosar salvat</span>`;
+  }
+}
+
+let _stTimer=null;
 function setSt(msg,type){
   const el=document.getElementById('status-bar');
+  if(_stTimer){clearTimeout(_stTimer);_stTimer=null;}
   if(!msg){el.style.display='none';return;}
   el.className=type?'st-'+type:'';el.textContent=msg;el.style.display='block';
+  // Auto-clear dupa 8s pentru mesaje ok/load ramase
+  if(type==='ok')_stTimer=setTimeout(()=>setSt('',''),4000);
+  if(type==='load')_stTimer=setTimeout(()=>setSt('',''),3000);
 }
 
 init();
