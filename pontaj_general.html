@@ -1,0 +1,1146 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pontaj General PNRAS</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --deep-blue: #1e3a8a;
+            --electric-blue: #2563eb;
+            --soft-blue: #eff6ff;
+            --border-blue: #bfdbfe;
+        }
+
+        * { box-sizing: border-box; }
+
+        /* ════════════════════════════════
+           SCREEN
+        ════════════════════════════════ */
+        @media screen {
+            body {
+                background: #f1f5f9;
+                font-family: 'Inter', sans-serif;
+                color: #1e293b;
+                margin: 0;
+                padding: 0;
+                min-height: 100vh;
+            }
+
+            /* ── TOPBAR ── */
+            .topbar {
+                background: var(--deep-blue);
+                color: white;
+                padding: 0 24px;
+                height: 56px;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                position: sticky;
+                top: 0;
+                z-index: 100;
+                box-shadow: 0 2px 12px rgba(0,0,0,0.2);
+            }
+
+            .topbar-left { display: flex; align-items: center; gap: 12px; }
+
+            .topbar h1 {
+                font-size: 15px;
+                font-weight: 700;
+                margin: 0;
+            }
+
+            .topbar-badge {
+                background: rgba(255,255,255,0.15);
+                border-radius: 20px;
+                padding: 2px 10px;
+                font-size: 11px;
+                font-weight: 600;
+            }
+
+            .topbar-right { display: flex; align-items: center; gap: 12px; }
+
+            /* ── AN SELECTOR ── */
+            .year-selector { display: flex; gap: 6px; }
+
+            .year-btn {
+                background: rgba(255,255,255,0.1);
+                border: 1.5px solid rgba(255,255,255,0.25);
+                color: white;
+                border-radius: 20px;
+                padding: 4px 14px;
+                font-size: 13px;
+                font-weight: 600;
+                cursor: pointer;
+                transition: all 0.2s;
+            }
+
+            .year-btn:hover { background: rgba(255,255,255,0.2); }
+            .year-btn.active { background: white; color: var(--deep-blue); border-color: white; }
+
+            /* ── LUNA SELECTOR ── */
+            .luna-selector { display: flex; gap: 5px; flex-wrap: wrap; }
+
+            .luna-btn {
+                background: rgba(255,255,255,0.1);
+                border: 1.5px solid rgba(255,255,255,0.2);
+                color: rgba(255,255,255,0.8);
+                border-radius: 6px;
+                padding: 3px 8px;
+                font-size: 11px;
+                font-weight: 600;
+                cursor: pointer;
+                transition: all 0.2s;
+            }
+
+            .luna-btn:hover { background: rgba(255,255,255,0.2); color: white; }
+            .luna-btn.active { background: white; color: var(--deep-blue); border-color: white; }
+            .luna-btn.no-data { opacity: 0.35; cursor: default; }
+
+            /* ── STATS BAR ── */
+            .stats-bar {
+                background: white;
+                border-bottom: 1px solid #e2e8f0;
+                padding: 8px 24px;
+                display: flex;
+                gap: 24px;
+                align-items: center;
+            }
+
+            .stat-item { display: flex; flex-direction: column; gap: 1px; }
+            .stat-label { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: #64748b; }
+            .stat-value { font-size: 17px; font-weight: 800; color: var(--deep-blue); }
+            .stat-divider { width: 1px; height: 28px; background: #e2e8f0; }
+
+            /* ── BTN PRINT ── */
+            .btn-print {
+                background: var(--electric-blue);
+                color: white;
+                border: none;
+                border-radius: 20px;
+                padding: 5px 16px;
+                font-size: 12px;
+                font-weight: 600;
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                gap: 6px;
+                transition: all 0.2s;
+            }
+
+            .btn-print:hover { background: #1d4ed8; }
+
+            /* ── CONTENT (screen) ── */
+            .content { padding: 20px 24px; }
+
+            /* ── VIEW: dashboard carduri ── */
+            .dashboard {
+                display: grid;
+                grid-template-columns: repeat(4, 1fr);
+                gap: 16px;
+                padding: 28px 28px;
+            }
+
+            .card-luna {
+                background: white;
+                border-radius: 14px;
+                padding: 20px 18px 16px 18px;
+                cursor: pointer;
+                box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+                border: 2px solid transparent;
+                transition: all 0.2s;
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .card-luna:hover {
+                border-color: var(--electric-blue);
+                box-shadow: 0 6px 20px rgba(37,99,235,0.15);
+                transform: translateY(-2px);
+            }
+
+            .card-luna.no-data {
+                opacity: 0.4;
+                cursor: default;
+                pointer-events: none;
+            }
+
+            .card-luna-header {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+            }
+
+            .card-luna-nume {
+                font-size: 15px;
+                font-weight: 800;
+                color: var(--deep-blue);
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+            }
+
+            .card-luna-icon {
+                font-size: 20px;
+            }
+
+            .card-luna-divider {
+                height: 2px;
+                background: var(--border-blue);
+                border-radius: 2px;
+            }
+
+            .card-luna-stats {
+                display: flex;
+                gap: 0;
+                justify-content: space-between;
+            }
+
+            .card-stat {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 1px;
+            }
+
+            .card-stat-val {
+                font-size: 18px;
+                font-weight: 800;
+                color: var(--deep-blue);
+            }
+
+            .card-stat-label {
+                font-size: 8px;
+                font-weight: 600;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+                color: #94a3b8;
+            }
+
+            /* ── VIEW: tabel lună (cu buton înapoi) ── */
+            .btn-back {
+                background: white;
+                color: var(--deep-blue);
+                border: 2px solid var(--border-blue);
+                border-radius: 20px;
+                padding: 5px 16px;
+                font-size: 12px;
+                font-weight: 600;
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                gap: 6px;
+                transition: all 0.2s;
+            }
+
+            .btn-back:hover { border-color: var(--electric-blue); color: var(--electric-blue); }
+
+        }
+
+        /* ════════════════════════════════
+           PRINT
+        ════════════════════════════════ */
+        @page cover-page {
+            size: A4 portrait;
+            margin: 0.8cm;
+        }
+
+        @page table-page {
+            size: A4 landscape;
+            margin: 1.5cm;
+        }
+
+        @media print {
+            body {
+                background: white;
+                font-family: 'Inter', sans-serif;
+                color: #000;
+                margin: 0;
+                padding: 0;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+
+            .topbar, .stats-bar, .no-print { display: none !important; }
+            .content { padding: 0; margin: 0; }
+
+            .coperta-page {
+                page: cover-page;
+                page-break-after: always;
+            }
+
+            .luna-page {
+                page: table-page;
+                page-break-after: always;
+                page-break-inside: avoid;
+                margin: 0;
+                padding: 0;
+                width: 100%;
+            }
+
+            .luna-page:last-child { page-break-after: auto; }
+
+            .luna-page .antet-img {
+                width: 100%;
+                display: block;
+                margin: 0 0 5px 0;
+            }
+
+            .tabel-wrapper {
+                page-break-inside: avoid;
+                width: 100%;
+            }
+        }
+
+        /* ════════════════════════════════
+           LOADING
+        ════════════════════════════════ */
+        .loading-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(15,23,42,0.6);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 999;
+            gap: 16px;
+        }
+
+        .spinner {
+            width: 44px; height: 44px;
+            border: 4px solid rgba(255,255,255,0.2);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .loading-text { color: white; font-size: 14px; font-weight: 500; }
+
+        /* ════════════════════════════════
+           ANTET
+        ════════════════════════════════ */
+        .antet-img { width: 100%; display: block; margin-bottom: 6px; }
+
+        /* ════════════════════════════════
+           COPERTA
+        ════════════════════════════════ */
+        .coperta-page {
+            background: white;
+            font-family: 'Inter', sans-serif;
+        }
+
+        @media screen {
+            .coperta-page { display: none; }
+
+            .luna-page {
+                background: white;
+                width: 297mm;
+                margin: 0 auto 32px auto;
+                padding: 10mm 12mm;
+                box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+                border-top: 6px solid var(--deep-blue);
+            }
+        }
+
+        .coperta-antet { margin-bottom: 16mm; }
+
+        .coperta-body {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+
+        .coperta-linie-sus {
+            width: 60mm;
+            height: 4px;
+            background: var(--deep-blue);
+            margin-bottom: 10mm;
+        }
+
+        .coperta-titlu {
+            font-size: 20px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--deep-blue);
+            margin: 0 0 3mm 0;
+            line-height: 1.3;
+        }
+
+        .coperta-subtitlu {
+            font-size: 12px;
+            font-weight: 500;
+            color: #475569;
+            margin: 0 0 10mm 0;
+            letter-spacing: 0.5px;
+        }
+
+        .coperta-luna {
+            font-size: 34px;
+            font-weight: 800;
+            color: var(--deep-blue);
+            letter-spacing: 1px;
+            margin: 0 0 1mm 0;
+        }
+
+        .coperta-an {
+            font-size: 17px;
+            font-weight: 600;
+            color: #64748b;
+            margin: 0 0 12mm 0;
+        }
+
+        .coperta-linie-jos {
+            width: 60mm;
+            height: 4px;
+            background: var(--border-blue);
+            margin-bottom: 10mm;
+        }
+
+        .coperta-stats {
+            display: flex;
+            gap: 10mm;
+            justify-content: center;
+        }
+
+        .coperta-stat {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+        }
+
+        .coperta-stat-val {
+            font-size: 28px;
+            font-weight: 800;
+            color: var(--deep-blue);
+        }
+
+        .coperta-stat-label {
+            font-size: 8.5px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #94a3b8;
+        }
+
+        .coperta-stat-divider {
+            width: 1px;
+            height: 38px;
+            background: #e2e8f0;
+            align-self: center;
+        }
+
+        .coperta-footer {
+            margin-top: auto;
+            padding-top: 8mm;
+            border-top: 1px solid #e2e8f0;
+            font-size: 7.5px;
+            color: #94a3b8;
+            text-align: center;
+            letter-spacing: 0.5px;
+        }
+
+        /* Tabel activitati coperta */
+        .coperta-activitati {
+            margin-top: 3mm;
+            width: 100%;
+        }
+
+        .coperta-activitati-titlu {
+            font-size: 9px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--deep-blue);
+            border-bottom: 2px solid var(--border-blue);
+            padding-bottom: 3px;
+            margin-bottom: 4px;
+        }
+
+        .activ-table {
+            border-collapse: collapse;
+            width: 100%;
+            font-size: 7.5px;
+        }
+
+        .activ-table th {
+            background: var(--deep-blue);
+            color: white;
+            padding: 3px 5px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 7px;
+        }
+
+        .activ-table td {
+            padding: 2px 5px;
+            border-bottom: 0.5px solid #e8eef8;
+            vertical-align: top;
+            font-size: 7px;
+        }
+
+        .activ-table tr:nth-child(even) td { background: #f8faff; }
+
+        .activ-table td.expert-col {
+            font-weight: 600;
+            color: var(--deep-blue);
+            white-space: nowrap;
+        }
+
+        .activ-loading {
+            font-size: 8px;
+            color: #94a3b8;
+            font-style: italic;
+            padding: 6px 0;
+        }
+
+        /* ════════════════════════════════
+           TITLU LUNA
+        ════════════════════════════════ */
+        .titlu-luna {
+            text-align: center;
+            font-size: 13px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--deep-blue);
+            margin: 6px 0 8px 0;
+            padding-bottom: 5px;
+            border-bottom: 2px solid var(--border-blue);
+        }
+
+        /* ════════════════════════════════
+           TABEL PONTAJ
+        ════════════════════════════════ */
+        .pontaj-table {
+            border-collapse: collapse;
+            width: 100%;
+            font-size: 9px;
+            font-weight: 600;
+            font-family: 'Inter', sans-serif;
+        }
+
+        /* Header rând 1 - numere zile */
+        .pontaj-table thead tr:first-child th {
+            background: var(--deep-blue);
+            color: white;
+            padding: 2px 1px;
+            text-align: center;
+            font-weight: 700;
+            font-size: 8.5px;
+            border: 0.5px solid #2d4a9e;
+        }
+
+        .pontaj-table thead tr:first-child th.col-expert {
+            text-align: left;
+            padding-left: 4px;
+            font-size: 8px;
+            min-width: 110px;
+            width: 110px;
+        }
+
+        .pontaj-table thead tr:first-child th.col-total {
+            background: #0f2460;
+            min-width: 30px;
+            width: 30px;
+        }
+
+        .pontaj-table thead tr:first-child th.wknd {
+            background: #2d4a9e;
+        }
+
+        /* Header rând 2 - litere zile */
+        .pontaj-table thead tr.subheader th {
+            background: #f0f4ff;
+            color: #334155;
+            padding: 1px;
+            text-align: center;
+            font-size: 8px;
+            font-weight: 700;
+            border: 0.5px solid #dde3f0;
+            border-bottom: 1.5px solid var(--border-blue);
+        }
+
+        .pontaj-table thead tr.subheader th.col-expert {
+            text-align: left;
+            padding-left: 4px;
+        }
+
+        /* Celule body */
+        .pontaj-table tbody tr {
+            border-bottom: 0.5px solid #e8eef8;
+        }
+
+        .pontaj-table tbody tr:nth-child(even) { background: #fafbff; }
+        .pontaj-table tbody tr:hover { background: #eff6ff; }
+
+        .pontaj-table td {
+            padding: 0;
+            text-align: center;
+            vertical-align: middle;
+            border: 0.5px solid #e8eef8;
+            height: 16px;
+        }
+
+        .pontaj-table td.col-expert {
+            text-align: left;
+            padding: 1px 4px;
+            font-weight: 700;
+            font-size: 9px;
+            color: #1e293b;
+            white-space: nowrap;
+            background: #f8fafc;
+            border-right: 1.5px solid var(--border-blue);
+        }
+
+        .pontaj-table td.col-total {
+            font-weight: 700;
+            background: #eff6ff;
+            border-left: 1.5px solid var(--border-blue);
+            padding: 2px 3px;
+        }
+
+        .pontaj-table td.col-total .zile-val {
+            font-size: 9px;
+            color: var(--deep-blue);
+            font-weight: 800;
+            display: block;
+        }
+
+        .pontaj-table td.col-total .ore-val {
+            font-size: 8px;
+            color: #64748b;
+            font-weight: 600;
+            display: block;
+        }
+
+        /* Celula zi lucrată */
+        .zi-cell {
+            width: 100%;
+            height: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 8px;
+            border-radius: 2px;
+        }
+
+        .zi-cell.lucrat {
+            background: #1d4ed8;
+            color: white;
+        }
+
+        .zi-cell.wknd-cell {
+            background: #f1f5f9;
+        }
+
+        /* Rând TOTAL */
+        .row-total td {
+            background: #dbeafe !important;
+            font-weight: 700;
+            border-top: 1.5px solid var(--border-blue);
+        }
+
+        .row-total td.col-expert {
+            font-size: 8px;
+            color: var(--deep-blue);
+            font-weight: 800;
+            background: #dbeafe !important;
+        }
+
+        .row-total .zi-cell-total {
+            font-size: 8.5px;
+            font-weight: 700;
+            color: #1d4ed8;
+        }
+
+        /* Sumar sub tabel */
+        .luna-sumar {
+            font-size: 7.5px;
+            color: #475569;
+            margin-top: 4px;
+            text-align: right;
+            width: 100%;
+        }
+
+        /* Nr. înregistrare */
+        .nr-inreg {
+            font-size: 13px;
+            font-weight: 600;
+            color: #334155;
+            margin-bottom: 5px;
+            text-align: left;
+            width: 100%;
+        }
+
+        .nr-inreg input {
+            border: none;
+            border-bottom: 1.5px solid #94a3b8;
+            background: transparent;
+            font-size: 13px;
+            font-weight: 700;
+            width: 140px;
+            outline: none;
+            color: #1e293b;
+            padding: 0 2px;
+        }
+
+        @media print {
+            .nr-inreg input {
+                border-bottom: 1px solid #334155;
+            }
+        }
+
+        /* Semnături */
+        .semnaturi {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 8mm;
+            width: 100%;
+        }
+
+        .semnatura {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+            width: 45%;
+        }
+
+        .semnatura-titlu {
+            font-size: 8px;
+            font-weight: 600;
+            color: #475569;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 2px;
+        }
+
+        .semnatura-linie {
+            width: 100%;
+            height: 1px;
+            background: #334155;
+            margin: 6mm 0 3px 0;
+        }
+
+        .semnatura-nume {
+            font-size: 8px;
+            font-weight: 700;
+            color: #1e293b;
+            text-align: center;
+        }
+
+        .semnatura-functie {
+            font-size: 7px;
+            color: #64748b;
+            text-align: center;
+            font-style: italic;
+        }
+
+        /* Empty state */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #94a3b8;
+            font-size: 14px;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { height: 5px; width: 5px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+    </style>
+</head>
+<body>
+
+<!-- LOADING -->
+<div class="loading-overlay" id="loadingOverlay">
+    <div class="spinner"></div>
+    <div class="loading-text">Se încarcă datele...</div>
+</div>
+
+<!-- TOPBAR -->
+<div class="topbar no-print">
+    <div class="topbar-left">
+        <h1>📋 Pontaj General PNRAS</h1>
+        <span class="topbar-badge" id="expertCount">—</span>
+    </div>
+    <div class="topbar-right" id="topbarRight">
+        <div class="year-selector" id="yearSelector"></div>
+        <button class="btn-print" onclick="window.print()">🖨️ Printează</button>
+    </div>
+</div>
+
+<!-- CONTENT -->
+<div id="mainContent"></div>
+
+<script>
+    const URL_S = 'https://aexjrbdgajurxzngfkpx.supabase.co';
+    const KEY_S = 'sb_publishable_KPV__0BA9z4EvRl5eqC0FQ_hmBLOLYv';
+    const _supabase = supabase.createClient(URL_S, KEY_S);
+
+    const LUNI_ORDINE = ['Ianuarie','Februarie','Martie','Aprilie','Mai','Iunie',
+                         'Iulie','August','Septembrie','Octombrie','Noiembrie','Decembrie'];
+    const LUNI_ABREV  = ['Ian','Feb','Mar','Apr','Mai','Iun','Iul','Aug','Sep','Oct','Nov','Dec'];
+    const LUNI_EMOJI  = ['❄️','💙','🌱','🌸','🌿','☀️','🏖️','🌻','🍂','🍁','🌧️','⭐'];
+    const ZI_LITER    = ['D','L','Ma','Mi','J','V','S'];
+
+    let g_an   = 2025;
+    let g_data = [];
+    let g_lunaSelectata = null; // null = dashboard
+
+    let g_index      = {};
+    let g_experti    = [];
+    let g_luniCuDate = [];
+
+    /* ══════════════════════════
+       AN SELECTOR
+    ══════════════════════════ */
+    function initYearSelector() {
+        const sel = document.getElementById('yearSelector');
+        [2024, 2025, 2026].forEach(y => {
+            const btn = document.createElement('button');
+            btn.className = 'year-btn' + (y === g_an ? ' active' : '');
+            btn.textContent = y;
+            btn.onclick = () => {
+                g_an = y;
+                g_lunaSelectata = null;
+                document.querySelectorAll('.year-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                loadData();
+            };
+            sel.appendChild(btn);
+        });
+    }
+
+    /* ══════════════════════════
+       HELPERS
+    ══════════════════════════ */
+    function zileLuna(luna) {
+        const idx = LUNI_ORDINE.indexOf(luna);
+        return new Date(g_an, idx + 1, 0).getDate();
+    }
+
+    function isWeekend(luna, zi) {
+        const idx = LUNI_ORDINE.indexOf(luna);
+        return [0, 6].includes(new Date(g_an, idx, zi).getDay());
+    }
+
+    function ziLitera(luna, zi) {
+        const idx = LUNI_ORDINE.indexOf(luna);
+        return ZI_LITER[new Date(g_an, idx, zi).getDay()];
+    }
+
+    /* ══════════════════════════
+       LOAD
+    ══════════════════════════ */
+    async function loadData() {
+        document.getElementById('loadingOverlay').style.display = 'flex';
+        document.getElementById('mainContent').innerHTML = '';
+
+        const { data, error } = await _supabase
+            .from('pontaj_detaliat')
+            .select('expert, an, luna, zi, nr_ore')
+            .eq('an', g_an)
+            .order('expert', { ascending: true });
+
+        document.getElementById('loadingOverlay').style.display = 'none';
+
+        if (error) {
+            document.getElementById('mainContent').innerHTML =
+                `<div style="text-align:center;padding:60px;color:#94a3b8;">Eroare: ${error.message}</div>`;
+            return;
+        }
+
+        g_data = data || [];
+        buildIndex();
+        showDashboard();
+    }
+
+    /* ══════════════════════════
+       INDEX
+    ══════════════════════════ */
+    function buildIndex() {
+        g_index = {};
+        const expertiSet = new Set();
+        const luniSet = new Set();
+
+        g_data.forEach(r => {
+            expertiSet.add(r.expert);
+            luniSet.add(r.luna);
+            if (!g_index[r.expert]) g_index[r.expert] = {};
+            if (!g_index[r.expert][r.luna]) g_index[r.expert][r.luna] = {};
+            g_index[r.expert][r.luna][r.zi] = (g_index[r.expert][r.luna][r.zi] || 0) + r.nr_ore;
+        });
+
+        g_experti    = Array.from(expertiSet).sort((a, b) => a.localeCompare(b, 'ro'));
+        g_luniCuDate = LUNI_ORDINE.filter(l => luniSet.has(l));
+        document.getElementById('expertCount').textContent = `${g_experti.length} experți`;
+    }
+
+    /* ══════════════════════════
+       TOPBAR — buton înapoi
+    ══════════════════════════ */
+    function setTopbarBack(show) {
+        const right = document.getElementById('topbarRight');
+        const existing = document.getElementById('btnBack');
+        if (show && !existing) {
+            const btn = document.createElement('button');
+            btn.id = 'btnBack';
+            btn.className = 'btn-back no-print';
+            btn.innerHTML = '← Înapoi';
+            btn.onclick = () => { g_lunaSelectata = null; showDashboard(); };
+            right.insertBefore(btn, right.firstChild);
+        } else if (!show && existing) {
+            existing.remove();
+        }
+    }
+
+    /* ══════════════════════════
+       DASHBOARD (carduri luni)
+    ══════════════════════════ */
+    function showDashboard() {
+        g_lunaSelectata = null;
+        setTopbarBack(false);
+
+        const mc = document.getElementById('mainContent');
+        mc.innerHTML = '';
+
+        const grid = document.createElement('div');
+        grid.className = 'dashboard';
+
+        LUNI_ORDINE.forEach((luna, i) => {
+            const areDate = g_luniCuDate.includes(luna);
+
+            // Calcule rapide
+            let zile = 0, ore = 0, expertiLuna = 0;
+            if (areDate) {
+                g_experti.forEach(e => {
+                    const ziData = g_index[e]?.[luna];
+                    if (!ziData) return;
+                    expertiLuna++;
+                    Object.values(ziData).forEach(o => { zile++; ore += o; });
+                });
+            }
+
+            const card = document.createElement('div');
+            card.className = 'card-luna' + (areDate ? '' : ' no-data');
+            card.innerHTML = `
+                <div class="card-luna-header">
+                    <span class="card-luna-nume">${luna}</span>
+                    <span class="card-luna-icon">${LUNI_EMOJI[i]}</span>
+                </div>
+                <div class="card-luna-divider"></div>
+                <div class="card-luna-stats">
+                    <div class="card-stat">
+                        <span class="card-stat-val">${areDate ? expertiLuna : '—'}</span>
+                        <span class="card-stat-label">Experți</span>
+                    </div>
+                    <div class="card-stat">
+                        <span class="card-stat-val">${areDate ? ore : '—'}</span>
+                        <span class="card-stat-label">Ore</span>
+                    </div>
+                </div>
+            `;
+
+            if (areDate) {
+                card.onclick = () => showLuna(luna);
+            }
+
+            grid.appendChild(card);
+        });
+
+        mc.appendChild(grid);
+    }
+
+    /* ══════════════════════════
+       VIZUALIZARE LUNĂ
+    ══════════════════════════ */
+    function showLuna(luna) {
+        g_lunaSelectata = luna;
+        setTopbarBack(true);
+
+        const mc = document.getElementById('mainContent');
+        mc.innerHTML = '';
+
+        // Coperta (ascunsă pe screen, vizibilă la print)
+        renderCoperta(mc);
+
+        renderLuna(luna, mc);
+    }
+
+    /* ══════════════════════════
+       COPERTA
+    ══════════════════════════ */
+    function renderCoperta(container) {
+        let totalZile = 0, totalOre = 0;
+        const lunaText = g_lunaSelectata || 'Toate lunile';
+
+        if (g_lunaSelectata) {
+            g_data.filter(r => r.luna === g_lunaSelectata).forEach(r => { totalZile++; totalOre += r.nr_ore; });
+        } else {
+            g_data.forEach(r => { totalZile++; totalOre += r.nr_ore; });
+        }
+
+        const nrExperti = g_lunaSelectata
+            ? g_experti.filter(e => g_index[e]?.[g_lunaSelectata]).length
+            : g_experti.length;
+
+        const div = document.createElement('div');
+        div.className = 'coperta-page';
+        div.innerHTML = `
+            <div class="coperta-antet">
+                <img src="antet_pnras.jpeg" class="antet-img" onerror="this.style.display='none'">
+            </div>
+            <div class="coperta-body">
+                <div class="coperta-linie-sus"></div>
+                <div class="coperta-titlu">Pontaj General</div>
+                <div class="coperta-subtitlu">Planul Național pentru Reducerea Abandonului Școlar</div>
+                <div class="coperta-luna">${lunaText}</div>
+                <div class="coperta-an">${g_an}</div>
+                <div class="coperta-linie-jos"></div>
+                <div class="coperta-stats">
+                    <div class="coperta-stat">
+                        <span class="coperta-stat-val">${nrExperti}</span>
+                        <span class="coperta-stat-label">Experți</span>
+                    </div>
+                    <div class="coperta-stat-divider"></div>
+                    <div class="coperta-stat">
+                        <span class="coperta-stat-val">${totalOre.toLocaleString('ro-RO')}</span>
+                        <span class="coperta-stat-label">Ore totale</span>
+                    </div>
+                </div>
+                <div style="font-size:250px; margin-top:10mm; text-align:center; line-height:1;">🗓️</div>
+            </div>
+
+
+        `;
+        container.appendChild(div);
+
+    }
+
+    /* ══════════════════════════
+       RENDER LUNĂ (tabel)
+    ══════════════════════════ */
+    function renderLuna(luna, container) {
+        const nrZile = zileLuna(luna);
+        const zile   = Array.from({length: nrZile}, (_, i) => i + 1);
+
+        const expertiLuna = g_experti.filter(e => g_index[e]?.[luna]);
+        if (expertiLuna.length === 0) return;
+
+        let lunaZile = 0, lunaOre = 0;
+        expertiLuna.forEach(e => {
+            Object.values(g_index[e][luna]).forEach(ore => { lunaZile++; lunaOre += ore; });
+        });
+
+        const page = document.createElement('div');
+        page.className = 'luna-page';
+
+        /* Un singur wrapper pentru TOT continutul - nu se rupe intre pagini */
+        const wrapper = document.createElement('div');
+        wrapper.className = 'tabel-wrapper';
+        page.appendChild(wrapper);
+
+        wrapper.innerHTML = `
+            <img src="antet_pnras.jpeg" class="antet-img" onerror="this.style.display='none'">
+            <div class="nr-inreg"><input type="text" placeholder="Nr. _______ / _______"></div>
+        `;
+
+        const titlu = document.createElement('div');
+        titlu.className = 'titlu-luna';
+        titlu.textContent = `Pontaj general – ${luna} ${g_an}`;
+        wrapper.appendChild(titlu);
+
+        const table = document.createElement('table');
+        table.className = 'pontaj-table';
+
+        const thead = document.createElement('thead');
+        let r1 = '<tr><th class="col-expert">Expert</th>';
+        zile.forEach(z => { r1 += `<th${isWeekend(luna, z) ? ' class="wknd"' : ''}>${z}</th>`; });
+        r1 += '<th class="col-total">Total</th></tr>';
+
+        let r2 = `<tr class="subheader"><th class="col-expert">${luna} ${g_an}</th>`;
+        zile.forEach(z => { r2 += `<th>${ziLitera(luna, z)}</th>`; });
+        r2 += '<th>Z/H</th></tr>';
+
+        thead.innerHTML = r1 + r2;
+        table.appendChild(thead);
+
+        const tbody = document.createElement('tbody');
+        const totalPerZi = {};
+
+        expertiLuna.forEach(exp => {
+            const ziData = g_index[exp][luna];
+            let expZile = 0, expOre = 0;
+            let tr = `<tr><td class="col-expert">${exp}</td>`;
+
+            zile.forEach(z => {
+                const ore = ziData[z];
+                if (ore !== undefined) {
+                    expZile++; expOre += ore;
+                    totalPerZi[z] = (totalPerZi[z] || 0) + ore;
+                    tr += `<td><div class="zi-cell lucrat">${ore}</div></td>`;
+                } else if (isWeekend(luna, z)) {
+                    tr += `<td><div class="zi-cell wknd-cell"></div></td>`;
+                } else {
+                    tr += `<td></td>`;
+                }
+            });
+
+            tr += `<td class="col-total"><span class="zile-val">${expOre}h</span></td></tr>`;
+            tbody.innerHTML += tr;
+        });
+
+        let trTot = `<tr class="row-total"><td class="col-expert">TOTAL ${luna.toUpperCase()}</td>`;
+        zile.forEach(z => {
+            const cnt = totalPerZi[z] || 0;
+            trTot += `<td>${cnt > 0 ? `<span class="zi-cell-total">${cnt}</span>` : ''}</td>`;
+        });
+        trTot += `<td class="col-total"><span class="zile-val">${lunaOre}h</span></td></tr>`;
+        tbody.innerHTML += trTot;
+
+        table.appendChild(tbody);
+        wrapper.appendChild(table);
+
+        const sumar = document.createElement('div');
+        sumar.className = 'luna-sumar';
+        sumar.textContent = `${expertiLuna.length} experți · ${lunaZile} zile lucrate · ${lunaOre} ore totale`;
+        wrapper.appendChild(sumar);
+
+        const semnaturi = document.createElement('div');
+        semnaturi.className = 'semnaturi';
+        semnaturi.innerHTML = `
+            <div class="semnatura">
+                <div class="semnatura-titlu">Manager proiect,</div>
+                <div class="semnatura-linie"></div>
+                <div class="semnatura-nume">prof. dr. Ciprian MIHAI</div>
+            </div>
+            <div class="semnatura">
+                <div class="semnatura-titlu">Director,</div>
+                <div class="semnatura-linie"></div>
+                <div class="semnatura-nume">prof. Cătălin - Ionuț BAZILUC</div>
+            </div>
+        `;
+        wrapper.appendChild(semnaturi);
+
+        container.appendChild(page);
+    }
+
+    /* ══════════════════════════
+       INIT
+    ══════════════════════════ */
+    initYearSelector();
+    loadData();
+</script>
+</body>
+</html>
