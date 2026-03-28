@@ -619,7 +619,16 @@ async function incarcaDocumente(){
     data.forEach(d => { if(!grupate[d.tip_document]) grupate[d.tip_document]=[]; grupate[d.tip_document].push(d); });
 
     let html = "";
-    Object.keys(grupate).sort((a,b)=>a.localeCompare(b,undefined,{numeric:true,sensitivity:'base'})).forEach(tip => {
+    const LISTA_SALARII_ORDINE = ["Foaie de pontaj colectiv", "Stat de plată", "ALOP", "Ordin de plată", "Extras de cont"];
+    const sortedTips = Object.keys(grupate).sort((a, b) => {
+      const iA = LISTA_SALARII_ORDINE.indexOf(a);
+      const iB = LISTA_SALARII_ORDINE.indexOf(b);
+      if (iA !== -1 && iB !== -1) return iA - iB;
+      if (iA !== -1) return -1;
+      if (iB !== -1) return 1;
+      return a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' });
+    });
+    sortedTips.forEach(tip => {
       html += `<tr style="background:#f1f5f9;font-weight:bold">
         <td style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
           <span>${tip} (${grupate[tip].length})</span>
