@@ -110,12 +110,15 @@
             </tr>
         </table>
 
-        <div class="titlu-central">AVIZ DE ÎNSOȚIRE A MĂRFII</div>
-        
-        <div class="serie-data-container">
-            <div>Nr. <input type="text" class="input-caseta" id="nr-aviz" maxlength="3" placeholder="___"></div>
-            <div>Data: <span id="data-automata"></span></div>
+        <div style="font-size:12pt; font-weight:bold; margin: 10px 0 4px 0;">
+            <span id="nr-afisare"></span>
         </div>
+
+        <div class="titlu-central">AVIZ DE ÎNSOȚIRE A MĂRFII</div>
+        <div style="text-align:center; font-size:12pt; margin: 6px 0 16px 0;">
+            Data: <span id="data-automata"></span>
+        </div>
+        <input type="hidden" id="nr-aviz">
         
         <table class="tabel-produse">
             <thead>
@@ -191,39 +194,112 @@
 
         const luniMapping = { "Ianuarie":"01","Februarie":"02","Martie":"03","Aprilie":"04","Mai":"05","Iunie":"06","Iulie":"07","August":"08","Septembrie":"09","Octombrie":"10","Noiembrie":"11","Decembrie":"12" };
 
+        const PRET_UNITAR = 13.8;
+
         async function loadData() {
             const dataF = `${zi.padStart(2,'0')}.${luniMapping[lunaText]}.${an}`;
             document.getElementById('data-automata').innerText = dataF;
             document.getElementById('data-expeditie').innerText = dataF;
 
+            // 1. Citim datele din setari_pontaj (cantitate, meniu)
             const { data } = await supabaseClient.from('setari_pontaj').select('*').match({ zi, luna: lunaText, an }).single();
-
+            let cantitate = 0;
             if (data) {
-                const cantitate = parseInt(data.valoare_aviz) || 0;
-                const totalVal = (cantitate * 13.8).toFixed(2);
+                cantitate = parseInt(data.valoare_aviz) || 0;
+                const totalVal = (cantitate * PRET_UNITAR).toFixed(2);
                 document.getElementById('spec-meniu').innerHTML = meniuriConfig[data.tip_meniu] || "Meniu nespecificat";
                 document.getElementById('cantitate-celula').innerText = cantitate;
                 document.getElementById('valoare-totala').innerText = totalVal;
+            }
 
-                // Încarcă nr_aviz salvat (dacă există)
-                if (data.nr_aviz) {
-                    document.getElementById('nr-aviz').value = data.nr_aviz;
+            // 2. Citim / creăm înregistrarea în registru_documente
+            const { data: regRow } = await supabaseClient
+                .from('registru_documente')
+                .select('id, nr')
+                .match({ tip: 'AVIZ', zi: String(zi), luna: lunaText, an: parseInt(an) })
+                .maybeSingle();
+
+            if (regRow) {
+                // Există deja — afișăm numărul
+                document.getElementById('nr-aviz').value = regRow.nr;
+                document.getElementById('nr-afisare').textContent = `Nr. ${regRow.nr}/${document.getElementById('data-automata').innerText}`;
+            } else {
+                // Creăm automat înregistrarea cu următorul număr din serie
+                const { data: maxRow } = await supabaseClient
+                    .from('registru_documente')
+                    .select('nr')
+                    .eq('tip', 'AVIZ')
+                    .eq('an', parseInt(an))
+                    .order('nr', { ascending: false })
+                    .limit(1)
+                    .maybeSingle();
+
+                // Nr provizoriu — va fi recalculat prin renumerotare cronologică
+                const nrProv = (maxRow?.nr ?? 0) + 1;
+                const valoare = parseFloat((cantitate * PRET_UNITAR).toFixed(2));
+
+                await supabaseClient.from('registru_documente').insert({
+                    tip: 'AVIZ',
+                    nr: nrProv,
+                    an: parseInt(an),
+                    data_doc: dataF,
+                    luna: lunaText,
+                    zi: String(zi),
+                    cantitate: cantitate || null,
+                    valoare: cantitate ? valoare : null,
+                    referinta: `AVIZ_${an}_${lunaText}_${zi}`
+                });
+
+                // Renumerotare cronologică pe contorul comun (avize + comunicări)
+                const { data: toateDoc } = await supabaseClient
+                    .from('registru_documente')
+                    .select('id, nr, data_doc, tip')
+                    .eq('an', parseInt(an));
+
+                if (toateDoc && toateDoc.length > 0) {
+                    function parseD(s) {
+                        if (!s) return new Date(0);
+                        const p = s.split('.');
+                        return p.length === 3 ? new Date(`${p[2]}-${p[1]}-${p[0]}`) : new Date(0);
+                    }
+                    const sortate = [...toateDoc].sort((a,b) => {
+                        const d = parseD(a.data_doc) - parseD(b.data_doc);
+                        if (d !== 0) return d;
+                        if (a.tip < b.tip) return -1;
+                        if (a.tip > b.tip) return 1;
+                        return (a.id||0) - (b.id||0);
+                    });
+                    await Promise.all(sortate.map((r, idx) =>
+                        r.nr !== idx + 1
+                            ? supabaseClient.from('registru_documente').update({ nr: idx + 1 }).eq('id', r.id)
+                            : Promise.resolve()
+                    ));
+                    // Re-fetch numărul corect al avizului curent
+                    const { data: rowActual } = await supabaseClient
+                        .from('registru_documente')
+                        .select('nr')
+                        .eq('referinta', `AVIZ_${an}_${lunaText}_${zi}`)
+                        .maybeSingle();
+                    document.getElementById('nr-aviz').value = rowActual?.nr ?? nrProv;
+                } else {
+                    document.getElementById('nr-aviz').value = nrProv;
                 }
             }
         }
         loadData();
 
-        // Salvare automată nr_aviz în Supabase la modificare (cu debounce)
+        // Salvare manuală a numărului corectat direct în registru_documente
         let saveTimeout;
         document.getElementById('nr-aviz').addEventListener('input', function() {
             clearTimeout(saveTimeout);
-            const val = this.value.trim();
+            const val = parseInt(this.value.trim());
+            if (!val || val < 1) return;
             saveTimeout = setTimeout(async () => {
                 await supabaseClient
-                    .from('setari_pontaj')
-                    .update({ nr_aviz: val })
-                    .match({ zi, luna: lunaText, an });
-            }, 500);
+                    .from('registru_documente')
+                    .update({ nr: val })
+                    .match({ tip: 'AVIZ', zi: String(zi), luna: lunaText, an: parseInt(an) });
+            }, 600);
         });
     </script>
 </body>

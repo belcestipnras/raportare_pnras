@@ -381,6 +381,27 @@
             const { data: savedCom } = await supabase.from('planificari_documente')
                 .select('continut_json').eq('tip_document', docId).maybeSingle();
 
+            // Citim numerele deja alocate în registru_documente pentru acest document
+            const { data: regRows } = await supabase
+                .from('registru_documente')
+                .select('nr, data_doc, referinta')
+                .eq('tip', 'COMUNICARE')
+                .eq('an', 2025)
+                .eq('luna', currentLuna)
+                .order('nr', { ascending: true });
+
+            // Calculăm max nr existent pentru a aloca numere noi
+            const { data: maxRow } = await supabase
+                .from('registru_documente')
+                .select('nr')
+                .eq('tip', 'COMUNICARE')
+                .eq('an', 2025)
+                .order('nr', { ascending: false })
+                .limit(1)
+                .maybeSingle();
+            let nextNr = (maxRow?.nr ?? 0) + 1;
+
+            // Construim comunicariData
             let comunicariData = grupuri.map((grup, idx) => ({
                 idx,
                 dataStart: formatData(grup[0], currentLuna),
@@ -388,13 +409,78 @@
                 nr: '', dataNr: ''
             }));
 
+            // Restaurăm datele salvate anterior (text editabil)
             if (savedCom && savedCom.continut_json && savedCom.continut_json.comunicari) {
                 savedCom.continut_json.comunicari.forEach(saved => {
                     if (comunicariData[saved.idx]) {
-                        comunicariData[saved.idx].nr = saved.nr || '';
                         comunicariData[saved.idx].dataNr = saved.dataNr || '';
+                        ['destinatar','titlu','salut','p1','p2','p3','p4','semn'].forEach(f => {
+                            if (saved[f]) comunicariData[saved.idx][f] = saved[f];
+                        });
                     }
                 });
+            }
+
+            // Alocăm / recuperăm numerele din registru_documente per grup
+            const inserts = [];
+            for (let i = 0; i < comunicariData.length; i++) {
+                const refKey = `COMUNICARE_2025_${currentLuna}_${i}`;
+                const existing = (regRows || []).find(r => r.referinta === refKey);
+                if (existing) {
+                    comunicariData[i].nr = String(existing.nr);
+                    if (!comunicariData[i].dataNr) comunicariData[i].dataNr = existing.data_doc || '';
+                } else {
+                    comunicariData[i].nr = String(nextNr);
+                    inserts.push({
+                        tip: 'COMUNICARE',
+                        nr: nextNr,
+                        an: 2025,
+                        data_doc: comunicariData[i].dataStart,
+                        luna: currentLuna,
+                        referinta: refKey
+                    });
+                    nextNr++;
+                }
+            }
+
+            if (inserts.length > 0) {
+                await supabase.from('registru_documente').insert(inserts);
+
+                // Renumerotare cronologică pe contorul comun (avize + comunicări)
+                const { data: toateDoc } = await supabase
+                    .from('registru_documente')
+                    .select('id, nr, data_doc, tip')
+                    .eq('an', 2025);
+
+                if (toateDoc && toateDoc.length > 0) {
+                    function parseD(s) {
+                        if (!s) return new Date(0);
+                        const p = s.split('.');
+                        return p.length === 3 ? new Date(`${p[2]}-${p[1]}-${p[0]}`) : new Date(0);
+                    }
+                    const sortate = [...toateDoc].sort((a,b) => {
+                        const d = parseD(a.data_doc) - parseD(b.data_doc);
+                        if (d !== 0) return d;
+                        if (a.tip < b.tip) return -1;
+                        if (a.tip > b.tip) return 1;
+                        return (a.id||0) - (b.id||0);
+                    });
+                    await Promise.all(sortate.map((r, idx) =>
+                        r.nr !== idx + 1
+                            ? supabase.from('registru_documente').update({ nr: idx + 1 }).eq('id', r.id)
+                            : Promise.resolve()
+                    ));
+                    // Actualizăm nr-urile în comunicariData pentru afișare corectă
+                    for (let i = 0; i < comunicariData.length; i++) {
+                        const refKey = `COMUNICARE_2025_${currentLuna}_${i}`;
+                        const { data: rowActual } = await supabase
+                            .from('registru_documente')
+                            .select('nr')
+                            .eq('referinta', refKey)
+                            .maybeSingle();
+                        if (rowActual) comunicariData[i].nr = String(rowActual.nr);
+                    }
+                }
             }
 
             deschideFereastaComunicari(comunicariData, currentLuna);
@@ -420,16 +506,24 @@
                 pagesHtml += '<div class="nr-inreg">Nr. <input type="text" class="inp-nr" data-idx="' + i + '" data-field="nr" value="' + nrVal + '" placeholder=""> / <input type="text" class="inp-data" data-idx="' + i + '" data-field="dataNr" value="' + dataNrVal + '" placeholder=""></div>';
                 pagesHtml += '</div>';
                 pagesHtml += '<hr class="separator">';
-                pagesHtml += '<div class="destinatar"><div>C&#259;tre: Liceul Tehnologic &bdquo;Victor Mih&#259;ilescu Craiu&rdquo; Belce&#537;ti</div><div>&Icirc;n aten&#539;ia: Domnului Director</div></div>';
-                pagesHtml += '<div class="titlu">COMUNICARE</div>';
+                const defDest = 'C&#259;tre: Liceul Tehnologic &bdquo;Victor Mih&#259;ilescu Craiu&rdquo; Belce&#537;ti<br>&Icirc;n aten&#539;ia: Domnului Director';
+                const defSalut = 'Stimate Domnule Director,';
+                const defP1 = 'Subscrisa, SC PROCONS SRL, reprezentat&#259; legal prin doamna Mirela MURARIU, &icirc;n calitate de administrator, v&#259; aducem la cuno&#351;tin&#539;&#259; faptul c&#259;, din motive obiective, societatea noastr&#259; nu poate asigura livrarea serviciului de mas&#259; cald&#259; &icirc;n perioada <strong>' + perioada + '</strong>.';
+                const defP2 = 'Men&#539;ion&#259;m c&#259; aceast&#259; situa&#539;ie este independent&#259; de voin&#539;a societ&#259;&#539;ii noastre &#351;i depunem toate diligen&#539;ele necesare pentru remedierea &icirc;n cel mai scurt timp a situa&#539;iei ap&#259;rute, astfel &icirc;nc&acirc;t activitatea s&#259; fie reluat&#259; &icirc;n condi&#539;ii normale.';
+                const defP3 = 'Ne cerem scuze pentru eventualele inconveniente create &#537;i v&#259; asigur&#259;m de &icirc;ntreaga noastr&#259; disponibilitate pentru identificarea unor solu&#539;ii temporare, dac&#259; se consider&#259; necesar.';
+                const defP4 = 'V&#259; mul&#539;umim pentru &icirc;n&#539;elegere.';
+                const defSemn = 'Cu stim&#259;,<br>Administrator, Mirela MURARIU<br>SC PROCONS SRL';
+                pagesHtml += '<div class="destinatar" contenteditable="true" data-idx="' + i + '" data-field="destinatar">' + (com.destinatar || defDest) + '</div>';
+                pagesHtml += '<div class="titlu" contenteditable="true" data-idx="' + i + '" data-field="titlu">' + (com.titlu || 'COMUNICARE') + '</div>';
                 pagesHtml += '<div class="corp">';
-                pagesHtml += '<p>Stimate Domnule Director,</p>';
-                pagesHtml += '<p>Subscrisa, SC PROCONS SRL, reprezentat&#259; legal prin doamna Mirela MURARIU, &icirc;n calitate de administrator, v&#259; aducem la cuno&#351;tin&#539;&#259; faptul c&#259;, din motive obiective, societatea noastr&#259; nu poate asigura livrarea serviciului de mas&#259; cald&#259; &icirc;n perioada <strong>' + perioada + '</strong>.</p>';
-                pagesHtml += '<p>Men&#539;ion&#259;m c&#259; aceast&#259; situa&#539;ie este independent&#259; de voin&#539;a societ&#259;&#539;ii noastre &#351;i depunem toate diligen&#539;ele necesare pentru remedierea &icirc;n cel mai scurt timp a situa&#539;iei ap&#259;rute, astfel &icirc;nc&acirc;t activitatea s&#259; fie reluat&#259; &icirc;n condi&#539;ii normale.</p>';
-                pagesHtml += '<p>Ne cer&#259;m scuze pentru eventualele inconveniente create &#351;i v&#259; asigur&#259;m de &icirc;ntreaga noastr&#259; disponibilitate pentru identificarea unor solu&#539;ii temporare, dac&#259; se consider&#259; necesar.</p>';
-                pagesHtml += '<p>V&#259; mul&#539;umim pentru &icirc;n&#539;elegere.</p>';
+                pagesHtml += '<p contenteditable="true" data-idx="' + i + '" data-field="salut">' + (com.salut || defSalut) + '</p>';
+                pagesHtml += '<p contenteditable="true" data-idx="' + i + '" data-field="p1">' + (com.p1 || defP1) + '</p>';
+                pagesHtml += '<p contenteditable="true" data-idx="' + i + '" data-field="p2">' + (com.p2 || defP2) + '</p>';
+                pagesHtml += '<p contenteditable="true" data-idx="' + i + '" data-field="p3">' + (com.p3 || defP3) + '</p>';
+                pagesHtml += '<p contenteditable="true" data-idx="' + i + '" data-field="p4">' + (com.p4 || defP4) + '</p>';
                 pagesHtml += '</div>';
-                pagesHtml += '<div class="semnatura-bloc"><div class="cu-stima">Cu stim&#259;,</div><div>Administrator, Mirela MURARIU</div><div>SC PROCONS SRL</div><div class="data-semn"><span>Data: <span id="data-auto-' + i + '"></span></span><span>Semn&#259;tura &#351;i &#351;tampila: ___________________</span></div></div>';
+                pagesHtml += '<div class="semnatura-bloc" contenteditable="true" data-idx="' + i + '" data-field="semn">' + (com.semn || defSemn) + '</div>';
+                pagesHtml += '<div class="data-semn"><span>Data: <span id="data-auto-' + i + '">' + dataNrVal + '</span></span><span>Semn&#259;tura &#351;i &#351;tampila: ___________________</span></div>';
                 pagesHtml += '</div>';
             }
 
@@ -448,13 +542,13 @@
             html += '<title>Comunicari Nelivrare - ' + luna + ' 2025</title>';
             html += '<style>';
             html += '* { box-sizing: border-box; margin: 0; padding: 0; }';
-            html += 'body { font-family: "Times New Roman", Times, serif; font-size: 12pt; background: #475569; }';
-            html += '.controls-print { position: fixed; top: 15px; right: 15px; z-index: 1000; display: flex; gap: 10px; }';
-            html += '.controls-print button { padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 13px; }';
+            html += 'body { font-family: "Times New Roman", Times, serif; font-size: 12pt; background: #475569; display: flex; flex-direction: column; align-items: center; padding: 80px 20px 40px 20px; min-height: 100vh; box-sizing: border-box; }';
+            html += '.controls-print { position: fixed; top: 0; left: 0; right: 0; z-index: 1000; display: flex; gap: 12px; padding: 14px 24px; background: #1e293b; box-shadow: 0 2px 8px rgba(0,0,0,0.4); align-items: center; }';
+            html += '.controls-print button { padding: 12px 28px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 15px; }';
             html += '.btn-print { background: #1e40af; color: white; }';
             html += '.btn-close { background: #ef4444; color: white; }';
             html += '.save-status { position: fixed; bottom: 15px; right: 15px; background: white; padding: 8px 16px; border-radius: 20px; border: 2px solid #10b981; font-weight: bold; font-size: 12px; display: none; z-index: 999; }';
-            html += '.page { background: white; width: 210mm; min-height: 297mm; margin: 20px auto; padding: 2cm 2.5cm; box-shadow: 0 0 20px rgba(0,0,0,0.3); page-break-after: always; }';
+            html += '.page { background: white; width: min(210mm, 96vw); min-height: 297mm; margin: 0 0 30px 0; padding: 2cm 2.5cm; box-shadow: 0 0 20px rgba(0,0,0,0.3); page-break-after: always; box-sizing: border-box; }';
             html += '.antet-box { margin-bottom: 15px; }';
             html += '.firma-nume { font-size: 15pt; font-weight: bold; margin-bottom: 4px; }';
             html += '.firma-detalii { font-size: 10pt; color: #333; }';
@@ -469,7 +563,7 @@
             html += '.semnatura-bloc { margin-top: 40px; text-align: right; line-height: 1.8; font-weight: bold; }';
             html += '.cu-stima { margin-bottom: 5px; }';
             html += '.data-semn { display: flex; justify-content: space-between; margin-top: 50px; font-weight: normal; font-size: 10pt; }';
-            html += '@media print { body { background: white; } .controls-print, .save-status { display: none !important; } .page { margin: 0; box-shadow: none; padding: 1.5cm 2cm; } }';
+            html += '@media print { body { background: white; padding: 0; display: block; } .controls-print, .save-status { display: none !important; } .page { margin: 0; box-shadow: none; width: 100%; padding: 1.5cm 2cm; } }';
             html += '</style></head><body>';
             html += '<div class="controls-print">';
             html += '<button class="btn-print" onclick="window.print()">&#128424;&#65039; Printeaza</button>';
@@ -509,7 +603,13 @@
             html += '    saveTimer = setTimeout(saveCloud, 1500);';
             html += '  });';
             html += '});';
-            html += '// Populate initial data-auto values';
+            html += 'document.querySelectorAll("[contenteditable][data-field]").forEach(function(ce) {';
+            html += '  ce.addEventListener("input", function() {';
+            html += '    comData[parseInt(ce.dataset.idx)][ce.dataset.field] = ce.innerHTML;';
+            html += '    clearTimeout(saveTimer);';
+            html += '    saveTimer = setTimeout(saveCloud, 1500);';
+            html += '  });';
+            html += '});';
             html += 'document.querySelectorAll(".inp-data").forEach(function(inp) {';
             html += '  var el = document.getElementById("data-auto-" + inp.dataset.idx);';
             html += '  if (el && inp.value) el.innerText = inp.value;';

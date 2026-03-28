@@ -1,0 +1,1248 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <title>Registru Avize & Comunicări PNRAS</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        :root {
+            --primary: #1e40af;
+            --aviz: #0e7490;
+            --com: #7c3aed;
+            --green: #10b981;
+            --red: #ef4444;
+            --amber: #f59e0b;
+            --bg: #f1f5f9;
+            --border: #e2e8f0;
+            --text: #1e293b;
+            --muted: #64748b;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+        .header {
+            background: var(--primary); color: white;
+            padding: 16px 32px;
+            display: flex; align-items: center; justify-content: space-between;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+        .header-title { font-size: 15pt; font-weight: 700; }
+        .header-sub   { font-size: 9pt; opacity: .75; margin-top: 3px; }
+
+        .toolbar {
+            background: white; border-bottom: 1px solid var(--border);
+            padding: 12px 32px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+        }
+        .toolbar label { font-size: 9.5pt; color: var(--muted); font-weight: 600; }
+        .toolbar select { border: 1px solid var(--border); border-radius: 6px; padding: 7px 12px; font-size: 10pt; background: var(--bg); }
+        .btn { padding: 8px 18px; border: none; border-radius: 6px; font-weight: 700; font-size: 10pt; cursor: pointer; }
+        .btn-sync  { background: #0e7490; color: white; }
+        .btn-renr  { background: var(--amber); color: white; }
+        .btn-print { background: var(--primary); color: white; }
+        .btn-add   { background: var(--green); color: white; margin-left: auto; }
+        .btn:hover { opacity: .85; }
+
+        .content { padding: 22px 32px; }
+
+        .stats-row { display: flex; gap: 14px; margin-bottom: 18px; flex-wrap: wrap; }
+        .stat-card { background: white; border-radius: 10px; padding: 12px 20px; border: 1px solid var(--border); min-width: 140px; }
+        .stat-card .val { font-size: 20pt; font-weight: 800; }
+        .stat-card .lbl { font-size: 8.5pt; color: var(--muted); margin-top: 2px; }
+        .stat-card.aviz .val { color: var(--aviz); }
+        .stat-card.com  .val { color: var(--com); }
+        .stat-card.tot  .val { color: var(--primary); }
+
+        /* Banner avertizare */
+        .banner {
+            display: none; background: #fef3c7; border: 1px solid var(--amber);
+            border-radius: 8px; padding: 10px 18px; margin-bottom: 16px;
+            font-size: 10pt; color: #92400e;
+            align-items: center; gap: 12px;
+        }
+        .banner.show { display: flex; }
+        .banner button { background: var(--amber); color: white; border: none; border-radius: 5px; padding: 5px 14px; cursor: pointer; font-weight: 700; font-size: 9.5pt; white-space: nowrap; }
+
+        .tabel-wrap { background: white; border-radius: 12px; border: 1px solid var(--border); overflow: hidden; box-shadow: 0 1px 6px rgba(0,0,0,0.06); }
+        table { width: 100%; border-collapse: collapse; }
+        thead th {
+            background: #f8fafc; padding: 11px 14px;
+            font-size: 8pt; font-weight: 700; color: var(--muted);
+            text-transform: uppercase; letter-spacing: .05em;
+            border-bottom: 2px solid var(--border); text-align: left; white-space: nowrap;
+        }
+        tbody tr { border-bottom: 1px solid #f1f5f9; }
+        tbody tr:last-child { border-bottom: none; }
+        tbody tr:hover { background: #f8fafc; }
+        tbody td { padding: 10px 14px; font-size: 10pt; vertical-align: middle; }
+
+        /* Numărul de înregistrare — mare, proeminent */
+        .nr-reg {
+            font-size: 13pt; font-weight: 900; color: var(--primary);
+            text-align: center; display: block;
+        }
+
+        .badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 8pt; font-weight: 700; white-space: nowrap; }
+        .badge-aviz { background: #ecfeff; color: var(--aviz); border: 1px solid #a5f3fc; }
+        .badge-com  { background: #f5f3ff; color: var(--com);  border: 1px solid #ddd6fe; }
+
+        /* Data editabilă */
+        .data-wrap { display: flex; align-items: center; gap: 5px; }
+        .data-input {
+            border: 1px solid transparent; border-radius: 5px;
+            padding: 4px 8px; font-size: 9.5pt; color: var(--text);
+            background: transparent; width: 108px; transition: all .15s;
+        }
+        .data-input:focus { border-color: var(--primary); background: #eff6ff; outline: none; }
+        .data-input:hover { border-color: #cbd5e1; background: #f8fafc; }
+
+        .dot { width: 7px; height: 7px; border-radius: 50%; background: transparent; flex-shrink: 0; display: inline-block; transition: background .3s; }
+        .dot.saving { background: var(--amber); }
+        .dot.saved  { background: var(--green); }
+        .dot.error  { background: var(--red); }
+
+        .val-cell { font-weight: 600; color: #065f46; }
+
+        /* Grupare pe luni */
+        .tr-luna-header td {
+            background: var(--primary) !important;
+            color: white !important;
+            font-weight: 700;
+            font-size: 10pt;
+            padding: 9px 14px;
+            letter-spacing: .03em;
+        }
+        .tr-luna-total td {
+            background: #f0f7ff !important;
+            border-top: 2px solid #bfdbfe;
+            font-weight: 700;
+            font-size: 9.5pt;
+            color: var(--primary);
+            padding: 8px 14px;
+        }
+        .tr-luna-total .tot-val { color: #065f46; }
+
+        @media print {
+            .tr-luna-header td {
+                background: #1e40af !important;
+                color: white !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            .tr-luna-total td {
+                background: #e8f0fe !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+        }
+
+        /* Câmpuri editabile inline: cantitate și valoare */
+        .edit-input {
+            border: 1px solid transparent; border-radius: 4px;
+            padding: 3px 7px; font-size: 10pt; color: var(--text);
+            background: transparent; transition: all .15s; width: 80px; text-align: right;
+        }
+        .edit-input:focus { border-color: var(--primary); background: #eff6ff; outline: none; }
+        .edit-input:hover { border-color: #cbd5e1; background: #f8fafc; }
+        .edit-input.wide  { width: 100px; }
+
+        .btn-del { background: none; border: none; color: #cbd5e1; cursor: pointer; font-size: 13pt; padding: 2px 6px; border-radius: 4px; }
+        .btn-del:hover { color: var(--red); }
+
+        .empty-state { text-align: center; padding: 60px 20px; color: var(--muted); }
+        .empty-state .icon { font-size: 32pt; margin-bottom: 10px; }
+        .loading { text-align: center; padding: 60px; color: var(--muted); font-size: 11pt; }
+
+        #toast {
+            position: fixed; bottom: 24px; right: 24px;
+            background: #1e293b; color: white; padding: 11px 20px; border-radius: 8px;
+            font-size: 10pt; font-weight: 600; display: none; z-index: 999;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+
+        /* Modal */
+        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 100; align-items: center; justify-content: center; }
+        .modal-overlay.open { display: flex; }
+        .modal { background: white; border-radius: 14px; padding: 26px 30px; width: 400px; max-width: 95vw; box-shadow: 0 8px 30px rgba(0,0,0,0.2); }
+        .modal h2 { font-size: 13pt; margin-bottom: 18px; color: var(--primary); }
+        .field { margin-bottom: 12px; }
+        .field label { display: block; font-size: 8.5pt; font-weight: 700; color: var(--muted); margin-bottom: 4px; text-transform: uppercase; }
+        .field input, .field select { width: 100%; padding: 8px 11px; border: 1px solid var(--border); border-radius: 7px; font-size: 10pt; }
+        .field input:focus, .field select:focus { border-color: var(--primary); outline: none; }
+        .modal-btns { display: flex; gap: 10px; margin-top: 20px; justify-content: flex-end; }
+        .btn-cancel     { padding: 8px 18px; background: var(--bg); border: 1px solid var(--border); border-radius: 7px; cursor: pointer; font-weight: 600; }
+        .btn-save-modal { padding: 8px 20px; background: var(--primary); color: white; border: none; border-radius: 7px; cursor: pointer; font-weight: 700; }
+
+        /* Copertă — ascunsă pe ecran, vizibilă doar la print */
+        .coperta { display: none; border: none; }
+
+        /* ══════════════ PRINT ══════════════ */
+        @media print {
+            @page { size: A4 portrait; margin: 1.5cm 1.2cm; }
+
+            body { background: white; font-family: "Times New Roman", Times, serif; }
+
+            /* Ascunde tot UI-ul */
+            .toolbar, .btn-del, .dot, #toast, .modal-overlay,
+            .stats-row, .banner, .header { display: none !important; }
+
+            /* ── Copertă ── */
+            .coperta {
+                display: flex !important;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                height: 100vh;
+                page-break-after: always;
+                break-after: page;
+                padding: 2.5cm 2cm;
+                box-sizing: border-box;
+                text-align: center;
+                border: 12pt solid #1e40af;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            .cop-titlu-mic {
+                font-size: 14pt;
+                font-weight: normal;
+                text-transform: uppercase;
+                letter-spacing: .12em;
+                color: #1e40af;
+                margin-bottom: 6pt;
+            }
+            .cop-titlu-mare {
+                font-size: 22pt;
+                font-weight: 900;
+                text-transform: uppercase;
+                letter-spacing: .08em;
+                color: #1e40af;
+                margin-bottom: 10pt;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            .cop-subtitlu {
+                font-size: 12pt;
+                line-height: 1.7;
+                color: #1e293b;
+                margin-bottom: 6pt;
+            }
+            .cop-cod {
+                font-size: 11pt;
+                color: #1e293b;
+                margin-bottom: 4pt;
+            }
+            .cop-separator {
+                width: 60mm;
+                border: none;
+                border-top: 2pt solid #1e40af;
+                margin: 20pt auto;
+            }
+            .cop-furnizor-titlu {
+                font-size: 10pt;
+                font-weight: bold;
+                text-transform: uppercase;
+                letter-spacing: .06em;
+                color: #475569;
+                margin-bottom: 8pt;
+            }
+            .cop-furnizor {
+                font-size: 11pt;
+                line-height: 1.7;
+                color: #1e293b;
+            }
+            .cop-furnizor strong { font-weight: 700; }
+
+            /* ── Conținut (pagini după copertă) ── */
+            .content { padding: 0; }
+            .tabel-wrap { box-shadow: none; border: 1px solid #999; border-radius: 0;
+                          width: 100%; overflow: visible; }
+
+            /* Tabel încadrat strict în lățimea paginii A4 portret (170mm zonă utilă) */
+            table { width: 170mm; table-layout: fixed; font-size: 7pt;
+                    border-collapse: collapse; }
+
+            /* Lățimi fixe coloane: Nr(14) + Dată(22) + Tip(38) + Meniu(42) + Cant(18) + Val(24) + Del(0) = 158mm */
+            thead th:nth-child(1) { width: 14mm; }
+            thead th:nth-child(2) { width: 22mm; }
+            thead th:nth-child(3) { width: 40mm; }
+            thead th:nth-child(4) { width: 44mm; }
+            thead th:nth-child(5) { width: 18mm; }
+            thead th:nth-child(6) { width: 30mm; }
+            thead th:nth-child(7) { display: none; } /* buton ștergere */
+            tbody td:nth-child(7) { display: none; }
+            .tr-luna-total td:last-child { display: none; }
+
+            thead th {
+                background: #1e40af !important;
+                color: white !important;
+                font-size: 6.5pt;
+                padding: 4px 4px;
+                white-space: normal;
+                word-break: break-word;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            tbody td {
+                font-size: 7pt;
+                padding: 4px 4px;
+                white-space: normal;
+                word-break: break-word;
+                overflow: hidden;
+            }
+            tbody tr:nth-child(even) {
+                background: #f5f5f5 !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            .tr-luna-header td {
+                background: #1e40af !important;
+                color: white !important;
+                font-size: 8.5pt;
+                padding: 6px 6px;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            .tr-luna-total td {
+                background: #dbeafe !important;
+                font-size: 7pt;
+                padding: 4px 4px;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            .nr-reg { font-size: 9pt; font-weight: 900; color: #1e40af; }
+            .data-input { border: none !important; background: transparent !important;
+                          padding: 0; font-size: 7pt; width: auto; max-width: 100%; }
+            .edit-input { border: none !important; background: transparent !important;
+                          padding: 0; font-size: 7pt; width: auto; }
+            .badge { background: none !important; font-size: 6.5pt; padding: 1px 3px;
+                     white-space: normal; }
+            .badge-aviz { border: 1px solid #0e7490 !important; color: #0e7490 !important;
+                          -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .badge-com  { border: 1px solid #7c3aed !important; color: #7c3aed !important;
+                          -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- COPERTĂ — vizibilă doar la print -->
+<div class="coperta">
+    <div class="cop-titlu-mare" style="font-size:42pt; letter-spacing:.15em; margin-bottom:4pt;">REGISTRU</div>
+    <div class="cop-titlu-mic" style="font-size:14pt; margin-bottom:4pt;">de înregistrare a</div>
+    <div class="cop-titlu-mare" style="font-size:20pt; margin-bottom:16pt; line-height:1.3;">AVIZELOR DE ÎNSOȚIRE<br>A MĂRFII</div>
+    <div class="cop-subtitlu">
+        aferente activității <strong>„Masă caldă"</strong>, derulate în cadrul proiectului<br><br>
+        <strong>„FII UNUL DINTRE C.R.A.I.!<br>(Creativitate, Reziliență, Adaptabilitate, Incluziune)"</strong><br><br>
+        la Liceul Tehnologic „Victor Mihăilescu Craiu" Belcești
+    </div>
+    <div class="cop-cod" style="margin-top:10pt;"><strong>Cod proiect:</strong> F-PNRAS-2-2023-0447</div>
+    <div class="cop-cod"><strong>Contract nr.</strong> 143/06.12.2024</div>
+    <hr class="cop-separator">
+    <div class="cop-furnizor-titlu">Furnizor</div>
+    <div class="cop-furnizor">
+        <strong>SC PROCONS IAȘI S.R.L.</strong><br>
+        Nr. ord. reg. com.: J22/294/23.02.2015<br>
+        C.U.I.: 34138254<br>
+        Sat Belcești, Nr. 370, Județul Iași
+    </div>
+</div>
+
+<div class="header">
+    <div>
+        <div class="header-title">📋 Registru Avize de Însoțire & Comunicări Nelivrare</div>
+        <div class="header-sub">PNRAS – Liceul Tehnologic „Victor Mihăilescu Craiu" Belcești | SC PROCONS IAȘI SRL</div>
+    </div>
+    <div style="font-size:9pt;opacity:.75" id="header-an"></div>
+</div>
+
+<div class="toolbar">
+    <label>AN:</label>
+    <select id="sel-an">
+        <option value="2025">2025</option>
+        <option value="2026">2026</option>
+        <option value="2024">2024</option>
+    </select>
+    <button class="btn btn-sync" onclick="sincronizeazaTot()">⬇️ Sincronizează tot</button>
+    <button class="btn btn-renr" onclick="renumeroteazaManual()">🔄 Renumerotează</button>
+    <button class="btn btn-print" onclick="window.print()">🖨️ Printează registrul complet</button>
+    <button class="btn" style="background:#0e7490;color:white;" onclick="printLuna()">🗓️ Printează pe luni</button>
+    <button class="btn btn-add" onclick="deschideModal()">＋ Adaugă manual</button>
+</div>
+
+<div class="content">
+    <div class="stats-row" id="stats-row"></div>
+    <div class="banner" id="banner">
+        <span id="banner-text"></span>
+        <button onclick="renumeroteazaManual()">Corectează acum</button>
+    </div>
+
+    <div class="tabel-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th style="width:70px;text-align:center">Nr.<br>înreg.</th>
+                    <th style="width:115px">Dată document</th>
+                    <th style="width:200px">Tip document</th>
+                    <th style="width:160px">Tip meniu</th>
+                    <th style="width:90px;text-align:right">Cantitate</th>
+                    <th style="width:115px;text-align:right">Valoare (lei)</th>
+                    <th style="width:36px"></th>
+                </tr>
+            </thead>
+            <tbody id="tbody"></tbody>
+        </table>
+        <div id="empty-state" class="empty-state" style="display:none">
+            <div class="icon">🗂️</div>
+            <p>Nicio înregistrare găsită pentru anul selectat.</p>
+        </div>
+        <div id="loading" class="loading">⏳ Se încarcă...</div>
+    </div>
+</div>
+
+<div id="toast"></div>
+
+<div class="modal-overlay" id="modal-overlay">
+    <div class="modal">
+        <h2>Adaugă înregistrare manuală</h2>
+        <div class="field">
+            <label>Tip document</label>
+            <select id="m-tip" onchange="toggleModal()">
+                <option value="AVIZ">Aviz de însoțire</option>
+                <option value="COMUNICARE">Comunicare nelivrare</option>
+            </select>
+        </div>
+        <div class="field">
+            <label>Data documentului (ZZ.LL.AAAA)</label>
+            <input type="text" id="m-data" placeholder="ex: 15.03.2025">
+        </div>
+        <div class="field">
+            <label>Luna</label>
+            <select id="m-luna">
+                <option>Ianuarie</option><option>Februarie</option><option>Martie</option>
+                <option>Aprilie</option><option>Mai</option><option>Iunie</option>
+                <option>Iulie</option><option>August</option><option>Septembrie</option>
+                <option>Octombrie</option><option>Noiembrie</option><option>Decembrie</option>
+            </select>
+        </div>
+        <div class="field" id="m-field-zi">
+            <label>Ziua (doar pentru avize)</label>
+            <input type="number" id="m-zi" min="1" max="31">
+        </div>
+        <div class="field" id="m-field-cant">
+            <label>Cantitate porții (doar pentru avize)</label>
+            <input type="number" id="m-cantitate" min="0">
+        </div>
+        <div class="modal-btns">
+            <button class="btn-cancel" onclick="inchideModal()">Anulează</button>
+            <button class="btn-save-modal" onclick="salveazaManual()">Salvează</button>
+        </div>
+    </div>
+</div>
+
+<script>
+const URL_S = 'https://aexjrbdgajurxzngfkpx.supabase.co';
+const KEY_S = 'sb_publishable_KPV__0BA9z4EvRl5eqC0FQ_hmBLOLYv';
+const sb    = supabase.createClient(URL_S, KEY_S);
+const PRET  = 13.8;
+const LUNI  = ['Ianuarie','Februarie','Martie','Aprilie','Mai','Iunie',
+                'Iulie','August','Septembrie','Octombrie','Noiembrie','Decembrie'];
+
+let anCurent = 2025;
+let allRows  = [];   // sortate cronologic după data_doc
+
+// ─── INIT ─────────────────────────────────────────────────────────────────────
+document.getElementById('sel-an').addEventListener('change', e => {
+    anCurent = parseInt(e.target.value);
+    document.getElementById('header-an').textContent = anCurent;
+    incarcaDate();
+});
+anCurent = parseInt(document.getElementById('sel-an').value);
+document.getElementById('header-an').textContent = anCurent;
+incarcaDate();
+
+// ─── HELPERS ──────────────────────────────────────────────────────────────────
+function parseData(s) {
+    if (!s) return new Date(0);
+    const p = s.split('.');
+    if (p.length !== 3) return new Date(0);
+    return new Date(`${p[2]}-${p[1]}-${p[0]}`);
+}
+
+// Sortare cronologică: după dată, la egalitate AVIZ < COMUNICARE, apoi după id
+function sortCronologic(a, b) {
+    const d = parseData(a.data_doc) - parseData(b.data_doc);
+    if (d !== 0) return d;
+    if (a.tip < b.tip) return -1;
+    if (a.tip > b.tip) return  1;
+    return (a.id || 0) - (b.id || 0);
+}
+
+// Calculează ce update-uri sunt necesare pentru a aduce nr. la valoarea cronologică
+// UN SINGUR CONTOR COMUN — nr = poziția cronologică în întregul an
+function calculeazaUpdates(rows) {
+    const sortate = [...rows].sort(sortCronologic);
+    return sortate
+        .map((r, idx) => ({ id: r.id, nrCorect: idx + 1, nrActual: r.nr }))
+        .filter(u => u.nrActual !== u.nrCorect);
+}
+
+// ─── RENUMEROTARE ─────────────────────────────────────────────────────────────
+async function renumeroteaza(silent = false) {
+    const updates = calculeazaUpdates(allRows);
+    if (updates.length === 0) {
+        if (!silent) toast('Numerele sunt deja corecte ✓');
+        return;
+    }
+
+    // Update-uri în paralel în Supabase
+    await Promise.all(updates.map(u =>
+        sb.from('registru_documente').update({ nr: u.nrCorect }).eq('id', u.id)
+    ));
+
+    // Actualizăm și local
+    updates.forEach(u => {
+        const row = allRows.find(r => r.id === u.id);
+        if (row) row.nr = u.nrCorect;
+    });
+
+    if (!silent) toast(`${updates.length} numere actualizate.`);
+    ascundeBanner();
+    randeazaStats(allRows);
+    randeazaTabel(allRows);
+}
+
+async function renumeroteazaManual() {
+    const updates = calculeazaUpdates(allRows);
+    if (updates.length === 0) { toast('Numerele sunt deja corecte ✓'); return; }
+    const ok = confirm(`Se vor actualiza ${updates.length} numere de înregistrare pentru a menține ordinea cronologică.\n\nContinui?`);
+    if (ok) await renumeroteaza(false);
+}
+
+// ─── ÎNCĂRCARE ────────────────────────────────────────────────────────────────
+async function incarcaDate() {
+    document.getElementById('loading').style.display = 'block';
+    document.getElementById('empty-state').style.display = 'none';
+    document.getElementById('tbody').innerHTML = '';
+    ascundeBanner();
+
+    const { data, error } = await sb
+        .from('registru_documente')
+        .select('*')
+        .eq('an', anCurent);
+
+    document.getElementById('loading').style.display = 'none';
+    if (error) { toast('Eroare: ' + error.message, true); return; }
+
+    allRows = (data || []).sort(sortCronologic);
+
+    // Verifică dacă numerele sunt corecte
+    const updates = calculeazaUpdates(allRows);
+    if (updates.length > 0) {
+        afiseazaBanner(`⚠️ ${updates.length} numere nu corespund ordinii cronologice.`);
+    }
+
+    randeazaStats(allRows);
+    randeazaTabel(allRows);
+}
+
+// ─── BANNER ───────────────────────────────────────────────────────────────────
+function afiseazaBanner(msg) {
+    document.getElementById('banner-text').textContent = msg;
+    document.getElementById('banner').classList.add('show');
+}
+function ascundeBanner() {
+    document.getElementById('banner').classList.remove('show');
+}
+
+// ─── STATISTICI ───────────────────────────────────────────────────────────────
+function randeazaStats(rows) {
+    const nA = rows.filter(r => r.tip === 'AVIZ').length;
+    const nC = rows.filter(r => r.tip === 'COMUNICARE').length;
+    const vT = rows.filter(r => r.tip === 'AVIZ')
+                   .reduce((s, r) => s + (parseFloat(r.valoare) || 0), 0);
+    const pT = rows.filter(r => r.tip === 'AVIZ')
+                   .reduce((s, r) => s + (parseInt(r.cantitate) || 0), 0);
+    document.getElementById('stats-row').innerHTML = `
+        <div class="stat-card aviz"><div class="val">${nA}</div><div class="lbl">Avize emise ${anCurent}</div></div>
+        <div class="stat-card com"><div class="val">${nC}</div><div class="lbl">Comunicări nelivrare ${anCurent}</div></div>
+        <div class="stat-card tot"><div class="val">${vT.toLocaleString('ro-RO',{minimumFractionDigits:2,maximumFractionDigits:2})}</div><div class="lbl">Valoare totală avize (lei)</div></div>
+        <div class="stat-card"><div class="val" style="color:var(--muted)">${nA+nC}</div><div class="lbl">Total documente ${anCurent}</div></div>
+        <div class="stat-card"><div class="val" style="color:#059669">${pT.toLocaleString('ro-RO')}</div><div class="lbl">Total porții ${anCurent}</div></div>
+    `;
+}
+
+// ─── TABEL ────────────────────────────────────────────────────────────────────
+const MENIU_LABELS = {
+    1: 'Meniu 1 – Șnițel pui',
+    2: 'Meniu 2 – Pulpă pui',
+    3: 'Meniu 3 – Hamburger pui',
+    4: 'Meniu 4 – Piept pui',
+    5: 'Meniu 5 – Cartofi cu porc',
+};
+
+function randeazaTabel(rows) {
+    const tbody = document.getElementById('tbody');
+    tbody.innerHTML = '';
+    if (rows.length === 0) { document.getElementById('empty-state').style.display = 'block'; return; }
+    document.getElementById('empty-state').style.display = 'none';
+
+    const LUNI_ORDINE = ['Ianuarie','Februarie','Martie','Aprilie','Mai','Iunie',
+                         'Iulie','August','Septembrie','Octombrie','Noiembrie','Decembrie'];
+
+    // Grupăm înregistrările pe luni, păstrând ordinea cronologică
+    const peL = {};
+    rows.forEach(r => {
+        const l = r.luna || 'Necunoscută';
+        if (!peL[l]) peL[l] = [];
+        peL[l].push(r);
+    });
+
+    // Sortăm lunile în ordine calendaristică
+    const luniSortate = LUNI_ORDINE.filter(l => peL[l]);
+
+    luniSortate.forEach(luna => {
+        const inreg = peL[luna];
+
+        // ── Header lună ──
+        const trH = document.createElement('tr');
+        trH.className = 'tr-luna-header';
+        trH.innerHTML = `<td colspan="7">📅 ${luna} ${anCurent}</td>`;
+        tbody.appendChild(trH);
+
+        // ── Rânduri înregistrări ──
+        inreg.forEach(r => {
+            const tr     = document.createElement('tr');
+            tr.dataset.id = r.id;
+            const isAviz = r.tip === 'AVIZ';
+
+            const badge = isAviz
+                ? '<span class="badge badge-aviz">📦 Aviz de însoțire a mărfii</span>'
+                : '<span class="badge badge-com">📄 Comunicare nelivrare</span>';
+
+            const tipMeniu = isAviz && r.tip_meniu
+                ? (MENIU_LABELS[r.tip_meniu] || `Meniu ${r.tip_meniu}`)
+                : '—';
+
+            const cantVal = isAviz ? (r.cantitate ?? '') : '';
+
+            tr.innerHTML = `
+                <td style="text-align:center">
+                    <span class="nr-reg">${r.nr}</span>
+                </td>
+                <td>
+                    <div class="data-wrap">
+                        <input class="data-input" type="text" value="${r.data_doc || ''}"
+                               placeholder="ZZ.LL.AAAA" data-id="${r.id}"
+                               onchange="salveazaData(this)">
+                        <span class="dot" id="dot-${r.id}"></span>
+                    </div>
+                </td>
+                <td>${badge}</td>
+                <td style="font-size:9pt; color:var(--muted)">${tipMeniu}</td>
+                <td style="text-align:right">
+                    ${isAviz
+                        ? `<input class="edit-input" type="number" min="0" value="${cantVal}"
+                                  data-id="${r.id}" data-field="cantitate"
+                                  onchange="salveazaCamp(this)">`
+                        : '—'}
+                </td>
+                <td style="text-align:right; font-weight:600; color:#065f46;">
+                    ${isAviz && r.valoare
+                        ? parseFloat(r.valoare).toLocaleString('ro-RO',{minimumFractionDigits:2,maximumFractionDigits:2}) + ' lei'
+                        : '—'}
+                </td>
+                <td><button class="btn-del" onclick="stergeRand(${r.id})" title="Șterge">✕</button></td>
+            `;
+            tbody.appendChild(tr);
+        });
+
+        // ── Rând total lună ──
+        const totalCant = inreg
+            .filter(r => r.tip === 'AVIZ')
+            .reduce((s, r) => s + (parseInt(r.cantitate) || 0), 0);
+        const totalVal  = inreg
+            .filter(r => r.tip === 'AVIZ')
+            .reduce((s, r) => s + (parseFloat(r.valoare) || 0), 0);
+        const nrDoc = inreg.length;
+        const nrAvize = inreg.filter(r => r.tip === 'AVIZ').length;
+        const nrCom   = inreg.filter(r => r.tip === 'COMUNICARE').length;
+
+        const rezumat = [
+            nrAvize > 0 ? `${nrAvize} aviz${nrAvize > 1 ? 'e' : ''}` : '',
+            nrCom   > 0 ? `${nrCom} comunicare${nrCom > 1 ? 'i' : ''}` : '',
+        ].filter(Boolean).join(', ');
+
+        const trT = document.createElement('tr');
+        trT.className = 'tr-luna-total';
+        trT.innerHTML = `
+            <td colspan="3" style="text-align:right; padding-right:20px;">
+                Total ${luna} — ${rezumat}
+            </td>
+            <td></td>
+            <td style="text-align:right">${totalCant > 0 ? totalCant + ' porții' : '—'}</td>
+            <td class="tot-val" style="text-align:right">
+                ${totalVal > 0
+                    ? totalVal.toLocaleString('ro-RO',{minimumFractionDigits:2,maximumFractionDigits:2}) + ' lei'
+                    : '—'}
+            </td>
+            <td></td>
+        `;
+        tbody.appendChild(trT);
+    });
+}
+
+// ─── SALVARE DATA ─────────────────────────────────────────────────────────────
+async function salveazaData(inp) {
+    const id  = parseInt(inp.dataset.id);
+    const dot = document.getElementById('dot-' + id);
+    dot.className = 'dot saving';
+
+    const { error } = await sb.from('registru_documente').update({ data_doc: inp.value }).eq('id', id);
+    if (error) { dot.className = 'dot error'; toast('Eroare: ' + error.message, true); return; }
+
+    dot.className = 'dot saved';
+    setTimeout(() => { dot.className = 'dot'; }, 2000);
+
+    // Actualizăm local, re-sortăm și renumerotăm automat (silent)
+    const row = allRows.find(r => r.id === id);
+    if (row) row.data_doc = inp.value;
+    allRows.sort(sortCronologic);
+    await renumeroteaza(true);
+    randeazaStats(allRows);
+    randeazaTabel(allRows);
+}
+
+// ─── SALVARE CÂMP (cantitate / valoare) ──────────────────────────────────────
+async function salveazaCamp(inp) {
+    const id    = parseInt(inp.dataset.id);
+    const field = inp.dataset.field;
+    const dot   = document.getElementById('dot-' + id);
+    if (dot) dot.className = 'dot saving';
+
+    let updateObj = {};
+    if (field === 'cantitate') {
+        const cant = parseInt(inp.value) || 0;
+        const val = parseFloat((cant * 13.8).toFixed(2));
+        updateObj = { cantitate: cant, valoare: val };
+        // Actualizăm local
+        const row = allRows.find(r => r.id === id);
+        if (row) { row.cantitate = cant; row.valoare = val; }
+    }
+
+    const { error } = await sb.from('registru_documente').update(updateObj).eq('id', id);
+    if (error) {
+        if (dot) dot.className = 'dot error';
+        toast('Eroare: ' + error.message, true);
+    } else {
+        if (dot) { dot.className = 'dot saved'; setTimeout(() => { dot.className = 'dot'; }, 2000); }
+        randeazaStats(allRows);
+    }
+}
+
+// ─── ȘTERGERE ─────────────────────────────────────────────────────────────────
+async function stergeRand(id) {
+    if (!confirm('Ștergi această înregistrare? Numerele vor fi recalculate automat.')) return;
+    const { error } = await sb.from('registru_documente').delete().eq('id', id);
+    if (error) { toast('Eroare: ' + error.message, true); return; }
+    allRows = allRows.filter(r => r.id !== id);
+    await renumeroteaza(true);
+    await incarcaDate();
+}
+
+// ─── MODAL ───────────────────────────────────────────────────────────────────
+function toggleModal() {
+    const isAviz = document.getElementById('m-tip').value === 'AVIZ';
+    document.getElementById('m-field-zi').style.display   = isAviz ? '' : 'none';
+    document.getElementById('m-field-cant').style.display = isAviz ? '' : 'none';
+}
+function deschideModal() {
+    const azi = new Date();
+    document.getElementById('m-data').value =
+        `${String(azi.getDate()).padStart(2,'0')}.${String(azi.getMonth()+1).padStart(2,'0')}.${azi.getFullYear()}`;
+    document.getElementById('m-zi').value = azi.getDate();
+    const sel = document.getElementById('m-luna');
+    for (let i = 0; i < sel.options.length; i++) {
+        if (sel.options[i].value === LUNI[azi.getMonth()]) { sel.selectedIndex = i; break; }
+    }
+    toggleModal();
+    document.getElementById('modal-overlay').classList.add('open');
+}
+function inchideModal() { document.getElementById('modal-overlay').classList.remove('open'); }
+
+async function salveazaManual() {
+    const tip      = document.getElementById('m-tip').value;
+    const dataDoc  = document.getElementById('m-data').value.trim();
+    const luna     = document.getElementById('m-luna').value;
+    const zi       = tip === 'AVIZ' ? document.getElementById('m-zi').value : null;
+    const cantitate= tip === 'AVIZ' ? (parseInt(document.getElementById('m-cantitate').value)||null) : null;
+    const valoare  = cantitate ? parseFloat((cantitate * PRET).toFixed(2)) : null;
+    if (!dataDoc) { alert('Completează data documentului.'); return; }
+
+    // Nr provizoriu — va fi imediat recalculat
+    const { error } = await sb.from('registru_documente').insert({
+        tip, nr: 9999, an: anCurent,
+        data_doc: dataDoc, luna,
+        zi: zi ? String(zi) : null,
+        cantitate, valoare,
+        referinta: tip === 'AVIZ'
+            ? `AVIZ_${anCurent}_${luna}_${zi||''}`
+            : `COMUNICARE_${anCurent}_${luna}`
+    });
+    if (error) { toast('Eroare: ' + error.message, true); return; }
+
+    inchideModal();
+    toast('Adăugat. Se recalculează numerele...');
+    await incarcaDate();
+    await renumeroteaza(true);
+    await incarcaDate();
+}
+
+// ─── SINCRONIZARE COMPLETĂ DIN SURSE ─────────────────────────────────────────
+// Citește setari_pontaj (avize) și planificari_documente (comunicări)
+// și creează în registru_documente tot ce lipsește, apoi renumerotează.
+async function sincronizeazaTot() {
+    const ok = confirm(`Se vor importa/actualiza în registru toate avizele și comunicările din ${anCurent}, inclusiv tip meniu, apoi se va renumerota cronologic.\n\nContinui?`);
+    if (!ok) return;
+
+    toast('Se sincronizează...');
+
+    const LUNI_MAP = {Ianuarie:'01',Februarie:'02',Martie:'03',Aprilie:'04',Mai:'05',Iunie:'06',
+                      Iulie:'07',August:'08',Septembrie:'09',Octombrie:'10',Noiembrie:'11',Decembrie:'12'};
+    const LUNI_NAMES = Object.keys(LUNI_MAP);
+    const PRET_U = 13.8;
+
+    // Citim ce există deja în registru (referinta + id + tip_meniu)
+    const { data: existente } = await sb
+        .from('registru_documente')
+        .select('id, referinta, tip_meniu, cantitate, valoare')
+        .eq('an', anCurent);
+
+    const existenteMap = {};
+    (existente || []).forEach(r => { existenteMap[r.referinta] = r; });
+
+    const inserts = [];
+    const updates = []; // { id, tip_meniu, cantitate, valoare } pentru cele existente fără tip_meniu
+
+    // ── 1. AVIZE din setari_pontaj ──────────────────────────────────────────
+    const { data: pontajRows } = await sb
+        .from('setari_pontaj')
+        .select('zi, luna, an, valoare_aviz, tip_meniu')
+        .eq('an', anCurent)
+        .not('valoare_aviz', 'is', null)
+        .gt('valoare_aviz', 0);
+
+    for (const row of (pontajRows || [])) {
+        const ref = `AVIZ_${row.an}_${row.luna}_${row.zi}`;
+        const lunaNum = LUNI_MAP[row.luna] || '00';
+        const dataDoc = `${String(row.zi).padStart(2,'0')}.${lunaNum}.${row.an}`;
+        const cant = parseInt(row.valoare_aviz) || 0;
+        const val  = cant ? parseFloat((cant * PRET_U).toFixed(2)) : null;
+        const tipM = row.tip_meniu || null;
+
+        if (existenteMap[ref]) {
+            // Există deja — actualizăm tip_meniu, cantitate, valoare dacă lipsesc
+            const ex = existenteMap[ref];
+            if (!ex.tip_meniu || !ex.cantitate) {
+                updates.push({ id: ex.id, tip_meniu: tipM, cantitate: cant || null, valoare: val });
+            }
+        } else {
+            inserts.push({
+                tip: 'AVIZ', nr: 9999, an: anCurent,
+                data_doc: dataDoc, luna: row.luna, zi: String(row.zi),
+                cantitate: cant || null, valoare: val,
+                tip_meniu: tipM, referinta: ref
+            });
+        }
+    }
+
+    // ── 2. COMUNICĂRI din planificari_documente ─────────────────────────────
+    for (const luna of LUNI_NAMES) {
+        const docId = `COMUNICARE_${anCurent}_${luna}`;
+        const { data: doc } = await sb
+            .from('planificari_documente')
+            .select('continut_json')
+            .eq('tip_document', docId)
+            .maybeSingle();
+
+        if (!doc?.continut_json?.comunicari) continue;
+
+        doc.continut_json.comunicari.forEach((com, idx) => {
+            const ref = `COMUNICARE_${anCurent}_${luna}_${idx}`;
+            if (existenteMap[ref]) return; // există deja, comunicările nu au câmpuri de actualizat
+            const dataDoc = com.dataNr || com.dataStart || '';
+            inserts.push({
+                tip: 'COMUNICARE', nr: 9999, an: anCurent,
+                data_doc: dataDoc, luna: luna,
+                zi: null, cantitate: null, valoare: null,
+                referinta: ref
+            });
+        });
+    }
+
+    // ── Execuție ────────────────────────────────────────────────────────────
+    let nrOp = 0;
+
+    if (inserts.length > 0) {
+        const { error } = await sb.from('registru_documente').insert(inserts);
+        if (error) { toast('Eroare la import: ' + error.message, true); return; }
+        nrOp += inserts.length;
+    }
+
+    if (updates.length > 0) {
+        await Promise.all(updates.map(u =>
+            sb.from('registru_documente')
+              .update({ tip_meniu: u.tip_meniu, cantitate: u.cantitate, valoare: u.valoare })
+              .eq('id', u.id)
+        ));
+        nrOp += updates.length;
+    }
+
+    if (nrOp === 0) {
+        toast('Totul este deja sincronizat ✓');
+        await incarcaDate();
+        return;
+    }
+
+    toast(`${nrOp} înregistrări procesate. Se renumerotează...`);
+    await incarcaDate();
+    await renumeroteaza(true);
+    await incarcaDate();
+    toast(`✓ Sincronizare completă: ${inserts.length} noi, ${updates.length} actualizate.`);
+}
+
+// ─── PRINT PE LUNI ───────────────────────────────────────────────────────────
+async function printLuna() {
+    if (allRows.length === 0) { toast('Nu există înregistrări de printat.', true); return; }
+
+    const LUNI_ORDINE = ['Ianuarie','Februarie','Martie','Aprilie','Mai','Iunie',
+                         'Iulie','August','Septembrie','Octombrie','Noiembrie','Decembrie'];
+    const LUNI_MAP = {Ianuarie:'01',Februarie:'02',Martie:'03',Aprilie:'04',Mai:'05',Iunie:'06',
+                      Iulie:'07',August:'08',Septembrie:'09',Octombrie:'10',Noiembrie:'11',Decembrie:'12'};
+    const MENIU_CONFIG = {
+        1: '<strong>Meniu 1: Șnițel de pui cu garnitură, salată și pâine</strong><br>Carne: șnițel de pui (&gt;130 g) | Garnitură: cartofi la cuptor/piure (&gt;150 g)<br>Salată: salată de varză | Pâine: 3 felii | Ambalaj și tacâmuri',
+        2: '<strong>Meniu 2: Pulpă de pui cu garnitură, salată și pâine</strong><br>Carne: pulpă de pui la cuptor (&gt;130 g) | Garnitură: orez legume/cartofi (&gt;150 g)<br>Salată: salată varză/asortată | Pâine: 3 felii | Ambalaj și tacâmuri',
+        3: '<strong>Meniu 3: Hamburger de pui</strong><br>Carne: burger de pui (&gt;130 g) | Garnitură: cartofi pai (&gt;150 g)<br>Salată: legume | Pâine: chiflă | Ambalaj și tacâmuri',
+        4: '<strong>Meniu 4: Piept de pui cu garnitură, salată și pâine</strong><br>Carne: piept pui (&gt;130 g) | Garnitură: natur/piure (&gt;150 g)<br>Salată: varză/asortată | Pâine: 3 felii | Ambalaj și tacâmuri',
+        5: '<strong>Meniu 5: Mâncare cartofi cu carne porc, murături și pâine</strong><br>Carne: porc (&gt;130 g) | Garnitură: mâncărică cartofi (&gt;150 g)<br>Salată: murături asortate | Pâine: 3 felii | Ambalaj și tacâmuri'
+    };
+
+    // Grupăm înregistrările pe luni
+    const peL = {};
+    allRows.forEach(r => {
+        const l = r.luna || 'Necunoscută';
+        if (!peL[l]) peL[l] = [];
+        peL[l].push(r);
+    });
+    const luniSortate = LUNI_ORDINE.filter(l => peL[l]);
+    if (luniSortate.length === 0) { toast('Nu există înregistrări.', true); return; }
+
+    toast('Se generează documentele...');
+
+    // ── Fetch avize din setari_pontaj pentru toate lunile ───────────────────
+    const { data: pontajAll } = await sb
+        .from('setari_pontaj')
+        .select('zi, luna, an, valoare_aviz, tip_meniu')
+        .eq('an', anCurent)
+        .not('valoare_aviz', 'is', null)
+        .gt('valoare_aviz', 0);
+
+    const pontajMap = {};
+    (pontajAll || []).forEach(r => {
+        pontajMap[`${r.luna}_${r.zi}`] = r;
+    });
+
+    // ── Fetch comunicări din planificari_documente pentru toate lunile ──────
+    const comMap = {};
+    for (const luna of luniSortate) {
+        const docId = `COMUNICARE_${anCurent}_${luna}`;
+        const { data: doc } = await sb
+            .from('planificari_documente')
+            .select('continut_json')
+            .eq('tip_document', docId)
+            .maybeSingle();
+        if (doc?.continut_json?.comunicari) {
+            comMap[luna] = doc.continut_json.comunicari;
+        }
+    }
+
+    // ── CSS comun ───────────────────────────────────────────────────────────
+    const CSS = `
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: "Times New Roman", Times, serif; background: white; color: #000; }
+        @page { size: A4 portrait; margin: 0; }
+
+        /* ── Copertă ── */
+        .coperta {
+            width: 210mm; height: 297mm;
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            padding: 3cm 2.5cm; box-sizing: border-box;
+            border: 12pt solid #1e40af;
+            text-align: center; page-break-after: always;
+            -webkit-print-color-adjust: exact; print-color-adjust: exact;
+        }
+        .cop-r    { font-size: 52pt; font-weight: 900; color: #1e40af; letter-spacing:.12em; margin-bottom:4pt; }
+        .cop-de   { font-size: 14pt; color:#1e40af; text-transform:uppercase; letter-spacing:.1em; margin-bottom:6pt; }
+        .cop-doc  { font-size: 20pt; font-weight:900; color:#1e40af; text-transform:uppercase; line-height:1.3; margin-bottom:18pt; }
+        .cop-txt  { font-size: 12pt; line-height:1.7; color:#1e293b; margin-bottom:6pt; }
+        .cop-cod  { font-size: 11pt; color:#1e293b; margin-bottom:4pt; }
+        .cop-sep  { width:60mm; border:none; border-top:2pt solid #1e40af; margin:18pt auto; }
+        .cop-furn { font-size:11pt; line-height:1.7; color:#1e293b; }
+        .cop-ftit { font-size:10pt; font-weight:bold; text-transform:uppercase; color:#475569; margin-bottom:6pt; letter-spacing:.06em; }
+
+        /* ── Tabel registru ── */
+        .sectiune-registru { width:210mm; min-height:297mm; padding:1.8cm; box-sizing:border-box; page-break-after:always; }
+        .luna-header { background:#1e40af; color:white; padding:8pt 10pt; font-size:13pt; font-weight:700; margin-bottom:12pt;
+            -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+        table.reg { width:100%; border-collapse:collapse; margin-bottom:10pt; font-size:8pt; }
+        table.reg thead th { background:#1e3a8a; color:white; padding:5pt 6pt; text-align:left; border:1px solid #1e3a8a;
+            -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+        table.reg tbody td { padding:4pt 6pt; border:1px solid #d1d5db; vertical-align:middle; }
+        table.reg tbody tr:nth-child(even) { background:#f5f5f5; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+        table.reg tfoot td { background:#dbeafe; font-weight:700; font-size:8.5pt; padding:5pt 6pt;
+            border-top:2pt solid #93c5fd; color:#1e40af;
+            -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+        .nr-r { font-size:10pt; font-weight:900; color:#1e40af; text-align:center; }
+        .badge-a { color:#0e7490; border:1pt solid #0e7490; padding:1pt 4pt; font-size:7pt; white-space:nowrap; }
+        .badge-c { color:#7c3aed; border:1pt solid #7c3aed; padding:1pt 4pt; font-size:7pt; white-space:nowrap; }
+        .tv { color:#065f46 !important; }
+
+        /* ── Aviz de însoțire ── */
+        .sheet-aviz {
+            width:210mm; min-height:297mm; padding:1.5cm;
+            box-sizing:border-box; page-break-before:always; page-break-after:always;
+            display:flex; flex-direction:column;
+        }
+        .antet-img { width:100%; height:auto; margin-bottom:10px; }
+        .tbl-header { width:100%; border-collapse:collapse; margin-bottom:15px; }
+        .tbl-header td { width:50%; vertical-align:top; border:1px solid #000; padding:10px; font-size:10pt; }
+        .nr-aviz-bloc { font-size:12pt; font-weight:bold; margin:8px 0 4px 0; }
+        .titlu-aviz { text-align:center; font-weight:bold; font-size:14pt; margin-top:5px; text-transform:uppercase; }
+        .data-aviz  { text-align:center; font-size:12pt; margin:6px 0 16px 0; }
+        .tbl-prod { width:100%; border-collapse:collapse; margin-bottom:20px; }
+        .tbl-prod th, .tbl-prod td { border:1px solid #000; padding:7px; text-align:center; font-size:9.5pt; vertical-align:middle; }
+        .tbl-prod th { background:#f2f2f2; font-weight:bold; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+        .col-spec { text-align:left !important; line-height:1.3; }
+        .sect-text { font-size:10.5pt; margin-bottom:12px; }
+        .sect-text strong { display:block; margin-bottom:4px; text-decoration:underline; }
+        .sect-text p { margin:2px 0; padding-left:15px; }
+        .semnaturi { display:flex; justify-content:space-between; margin-top:30px; font-size:10.5pt; }
+        .semn-box { width:45%; text-align:center; }
+        .footer-aviz { margin-top:auto; border-top:1px solid #ccc; padding-top:5px;
+            text-align:center; font-size:8.5pt; color:#333; }
+
+        /* ── Comunicare nelivrare ── */
+        .sheet-com {
+            width:210mm; min-height:297mm; padding:2cm 2.5cm;
+            box-sizing:border-box; page-break-before:always; page-break-after:always;
+        }
+        .com-antet { margin-bottom:15px; }
+        .com-firma { font-size:14pt; font-weight:bold; margin-bottom:4px; }
+        .com-det   { font-size:9.5pt; color:#333; }
+        .com-nr    { margin-top:8px; font-weight:bold; font-size:11.5pt; }
+        .com-sep   { border:none; border-top:1px solid #1e40af; margin:14px 0; }
+        .com-dest  { margin-bottom:18px; font-size:10.5pt; line-height:1.8; }
+        .com-titlu { text-align:center; font-size:15pt; font-weight:bold; text-transform:uppercase; margin:18px 0; letter-spacing:2px; }
+        .com-corp p { text-indent:1.25cm; text-align:justify; margin-bottom:10px; line-height:1.6; font-size:11pt; }
+        .com-corp p:first-child { text-indent:0; }
+        .com-semn  { margin-top:35px; text-align:right; line-height:1.8; font-weight:bold; font-size:11pt; }
+        .com-data-semn { display:flex; justify-content:space-between; margin-top:45px; font-size:9.5pt; }
+    `;
+
+    // ── Construiește HTML ────────────────────────────────────────────────────
+    let html = `<!DOCTYPE html><html lang="ro"><head><meta charset="UTF-8">
+<title>Registru ${anCurent} – Avize & Comunicări</title>
+<style>${CSS}</style></head><body>`;
+
+    // Copertă
+    html += `<div class="coperta">
+  <div class="cop-r">REGISTRU</div>
+  <div class="cop-de">de înregistrare a</div>
+  <div class="cop-doc">Avizelor de Însoțire<br>a Mărfii</div>
+  <div class="cop-txt">
+    aferente activității <strong>„Masă caldă"</strong>, derulate în cadrul proiectului<br><br>
+    <strong>„FII UNUL DINTRE C.R.A.I.!<br>(Creativitate, Reziliență, Adaptabilitate, Incluziune)"</strong><br><br>
+    la Liceul Tehnologic „Victor Mihăilescu Craiu" Belcești
+  </div>
+  <div class="cop-cod"><strong>Cod proiect:</strong> F-PNRAS-2-2023-0447</div>
+  <div class="cop-cod"><strong>Contract nr.</strong> 143/06.12.2024</div>
+  <hr class="cop-sep">
+  <div class="cop-ftit">Furnizor</div>
+  <div class="cop-furn"><strong>SC PROCONS IAȘI S.R.L.</strong><br>Nr. ord. reg. com.: J22/294/23.02.2015<br>C.U.I.: 34138254<br>Sat Belcești, Nr. 370, Județul Iași</div>
+</div>`;
+
+    luniSortate.forEach(luna => {
+        const inreg = peL[luna];
+        const avizeLunii = inreg.filter(r => r.tip === 'AVIZ');
+        const comLunii   = inreg.filter(r => r.tip === 'COMUNICARE');
+        const totalCant  = avizeLunii.reduce((s,r)=>s+(parseInt(r.cantitate)||0),0);
+        const totalVal   = avizeLunii.reduce((s,r)=>s+(parseFloat(r.valoare)||0),0);
+        const nrA = avizeLunii.length, nrC = comLunii.length;
+        const rez = [nrA>0?`${nrA} aviz${nrA>1?'e':''}`:'', nrC>0?`${nrC} comunicare${nrC>1?'i':''}`:''].filter(Boolean).join(', ');
+
+        // ── Tabel registru lună ──────────────────────────────────────────────
+        html += `<div class="sectiune-registru">
+  <div class="luna-header">📅 ${luna} ${anCurent}</div>
+  <table class="reg">
+    <thead><tr>
+      <th style="width:50px;text-align:center">Nr. înreg.</th>
+      <th style="width:85px">Dată doc.</th>
+      <th style="width:145px">Tip document</th>
+      <th>Tip meniu</th>
+      <th style="width:65px;text-align:right">Cantitate</th>
+      <th style="width:85px;text-align:right">Valoare (lei)</th>
+    </tr></thead><tbody>`;
+
+        inreg.forEach(r => {
+            const isA = r.tip==='AVIZ';
+            const MENIU_L = {1:'Meniu 1 – Șnițel pui',2:'Meniu 2 – Pulpă pui',3:'Meniu 3 – Hamburger pui',4:'Meniu 4 – Piept pui',5:'Meniu 5 – Cartofi cu porc'};
+            const meniu = isA && r.tip_meniu ? (MENIU_L[r.tip_meniu]||`Meniu ${r.tip_meniu}`) : '—';
+            const cant  = isA ? (r.cantitate??'—') : '—';
+            const val   = isA && r.valoare ? parseFloat(r.valoare).toLocaleString('ro-RO',{minimumFractionDigits:2,maximumFractionDigits:2})+' lei' : '—';
+            html += `<tr>
+      <td style="text-align:center"><span class="nr-r">${r.nr}</span></td>
+      <td>${r.data_doc||'—'}</td>
+      <td>${isA?'<span class="badge-a">📦 Aviz însoțire</span>':'<span class="badge-c">📄 Comunicare nelivrare</span>'}</td>
+      <td style="font-size:7.5pt;color:#555">${meniu}</td>
+      <td style="text-align:right">${cant}</td>
+      <td style="text-align:right;font-weight:600;color:#065f46">${val}</td>
+    </tr>`;
+        });
+
+        html += `</tbody><tfoot><tr>
+      <td colspan="3" style="text-align:right;padding-right:14pt">Total ${luna} — ${rez}</td>
+      <td></td>
+      <td style="text-align:right">${totalCant>0?totalCant+' porții':'—'}</td>
+      <td class="tv" style="text-align:right">${totalVal>0?totalVal.toLocaleString('ro-RO',{minimumFractionDigits:2,maximumFractionDigits:2})+' lei':'—'}</td>
+    </tr></tfoot>
+  </table>
+</div>`;
+
+        // ── Documente cronologic (avize și comunicări intercalate) ─────────
+        const comunicariSalvate = comMap[luna] || [];
+        let comIdx = 0;  // contor separat pentru indexul în comunicariSalvate
+
+        inreg.forEach(reg => {
+            if (reg.tip === 'AVIZ') {
+                const pontaj   = pontajMap[`${luna}_${reg.zi}`];
+                const cant     = parseInt(reg.cantitate) || 0;
+                const valF     = cant ? (cant * 13.8).toFixed(2) : '0.00';
+                const specHtml = pontaj ? (MENIU_CONFIG[pontaj.tip_meniu] || 'Meniu nespecificat') : 'Meniu nespecificat';
+                const lunaNum  = LUNI_MAP[luna] || '00';
+                const dataF    = reg.data_doc || `${String(reg.zi).padStart(2,'0')}.${lunaNum}.${anCurent}`;
+
+                html += `<div class="sheet-aviz">
+  <img src="antet_pnras.jpeg" alt="Antet PNRAS" class="antet-img">
+  <table class="tbl-header"><tr>
+    <td>
+      <strong>Furnizor: SC PROCONS IAȘI SRL</strong><br>
+      Nr. ord. reg. com.: J22/294/23.02.2015<br>C.U.I.: 34138254<br>Sat Belcești, Nr. 370, Județul Iași
+    </td>
+    <td>
+      <strong>Beneficiar: Liceul Tehnologic „Victor Mihăilescu Craiu" Belcești</strong><br>
+      C.U.I.: 17130374<br>Comuna Belcești, Str. Principală, Nr. 1, Județul Iași
+    </td>
+  </tr></table>
+  <div class="nr-aviz-bloc">Nr. ${reg.nr}/${dataF}</div>
+  <div class="titlu-aviz">AVIZ DE ÎNSOȚIRE A MĂRFII</div>
+  <div class="data-aviz">Data: ${dataF}</div>
+  <table class="tbl-prod">
+    <thead><tr>
+      <th style="width:5%">Nr. crt.</th>
+      <th style="width:50%">Specificația</th>
+      <th style="width:8%">U.M.</th>
+      <th style="width:10%">Cantitate</th>
+      <th style="width:12%">Preț unitar<br>(fără T.V.A.)</th>
+      <th style="width:15%">Valoare (lei)</th>
+    </tr></thead>
+    <tbody><tr>
+      <td>1</td>
+      <td class="col-spec">${specHtml}</td>
+      <td>buc.</td>
+      <td>${cant}</td>
+      <td>13,8</td>
+      <td>${valF}</td>
+    </tr></tbody>
+  </table>
+  <div class="sect-text">
+    <strong>Mențiuni:</strong>
+    <p>1. Produsele sunt livrate conform contractului de prestări servicii de catering Nr. 143/06.12.2024;</p>
+    <p>2. Produsele sunt conforme din punct de vedere sanitar-veterinar;</p>
+    <p>3. Avizul însoțește marfa pe durata transportului;</p>
+  </div>
+  <div class="sect-text">
+    <strong>Date privind expediția:</strong>
+    <p>1. Numele delegatului: Murariu Mirela; C.I. Seria MZ, Nr. 710839</p>
+    <p>2. Expedierea s-a efectuat în prezența noastră la data de ${dataF}, ora 13.30.</p>
+  </div>
+  <div class="semnaturi">
+    <div class="semn-box">Semnătura și ștampila furnizorului,<br><br><br>_______________________</div>
+    <div class="semn-box">Semnătura de primire,<br><strong>Liceul Tehnologic „Victor Mihăilescu Craiu"</strong><br><strong>Belcești</strong><br><br><strong>Pavel Ioan</strong><br>_______________________</div>
+  </div>
+  <div class="footer-aviz">„PNRR. Finanțat de Uniunea Europeană – UrmătoareaGenerațieUE"<br>https://mfe.gov.ro/pnrr/ | https://www.facebook.com/PNRROficial/</div>
+</div>`;
+
+            } else {
+                // COMUNICARE — luăm datele în ordinea apariției în luna respectivă
+                const com      = comunicariSalvate[comIdx] || {};
+                comIdx++;
+                const dataDoc  = reg.data_doc || com.dataNr || com.dataStart || '';
+                const perioada = com.dataEnd ? `${com.dataStart} &ndash; ${com.dataEnd}` : (com.dataStart || dataDoc);
+                const dest  = com.destinatar || 'Către: Liceul Tehnologic „Victor Mihăilescu Craiu" Belcești<br>În atenția: Domnului Director';
+                const titlu = com.titlu || 'COMUNICARE';
+                const salut = com.salut || 'Stimate Domnule Director,';
+                const p1    = com.p1 || `Subscrisa, SC PROCONS SRL, reprezentată legal prin doamna Mirela MURARIU, în calitate de administrator, vă aducem la cunoștință faptul că, din motive obiective, societatea noastră nu poate asigura livrarea serviciului de masă caldă în perioada <strong>${perioada}</strong>.`;
+                const p2    = com.p2 || 'Menționăm că această situație este independentă de voința societății noastre și depunem toate diligențele necesare pentru remedierea în cel mai scurt timp a situației apărute, astfel încât activitatea să fie reluată în condiții normale.';
+                const p3    = com.p3 || 'Ne cerem scuze pentru eventualele inconveniente create și vă asigurăm de întreaga noastră disponibilitate pentru identificarea unor soluții temporare, dacă se consideră necesar.';
+                const p4    = com.p4 || 'Vă mulțumim pentru înțelegere.';
+                const semn  = com.semn || 'Cu stimă,<br>Administrator, Mirela MURARIU<br>SC PROCONS SRL';
+
+                html += `<div class="sheet-com">
+  <div class="com-antet">
+    <div class="com-firma">SC PROCONS SRL</div>
+    <div class="com-det">CIF: 34138254</div>
+    <div class="com-det">Sediul: SAT BELCESTI COM. BELCESTI, NR. 370 MANSARDA</div>
+    <div class="com-nr">Nr. ${reg.nr}/${dataDoc}</div>
+  </div>
+  <hr class="com-sep">
+  <div class="com-dest">${dest}</div>
+  <div class="com-titlu">${titlu}</div>
+  <div class="com-corp">
+    <p>${salut}</p>
+    <p>${p1}</p>
+    <p>${p2}</p>
+    <p>${p3}</p>
+    <p>${p4}</p>
+  </div>
+  <div class="com-semn">${semn}</div>
+  <div class="com-data-semn">
+    <span>Data: ${dataDoc}</span>
+    <span>Semnătura și ștampila: ___________________</span>
+  </div>
+</div>`;
+            }
+        });
+    });
+
+    html += '</body></html>';
+
+    const win = window.open('', '_blank');
+    win.document.write(html);
+    win.document.close();
+    win.onload = () => { toast('Document gata — folosește Print → Save as PDF.'); win.print(); };
+}
+
+// ─── TOAST ───────────────────────────────────────────────────────────────────────
+let toastTimer;
+function toast(msg, isError = false) {
+    const el = document.getElementById('toast');
+    el.textContent = msg;
+    el.style.background = isError ? '#ef4444' : '#1e293b';
+    el.style.display = 'block';
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => { el.style.display = 'none'; }, 3500);
+}
+</script>
+</body>
+</html>
