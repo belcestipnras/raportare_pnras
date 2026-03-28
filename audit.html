@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Audit PNRAS</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@pdf-lib/fontkit@1.1.1/dist/fontkit.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@pdf-lib/fontkit@1.1.1/dist/fontkit.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -521,6 +524,7 @@ async function r2DeleteFile(publicUrl, bucketKey) {
         { id: '00000000-0000-0000-0000-000000000001', titlu: 'DOSARE ACHIZIȚII', icon: '📁', tip: 'special_dosare' },
         { id: '00000000-0000-0000-0000-000000000002', titlu: 'RAPORT FINANCIAR', icon: '💰', tip: 'folder' },
         { id: '00000000-0000-0000-0000-000000000003', titlu: 'RAPORT TEHNIC', icon: '📋', tip: 'folder' },
+        { id: '00000000-0000-0000-0000-000000000004', titlu: 'CHELTUIELI SALARII', icon: '💼', tip: 'special_salarii' },
     ];
 
     const DOCUMENTE_OBLIGATORII = [
@@ -629,6 +633,8 @@ async function r2DeleteFile(publicUrl, bucketKey) {
             await afiseazaCarduri();
         } else if (currentView.type === 'card' && currentView.id === '00000000-0000-0000-0000-000000000001') {
             await afiseazaDosareAchizitii();
+        } else if (currentView.type === 'card' && currentView.id === '00000000-0000-0000-0000-000000000004') {
+            await afiseazaCheltuieliSalarii();
         } else if (currentView.type === 'contract') {
             await afiseazaChecklistContract(currentView.contractId, currentView.titlu);
         } else if (currentView.type === 'card' || currentView.type === 'folder') {
@@ -858,9 +864,7 @@ async function r2DeleteFile(publicUrl, bucketKey) {
             '<button class="tab-btn ' + (tabActiv === 'contracte' ? 'activ' : '') + '" onclick="schimbaTab(\'contracte\')">' +
                 '&#128196; Contracte <span class="tab-badge">' + nrContracte + '</span>' +
             '</button>' +
-            '<button class="tab-btn ' + (tabActiv === 'state_plata' ? 'activ' : '') + '" onclick="schimbaTab(\'state_plata\')">' +
-                '&#128188; State de plată <span class="tab-badge verde">' + nrState + '</span>' +
-            '</button>' +
+
             '<button class="tab-btn ' + (tabActiv === 'anexe' ? 'activ' : '') + '" onclick="schimbaTab(\'anexe\')">' +
                 '&#128206; Anexe <span class="tab-badge">' + nrAnexe + '</span>' +
             '</button>' +
@@ -869,8 +873,6 @@ async function r2DeleteFile(publicUrl, bucketKey) {
         // ===== CONȚINUT TAB ACTIV =====
         if (tabActiv === 'contracte') {
             html += genListaItemuri(contractePropriu, 'Contracte blocate');
-        } else if (tabActiv === 'state_plata') {
-            html += genListaItemuri(statePlata, 'State de plată blocate');
         } else if (tabActiv === 'anexe') {
             html += await genContinutAnexe();
         }
@@ -898,6 +900,449 @@ async function r2DeleteFile(publicUrl, bucketKey) {
     }
 
 
+
+
+    // ===================== CHELTUIELI SALARII =====================
+    async function afiseazaCheltuieliSalarii() {
+        const cont = document.getElementById('continut');
+
+        const { data: toateContractele } = await db.from('buget_pnras').select('*')
+            .eq('tip_rand', 'CONTRACT').order('data_document', { ascending: true });
+
+        const { data: documente } = await db.from('documente_contract').select('contract_id, tip_document');
+
+        const { data: blocate } = await db.from('audit_continut').select('titlu')
+            .eq('card_id', '00000000-0000-0000-0000-000000000004').eq('tip', 'blocat').eq('sters', false);
+        const blocateSet = new Set((blocate || []).map(b => b.titlu));
+
+        const { data: cartonaseConfig } = await db.from('cartonase_config').select('contract_id, cartonase');
+        const cartonasePer = {};
+        if (cartonaseConfig) {
+            cartonaseConfig.forEach(c => { cartonasePer[c.contract_id] = c.cartonase || []; });
+        }
+
+        const LISTA_SALARII = ['Foaie de pontaj colectiv', 'Stat de plată', 'ALOP', 'Ordin de plată', 'Extras de cont'];
+
+        const statePlata = (toateContractele || []).filter(c => c.subcategorie === 'c');
+
+        const docPer = {};
+        if (documente) {
+            documente.forEach(d => {
+                if (!docPer[d.contract_id]) docPer[d.contract_id] = [];
+                if (!docPer[d.contract_id].includes(d.tip_document)) docPer[d.contract_id].push(d.tip_document);
+            });
+        }
+
+        function genStatItem(c, esteBlockat) {
+            const ex = docPer[c.id] || [];
+            const listaCustom = cartonasePer[c.id];
+            const lista = (listaCustom && listaCustom.length > 0) ? listaCustom : LISTA_SALARII;
+            const totalOk = lista.filter(d => ex.includes(d)).length;
+            const complet = lista.length > 0 && totalOk === lista.length;
+            let st = '';
+            if (complet) st = '<span class="contract-status" style="background:#dcfce7;color:#166534;">COMPLET ✔</span>';
+            else if (totalOk > 0) st = '<span class="contract-status" style="background:#fef3c7;color:#92400e;">' + totalOk + '/' + lista.length + '</span>';
+            else st = '<span class="contract-status" style="background:#fee2e2;color:#991b1b;">GOL</span>';
+
+            const val = c.valoare ? parseFloat(c.valoare).toLocaleString('ro-RO', { minimumFractionDigits: 2 }) + ' lei' : '';
+            let titluAfisat = c.titlu || 'Fără titlu';
+            if (c.numar) titluAfisat += ' | Nr. ' + c.numar;
+            if (c.data_document) {
+                const d = new Date(c.data_document);
+                if (!isNaN(d)) titluAfisat += ' | ' + d.toLocaleDateString('ro-RO');
+            }
+            const titluSafe = titluAfisat.replace(/"/g, '&quot;');
+            const lacatIcon = esteBlockat ? '🔒' : '🔓';
+
+            const { luna: lunaC, an: anC } = extragelunaAnDinTitlu(c.titlu);
+            const lunaAnLabel = (lunaC && anC) ? lunaC + ' ' + anC : (lunaC || anC || '');
+            const btnPrintLabel = '&#128424;&#65039; ' + (lunaAnLabel ? 'Printeaza ' + lunaAnLabel : 'Printeaza dosar');
+            const btnSaveLabel  = '&#128190; ' + (lunaAnLabel ? 'Salveaza ' + lunaAnLabel : 'Salveaza dosar');
+            const titluEncoded = encodeURIComponent(c.titlu || '');
+
+            return '<div class="contract-item" ' +
+                (esteBlockat ? '' : 'data-cid="' + c.id + '" data-ctitlu="' + titluSafe + '" onclick="deschideContractFromEl(this)"') +
+                ' style="display:flex;align-items:center;gap:12px;cursor:' + (esteBlockat ? 'not-allowed' : 'pointer') + ';">' +
+                '<div style="display:flex;align-items:center;gap:12px;flex:1;min-width:0;">' +
+                    '<span style="font-size:20px;">&#128188;</span>' +
+                    '<div style="flex:1;min-width:0;"><div class="contract-title">' + titluAfisat + '</div></div>' +
+                    '<span class="contract-val">' + val + '</span>' +
+                    st +
+                '</div>' +
+                (!esteBlockat ? (
+                    '<div style="display:flex;gap:6px;margin-left:8px;flex-shrink:0;" onclick="event.stopPropagation();">' +
+                    '<button class="btn-small" style="background:#0e7490;color:#fff;font-size:11px;white-space:nowrap;" ' +
+                        'data-cid="' + c.id + '" data-titlu="' + titluEncoded + '" data-mod="print" onclick="handleDosarBtn(this)">' + btnPrintLabel + '</button>' +
+                    '<button class="btn-small" style="background:#059669;color:#fff;font-size:11px;white-space:nowrap;" ' +
+                        'data-cid="' + c.id + '" data-titlu="' + titluEncoded + '" data-mod="save" onclick="handleDosarBtn(this)">' + btnSaveLabel + '</button>' +
+                    '</div>'
+                ) : '') +
+                '<div style="display:flex;flex-direction:column;align-items:center;gap:2px;margin-left:8px;flex-shrink:0;">' +
+                    '<button class="btn-lacat" onclick="event.stopPropagation(); toggleBlocat(\'' + c.id + '\', ' + (esteBlockat ? 'true' : 'false') + ')">'+lacatIcon+'</button>' +
+                    (esteBlockat ? '<div style="font-size:9px;color:#111;font-weight:700;text-align:center;white-space:nowrap;margin-top:2px;">Apasă pt.<br>deblocare</div>' : '') +
+                '</div>' +
+                '</div>';
+        }
+
+        const active = statePlata.filter(c => !blocateSet.has(c.id));
+        const blocateList = statePlata.filter(c => blocateSet.has(c.id));
+
+        let html = '<div class="actions-bar">' +
+            '<button id="btn-arata-blocate" class="btn-action" style="background:#9ca3af;" onclick="toggleArataBlocate(this)">&#128274; Afișează dosare blocate</button>' +
+            '</div>';
+
+        if (active.length === 0 && blocateList.length === 0) {
+            html += '<div class="empty">Nu există state de plată.</div>';
+        }
+
+        if (active.length > 0) {
+            const grupe = {};
+            active.forEach(c => { const an = c.an || '-'; if (!grupe[an]) grupe[an] = []; grupe[an].push(c); });
+            Object.keys(grupe).sort().forEach(an => {
+                html += '<div class="an-header">&#128197; ' + an + '</div>';
+                grupe[an].forEach(c => { html += genStatItem(c, false); });
+            });
+        }
+
+        if (blocateList.length > 0 && arataBlocate) {
+            html += '<div style="margin-top:32px;border:2px dashed #d1d5db;border-radius:14px;padding:20px;background:#fafafa;">' +
+                '<div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">' +
+                    '<span style="font-size:22px;">&#128274;</span>' +
+                    '<div style="font-size:15px;font-weight:700;color:#6b7280;">State de plată blocate</div>' +
+                '</div>';
+            const grupeB = {};
+            blocateList.forEach(c => { const an = c.an || '-'; if (!grupeB[an]) grupeB[an] = []; grupeB[an].push(c); });
+            Object.keys(grupeB).sort().forEach(an => {
+                html += '<div class="an-header" style="color:#9ca3af;border-color:#e5e7eb;">&#128197; ' + an + '</div>';
+                grupeB[an].forEach(c => { html += genStatItem(c, true); });
+            });
+            html += '</div>';
+        }
+
+        cont.innerHTML = html;
+
+        const btn = document.getElementById('btn-arata-blocate');
+        if (btn) btn.innerHTML = arataBlocate ? '&#128274; Ascunde dosare blocate' : '&#128274; Afișează dosare blocate';
+    }
+
+
+
+    function handleDosarBtn(btn) {
+        const cid = btn.getAttribute('data-cid');
+        const titlu = decodeURIComponent(btn.getAttribute('data-titlu') || '');
+        const mod = btn.getAttribute('data-mod');
+        genereazaDosarSalarii(cid, titlu, mod);
+    }
+
+    // ===================== GENERARE DOSAR SALARII =====================
+
+    const LUNI_RO = ['Ianuarie','Februarie','Martie','Aprilie','Mai','Iunie','Iulie','August','Septembrie','Octombrie','Noiembrie','Decembrie'];
+    const LUNI_MAP = {
+        'ianuarie':0,'februarie':1,'martie':2,'aprilie':3,'mai':4,'iunie':5,
+        'iulie':6,'august':7,'septembrie':8,'octombrie':9,'noiembrie':10,'decembrie':11
+    };
+
+    function extragelunaAnDinTitlu(titlu) {
+        const t = (titlu || '').toLowerCase();
+        let luna = null, an = null;
+        for (const [l, idx] of Object.entries(LUNI_MAP)) {
+            if (t.includes(l)) { luna = LUNI_RO[idx]; break; }
+        }
+        const mA = (titlu || '').match(/(20\d{2})/);
+        if (mA) an = mA[1];
+        return { luna, an };
+    }
+
+    const SECTIUNE_CULORI = [
+        { bg: [0, 128, 128],   text: [255,255,255] }, // turcoaz
+        { bg: [30, 90, 180],   text: [255,255,255] }, // albastru
+        { bg: [34, 139, 34],   text: [255,255,255] }, // verde
+        { bg: [160, 60, 160],  text: [255,255,255] }, // mov
+        { bg: [200, 100, 0],   text: [255,255,255] }, // portocaliu
+    ];
+
+    async function genereazaDosarSalarii(contractId, titluContract, modActiune) {
+        // modActiune: 'print' sau 'save'
+        const btn = document.getElementById('btn-dosar-' + contractId + '-' + modActiune);
+        const originalText = btn ? btn.innerHTML : '';
+        if (btn) { btn.disabled = true; btn.innerHTML = '⏳ Se generează...'; }
+
+        try {
+            const { PDFDocument, rgb, StandardFonts, degrees } = PDFLib;
+
+            // 1. Fetch documente pentru acest contract
+            const { data: docs } = await db.from('documente_contract')
+                .select('*')
+                .eq('contract_id', contractId)
+                .order('tip_document', { ascending: true });
+
+            // 2. Fetch antet
+            const antetUrl = 'https://aexjrbdgajurxzngfkpx.supabase.co/storage/v1/object/public/arhiva_pnras/antet_pnras.jpeg';
+            const antetResp = await fetch(antetUrl);
+            const antetBytes = new Uint8Array(await antetResp.arrayBuffer());
+
+            // 3. Extrage luna/an
+            const { luna, an } = extragelunaAnDinTitlu(titluContract);
+            const lunaAnText = (luna && an) ? luna + ' ' + an : (luna || an || '');
+
+            // 4. Creeaza PDF principal
+            const pdfDoc = await PDFDocument.create();
+            pdfDoc.registerFontkit(fontkit);
+            pdfDoc.registerFontkit(fontkit);
+            // Fetch fonturi TTF din Supabase
+            const FONT_BASE = 'https://aexjrbdgajurxzngfkpx.supabase.co/storage/v1/object/public/arhiva_pnras/';
+            const [fBoldArr, fRegArr, fItalArr] = await Promise.all([
+                fetch(FONT_BASE + 'Roboto-Bold.ttf').then(r => r.arrayBuffer()),
+                fetch(FONT_BASE + 'Roboto-Regular.ttf').then(r => r.arrayBuffer()),
+                fetch(FONT_BASE + 'Roboto-Italic.ttf').then(r => r.arrayBuffer()),
+            ]);
+            const fontBold = await pdfDoc.embedFont(fBoldArr, { subset: true });
+            const fontReg  = await pdfDoc.embedFont(fRegArr,  { subset: true });
+            const fontBI   = await pdfDoc.embedFont(fItalArr, { subset: true });
+            const antetImg = await pdfDoc.embedJpg(antetBytes);
+
+            const A4W = 595, A4H = 842;
+            const CHENAR = 24; // margine chenar
+
+            // ===== COPERTA =====
+            const coperta = pdfDoc.addPage([A4W, A4H]);
+            const { width, height } = coperta.getSize();
+            const innerW = width - 2*CHENAR - 8;
+
+            // Fetch imagine crai.jpeg
+            const craiResp = await fetch('https://aexjrbdgajurxzngfkpx.supabase.co/storage/v1/object/public/arhiva_pnras/crai.jpeg');
+            const craiBytes = new Uint8Array(await craiResp.arrayBuffer());
+            const craiImg = await pdfDoc.embedJpg(craiBytes);
+
+            // Chenar turcoaz - doar border, fundal alb
+            coperta.drawRectangle({ x: CHENAR, y: CHENAR, width: width - 2*CHENAR, height: height - 2*CHENAR,
+                borderColor: rgb(0, 0.5, 0.5), borderWidth: 3, color: rgb(1,1,1) });
+
+            // Antet imagine - toata latimea interioara chenarului
+            const imgDims = antetImg.scaleToFit(innerW, 140);
+            const imgX = CHENAR + 4;
+            const imgY = height - CHENAR - 4 - imgDims.height;
+            coperta.drawImage(antetImg, { x: imgX, y: imgY, width: innerW, height: imgDims.height });
+
+            // Linie separator sub antet
+            coperta.drawLine({
+                start: { x: CHENAR + 4, y: imgY - 8 },
+                end:   { x: width - CHENAR - 4, y: imgY - 8 },
+                thickness: 1.5, color: rgb(0, 0.5, 0.5)
+            });
+
+            // Titlu mare
+            const titluCoperta = 'Cheltuieli salariale';
+            const titluSize = 28;
+            const titluW = fontBold.widthOfTextAtSize(titluCoperta, titluSize);
+            const yTitlu = imgY - 52;
+            coperta.drawText(titluCoperta, {
+                x: (width - titluW) / 2, y: yTitlu,
+                size: titluSize, font: fontBold, color: rgb(0, 0.3, 0.3)
+            });
+
+            // Luna An
+            let yLunaAn = yTitlu - 36;
+            if (lunaAnText) {
+                const laSize = 22;
+                const laW = fontBold.widthOfTextAtSize(lunaAnText, laSize);
+                coperta.drawText(lunaAnText, {
+                    x: (width - laW) / 2, y: yLunaAn,
+                    size: laSize, font: fontBold, color: rgb(0, 0.3, 0.3)
+                });
+            }
+
+            // Subtitlu italic - wrap si centrat corect
+            const subtitluFull = 'pentru activitățile desfășurate în cadrul proiectului PNRAS ' +
+                '"FII UNUL DINTRE C.R.A.I.! (Creativitate, Reziliență, Adaptabilitate, Incluziune), ' +
+                'implementat la Liceul Tehnologic "Victor Mihăilescu Craiu" Belcești';
+
+            const subtSize = 11;
+            const maxLineW = innerW - 20;
+
+            function wrapText(text, font, size, maxW) {
+                const words = text.split(' ');
+                const lines = [];
+                let current = '';
+                for (const word of words) {
+                    const test = current ? current + ' ' + word : word;
+                    if (font.widthOfTextAtSize(test, size) <= maxW) {
+                        current = test;
+                    } else {
+                        if (current) lines.push(current);
+                        current = word;
+                    }
+                }
+                if (current) lines.push(current);
+                return lines;
+            }
+
+            const subtLines = wrapText(subtitluFull, fontBI, subtSize, maxLineW);
+            let ySubt = yLunaAn - 28;
+            for (const linie of subtLines) {
+                const lW = fontBI.widthOfTextAtSize(linie, subtSize);
+                coperta.drawText(linie, {
+                    x: (width - lW) / 2, y: ySubt,
+                    size: subtSize, font: fontBI, color: rgb(0.2, 0.2, 0.2)
+                });
+                ySubt -= 16;
+            }
+
+            // Imagine crai.jpeg - centrata intre subtitlu si opis
+            // Rezervam spatiu pentru opis: ~120px (5 randuri * 20 + titlu + margin)
+            const yOpisStart = CHENAR + 140;
+            const craiMaxH = ySubt - 16 - yOpisStart - 20;
+            const craiMaxW = innerW - 40;
+            const craiDims = craiImg.scaleToFit(craiMaxW, Math.max(craiMaxH, 60));
+            const craiX = (width - craiDims.width) / 2;
+            const craiY = yOpisStart + 20 + (craiMaxH - craiDims.height) / 2;
+            coperta.drawImage(craiImg, { x: craiX, y: craiY, width: craiDims.width, height: craiDims.height });
+
+            // ===== OPIS =====
+            const LISTA_SALARII = ['Foaie de pontaj colectiv', 'Stat de plată', 'ALOP', 'Ordin de plată', 'Extras de cont'];
+            const docMap = {};
+            (docs || []).forEach(d => {
+                const tip = d.tip_document;
+                if (!docMap[tip]) docMap[tip] = d;
+            });
+
+            // Linie separator deasupra opisului
+            coperta.drawLine({
+                start: { x: CHENAR + 4, y: yOpisStart + 10 },
+                end:   { x: width - CHENAR - 4, y: yOpisStart + 10 },
+                thickness: 1, color: rgb(0, 0.5, 0.5)
+            });
+
+            let yOpis = yOpisStart - 4;
+            coperta.drawText('OPIS', {
+                x: (width - fontBold.widthOfTextAtSize('OPIS', 13)) / 2, y: yOpis,
+                size: 13, font: fontBold, color: rgb(0, 0.4, 0.4)
+            });
+            yOpis -= 20;
+
+            let opisNr = 1;
+            const opisItems = [];
+            for (const tip of LISTA_SALARII) {
+                const doc = docMap[tip];
+                if (!doc) continue;
+                opisItems.push({ tip, doc, nr: opisNr });
+
+                let detaliu = '';
+                if (tip === 'Extras de cont') {
+                    detaliu = doc.data_inregistrare ? doc.data_inregistrare.split('T')[0].split('-').reverse().join('.') : '';
+                } else {
+                    const nr = doc.nr_inregistrare || '';
+                    const data = doc.data_inregistrare ? doc.data_inregistrare.split('T')[0].split('-').reverse().join('.') : '';
+                    detaliu = nr && data ? 'Nr. ' + nr + '/' + data : (nr ? 'Nr. ' + nr : data);
+                }
+
+                const fullLine = opisNr + '. ' + tip + (detaliu ? ': ' + detaliu : '');
+                coperta.drawText(fullLine, {
+                    x: CHENAR + 30, y: yOpis,
+                    size: 10, font: fontReg, color: rgb(0.1, 0.1, 0.1)
+                });
+                yOpis -= 17;
+                opisNr++;
+            }
+
+            // ===== SECTIUNI + PDF-URI =====
+            for (const { tip, doc, nr } of opisItems) {
+                const culoare = SECTIUNE_CULORI[(nr - 1) % SECTIUNE_CULORI.length];
+                const bgColor = rgb(culoare.bg[0]/255, culoare.bg[1]/255, culoare.bg[2]/255);
+                const txtColor = rgb(culoare.text[0]/255, culoare.text[1]/255, culoare.text[2]/255);
+
+                // Pagina de sectiune - fundal alb, chenar colorat gros
+                const secPag = pdfDoc.addPage([A4W, A4H]);
+
+                // Fundal alb
+                secPag.drawRectangle({ x: 0, y: 0, width: A4W, height: A4H, color: rgb(1,1,1) });
+
+                // Chenar colorat - aceeasi grosime ca coperta
+                secPag.drawRectangle({ x: CHENAR, y: CHENAR, width: A4W - 2*CHENAR, height: A4H - 2*CHENAR,
+                    borderColor: bgColor, borderWidth: 3 });
+
+                // Antet pe pagina de sectiune - toata latimea chenarului, ca pe coperta
+                const secInnerW = A4W - 2*CHENAR - 8;
+                const secImgDims = antetImg.scaleToFit(secInnerW, 140);
+                secPag.drawImage(antetImg, {
+                    x: CHENAR + 4, y: A4H - CHENAR - 4 - secImgDims.height,
+                    width: secInnerW, height: secImgDims.height
+                });
+
+                // Text centrat vertical si orizontal
+                let detaliuSec = '';
+                if (tip === 'Extras de cont') {
+                    detaliuSec = doc.data_inregistrare ? doc.data_inregistrare.split('T')[0].split('-').reverse().join('.') : '';
+                } else {
+                    const nr2 = doc.nr_inregistrare || '';
+                    const data2 = doc.data_inregistrare ? doc.data_inregistrare.split('T')[0].split('-').reverse().join('.') : '';
+                    detaliuSec = nr2 && data2 ? 'Nr. ' + nr2 + '/' + data2 : (nr2 ? 'Nr. ' + nr2 : data2);
+                }
+
+                const numeSize = 26;
+                const detSize = 18;
+                const lineGap = 14;
+                const totalTextH = numeSize + (detaliuSec ? lineGap + detSize : 0);
+                const centerY = A4H / 2;
+                const numeY = centerY + totalTextH / 2;
+                const detY = numeY - numeSize - lineGap;
+
+                const numeW = fontBold.widthOfTextAtSize(tip, numeSize);
+                secPag.drawText(tip, {
+                    x: (A4W - numeW) / 2, y: numeY,
+                    size: numeSize, font: fontBold, color: bgColor
+                });
+
+                if (detaliuSec) {
+                    const detW = fontReg.widthOfTextAtSize(detaliuSec, detSize);
+                    secPag.drawText(detaliuSec, {
+                        x: (A4W - detW) / 2, y: detY,
+                        size: detSize, font: fontReg, color: bgColor
+                    });
+                }
+
+                // Embed PDF document
+                const linkDoc = doc.link_drive || '';
+                if (!linkDoc) continue;
+                try {
+                    const docResp = await fetch(linkDoc);
+                    if (!docResp.ok) continue;
+                    const docBytes = new Uint8Array(await docResp.arrayBuffer());
+                    const docPdf = await PDFDocument.load(docBytes, { ignoreEncryption: true });
+                    const pageCount = docPdf.getPageCount();
+                    const copiedPages = await pdfDoc.copyPages(docPdf, [...Array(pageCount).keys()]);
+                    copiedPages.forEach(p => pdfDoc.addPage(p));
+                } catch(e) {
+                    console.warn('Skip doc:', tip, e);
+                }
+            }
+
+            // Salveaza/Printeaza
+            const pdfBytes = await pdfDoc.save();
+            const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+            const numeFisier = 'Dosar_Salarii_' + (lunaAnText.replace(' ', '_') || contractId) + '.pdf';
+
+            if (modActiune === 'save') {
+                const a = document.createElement('a');
+                a.href = URL.createObjectURL(blob);
+                a.download = numeFisier;
+                a.click();
+            } else {
+                const url = URL.createObjectURL(blob);
+                const iframe = document.createElement('iframe');
+                iframe.style.display = 'none';
+                iframe.src = url;
+                document.body.appendChild(iframe);
+                iframe.onload = () => { iframe.contentWindow.print(); };
+            }
+
+        } catch(e) {
+            alert('Eroare la generare dosar: ' + e.message);
+            console.error(e);
+        } finally {
+            if (btn) { btn.disabled = false; btn.innerHTML = originalText; }
+        }
+    }
 
     // ===================== ANEXE =====================
     const ANEXE_CARD_ID = '00000000-0000-0000-0000-000000000002';
