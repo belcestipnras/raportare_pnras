@@ -561,15 +561,14 @@ async function toggleCompletManual(){
 /* ===================== LOAD + RENDER ===================== */
 function getListaDefault() {
   const denLower = (contractNumeFull || "").toLowerCase();
-  if (denLower.includes("stat de plat")) {
-    const luni = {"ianuarie":1,"februarie":2,"martie":3,"aprilie":4,"mai":5,"iunie":6,"iulie":7,"august":8,"septembrie":9,"octombrie":10,"noiembrie":11,"decembrie":12};
-    const luniN = ["Ianuarie","Februarie","Martie","Aprilie","Mai","Iunie","Iulie","August","Septembrie","Octombrie","Noiembrie","Decembrie"];
-    let luna="", an="";
-    for(const [l,n] of Object.entries(luni)) if(contractNumeFull.toLowerCase().includes(l)){luna=luniN[n-1];break;}
-    const mA = contractNumeFull.match(/(20\d{2})/); if(mA) an=mA[1];
-    if(luna&&an) return [`Stat de plată ${luna} ${an}`];
-    if(luna) return [`Stat de plată ${luna}`];
-    return ["Stat de plată"];
+  if (denLower.includes("stat de plat") || denLower.includes("salarii")) {
+    return [
+      "Foaie de pontaj colectiv",
+      "Stat de plată",
+      "ALOP",
+      "Ordin de plată",
+      "Extras de cont"
+    ];
   }
   return listaDocumente_DEFAULT;
 }
@@ -580,15 +579,23 @@ async function salveazaCartonase() {
 }
 
 async function incarcaDocumente(){
-  const { data: cfgData } = await supabaseClient.from("cartonase_config").select("cartonase").eq("contract_id", contractId).maybeSingle();
-  if (cfgData) {
-    listaDocumente.splice(0, listaDocumente.length, ...(cfgData.cartonase || []));
-  } else {
-    const { data: de } = await supabaseClient.from("documente_contract").select("tip_document").eq("contract_id", contractId);
-    const tu = [...new Set((de||[]).map(d=>d.tip_document).filter(t=>t&&t!=="DOSAR ACHIZIȚIE PDF"))]
-      .sort((a,b)=>a.localeCompare(b,undefined,{numeric:true,sensitivity:'base'}));
-    listaDocumente.splice(0, listaDocumente.length, ...(tu.length?tu:getListaDefault()));
+  const denLowerInc = (contractNumeFull || "").toLowerCase();
+  const eStatDePlata = denLowerInc.includes("salarii") || denLowerInc.includes("stat de plat");
+
+  if (eStatDePlata) {
+    listaDocumente.splice(0, listaDocumente.length, ...getListaDefault());
     await salveazaCartonase();
+  } else {
+    const { data: cfgData } = await supabaseClient.from("cartonase_config").select("cartonase").eq("contract_id", contractId).maybeSingle();
+    if (cfgData) {
+      listaDocumente.splice(0, listaDocumente.length, ...(cfgData.cartonase || []));
+    } else {
+      const { data: de } = await supabaseClient.from("documente_contract").select("tip_document").eq("contract_id", contractId);
+      const tu = [...new Set((de||[]).map(d=>d.tip_document).filter(t=>t&&t!=="DOSAR ACHIZIȚIE PDF"))]
+        .sort((a,b)=>a.localeCompare(b,undefined,{numeric:true,sensitivity:'base'}));
+      listaDocumente.splice(0, listaDocumente.length, ...(tu.length?tu:getListaDefault()));
+      await salveazaCartonase();
+    }
   }
 
   const { data:docs, error } = await supabaseClient.from("documente_contract").select("*").eq("contract_id", contractId);
