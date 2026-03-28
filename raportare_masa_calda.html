@@ -753,6 +753,10 @@ function renderMain(byTip){
         +'</div>';
       s5Html+=fileListHtml(docsS5,'S5')+upzoneHtml('S5');
       body=s5Html;
+    } else {
+      // S7, S8, S9 — documente uploadate manual
+      const docs=byTip[mk(s.id)]||[];
+      body=fileListHtml(docs,s.id)+upzoneHtml(s.id);
     }
     let cnt;
     if(s.avize){
