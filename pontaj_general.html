@@ -768,13 +768,82 @@
             font-style: italic;
         }
 
-        /* Empty state */
+        /* Input editare celulă */
+        .cell-edit-input {
+            width: 100%;
+            height: 100%;
+            border: 2px solid var(--electric-blue);
+            border-radius: 2px;
+            background: #eff6ff;
+            text-align: center;
+            font-size: 10px;
+            font-weight: 800;
+            color: var(--deep-blue);
+            outline: none;
+            padding: 0;
+            -moz-appearance: textfield;
+        }
+        .cell-edit-input::-webkit-outer-spin-button,
+        .cell-edit-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+
+        @media print { .cell-edit-input { display: none; } }
+
+        /* Cursor pointer pe celule editabile — setat din JS doar pentru 2024 */
+
+
         .empty-state {
             text-align: center;
             padding: 60px 20px;
             color: #1e293b;
             font-size: 14px;
         }
+
+        /* Buton ștergere expert */
+        .btn-del-expert {
+            background: none;
+            border: none;
+            color: #ef4444;
+            font-size: 10px;
+            font-weight: 700;
+            cursor: pointer;
+            padding: 1px 3px;
+            border-radius: 3px;
+            line-height: 1;
+            opacity: 0.5;
+            transition: opacity 0.15s;
+        }
+        .btn-del-expert:hover { opacity: 1; background: #fee2e2; }
+
+        /* Zona adăugare expert */
+        .add-expert-zona {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 10px;
+        }
+        .add-expert-input {
+            border: 1.5px solid #cbd5e1;
+            border-radius: 6px;
+            padding: 5px 10px;
+            font-size: 12px;
+            font-family: 'Inter', sans-serif;
+            width: 220px;
+            outline: none;
+            color: #1e293b;
+        }
+        .add-expert-input:focus { border-color: var(--electric-blue); }
+        .add-expert-btn {
+            background: var(--electric-blue);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 5px 14px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+        }
+        .add-expert-btn:hover { background: #1d4ed8; }
 
         /* Scrollbar */
         ::-webkit-scrollbar { height: 5px; width: 5px; }
@@ -885,6 +954,8 @@
     /* ══════════════════════════
        LOAD
     ══════════════════════════ */
+    let g_experti2025 = []; // lista experților din 2025, folosită pentru 2024/Decembrie
+
     async function loadData() {
         document.getElementById('loadingOverlay').style.display = 'flex';
         document.getElementById('mainContent').innerHTML = '';
@@ -895,11 +966,22 @@
             .eq('an', g_an)
             .order('expert', { ascending: true });
 
+        // Pentru 2024: aducem și lista experților din 2025
+        if (g_an === 2024 && g_experti2025.length === 0) {
+            const { data: data2025 } = await _supabase
+                .from('pontaj_detaliat')
+                .select('expert')
+                .eq('an', 2025);
+            if (data2025) {
+                g_experti2025 = [...new Set(data2025.map(r => r.expert))].sort((a, b) => a.localeCompare(b, 'ro'));
+            }
+        }
+
         document.getElementById('loadingOverlay').style.display = 'none';
 
         if (error) {
             document.getElementById('mainContent').innerHTML =
-                `<div style="text-align:center;padding:60px;color:#94a3b8;">Eroare: ${error.message}</div>`;
+                `<div style="text-align:center;padding:60px;color:#1e293b;">Eroare: ${error.message}</div>`;
             return;
         }
 
@@ -925,7 +1007,20 @@
             g_index[r.expert][r.luna][r.zi] = (g_index[r.expert][r.luna][r.zi] || 0) + r.nr_ore;
         });
 
-        g_experti    = Array.from(expertiSet).sort((a, b) => a.localeCompare(b, 'ro'));
+        g_experti = Array.from(expertiSet).sort((a, b) => a.localeCompare(b, 'ro'));
+
+        // Pentru 2024: forțăm Decembrie în lista lunilor și experții din 2025
+        if (g_an === 2024) {
+            if (!luniSet.has('Decembrie')) luniSet.add('Decembrie');
+            // Asigurăm că toți experții din 2025 există în index pentru Decembrie
+            g_experti2025.forEach(exp => {
+                expertiSet.add(exp);
+                if (!g_index[exp]) g_index[exp] = {};
+                if (!g_index[exp]['Decembrie']) g_index[exp]['Decembrie'] = {};
+            });
+            g_experti = Array.from(expertiSet).sort((a, b) => a.localeCompare(b, 'ro'));
+        }
+
         g_luniCuDate = LUNI_ORDINE.filter(l => luniSet.has(l));
         document.getElementById('expertCount').textContent = `${g_experti.length} experți`;
     }
@@ -1072,6 +1167,34 @@
     }
 
     /* ══════════════════════════
+       SAVE ORE (upsert / delete)
+    ══════════════════════════ */
+    const g_oreTimers = {};
+
+    async function saveOra(expert, luna, zi, ore) {
+        const key = `${expert}|${luna}|${zi}`;
+        clearTimeout(g_oreTimers[key]);
+        g_oreTimers[key] = setTimeout(async () => {
+            if (ore === null || ore === '') {
+                await _supabase
+                    .from('pontaj_detaliat')
+                    .delete()
+                    .eq('expert', expert).eq('an', g_an).eq('luna', luna).eq('zi', zi);
+                if (g_index[expert]?.[luna]) delete g_index[expert][luna][zi];
+            } else {
+                const nrOre = parseInt(ore);
+                if (isNaN(nrOre) || nrOre < 1 || nrOre > 8) return;
+                await _supabase
+                    .from('pontaj_detaliat')
+                    .upsert({ expert, an: g_an, luna, zi, nr_ore: nrOre }, { onConflict: 'expert,an,luna,zi' });
+                if (!g_index[expert]) g_index[expert] = {};
+                if (!g_index[expert][luna]) g_index[expert][luna] = {};
+                g_index[expert][luna][zi] = nrOre;
+            }
+        }, 800);
+    }
+
+    /* ══════════════════════════
        RENDER LUNĂ (tabel)
     ══════════════════════════ */
     function renderLuna(luna, container) {
@@ -1081,15 +1204,9 @@
         const expertiLuna = g_experti.filter(e => g_index[e]?.[luna]);
         if (expertiLuna.length === 0) return;
 
-        let lunaZile = 0, lunaOre = 0;
-        expertiLuna.forEach(e => {
-            Object.values(g_index[e][luna]).forEach(ore => { lunaZile++; lunaOre += ore; });
-        });
-
         const page = document.createElement('div');
         page.className = 'luna-page';
 
-        /* Un singur wrapper pentru TOT continutul - nu se rupe intre pagini */
         const wrapper = document.createElement('div');
         wrapper.className = 'tabel-wrapper';
         page.appendChild(wrapper);
@@ -1099,7 +1216,6 @@
             <div class="nr-inreg"><input type="text" placeholder="Nr. _______ / _______" value="${g_nrInreg[luna] || ''}"></div>
         `;
 
-        // Salvează valoarea la fiecare modificare
         wrapper.querySelector('.nr-inreg input').addEventListener('input', function() {
             g_nrInreg[luna] = this.value;
             saveNrInreg(luna, this.value);
@@ -1112,6 +1228,7 @@
 
         const table = document.createElement('table');
         table.className = 'pontaj-table';
+        table.id = `tabel-${luna}`;
 
         const thead = document.createElement('thead');
         let r1 = '<tr><th class="col-expert">Expert</th>';
@@ -1126,44 +1243,233 @@
         table.appendChild(thead);
 
         const tbody = document.createElement('tbody');
-        const totalPerZi = {};
+        tbody.id = `tbody-${luna}`;
 
-        expertiLuna.forEach(exp => {
-            const ziData = g_index[exp][luna];
-            let expZile = 0, expOre = 0;
-            let tr = `<tr><td class="col-expert">${exp}</td>`;
+        function recalcTotals() {
+            const totalPerZi = {};
+            let lunaOre = 0;
 
-            zile.forEach(z => {
-                const ore = ziData[z];
-                if (ore !== undefined) {
-                    expZile++; expOre += ore;
-                    totalPerZi[z] = (totalPerZi[z] || 0) + ore;
-                    tr += `<td><div class="zi-cell lucrat">${ore}</div></td>`;
-                } else if (isWeekend(luna, z)) {
-                    tr += `<td><div class="zi-cell wknd-cell"></div></td>`;
-                } else {
-                    tr += `<td></td>`;
-                }
+            expertiLuna.forEach(exp => {
+                const ziData = g_index[exp]?.[luna] || {};
+                let expOre = 0;
+                zile.forEach(z => { if (ziData[z]) { expOre += ziData[z]; totalPerZi[z] = (totalPerZi[z] || 0) + ziData[z]; } });
+                lunaOre += expOre;
+                const totalCell = tbody.querySelector(`[data-total-exp="${exp}"]`);
+                if (totalCell) totalCell.textContent = expOre || '';
             });
 
-            tr += `<td class="col-total"><div class="zi-cell teal">${expOre}</div></td></tr>`;
-            tbody.innerHTML += tr;
+            zile.forEach(z => {
+                const cell = tbody.querySelector(`[data-total-zi="${z}"]`);
+                if (cell) cell.textContent = totalPerZi[z] || '';
+            });
+
+            const totalGeneral = tbody.querySelector('[data-total-general]');
+            if (totalGeneral) totalGeneral.textContent = lunaOre || '';
+
+            const sumar = wrapper.querySelector('.luna-sumar');
+            if (sumar) sumar.textContent = `${expertiLuna.length} experți · ${lunaOre} ore totale`;
+        }
+
+        function makeCell(exp, z, oreInitiale) {
+            const td = document.createElement('td');
+            const wknd = isWeekend(luna, z);
+            const editabil = (g_an === 2024);
+
+            function renderDisplay(ore) {
+                td.innerHTML = '';
+                if (ore !== undefined && ore !== null) {
+                    const div = document.createElement('div');
+                    div.className = 'zi-cell lucrat';
+                    div.textContent = ore;
+                    td.appendChild(div);
+                } else if (wknd) {
+                    const div = document.createElement('div');
+                    div.className = 'zi-cell wknd-cell';
+                    td.appendChild(div);
+                }
+            }
+
+            function activateEdit() {
+                const oreActuale = g_index[exp]?.[luna]?.[z];
+                td.innerHTML = '';
+                const inp = document.createElement('input');
+                inp.type = 'number';
+                inp.min = 1; inp.max = 8;
+                inp.className = 'cell-edit-input';
+                inp.value = oreActuale !== undefined ? oreActuale : '';
+                td.appendChild(inp);
+                inp.focus();
+                inp.select();
+
+                inp.addEventListener('blur', () => {
+                    const val = inp.value.trim();
+                    if (val === '') {
+                        saveOra(exp, luna, z, null);
+                        if (g_index[exp]?.[luna]) delete g_index[exp][luna][z];
+                    } else {
+                        const n = parseInt(val);
+                        if (!isNaN(n) && n >= 1 && n <= 8) {
+                            if (!g_index[exp]) g_index[exp] = {};
+                            if (!g_index[exp][luna]) g_index[exp][luna] = {};
+                            g_index[exp][luna][z] = n;
+                            saveOra(exp, luna, z, n);
+                        }
+                    }
+                    renderDisplay(g_index[exp]?.[luna]?.[z]);
+                    recalcTotals();
+                });
+
+                inp.addEventListener('keydown', e => {
+                    if (e.key === 'Enter') inp.blur();
+                    if (e.key === 'Escape') { renderDisplay(g_index[exp]?.[luna]?.[z]); }
+                });
+            }
+
+            renderDisplay(oreInitiale);
+            if (editabil) td.addEventListener('click', activateEdit);
+            if (editabil) td.style.cursor = 'pointer';
+            return td;
+        }
+
+        const editabil = (g_an === 2024);
+
+        function makeRandExpert(exp) {
+            const ziData = g_index[exp]?.[luna] || {};
+            const tr = document.createElement('tr');
+            tr.setAttribute('data-exp', exp);
+
+            const tdExp = document.createElement('td');
+            tdExp.className = 'col-expert';
+
+            if (editabil) {
+                const wrapper2 = document.createElement('div');
+                wrapper2.style.cssText = 'display:flex;align-items:center;justify-content:space-between;gap:4px;';
+                const span = document.createElement('span');
+                span.textContent = exp;
+                const btnDel = document.createElement('button');
+                btnDel.className = 'btn-del-expert no-print';
+                btnDel.textContent = '✕';
+                btnDel.title = 'Șterge expert';
+                btnDel.onclick = async () => {
+                    await _supabase.from('pontaj_detaliat')
+                        .delete()
+                        .eq('expert', exp).eq('an', g_an).eq('luna', luna);
+                    if (g_index[exp]?.[luna]) delete g_index[exp][luna];
+                    expertiLuna.splice(expertiLuna.indexOf(exp), 1);
+                    tr.remove();
+                    recalcTotals();
+                };
+                wrapper2.appendChild(span);
+                wrapper2.appendChild(btnDel);
+                tdExp.appendChild(wrapper2);
+            } else {
+                tdExp.textContent = exp;
+            }
+            tr.appendChild(tdExp);
+
+            zile.forEach(z => { tr.appendChild(makeCell(exp, z, ziData[z])); });
+
+            const tdTotal = document.createElement('td');
+            tdTotal.className = 'col-total';
+            const divTotal = document.createElement('div');
+            divTotal.className = 'zi-cell teal';
+            divTotal.setAttribute('data-total-exp', exp);
+            divTotal.textContent = Object.values(ziData).reduce((a, b) => a + b, 0) || '';
+            tdTotal.appendChild(divTotal);
+            tr.appendChild(tdTotal);
+
+            return tr;
+        }
+
+        expertiLuna.forEach(exp => tbody.appendChild(makeRandExpert(exp)));
+
+        // Rând TOTAL
+        const trTot = document.createElement('tr');
+        trTot.className = 'row-total';
+        const tdTotExp = document.createElement('td');
+        tdTotExp.className = 'col-expert';
+        tdTotExp.textContent = `TOTAL ${luna.toUpperCase()}`;
+        trTot.appendChild(tdTotExp);
+
+        const totalPerZiInit = {};
+        expertiLuna.forEach(exp => {
+            zile.forEach(z => {
+                const o = g_index[exp]?.[luna]?.[z];
+                if (o) totalPerZiInit[z] = (totalPerZiInit[z] || 0) + o;
+            });
         });
 
-        let trTot = `<tr class="row-total"><td class="col-expert">TOTAL ${luna.toUpperCase()}</td>`;
         zile.forEach(z => {
-            const cnt = totalPerZi[z] || 0;
-            trTot += `<td>${cnt > 0 ? `<span class="zi-cell-total">${cnt}</span>` : ''}</td>`;
+            const td = document.createElement('td');
+            const cnt = totalPerZiInit[z] || 0;
+            if (cnt > 0) {
+                const span = document.createElement('span');
+                span.className = 'zi-cell-total';
+                span.setAttribute('data-total-zi', z);
+                span.textContent = cnt;
+                td.appendChild(span);
+            } else {
+                const span = document.createElement('span');
+                span.className = 'zi-cell-total';
+                span.setAttribute('data-total-zi', z);
+                td.appendChild(span);
+            }
+            trTot.appendChild(td);
         });
-        trTot += `<td class="col-total"><div class="zi-cell teal">${lunaOre}</div></td></tr>`;
-        tbody.innerHTML += trTot;
+
+        const lunaOreInit = Object.values(totalPerZiInit).reduce((a, b) => a + b, 0);
+        const tdTotTotal = document.createElement('td');
+        tdTotTotal.className = 'col-total';
+        const divTotTotal = document.createElement('div');
+        divTotTotal.className = 'zi-cell teal';
+        divTotTotal.setAttribute('data-total-general', '1');
+        divTotTotal.textContent = lunaOreInit || '';
+        tdTotTotal.appendChild(divTotTotal);
+        trTot.appendChild(tdTotTotal);
+        tbody.appendChild(trTot);
 
         table.appendChild(tbody);
         wrapper.appendChild(table);
 
+        // Buton adăugare expert — doar 2024
+        if (editabil) {
+            const addZona = document.createElement('div');
+            addZona.className = 'add-expert-zona no-print';
+
+            const inp = document.createElement('input');
+            inp.type = 'text';
+            inp.placeholder = 'Nume expert nou...';
+            inp.className = 'add-expert-input';
+
+            const btn = document.createElement('button');
+            btn.className = 'add-expert-btn';
+            btn.textContent = '+ Adaugă expert';
+
+            btn.onclick = () => {
+                const nume = inp.value.trim();
+                if (!nume) return;
+                if (expertiLuna.includes(nume)) { inp.value = ''; return; }
+                if (!g_index[nume]) g_index[nume] = {};
+                if (!g_index[nume][luna]) g_index[nume][luna] = {};
+                expertiLuna.push(nume);
+                expertiLuna.sort((a, b) => a.localeCompare(b, 'ro'));
+                // Inserează rândul în poziția corectă (înainte de row-total)
+                tbody.insertBefore(makeRandExpert(nume), trTot);
+                recalcTotals();
+                inp.value = '';
+                inp.focus();
+            };
+
+            inp.addEventListener('keydown', e => { if (e.key === 'Enter') btn.click(); });
+
+            addZona.appendChild(inp);
+            addZona.appendChild(btn);
+            wrapper.appendChild(addZona);
+        }
+
         const sumar = document.createElement('div');
         sumar.className = 'luna-sumar';
-        sumar.textContent = `${expertiLuna.length} experți · ${lunaOre} ore totale`;
+        sumar.textContent = `${expertiLuna.length} experți · ${lunaOreInit} ore totale`;
         wrapper.appendChild(sumar);
 
         const semnaturi = document.createElement('div');
