@@ -26,9 +26,12 @@
 
         .sel-meniu { width: 100%; height: 100%; background: #000; color: var(--accent); border: none; font-weight: bold; text-align: center; cursor: pointer; outline: none; }
 
-        /* Buton Sub Tabel */
-        .btn-print-luna { display: block; width: 100%; max-width: 350px; margin: 20px auto; padding: 15px; background: var(--accent); color: #000; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; text-align: center; font-size: 14px; text-transform: uppercase; }
-        .btn-print-luna:hover { background: #0d9469; transform: scale(1.02); }
+        /* Butoane Sub Tabel */
+        .btns-luna { display: flex; gap: 14px; justify-content: center; margin: 20px auto; max-width: 750px; }
+        .btn-print-luna { flex: 1; padding: 15px; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; text-align: center; font-size: 13px; text-transform: uppercase; transition: 0.2s; }
+        .btn-print-luna:hover { transform: scale(1.02); filter: brightness(1.1); }
+        .btn-raport { background: var(--accent); color: #000; }
+        .btn-pv { background: #2563eb; color: #fff; }
 
         /* Grile Foldere Rapoarte */
         .folder-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 15px; padding: 0 20px; }
@@ -69,7 +72,10 @@
         </tbody>
     </table>
 
-    <button id="btn-print-luna" class="btn-print-luna" onclick="printLuna()">🖨️ GENEREAZĂ RAPORT LUNAR COMPLET</button>
+    <div class="btns-luna">
+        <button id="btn-print-luna" class="btn-print-luna btn-raport" onclick="printLuna()">📊 GENEREAZĂ RAPORT LUNAR</button>
+        <button class="btn-print-luna btn-pv" onclick="printPV()">📋 GENEREAZĂ PROCES VERBAL DE RECEPȚIE</button>
+    </div>
 </div>
 
 <div class="section-title">2. Arhivă Rapoarte Lunare (Dosar complet Avize)</div>
@@ -122,6 +128,9 @@
 
     function printLuna() {
         window.location.href = `raport-lunar.html?luna=${state.luna}&an=${state.an}`;
+    }
+    function printPV() {
+        window.location.href = `proces_verbal_masa.html?luna=${state.luna}&an=${state.an}`;
     }
 
     function init() {

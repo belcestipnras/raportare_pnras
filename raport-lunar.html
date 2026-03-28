@@ -100,51 +100,6 @@
     </div>
 </div>
 
-<div class="sheet">
-    <img src="antet_pnras.jpeg" class="antet-img">
-    <div class="nr-inregistrare">Nr. înregistrare: <input type="text" class="input-nr" id="pv-nr"> / <input type="text" class="input-data" id="pv-data" placeholder="__.__.2025"></div>
-    <div class="titlu-doc">Proces verbal de recepție</div>
-    <div class="subtitlu">Luna: <span class="luna-nume">...</span> <span class="an-nume">...</span></div>
-
-    <p style="text-align:center; font-weight:bold; margin-bottom:10px;">Achiziția de pachet alimentar de tip masă caldă, pentru activitățile remediale și extracurriculare</p>
-    
-    <p class="alineat">Pachetul alimentar a fost livrat în luna <span class="luna-text-mic">...</span> <span class="an-nume">...</span>, în conformitate cu Contractul de furnizare nr. 143/06.12.2024, încheiat între Liceul Tehnologic ”Victor Mihăilescu Craiu” Belcești și SC PROCONS IASI SRL și Nota de comandă nr. <input type="text" id="nc-nr" style="width:40px; border-bottom:1px dotted #000; border-top:none; border-left:none; border-right:none; text-align:center;"> / <input type="text" id="nc-data" style="width:90px; border-bottom:1px dotted #000; border-top:none; border-left:none; border-right:none;">.</p>
-    
-    <p class="alineat">Comisia de recepție a procedat astăzi, <input type="text" class="input-data" id="pv-data-comisie" placeholder="__.__.2025">, la inventarierea avizelor de însoțire a pachetului alimentar, după cum urmează:</p>
-
-    <table class="data-table">
-        <thead>
-            <tr><th class="col-nr">Nr.</th><th class="col-data">Data</th><th class="col-spec">Tip meniu și specificații</th><th class="col-portii">Porții Primite</th><th class="col-portii">Porții Aviz</th></tr>
-        </thead>
-        <tbody id="tbody-pv"></tbody>
-    </table>
-
-    <div class="section-signatures">
-        <p class="alineat">Comisia de recepție constată că pachetele alimentare de tip masă caldă au fost furnizate în conformitate cu specificațiile tehnice, cantitățile și perioada stipulate în contract.</p>
-        <p class="alineat">Comisia de receptie constată că furnizorul și-a respectat obligațiile stabilite prin contract. Valoarea bunurilor corespunde cu prețul stabilit în contractul de furnizare semnat între părți.</p>
-        <p class="alineat">Procesul verbal conține 2 pagini și a fost semnat astăzi, <input type="text" class="input-data" id="pv-data-semnat">, la sediul achizitorului, în două exemplare.</p>
-
-        <div class="comisie-centrata">
-            <p><strong>Beneficiar:</strong> Liceul Tehnologic ”Victor Mihăilescu Craiu” Belcești</p>
-            <p style="margin-top:15px; margin-bottom:10px;"><strong>Comisia de recepție:</strong></p>
-            
-            <div class="membru-pv">1. prof. dr. Ciprian MIHAI<div class="linie-semnatura"></div></div>
-            <div class="membru-pv">2. Pavel Ioan<div class="linie-semnatura"></div></div>
-            <div class="membru-pv">3. prof. Scutaru Gabriela<div class="linie-semnatura"></div></div>
-        </div>
-
-        <div class="comisie-centrata" style="margin-top: 20px;">
-            <p><strong>Director:</strong> prof. Cătălin Ionuț BAZILUC</p>
-            <div class="linie-semnatura"></div>
-        </div>
-
-        <div class="comisie-centrata" style="margin-top: 20px;">
-            <p><strong>Furnizor:</strong> S.C. PROCONS IAȘI S.R.L.</p>
-            <div class="linie-semnatura"></div>
-        </div>
-    </div>
-</div>
-
 <script>
     const URL_S = 'https://aexjrbdgajurxzngfkpx.supabase.co';
     const KEY_S = 'sb_publishable_KPV__0BA9z4EvRl5eqC0FQ_hmBLOLYv';
@@ -212,7 +167,6 @@
             });
             
             document.getElementById('tbody-raport').innerHTML = rowsHtml;
-            document.getElementById('tbody-pv').innerHTML = rowsHtml;
         }
 
         // 2. Preluăm numerele de înregistrare din registru_master
@@ -236,36 +190,6 @@
                 const ziPad = (randRaport.zi_inreg || '..').toString().padStart(2, '0');
                 document.getElementById('raport-nr').value = randRaport.tempNr;
                 document.getElementById('raport-data').value = `${ziPad}.${lunaNr}.${an}`;
-            }
-
-            // Căutăm rândul "Proces verbal / Proces-verbal de recepție masă caldă"
-            const randPV = cuNumere.find(r => 
-                r.luna_inreg === luna && 
-                r.cuprins_act && r.cuprins_act.toLowerCase().includes('proces') && 
-                r.cuprins_act.toLowerCase().includes('verbal') && 
-                r.cuprins_act.toLowerCase().includes('recepție') && 
-                r.cuprins_act.toLowerCase().includes('masă caldă')
-            );
-            if (randPV) {
-                const ziPad = (randPV.zi_inreg || '..').toString().padStart(2, '0');
-                const dataPV = `${ziPad}.${lunaNr}.${an}`;
-                document.getElementById('pv-nr').value = randPV.tempNr;
-                document.getElementById('pv-data').value = dataPV;
-                document.getElementById('pv-data-comisie').value = dataPV;
-                document.getElementById('pv-data-semnat').value = dataPV;
-            }
-
-            // Căutăm rândul "Notă comandă / Notă de comandă masă caldă"
-            const randNC = cuNumere.find(r => 
-                r.luna_inreg === luna && 
-                r.cuprins_act && r.cuprins_act.toLowerCase().includes('notă') && 
-                r.cuprins_act.toLowerCase().includes('comandă') && 
-                r.cuprins_act.toLowerCase().includes('masă caldă')
-            );
-            if (randNC) {
-                const ziPad = (randNC.zi_inreg || '..').toString().padStart(2, '0');
-                document.getElementById('nc-nr').value = randNC.tempNr;
-                document.getElementById('nc-data').value = `${ziPad}.${lunaNr}.${an}`;
             }
         }
     }
