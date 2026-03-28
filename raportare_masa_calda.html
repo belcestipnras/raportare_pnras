@@ -150,6 +150,7 @@ body{font-family:'Inter',sans-serif;background:#0f172a;color:#e2e8f0;min-height:
 /* ===== PRINT ===== */
 #print-dosar-container{display:none;}
 @media print{
+  @page{size:A4 portrait;margin:0;}
   body>*:not(#print-dosar-container){display:none!important;}
   #print-dosar-container{display:block!important;}
 
@@ -1264,11 +1265,12 @@ async function genDosar(){
       .print-doc-ref-name{font-size:16pt;font-weight:700;color:#1e293b;margin-bottom:12px;text-align:center;}
       .print-doc-ref-note{font-size:10pt;color:#64748b;text-align:center;}
       @media print{
+        @page{size:A4 portrait;margin:0;}
         .viewer-toolbar{display:none!important;}
         body{background:#fff;padding:0;}
         .viewer-pages{padding:0;gap:0;}
         .print-sec-page,.print-placeholder-page,.print-cover-page,.print-pdf-page,.print-aviz-page,.print-doc-ref{
-          box-shadow:none;page-break-after:always;break-after:page;
+          width:210mm;min-height:297mm;box-shadow:none;page-break-after:always;break-after:page;
         }
       }
     `;
