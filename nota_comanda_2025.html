@@ -160,8 +160,14 @@
         window.addEventListener('DOMContentLoaded', () => {
             const urlParams = new URLSearchParams(window.location.search);
             const lunaParam = urlParams.get('luna');
+            const comunicareParam = urlParams.get('comunicare');
             if (lunaParam && luniNames.includes(lunaParam)) {
-                selectLuna(lunaParam, false);
+                selectLuna(lunaParam, false).then(async () => {
+                    if (comunicareParam !== null) {
+                        // Generează și deschide direct comunicarea cu indexul dat
+                        await genereazaComunicari(parseInt(comunicareParam));
+                    }
+                });
             }
         });
 
@@ -366,7 +372,7 @@
             document.getElementById('comunicare-btn').style.display = (data && data.length > 0) ? 'block' : 'none';
         }
 
-        window.genereazaComunicari = async () => {
+        window.genereazaComunicari = async (targetIdx = null) => {
             const { data: pontajData } = await supabase
                 .from('pontaj_detaliat')
                 .select('zi').eq('an', 2025).eq('luna', currentLuna).eq('fara_masa', true);
@@ -483,142 +489,12 @@
                 }
             }
 
-            deschideFereastaComunicari(comunicariData, currentLuna);
+            deschideFereastaComunicari(comunicariData, currentLuna, targetIdx);
         };
 
-        function deschideFereastaComunicari(comunicariData, luna) {
-            const win = window.open('', '_blank');
-            const URL_S = 'https://aexjrbdgajurxzngfkpx.supabase.co';
-            const KEY_S = 'sb_publishable_KPV__0BA9z4EvRl5eqC0FQ_hmBLOLYv';
-
-            // Construim paginile ca string concatenat (fara template literals imbricate)
-            let pagesHtml = '';
-            for (let i = 0; i < comunicariData.length; i++) {
-                const com = comunicariData[i];
-                const perioada = com.dataEnd ? (com.dataStart + ' &ndash; ' + com.dataEnd) : com.dataStart;
-                const nrVal = com.nr || '';
-                const dataNrVal = com.dataNr || '';
-                pagesHtml += '<div class="page">';
-                pagesHtml += '<div class="antet-box">';
-                pagesHtml += '<div class="firma-nume">SC PROCONS SRL</div>';
-                pagesHtml += '<div class="firma-detalii">CIF: 34138254</div>';
-                pagesHtml += '<div class="firma-detalii">Sediul: SAT BELCESTI COM. BELCESTI, NR. 370 MANSARDA</div>';
-                pagesHtml += '<div class="nr-inreg">Nr. <input type="text" class="inp-nr" data-idx="' + i + '" data-field="nr" value="' + nrVal + '" placeholder=""> / <input type="text" class="inp-data" data-idx="' + i + '" data-field="dataNr" value="' + dataNrVal + '" placeholder=""></div>';
-                pagesHtml += '</div>';
-                pagesHtml += '<hr class="separator">';
-                const defDest = 'C&#259;tre: Liceul Tehnologic &bdquo;Victor Mih&#259;ilescu Craiu&rdquo; Belce&#537;ti<br>&Icirc;n aten&#539;ia: Domnului Director';
-                const defSalut = 'Stimate Domnule Director,';
-                const defP1 = 'Subscrisa, SC PROCONS SRL, reprezentat&#259; legal prin doamna Mirela MURARIU, &icirc;n calitate de administrator, v&#259; aducem la cuno&#351;tin&#539;&#259; faptul c&#259;, din motive obiective, societatea noastr&#259; nu poate asigura livrarea serviciului de mas&#259; cald&#259; &icirc;n perioada <strong>' + perioada + '</strong>.';
-                const defP2 = 'Men&#539;ion&#259;m c&#259; aceast&#259; situa&#539;ie este independent&#259; de voin&#539;a societ&#259;&#539;ii noastre &#351;i depunem toate diligen&#539;ele necesare pentru remedierea &icirc;n cel mai scurt timp a situa&#539;iei ap&#259;rute, astfel &icirc;nc&acirc;t activitatea s&#259; fie reluat&#259; &icirc;n condi&#539;ii normale.';
-                const defP3 = 'Ne cerem scuze pentru eventualele inconveniente create &#537;i v&#259; asigur&#259;m de &icirc;ntreaga noastr&#259; disponibilitate pentru identificarea unor solu&#539;ii temporare, dac&#259; se consider&#259; necesar.';
-                const defP4 = 'V&#259; mul&#539;umim pentru &icirc;n&#539;elegere.';
-                const defSemn = 'Cu stim&#259;,<br>Administrator, Mirela MURARIU<br>SC PROCONS SRL';
-                pagesHtml += '<div class="destinatar" contenteditable="true" data-idx="' + i + '" data-field="destinatar">' + (com.destinatar || defDest) + '</div>';
-                pagesHtml += '<div class="titlu" contenteditable="true" data-idx="' + i + '" data-field="titlu">' + (com.titlu || 'COMUNICARE') + '</div>';
-                pagesHtml += '<div class="corp">';
-                pagesHtml += '<p contenteditable="true" data-idx="' + i + '" data-field="salut">' + (com.salut || defSalut) + '</p>';
-                pagesHtml += '<p contenteditable="true" data-idx="' + i + '" data-field="p1">' + (com.p1 || defP1) + '</p>';
-                pagesHtml += '<p contenteditable="true" data-idx="' + i + '" data-field="p2">' + (com.p2 || defP2) + '</p>';
-                pagesHtml += '<p contenteditable="true" data-idx="' + i + '" data-field="p3">' + (com.p3 || defP3) + '</p>';
-                pagesHtml += '<p contenteditable="true" data-idx="' + i + '" data-field="p4">' + (com.p4 || defP4) + '</p>';
-                pagesHtml += '</div>';
-                pagesHtml += '<div class="semnatura-bloc" contenteditable="true" data-idx="' + i + '" data-field="semn">' + (com.semn || defSemn) + '</div>';
-                pagesHtml += '<div class="data-semn"><span>Data: <span id="data-auto-' + i + '">' + dataNrVal + '</span></span><span>Semn&#259;tura &#351;i &#351;tampila: ___________________</span></div>';
-                pagesHtml += '</div>';
-            }
-
-            const docId = 'COMUNICARE_2025_' + luna;
-
-            // Transmitem datele prin window.name (evitam probleme de sintaxa)
-            win.name = JSON.stringify({
-                comunicariData: comunicariData,
-                luna: luna,
-                docId: docId,
-                URL_S: 'https://aexjrbdgajurxzngfkpx.supabase.co',
-                KEY_S: 'sb_publishable_KPV__0BA9z4EvRl5eqC0FQ_hmBLOLYv'
-            });
-
-            let html = '<!DOCTYPE html><html lang="ro"><head><meta charset="UTF-8">';
-            html += '<title>Comunicari Nelivrare - ' + luna + ' 2025</title>';
-            html += '<style>';
-            html += '* { box-sizing: border-box; margin: 0; padding: 0; }';
-            html += 'body { font-family: "Times New Roman", Times, serif; font-size: 12pt; background: #475569; display: flex; flex-direction: column; align-items: center; padding: 80px 20px 40px 20px; min-height: 100vh; box-sizing: border-box; }';
-            html += '.controls-print { position: fixed; top: 0; left: 0; right: 0; z-index: 1000; display: flex; gap: 12px; padding: 14px 24px; background: #1e293b; box-shadow: 0 2px 8px rgba(0,0,0,0.4); align-items: center; }';
-            html += '.controls-print button { padding: 12px 28px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 15px; }';
-            html += '.btn-print { background: #1e40af; color: white; }';
-            html += '.btn-close { background: #ef4444; color: white; }';
-            html += '.save-status { position: fixed; bottom: 15px; right: 15px; background: white; padding: 8px 16px; border-radius: 20px; border: 2px solid #10b981; font-weight: bold; font-size: 12px; display: none; z-index: 999; }';
-            html += '.page { background: white; width: min(210mm, 96vw); min-height: 297mm; margin: 0 0 30px 0; padding: 2cm 2.5cm; box-shadow: 0 0 20px rgba(0,0,0,0.3); page-break-after: always; box-sizing: border-box; }';
-            html += '.antet-box { margin-bottom: 15px; }';
-            html += '.firma-nume { font-size: 15pt; font-weight: bold; margin-bottom: 4px; }';
-            html += '.firma-detalii { font-size: 10pt; color: #333; }';
-            html += '.nr-inreg { margin-top: 8px; font-weight: bold; font-size: 12pt; }';
-            html += '.inp-nr { border: none; border-bottom: 1px solid #000; font-family: inherit; font-size: inherit; font-weight: bold; width: 50px; text-align: center; outline: none; background: transparent; }';
-            html += '.inp-data { border: none; border-bottom: 1px solid #000; font-family: inherit; font-size: inherit; font-weight: bold; width: 120px; text-align: center; outline: none; background: transparent; }';
-            html += '.separator { border: none; border-top: 1px solid #1e40af; margin: 15px 0; }';
-            html += '.destinatar { margin-bottom: 20px; font-size: 11pt; line-height: 1.8; }';
-            html += '.titlu { text-align: center; font-size: 16pt; font-weight: bold; text-transform: uppercase; margin: 20px 0; letter-spacing: 2px; }';
-            html += '.corp p { text-indent: 1.25cm; text-align: justify; margin-bottom: 10px; line-height: 1.6; }';
-            html += '.corp p:first-child { text-indent: 0; }';
-            html += '.semnatura-bloc { margin-top: 40px; text-align: right; line-height: 1.8; font-weight: bold; }';
-            html += '.cu-stima { margin-bottom: 5px; }';
-            html += '.data-semn { display: flex; justify-content: space-between; margin-top: 50px; font-weight: normal; font-size: 10pt; }';
-            html += '@media print { body { background: white; padding: 0; display: block; } .controls-print, .save-status { display: none !important; } .page { margin: 0; box-shadow: none; width: 100%; padding: 1.5cm 2cm; } }';
-            html += '</style></head><body>';
-            html += '<div class="controls-print">';
-            html += '<button class="btn-print" onclick="window.print()">&#128424;&#65039; Printeaza</button>';
-            html += '<button class="btn-close" onclick="window.close()">&#10006; Inchide</button>';
-            html += '</div>';
-            html += '<div class="save-status" id="save-status">Se salveaza...</div>';
-            html += pagesHtml;
-            html += '<script>';
-            html += 'var _d = JSON.parse(window.name);';
-            html += 'var URL_S = _d.URL_S;';
-            html += 'var KEY_S = _d.KEY_S;';
-            html += 'var docId = _d.docId;';
-            html += 'var luna = _d.luna;';
-            html += 'var comData = _d.comunicariData;';
-            html += 'var saveTimer = null;';
-            html += 'async function saveCloud() {';
-            html += '  var st = document.getElementById("save-status");';
-            html += '  st.style.display = "block"; st.innerText = "Se salveaza...";';
-            html += '  try {';
-            html += '    await fetch(URL_S + "/rest/v1/planificari_documente?on_conflict=tip_document", {';
-            html += '      method: "POST",';
-            html += '      headers: { "Content-Type": "application/json", "apikey": KEY_S, "Authorization": "Bearer " + KEY_S, "Prefer": "return=minimal,resolution=merge-duplicates" },';
-            html += '      body: JSON.stringify({ tip_document: docId, an: 2025, luna: luna, continut_json: { comunicari: comData }, expert: "AUTOSAVE" })';
-            html += '    });';
-            html += '    st.innerText = "Salvat in Cloud";';
-            html += '    setTimeout(function() { st.style.display = "none"; }, 1500);';
-            html += '  } catch(e) { st.innerText = "Eroare salvare"; }';
-            html += '}';
-            html += 'document.querySelectorAll(".inp-nr,.inp-data").forEach(function(inp) {';
-            html += '  inp.addEventListener("input", function() {';
-            html += '    comData[parseInt(inp.dataset.idx)][inp.dataset.field] = inp.value;';
-            html += '    if (inp.dataset.field === "dataNr") {';
-            html += '      var el = document.getElementById("data-auto-" + inp.dataset.idx);';
-            html += '      if (el) el.innerText = inp.value;';
-            html += '    }';
-            html += '    clearTimeout(saveTimer);';
-            html += '    saveTimer = setTimeout(saveCloud, 1500);';
-            html += '  });';
-            html += '});';
-            html += 'document.querySelectorAll("[contenteditable][data-field]").forEach(function(ce) {';
-            html += '  ce.addEventListener("input", function() {';
-            html += '    comData[parseInt(ce.dataset.idx)][ce.dataset.field] = ce.innerHTML;';
-            html += '    clearTimeout(saveTimer);';
-            html += '    saveTimer = setTimeout(saveCloud, 1500);';
-            html += '  });';
-            html += '});';
-            html += 'document.querySelectorAll(".inp-data").forEach(function(inp) {';
-            html += '  var el = document.getElementById("data-auto-" + inp.dataset.idx);';
-            html += '  if (el && inp.value) el.innerText = inp.value;';
-            html += '});';
-            html += '<' + '/script>';
-            html += '</body></html>';
-
-            win.document.write(html);
-            win.document.close();
+        function deschideFereastaComunicari(comunicariData, luna, targetIdx = null) {
+            const url = 'comunicari_nelivrare.html?luna=' + encodeURIComponent(luna) + '&an=2025' + (targetIdx !== null ? '&idx=' + targetIdx : '');
+            window.open(url, '_blank');
         }
 
     </script>

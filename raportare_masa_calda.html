@@ -434,7 +434,7 @@ async function load(){
     ]);
     // Fetch secundar — nu blochează dacă eșuează
     const[factR,eleviR,listeR]=await Promise.all([
-      db.from('buget_pnras').select('id,titlu,numar,data_document,valoare,val_fara_tva').eq('parent_id',CTR_ID).eq('tip_rand','FACTURA').ilike('titlu','%'+_luna.toLowerCase()+'%').then(r=>r).catch(()=>({data:[]})),
+      db.from('buget_pnras').select('id,titlu,numar,data_document,valoare,val_fara_tva').eq('parent_id',CTR_ID).eq('tip_rand','FACTURA').ilike('titlu','%'+_luna.toLowerCase()+'%').order('data_document',{ascending:true}).then(r=>r).catch(()=>({data:[]})),
       db.from('elevi').select('clasa_grupa').then(r=>r).catch(()=>({data:[]})),
       db.from('liste_fisiere').select('*').eq('luna',_luna).eq('an',_an).then(r=>r).catch(()=>({data:[]}))
     ]);
@@ -469,13 +469,29 @@ async function load(){
       const{data:factDocs}=await db.from('documente_contract').select('*').in('furnizor',fIds).eq('tip_document','13. Factura');
       const docsByFid={};(factDocs||[]).forEach(d=>{docsByFid[d.furnizor]=d;});
       _facturi=facturiMeta.map(f=>({...f,doc:docsByFid[f.id]||null}));
+      _facturi.sort((a,b)=>{
+        const da=a.data_document?new Date(a.data_document):new Date(0);
+        const db2=b.data_document?new Date(b.data_document):new Date(0);
+        return da-db2;
+      });
     } else {
       _facturi=[];
     }
     _pontDet=detR.data||[];
-    // Zilele cu valoare_aviz=0 apar ca comunicare DOAR daca au activitati in pontaj_detaliat
     const ziCuActivitate=new Set((_pontDet||[]).map(p=>String(p.zi)));
     _pontaj=(pontR.data||[]).filter(p=>p.valoare_aviz>0||ziCuActivitate.has(String(p.zi)));
+
+    // Adaugă zilele cu fara_masa=true — apar ca comunicări nelivrare
+    const{data:faraMasaR}=await db.from('pontaj_detaliat')
+      .select('zi').eq('luna',_luna).eq('an',_an).eq('fara_masa',true);
+    if(faraMasaR&&faraMasaR.length){
+      const zileFM=[...new Set(faraMasaR.map(r=>r.zi))];
+      zileFM.forEach(zi=>{
+        if(!_pontaj.find(p=>p.zi===zi))
+          _pontaj.push({zi,valoare_aviz:0,tip_meniu:null,luna:_luna,an:_an});
+      });
+      _pontaj.sort((a,b)=>a.zi-b.zi);
+    }
     const docs=(docsR.data||[]).filter(d=>d.tip_document&&d.tip_document.startsWith(`MASA_${_luna}_${_an}_`));
     const byTip={};
     docs.forEach(d=>{if(!byTip[d.tip_document])byTip[d.tip_document]=[];byTip[d.tip_document].push(d);});
@@ -535,6 +551,7 @@ function renderMain(byTip){
       else{
         // Grupăm zilele consecutive nelivrate
         const grupe=groupZile(_pontaj);
+        let comIdx=0; // index comunicare curentă
         body=grupe.map(g=>{
           if(g.type==='livrat'){
             const p=g.zile[0];
@@ -587,6 +604,9 @@ function renderMain(byTip){
               </div>
               ${avizHtml}
               <div class="day-body">
+                <div style="margin-bottom:8px;">
+                  <button class="bsm bv" onclick="window.open('avize.html?zi=${p.zi}&luna=${_luna}&an=${_an}','_blank')" style="font-size:11px;padding:4px 10px;">📋 Deschide Aviz ${dataF}</button>
+                </div>
                 ${fileListHtml(docs,s.id,p.zi)}
                 ${upzoneHtml(s.id,p.zi)}
                 ${(()=>{
@@ -625,7 +645,6 @@ function renderMain(byTip){
             const label=g.zile.length===1
               ? `${ziStart}.${lc}.${_an}`
               : `${ziStart}.${lc}.${_an} — ${ziEnd}.${lc}.${_an}`;
-            // Cheia grupului = zi_start-zi_end
             const groupKey=`${g.zile[0].zi}-${g.zile[g.zile.length-1].zi}`;
             const k=mk(s.id,'com_'+groupKey);
             const docs=byTip[k]||[];
@@ -635,10 +654,14 @@ function renderMain(byTip){
                 <span class="day-badge nelivrat">⚠️ Comunicare nelivrare${g.zile.length>1?' ('+g.zile.length+' zile)':''}</span>
               </div>
               <div class="day-body">
+                <div style="margin-bottom:8px;">
+                  <button class="bsm bv" onclick="window.open('comunicari_nelivrare.html?luna=${_luna}&an=${_an}&idx=${comIdx}','_blank')" style="font-size:11px;padding:4px 10px;">📄 Deschide Comunicare</button>
+                </div>
                 ${fileListHtml(docs,s.id,'com_'+groupKey)}
                 ${upzoneHtml(s.id,'com_'+groupKey)}
               </div>
             </div>`;
+            comIdx++;
           }
         }).join('');
       }
@@ -702,18 +725,34 @@ function renderMain(byTip){
       body=s2Html;
     } else if(s.id==='S3'){
       const docsS3=byTip[mk(s.id)]||[];
-      const raportUrl='raport-lunar.html?luna='+encodeURIComponent(_luna)+'&an='+encodeURIComponent(_an);
       let s3Html='<div style="margin-bottom:10px;">'
-        +'<a href="'+raportUrl+'" target="_blank" class="btn btn-gen" style="text-decoration:none;display:inline-flex;">'
+        +'<button class="btn btn-gen" style="display:inline-flex;" onclick="deschideDocGenerat(\'raport\')">'
         +'📄 Deschide Raport Lunar — '+_luna+' '+_an
-        +'</a>'
-        +'<div style="font-size:10px;color:#475569;margin-top:5px;">Printează din raport-lunar.html, apoi încarcă PDF-ul semnat mai jos.</div>'
+        +'</button>'
+        +'<div style="font-size:10px;color:#475569;margin-top:5px;">Document generat automat din date. Printează, semnează, apoi încarcă PDF-ul semnat mai jos.</div>'
         +'</div>';
       s3Html+=fileListHtml(docsS3,'S3')+upzoneHtml('S3');
       body=s3Html;
-    } else {
-      const docs=byTip[mk(s.id)]||[];
-      body=fileListHtml(docs,s.id)+upzoneHtml(s.id);
+    } else if(s.id==='S4'){
+      const docsS4=byTip[mk(s.id)]||[];
+      let s4Html='<div style="margin-bottom:10px;">'
+        +'<button class="btn btn-gen" style="display:inline-flex;background:linear-gradient(135deg,#7c3aed,#5b21b6);" onclick="deschideDocGenerat(\'pv\')">'
+        +'📋 Deschide Proces Verbal de Recepție — '+_luna+' '+_an
+        +'</button>'
+        +'<div style="font-size:10px;color:#475569;margin-top:5px;">Document generat automat din date. Printează, semnează, apoi încarcă PDF-ul semnat mai jos.</div>'
+        +'</div>';
+      s4Html+=fileListHtml(docsS4,'S4')+upzoneHtml('S4');
+      body=s4Html;
+    } else if(s.id==='S5'){
+      const docsS5=byTip[mk(s.id)]||[];
+      let s5Html='<div style="margin-bottom:10px;">'
+        +'<button class="btn btn-gen" style="display:inline-flex;background:linear-gradient(135deg,#be185d,#9d174d);" onclick="deschideDocGenerat(\'nota\')">'
+        +'📝 Deschide Notă de Comandă — '+_luna+' '+_an
+        +'</button>'
+        +'<div style="font-size:10px;color:#475569;margin-top:5px;">Document generat automat din date. Printează, semnează, apoi încarcă PDF-ul semnat mai jos.</div>'
+        +'</div>';
+      s5Html+=fileListHtml(docsS5,'S5')+upzoneHtml('S5');
+      body=s5Html;
     }
     let cnt;
     if(s.avize){
@@ -907,6 +946,325 @@ async function viewDoc(url,name){
 function closePdfModal(){document.getElementById('pdfm').classList.remove('open');document.getElementById('pdfm-body').innerHTML='';}
 document.getElementById('pdfm').addEventListener('click',function(e){if(e.target===this)closePdfModal();});
 
+// ===== HELPERS REGISTRU =====
+const MENIURI_CONFIG={
+  1:'<strong>Meniu 1: Șnițel de pui</strong> (Șnițel >130g, Garnitură cartofi/piure >150g, Salată varză, 3 felii pâine, Tacâmuri)',
+  2:'<strong>Meniu 2: Pulpă de pui</strong> (Pulpă >130g, Garnitură orez/cartofi >150g, Salată varză/asortată, 3 felii pâine, Tacâmuri)',
+  3:'<strong>Meniu 3: Hamburger pui</strong> (Burger >130g, Garnitură cartofi pai >150g, Legume, Chiflă, Tacâmuri)',
+  4:'<strong>Meniu 4: Piept de pui</strong> (Piept >130g, Garnitură natur/piure >150g, Salată varză/asortată, 3 felii pâine, Tacâmuri)',
+  5:'<strong>Meniu 5: Mâncare cartofi cu porc</strong> (Carne porc >130g, Mâncărică cartofi >150g, Murături asortate, 3 felii pâine, Tacâmuri)'
+};
+const LUNI_TEXT=["Ianuarie","Februarie","Martie","Aprilie","Mai","Iunie","Iulie","August","Septembrie","Octombrie","Noiembrie","Decembrie"];
+
+function calcNrRegistru(toateRandurile){
+  const sorted=[...toateRandurile].sort((a,b)=>{
+    const lA=LUNI_TEXT.indexOf(a.luna_inreg),lB=LUNI_TEXT.indexOf(b.luna_inreg);
+    if(lA!==lB)return lA-lB;
+    const ziA=parseInt(a.zi_inreg)||999,ziB=parseInt(b.zi_inreg)||999;
+    if(ziA!==ziB)return ziA-ziB;
+    const soA=a.sort_order!=null?a.sort_order:a.id;
+    const soB=b.sort_order!=null?b.sort_order:b.id;
+    return soA-soB;
+  });
+  let autoNr=1;
+  const blocate=sorted.filter(r=>r.blocat).map(r=>parseInt(r.numar_fix));
+  sorted.forEach(row=>{
+    if(row.blocat){row.tempNr=parseInt(row.numar_fix);autoNr=Math.max(autoNr,row.tempNr+1);}
+    else{while(blocate.includes(autoNr))autoNr++;row.tempNr=autoNr++;} 
+  });
+  return sorted;
+}
+
+function buildTabelAvize(){
+  const activeRecords=_pontaj.filter(r=>r.valoare_aviz>0);
+  let rows='';
+  activeRecords.forEach((row,i)=>{
+    const ziF=String(row.zi).padStart(2,'0');
+    const dataF=`${ziF}.${LC[_luna]}.${_an}`;
+    rows+=`<tr><td>${i+1}</td><td>${dataF}</td><td style="text-align:left;padding:5px;">${MENIURI_CONFIG[row.tip_meniu]||'Meniu'}</td><td>${row.valoare_aviz}</td><td>${row.valoare_aviz}</td></tr>`;
+  });
+  return rows;
+}
+
+const DOC_STYLES=`
+  <style>
+    *{box-sizing:border-box;}
+    .doc-sheet{background:white;width:210mm;min-height:297mm;padding:1.5cm;font-family:"Times New Roman",Times,serif;font-size:12pt;line-height:1.3;color:#000;display:flex;flex-direction:column;}
+    .doc-antet{width:100%;height:auto;margin-bottom:10px;}
+    .doc-nr{margin-bottom:20px;font-size:12pt;}
+    .doc-input{border:none;border-bottom:1px dotted #000;background:transparent;font-family:inherit;font-size:12pt;text-align:center;display:inline-block;min-width:30px;}
+    .doc-titlu{text-align:center;font-weight:bold;font-size:14pt;margin:5px 0;text-transform:uppercase;}
+    .doc-subtitlu{text-align:center;font-weight:bold;font-size:13pt;margin-bottom:15px;}
+    .doc-alineat{text-align:justify;text-indent:1.5cm;margin-bottom:8px;}
+    .doc-lista{margin:5px 0 10px 0;padding-left:2.5cm;text-align:justify;}
+    .doc-table{width:100%;border-collapse:collapse;margin-top:10px;table-layout:fixed;}
+    .doc-table th,.doc-table td{border:1px solid #000;padding:5px;text-align:center;font-size:9pt;}
+    .doc-table th{background:#f2f2f2;font-weight:bold;}
+    .doc-table td.spec{text-align:left;}
+    .doc-semnaturi{display:flex;justify-content:space-between;margin-top:25px;}
+    .doc-box-sem{width:32%;text-align:center;font-size:10.5pt;}
+    .doc-centrat{text-align:center;width:100%;margin-top:20px;}
+    .doc-linie{margin-top:5px;border-top:1px solid #000;width:220px;margin-left:auto;margin-right:auto;}
+    .doc-membru{margin-bottom:15px;display:block;font-size:11pt;}
+  </style>
+`;
+
+// CSS comun pentru doc-sheet (exact din fișierele originale)
+const CSS_DOCS=`
+  <style>
+    .sheet-doc{background:white;width:210mm;box-sizing:border-box;padding:1.5cm;
+      font-family:"Times New Roman",Times,serif;font-size:12pt;line-height:1.3;color:#000;
+      display:flex;flex-direction:column;}
+    .sheet-doc .antet-img{width:100%;height:auto;margin-bottom:10px;}
+    .sheet-doc .nr-inregistrare{margin-bottom:20px;}
+    .sheet-doc .input-nr{border:none;font-family:inherit;font-size:12pt;width:35px;text-align:center;background:transparent;border-bottom:1px dotted #000;}
+    .sheet-doc .input-data{border:none;font-family:inherit;font-size:12pt;width:100px;background:transparent;border-bottom:1px dotted #000;}
+    .sheet-doc .input-inline{border:none;font-family:inherit;font-size:12pt;background:transparent;border-bottom:1px dotted #000;text-align:center;}
+    .sheet-doc .titlu-doc{text-align:center;font-weight:bold;font-size:14pt;margin:5px 0;text-transform:uppercase;}
+    .sheet-doc .subtitlu{text-align:center;font-weight:bold;font-size:13pt;margin-bottom:15px;}
+    .sheet-doc .alineat{text-align:justify;text-indent:1.5cm;margin-bottom:8px;}
+    .sheet-doc .lista-criterii{margin:5px 0 10px 0;padding-left:2.5cm;text-align:justify;}
+    .sheet-doc .data-table{width:100%;border-collapse:collapse;margin-top:10px;table-layout:fixed;}
+    .sheet-doc .data-table th,.sheet-doc .data-table td{border:1px solid #000;padding:5px;text-align:center;font-size:9pt;}
+    .sheet-doc .data-table th{background:#f2f2f2;font-weight:bold;}
+    .sheet-doc .col-nr{width:7%;}.sheet-doc .col-data{width:13%;}.sheet-doc .col-spec{width:50%;text-align:left!important;}.sheet-doc .col-portii{width:15%;}
+    .sheet-doc .semnaturi-raport{display:flex;justify-content:space-between;margin-top:25px;}
+    .sheet-doc .box-semnatura{width:32%;text-align:center;font-size:10.5pt;}
+    .sheet-doc .comisie-centrata{text-align:center;width:100%;margin-top:20px;}
+    .sheet-doc .membru-pv{margin-bottom:15px;display:block;font-size:11pt;}
+    .sheet-doc .linie-semnatura{margin-top:5px;border-top:1px solid #000;width:220px;margin-left:auto;margin-right:auto;}
+    /* Nota de comandă */
+    .sheet-doc .header-box{text-align:center;margin:20px 0;border:1pt solid #1e40af;padding:15px;border-radius:12px;background:#f0f7ff;}
+    .sheet-doc .titlu-principal{font-weight:700;font-size:18pt;color:#1e40af;text-transform:uppercase;margin:0;}
+    .sheet-doc .subtitlu-nc{font-size:11pt;color:#1e293b;}
+    .sheet-doc .destinatar-card{background:#f8fafc;padding:15px;border-left:6px solid #1e40af;margin:15px 0;border-radius:4px;font-weight:bold;}
+    .sheet-doc .continut-text{text-indent:1.25cm;text-align:justify;margin-bottom:8px;}
+    .sheet-doc .tabel-comanda{width:100%;border-collapse:collapse;border:1pt solid #000;table-layout:fixed;}
+    .sheet-doc .tabel-comanda th,.sheet-doc .tabel-comanda td{border:1pt solid #000;padding:8px;text-align:center;}
+    .sheet-doc .tabel-comanda th{background:#eff6ff;font-weight:bold;}
+    .sheet-doc .info-container{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:25px;}
+    .sheet-doc .info-box{border:1pt solid #000;padding:12px;border-radius:8px;}
+    .sheet-doc .semnatura{margin-top:40px;text-align:right;font-weight:bold;padding-right:30px;}
+  </style>
+`;
+
+async function genPageRaportLunar(antetSrc,secIdx){
+  // Preia nr înregistrare din registru_master
+  let nrRaport='___', dataRaport=`__.${LC[_luna]}.${_an}`;
+  try{
+    const{data:reg}=await db.from('registru_master').select('*').eq('an_inreg',_an).eq('stare','activ');
+    if(reg&&reg.length){
+      const cuNr=calcNrRegistru(reg);
+      const rand=cuNr.find(r=>r.luna_inreg===_luna&&r.cuprins_act&&
+        r.cuprins_act.toLowerCase().includes('raport')&&
+        r.cuprins_act.toLowerCase().includes('masă caldă'));
+      if(rand){
+        nrRaport=rand.tempNr;
+        dataRaport=String(rand.zi_inreg||'..').padStart(2,'0')+'.'+LC[_luna]+'.'+_an;
+      }
+    }
+  }catch(e){console.warn('registru raport:',e);}
+
+  const meniuriConfig={
+    1:'<strong>Meniu 1: Șnițel de pui</strong> (Șnițel >130g, Garnitură cartofi/piure >150g, Salată varză, 3 felii pâine, Tacâmuri)',
+    2:'<strong>Meniu 2: Pulpă de pui</strong> (Pulpă >130g, Garnitură orez/cartofi >150g, Salată varză/asortată, 3 felii pâine, Tacâmuri)',
+    3:'<strong>Meniu 3: Hamburger pui</strong> (Burger >130g, Garnitură cartofi pai >150g, Legume, Chiflă, Tacâmuri)',
+    4:'<strong>Meniu 4: Piept de pui</strong> (Piept >130g, Garnitură natur/piure >150g, Salată varză/asortată, 3 felii pâine, Tacâmuri)',
+    5:'<strong>Meniu 5: Mâncare cartofi cu porc</strong> (Carne porc >130g, Mâncărică cartofi >150g, Murături asortate, 3 felii pâine, Tacâmuri)'
+  };
+  const lunaNum=LC[_luna];
+  let rows='',idx=1;
+  (_pontaj||[]).filter(p=>p.valoare_aviz>0).forEach(p=>{
+    const ziF=String(p.zi).padStart(2,'0');
+    rows+=`<tr><td>${idx++}</td><td>${ziF}.${lunaNum}.${_an}</td><td class="col-spec">${meniuriConfig[p.tip_meniu]||'Meniu'}</td><td>${p.valoare_aviz}</td><td>${p.valoare_aviz}</td></tr>`;
+  });
+
+  return `${CSS_DOCS}<div class="sheet-doc">
+    <img class="antet-img" src="${antetSrc}">
+    <div class="nr-inregistrare">Nr. înregistrare: <input type="text" class="input-nr" value="${nrRaport}"> / <input type="text" class="input-data" value="${dataRaport}"></div>
+    <div class="titlu-doc">Raport lunar de distribuire a pachetului alimentar de tip masă caldă</div>
+    <div class="subtitlu">${_luna} ${_an}</div>
+    <p class="alineat">În luna ${_luna.toLowerCase()} ${_an} pachetul alimentar de tip masă caldă a fost distribuit la activitățile remediale și extracurriculare, în funcție de următoarele criterii:</p>
+    <ol class="lista-criterii">
+      <li>Disponibilitatea agentului economic de a asigura masă caldă în anumite zile;</li>
+      <li>Numărul de ore de activități remediale sau activități extracurriculare din fiecare zi;</li>
+      <li>Numărul de elevi din grupul-țintă care și-au manifestat disponibilitatea de a participa la activitățile extracurriculare.</li>
+    </ol>
+    <p class="alineat">Meniurile distribuite elevilor au fost trecute în avizele de însoțire a mărfii, după cum urmează:</p>
+    <table class="data-table">
+      <thead><tr><th class="col-nr">Nr.</th><th class="col-data">Data</th><th class="col-spec">Tip meniu și specificații</th><th class="col-portii">Porții Primite</th><th class="col-portii">Porții Aviz</th></tr></thead>
+      <tbody>${rows||'<tr><td colspan="5" style="color:#888;">Nu există date pentru această lună.</td></tr>'}</tbody>
+    </table>
+    <div style="margin-top:auto;">
+      <div class="semnaturi-raport">
+        <div class="box-semnatura"><strong>Întocmit,</strong><br><br>Pavel Ioan<br><br>_________________</div>
+        <div class="box-semnatura"><strong>Avizat,</strong><br>Manager proiect,<br>prof. dr. Ciprian MIHAI<br><br>_________________</div>
+        <div class="box-semnatura"><strong>Aprobat,</strong><br>Director,<br>prof. Cătălin-Ionuț BAZILUC<br><br>_________________</div>
+      </div>
+    </div>
+  </div>`;
+}
+
+async function genPageProcesVerbal(antetSrc,secIdx){
+  let nrPV='___',dataPV=`__.${LC[_luna]}.${_an}`,nrNC='___',dataNC=`__.${LC[_luna]}.${_an}`;
+  try{
+    const{data:reg}=await db.from('registru_master').select('*').eq('an_inreg',_an).eq('stare','activ');
+    if(reg&&reg.length){
+      const cuNr=calcNrRegistru(reg);
+      const randPV=cuNr.find(r=>r.luna_inreg===_luna&&r.cuprins_act&&
+        r.cuprins_act.toLowerCase().includes('proces')&&
+        r.cuprins_act.toLowerCase().includes('verbal')&&
+        r.cuprins_act.toLowerCase().includes('recepție')&&
+        r.cuprins_act.toLowerCase().includes('masă caldă'));
+      if(randPV){
+        nrPV=randPV.tempNr;
+        dataPV=String(randPV.zi_inreg||'..').padStart(2,'0')+'.'+LC[_luna]+'.'+_an;
+      }
+      const randNC=cuNr.find(r=>r.luna_inreg===_luna&&r.cuprins_act&&
+        r.cuprins_act.toLowerCase().includes('notă')&&
+        r.cuprins_act.toLowerCase().includes('comandă')&&
+        r.cuprins_act.toLowerCase().includes('masă caldă'));
+      if(randNC){
+        nrNC=randNC.tempNr;
+        dataNC=String(randNC.zi_inreg||'..').padStart(2,'0')+'.'+LC[_luna]+'.'+_an;
+      }
+    }
+  }catch(e){console.warn('registru pv:',e);}
+
+  const meniuriConfig={
+    1:'<strong>Meniu 1: Șnițel de pui</strong> (Șnițel >130g, Garnitură cartofi/piure >150g, Salată varză, 3 felii pâine, Tacâmuri)',
+    2:'<strong>Meniu 2: Pulpă de pui</strong> (Pulpă >130g, Garnitură orez/cartofi >150g, Salată varză/asortată, 3 felii pâine, Tacâmuri)',
+    3:'<strong>Meniu 3: Hamburger pui</strong> (Burger >130g, Garnitură cartofi pai >150g, Legume, Chiflă, Tacâmuri)',
+    4:'<strong>Meniu 4: Piept de pui</strong> (Piept >130g, Garnitură natur/piure >150g, Salată varză/asortată, 3 felii pâine, Tacâmuri)',
+    5:'<strong>Meniu 5: Mâncare cartofi cu porc</strong> (Carne porc >130g, Mâncărică cartofi >150g, Murături asortate, 3 felii pâine, Tacâmuri)'
+  };
+  const lunaNum=LC[_luna];
+  let rows='',idx=1;
+  (_pontaj||[]).filter(p=>p.valoare_aviz>0).forEach(p=>{
+    const ziF=String(p.zi).padStart(2,'0');
+    rows+=`<tr><td>${idx++}</td><td>${ziF}.${lunaNum}.${_an}</td><td class="col-spec">${meniuriConfig[p.tip_meniu]||'Meniu'}</td><td>${p.valoare_aviz}</td><td>${p.valoare_aviz}</td></tr>`;
+  });
+
+  return `${CSS_DOCS}<div class="sheet-doc">
+    <img class="antet-img" src="${antetSrc}">
+    <div class="nr-inregistrare">Nr. înregistrare: <input type="text" class="input-nr" value="${nrPV}"> / <input type="text" class="input-data" value="${dataPV}"></div>
+    <div class="titlu-doc">Proces verbal de recepție</div>
+    <div class="subtitlu">Luna: ${_luna} ${_an}</div>
+    <p style="text-align:center;font-weight:bold;margin-bottom:10px;font-family:'Times New Roman',Times,serif;">Achiziția de pachet alimentar de tip masă caldă, pentru activitățile remediale și extracurriculare</p>
+    <p class="alineat">Pachetul alimentar a fost livrat în luna ${_luna.toLowerCase()} ${_an}, în conformitate cu Contractul de furnizare nr. 143/06.12.2024, încheiat între Liceul Tehnologic "Victor Mihăilescu Craiu" Belcești și SC PROCONS IASI SRL și Nota de comandă nr. <input type="text" class="input-inline" style="width:40px;" value="${nrNC}"> / <input type="text" class="input-inline" style="width:90px;" value="${dataNC}">.</p>
+    <p class="alineat">Comisia de recepție a procedat astăzi, <input type="text" class="input-data" value="${dataPV}">, la inventarierea avizelor de însoțire a pachetului alimentar, după cum urmează:</p>
+    <table class="data-table">
+      <thead><tr><th class="col-nr">Nr.</th><th class="col-data">Data</th><th class="col-spec">Tip meniu și specificații</th><th class="col-portii">Porții Primite</th><th class="col-portii">Porții Aviz</th></tr></thead>
+      <tbody>${rows||'<tr><td colspan="5" style="color:#888;">Nu există date pentru această lună.</td></tr>'}</tbody>
+    </table>
+    <div style="margin-top:auto;">
+      <p class="alineat">Comisia de recepție constată că pachetele alimentare de tip masă caldă au fost furnizate în conformitate cu specificațiile tehnice, cantitățile și perioada stipulate în contract.</p>
+      <p class="alineat">Comisia de recepție constată că furnizorul și-a respectat obligațiile stabilite prin contract. Valoarea bunurilor corespunde cu prețul stabilit în contractul de furnizare semnat între părți.</p>
+      <p class="alineat">Procesul verbal conține 2 pagini și a fost semnat astăzi, <input type="text" class="input-data" value="${dataPV}">, la sediul achizitorului, în două exemplare.</p>
+      <div class="comisie-centrata">
+        <p><strong>Beneficiar:</strong> Liceul Tehnologic "Victor Mihăilescu Craiu" Belcești</p>
+        <p style="margin-top:15px;margin-bottom:10px;"><strong>Comisia de recepție:</strong></p>
+        <div class="membru-pv">1. prof. dr. Ciprian MIHAI<div class="linie-semnatura"></div></div>
+        <div class="membru-pv">2. Pavel Ioan<div class="linie-semnatura"></div></div>
+        <div class="membru-pv">3. prof. Scutaru Gabriela<div class="linie-semnatura"></div></div>
+      </div>
+      <div class="comisie-centrata" style="margin-top:20px;"><p><strong>Director:</strong> prof. Cătălin Ionuț BAZILUC</p><div class="linie-semnatura"></div></div>
+      <div class="comisie-centrata" style="margin-top:20px;"><p><strong>Furnizor:</strong> S.C. PROCONS IAȘI S.R.L.</p><div class="linie-semnatura"></div></div>
+    </div>
+  </div>`;
+}
+
+async function genPageNotaComanda(antetSrc,secIdx){
+  let nrNC='___',dataNC=`__.${LC[_luna]}.${_an}`;
+  let dest='🏢 Către: SC PROCONS IAȘI SRL<br>📍 Adresa: Sat Belcești, Comuna Belcești, nr. 370, mansardă, Județul Iași';
+  let salut='👋 Stimată doamnă Murariu Mirela,';
+  let mentiuni=`<div style="font-weight:bold;color:#1e40af;margin-bottom:5px;">🔍 Mențiuni:</div><ul style="margin:0;padding:0;list-style:none;font-size:10.5pt;"><li style="text-indent:0.5cm;">1. Produsele trebuie fi livrate conform contractului de prestări servicii de catering Nr. 143/06.12.2024;</li><li style="text-indent:0.5cm;">2. Produsele trebuie să fie conforme din punct de vedere sanitar-veterinar;</li><li style="text-indent:0.5cm;">3. Pe durata transportului, marfa trebuie să fie însoțită de aviz;</li></ul>`;
+  let livrare=`<div style="font-weight:bold;color:#1e40af;margin-bottom:5px;">🚚 Date privind livrarea:</div><ul style="margin:0;padding:0;list-style:none;font-size:10.5pt;"><li style="text-indent:0.5cm;">1. Numele delegatului: Murariu Mirela;</li><li style="text-indent:0.5cm;">2. Livrările se vor efectua la adresa beneficiarului, la datele stabilite conform prezentei note de comanda, la ora 13.30;</li><li style="text-indent:0.5cm;">3. Persoana delegată pentru a primi produsele este Pavel Ioan, tel. 0748159864;</li><li style="text-indent:0.5cm;">4. Dacă livrarea nu se poate efectua în ziua stabilită, vă rugăm să ne înștiințați cu cel puțin 4 ore înainte.</li></ul>`;
+  let semn='🖋️ Manager proiect,<br>prof. dr. Ciprian MIHAI';
+
+  // Preia datele salvate
+  try{
+    const{data}=await db.from('planificari_documente').select('continut_json').eq('tip_document',`NOTA_COM_2025_${_luna}`).maybeSingle();
+    if(data?.continut_json){
+      const j=data.continut_json;
+      if(j.dest) dest=j.dest;
+      if(j.salut) salut=j.salut;
+      if(j.mentiuni) mentiuni=j.mentiuni;
+      if(j.livrare) livrare=j.livrare;
+      if(j.semn) semn=j.semn;
+      if(j.nr) nrNC=j.nr;
+      if(j.dataNr) dataNC=j.dataNr;
+    }
+  }catch(e){console.warn('nota comanda fetch:',e);}
+
+  // Dacă nu există nr salvat, caută în registru_master
+  if(nrNC==='___'){
+    try{
+      const{data:reg}=await db.from('registru_master').select('*').eq('an_inreg',_an).eq('stare','activ');
+      if(reg&&reg.length){
+        const cuNr=calcNrRegistru(reg);
+        const rand=cuNr.find(r=>r.luna_inreg===_luna&&r.cuprins_act&&
+          r.cuprins_act.toLowerCase().includes('notă')&&
+          r.cuprins_act.toLowerCase().includes('comandă')&&
+          r.cuprins_act.toLowerCase().includes('masă caldă'));
+        if(rand){
+          nrNC=rand.tempNr;
+          dataNC=String(rand.zi_inreg||'..').padStart(2,'0')+'.'+LC[_luna]+'.'+_an;
+        }
+      }
+    }catch(e){console.warn('registru nc:',e);}
+  }
+
+  const lunaNum=LC[_luna];
+  let rows='',idx=1,total=0;
+  const txt='Pachet alimentar de tip masă caldă, conform Contractului nr. 143/06.12.2024';
+  const activeRows=(_pontaj||[]).filter(p=>p.valoare_aviz>0);
+  activeRows.forEach((p,i)=>{
+    const ziF=String(p.zi).padStart(2,'0');
+    const qty=p.valoare_aviz||0;
+    total+=parseInt(qty)||0;
+    rows+=`<tr>
+      <td>${idx++}</td>
+      ${i===0?`<td rowspan="${activeRows.length}">${txt}</td>`:''}
+      <td>${ziF}.${lunaNum}.${_an}</td>
+      <td>${qty}</td>
+    </tr>`;
+  });
+
+  return `${CSS_DOCS}<div class="sheet-doc">
+    <img class="antet-img" src="${antetSrc}">
+    <div class="nr-inregistrare">Nr. <input type="text" class="input-nr" value="${nrNC}">/<input type="text" class="input-data" value="${dataNC}"></div>
+    <div class="header-box">
+      <div class="titlu-principal">📝 Notă de comandă</div>
+      <div class="subtitlu-nc">privind distribuirea pachetului alimentar de tip masă caldă, pentru elevii participanți la activitățile remediale și extracurriculare</div>
+    </div>
+    <div class="destinatar-card">${dest}</div>
+    <div class="continut-text">${salut}</div>
+    <div class="continut-text">Vă transmitem prezenta notă de comandă cu privire la distribuirea pachetului alimentar de tip masă caldă, pentru <strong>luna ${_luna} ${_an}</strong>, după cum urmează:</div>
+    <div style="font-weight:bold;margin:15px 0 5px 0;color:#1e40af;">📌 Denumire activitate, conform cererii de finanțare: A II.3. Gustări/Masă rece/caldă și sănătoasă</div>
+    <table class="tabel-comanda">
+      <thead><tr><th style="width:8%;">Nr. crt.</th><th style="width:42%;">Denumirea serviciului</th><th style="width:25%;">Data</th><th style="width:25%;">Cantitate (porții)</th></tr></thead>
+      <tbody>${rows||'<tr><td colspan="4" style="color:#888;">Nu există date pentru această lună.</td></tr>'}</tbody>
+      <tfoot><tr style="font-weight:bold;background:#f8fafc;"><td colspan="3" style="text-align:right;padding-right:15px;">📊 TOTAL PORȚII LUNĂ</td><td>${total}</td></tr></tfoot>
+    </table>
+    <div class="info-container">
+      <div class="info-box">${mentiuni}</div>
+      <div class="info-box">${livrare}</div>
+    </div>
+    <div class="semnatura">${semn}</div>
+  </div>`;
+}
+
+async function deschideDocGenerat(tip){
+  if(tip==='raport'){
+    window.open('raport-lunar.html?luna='+encodeURIComponent(_luna)+'&an='+encodeURIComponent(_an),'_blank');
+  } else if(tip==='pv'){
+    window.open('proces_verbal_masa.html?luna='+encodeURIComponent(_luna)+'&an='+encodeURIComponent(_an),'_blank');
+  } else if(tip==='nota'){
+    window.open('nota_comanda_2025.html?luna='+encodeURIComponent(_luna),'_blank');
+  }
+}
+
 // ===== GENERATE =====
 
 const SEC_COLORS={
@@ -1090,11 +1448,41 @@ async function genDosar(){
         printHtml+=printPlaceholder(s.id,i,s.label,'NICIO FACTURĂ GĂSITĂ PENTRU ACEASTĂ LUNĂ');
       }
     } else if(s.id==='S3'){
-      printHtml+=printPlaceholder(s.id,i,s.label,'AICI TREBUIE SĂ INTRODUCI RAPORTUL LUNAR SEMNAT');
+      const uploadedS3=(_byTip[mk(s.id)]||[]).filter(d=>!d.exclude_print&&d.link_drive);
+      if(uploadedS3.length){
+        for(const d of uploadedS3){
+          const imgs=await getImgs('doc_'+d.id,d.link_drive);
+          if(imgs.length) imgs.forEach(src=>{printHtml+=`<div class="print-pdf-page"><img src="${src}" style="width:100%;display:block;"></div>`;});
+          else printHtml+=printPlaceholder(s.id,i,s.label,'Eroare la procesare: '+(d.nume_fisier||'document'));
+        }
+      } else {
+        setSt('⏳ Se generează Raportul Lunar...','load');
+        printHtml+=await genPageRaportLunar(antetSrc,i);
+      }
     } else if(s.id==='S4'){
-      printHtml+=printPlaceholder(s.id,i,s.label,'AICI TREBUIE SĂ INTRODUCI PROCESUL VERBAL DE RECEPȚIE SEMNAT');
+      const uploadedS4=(_byTip[mk(s.id)]||[]).filter(d=>!d.exclude_print&&d.link_drive);
+      if(uploadedS4.length){
+        for(const d of uploadedS4){
+          const imgs=await getImgs('doc_'+d.id,d.link_drive);
+          if(imgs.length) imgs.forEach(src=>{printHtml+=`<div class="print-pdf-page"><img src="${src}" style="width:100%;display:block;"></div>`;});
+          else printHtml+=printPlaceholder(s.id,i,s.label,'Eroare la procesare: '+(d.nume_fisier||'document'));
+        }
+      } else {
+        setSt('⏳ Se generează Procesul Verbal...','load');
+        printHtml+=await genPageProcesVerbal(antetSrc,i);
+      }
     } else if(s.id==='S5'){
-      printHtml+=printPlaceholder(s.id,i,s.label,'AICI TREBUIE SĂ INTRODUCI NOTA DE COMANDĂ SEMNATĂ');
+      const uploadedS5=(_byTip[mk(s.id)]||[]).filter(d=>!d.exclude_print&&d.link_drive);
+      if(uploadedS5.length){
+        for(const d of uploadedS5){
+          const imgs=await getImgs('doc_'+d.id,d.link_drive);
+          if(imgs.length) imgs.forEach(src=>{printHtml+=`<div class="print-pdf-page"><img src="${src}" style="width:100%;display:block;"></div>`;});
+          else printHtml+=printPlaceholder(s.id,i,s.label,'Eroare la procesare: '+(d.nume_fisier||'document'));
+        }
+      } else {
+        setSt('⏳ Se generează Nota de Comandă...','load');
+        printHtml+=await genPageNotaComanda(antetSrc,i);
+      }
     } else if(!['S1','S2','S3','S4','S5'].includes(s.id)&&!s.avize){
       // S7, S8, S9 — documente uploadate manual, filtrate exclude_print
       const uploadedDocs=(_byTip[mk(s.id)]||[]).filter(d=>!d.exclude_print);
@@ -1115,13 +1503,96 @@ async function genDosar(){
           +`</div>`;
       }
     } else if(s.avize){
-      // S6 — per zi livrată, adaugă placeholder clase
+      // S6 — ordine cronologică: zile livrate (aviz + liste) intercalate cu comunicări nelivrare
+
+      // Preia datele avizelor din registru_documente (nr înregistrare + cantitate)
+      const{data:regAvize}=await db.from('registru_documente').select('zi,nr,data_doc,cantitate').eq('tip','AVIZ').eq('luna',_luna).eq('an',parseInt(_an));
+      const regByZi={};(regAvize||[]).forEach(r=>{regByZi[String(r.zi)]=r;});
+
+      // Preia tipul meniului din setari_pontaj
+      const{data:setariPontaj}=await db.from('setari_pontaj').select('zi,tip_meniu,valoare_aviz').match({luna:_luna,an:_an});
+      const setariByZi={};(setariPontaj||[]).forEach(r=>{setariByZi[String(r.zi)]=r;});
+
+      // Preia comunicările salvate din planificari_documente
+      const docIdCom=`COMUNICARE_2025_${_luna}`;
+      const{data:savedCom}=await db.from('planificari_documente').select('continut_json').eq('tip_document',docIdCom).maybeSingle();
+      const comunicari=(savedCom?.continut_json?.comunicari)||[];
+
+      // Construiește lista evenimentelor în ordine cronologică
+      // Fiecare eveniment are: { zi (număr), type: 'livrat'|'nelivrat', ... }
       const grupe=groupZile(_pontaj);
-      for(const g of grupe){
+      const events=[];
+      grupe.forEach(g=>{
         if(g.type==='livrat'){
-          const p=g.zile[0];
+          events.push({type:'livrat',zi:g.zile[0].zi,pontaj:g.zile[0]});
+        } else {
+          // Grup de zile nelivrate — asociem cu comunicarea corespunzătoare (după dataStart)
+          const ziStart=g.zile[0].zi;
+          const ziEnd=g.zile[g.zile.length-1].zi;
+          const dataStart=String(ziStart).padStart(2,'0')+'.'+LC[_luna]+'.'+_an;
+          const com=comunicari.find(c=>c.dataStart===dataStart)||null;
+          events.push({type:'nelivrat',zi:ziStart,ziEnd,g,com});
+        }
+      });
+      // Sortare cronologică
+      events.sort((a,b)=>a.zi-b.zi);
+
+      // CSS exact din registru_avize.html pentru sheet-aviz și sheet-com
+      const CSS_S6=`
+        .sheet-aviz{width:210mm;min-height:297mm;padding:1.5cm;box-sizing:border-box;page-break-before:always;page-break-after:always;display:flex;flex-direction:column;font-family:"Times New Roman",Times,serif;font-size:12pt;line-height:1.15;color:#000;background:white;}
+        .antet-img{width:100%;height:auto;margin-bottom:10px;}
+        .tbl-header{width:100%;border-collapse:collapse;margin-bottom:15px;}
+        .tbl-header td{width:50%;vertical-align:top;border:1px solid #000;padding:10px;font-size:11pt;}
+        .nr-aviz-bloc{font-size:12pt;font-weight:bold;margin:8px 0 4px 0;}
+        .titlu-aviz{text-align:center;font-weight:bold;font-size:14pt;margin-top:5px;text-transform:uppercase;}
+        .data-aviz{text-align:center;font-size:12pt;margin:6px 0 16px 0;}
+        .tbl-prod{width:100%;border-collapse:collapse;margin-bottom:20px;}
+        .tbl-prod th,.tbl-prod td{border:1px solid #000;padding:7px;text-align:center;font-size:9.5pt;vertical-align:middle;}
+        .tbl-prod th{background:#f2f2f2;font-weight:bold;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+        .col-spec{text-align:left!important;line-height:1.3;}
+        .sect-text{font-size:10.5pt;margin-bottom:12px;}
+        .sect-text strong{display:block;margin-bottom:4px;text-decoration:underline;}
+        .sect-text p{margin:2px 0;padding-left:15px;}
+        .semnaturi{display:flex;justify-content:space-between;margin-top:30px;font-size:10.5pt;}
+        .semn-box{width:45%;text-align:center;}
+        .footer-aviz{margin-top:auto;border-top:1px solid #ccc;padding-top:5px;text-align:center;font-size:8.5pt;color:#333;}
+        .sheet-com{width:210mm;min-height:297mm;padding:2cm 2.5cm;box-sizing:border-box;page-break-before:always;page-break-after:always;font-family:"Times New Roman",Times,serif;font-size:12pt;line-height:1.15;color:#000;background:white;}
+        .com-antet{margin-bottom:15px;}
+        .com-firma{font-size:14pt;font-weight:bold;margin-bottom:4px;}
+        .com-det{font-size:9.5pt;color:#333;}
+        .com-nr{margin-top:8px;font-weight:bold;font-size:11.5pt;}
+        .com-sep{border:none;border-top:1px solid #1e40af;margin:14px 0;}
+        .com-dest{margin-bottom:18px;font-size:10.5pt;line-height:1.8;}
+        .com-titlu{text-align:center;font-size:15pt;font-weight:bold;text-transform:uppercase;margin:18px 0;letter-spacing:2px;}
+        .com-corp p{text-indent:1.25cm;text-align:justify;margin-bottom:10px;line-height:1.6;font-size:11pt;}
+        .com-corp p:first-child{text-indent:0;}
+        .com-semn{margin-top:35px;text-align:right;line-height:1.8;font-weight:bold;font-size:11pt;}
+        .com-data-semn{display:flex;justify-content:space-between;margin-top:45px;font-size:9.5pt;}
+      `;
+
+      const MENIU_CONFIG_S6={
+        1:'<strong>Meniu 1: Șnițel de pui cu garnitură, salată și pâine</strong><br>Carne: șnițel de pui (&gt;130 g) | Garnitură: cartofi la cuptor/piure (&gt;150 g)<br>Salată: salată de varză | Pâine: 3 felii | Ambalaj și tacâmuri',
+        2:'<strong>Meniu 2: Pulpă de pui cu garnitură, salată și pâine</strong><br>Carne: pulpă de pui la cuptor (&gt;130 g) | Garnitură: orez legume/cartofi (&gt;150 g)<br>Salată: salată varză/asortată | Pâine: 3 felii | Ambalaj și tacâmuri',
+        3:'<strong>Meniu 3: Hamburger de pui</strong><br>Carne: burger de pui (&gt;130 g) | Garnitură: cartofi pai (&gt;150 g)<br>Salată: legume | Pâine: chiflă | Ambalaj și tacâmuri',
+        4:'<strong>Meniu 4: Piept de pui cu garnitură, salată și pâine</strong><br>Carne: piept pui (&gt;130 g) | Garnitură: natur/piure (&gt;150 g)<br>Salată: varză/asortată | Pâine: 3 felii | Ambalaj și tacâmuri',
+        5:'<strong>Meniu 5: Mâncare cartofi cu carne porc, murături și pâine</strong><br>Carne: porc (&gt;130 g) | Garnitură: mâncărică cartofi (&gt;150 g)<br>Salată: murături asortate | Pâine: 3 felii | Ambalaj și tacâmuri'
+      };
+      const PRET_UNITAR=13.8;
+      const c2=SEC_COLORS[s.id]||{color:'#065f46',bg:'#ecfdf5',border:'#6ee7b7'};
+
+      for(const ev of events){
+        if(ev.type==='livrat'){
+          const p=ev.pontaj;
           const zi=String(p.zi).padStart(2,'0');
           const dataF=`${zi}.${LC[_luna]}.${_an}`;
+          const reg=regByZi[String(p.zi)];
+          const setari=setariByZi[String(p.zi)];
+          const cantitate=reg?.cantitate||p.valoare_aviz||0;
+          const nrAviz=reg?reg.nr:'—';
+          const tipMeniu=setari?.tip_meniu;
+          const valF=cantitate?(cantitate*PRET_UNITAR).toFixed(2):'0.00';
+          const specHtml=tipMeniu?(MENIU_CONFIG_S6[tipMeniu]||'Meniu nespecificat'):'Meniu nespecificat';
+
           const claseProf2={};
           _pontDet.filter(pd=>String(pd.zi)===String(p.zi)).forEach(pd=>{
             pd.clase_grupe.split(',').forEach(c=>{
@@ -1130,82 +1601,164 @@ async function genDosar(){
               if(pd.expert&&!claseProf2[cl].includes(pd.expert))claseProf2[cl].push(pd.expert);
             });
           });
-          if(Object.keys(claseProf2).length){
-            // Pagina Aviz zilnic
-            const c2=SEC_COLORS[s.id]||{color:'#065f46',bg:'#ecfdf5',border:'#6ee7b7'};
-            const claseList2=Object.keys(claseProf2).sort();
-            const totalPortii=p.valoare_aviz||0;
-            const avizRows2=claseList2.map(cl=>{
-              const profi=(claseProf2[cl]||[]).join(', ');
-              const nrEl=_eleviPerClasa[cl]!==undefined?_eleviPerClasa[cl]:'—';
-              return '<tr>'
-                +'<td style="border:1.5px solid '+c2.border+';padding:8px 14px;font-size:14pt;font-weight:700;color:'+c2.color+';">'+cl+'</td>'
-                +'<td style="border:1.5px solid '+c2.border+';padding:8px 14px;font-size:12pt;color:#374151;">'+profi+'</td>'
-                +'<td style="border:1.5px solid '+c2.border+';padding:8px 14px;font-size:14pt;font-weight:700;text-align:center;color:#1e293b;">'+nrEl+'</td>'
-                +'</tr>';
-            }).join('');
-            printHtml+=`<div class="print-aviz-page" style="border-color:${c2.border};">
-              <div class="print-aviz-tag" style="background:${c2.bg};color:${c2.color};border-color:${c2.border};">Aviz zilnic &nbsp;·&nbsp; ${dataF}</div>
-              <div class="print-aviz-title" style="color:${c2.color};">Aviz livrare masă caldă</div>
-              <div class="print-aviz-date" style="color:${c2.color};">${dataF}</div>
-              <table class="print-aviz-table" style="border-color:${c2.border};">
-                <thead><tr>
-                  <th style="border:1.5px solid ${c2.border};background:${c2.bg};color:${c2.color};padding:10px 14px;font-size:11pt;text-transform:uppercase;letter-spacing:1px;">Clasă/Grupă</th>
-                  <th style="border:1.5px solid ${c2.border};background:${c2.bg};color:${c2.color};padding:10px 14px;font-size:11pt;text-transform:uppercase;letter-spacing:1px;">Expert</th>
-                  <th style="border:1.5px solid ${c2.border};background:${c2.bg};color:${c2.color};padding:10px 14px;font-size:11pt;text-transform:uppercase;letter-spacing:1px;">Nr. elevi</th>
-                </tr></thead>
-                <tbody>${avizRows2}</tbody>
-                <tfoot><tr>
-                  <td colspan="2" style="border:1.5px solid ${c2.border};padding:10px 14px;font-size:13pt;font-weight:800;color:${c2.color};">TOTAL PORȚII LIVRATE</td>
-                  <td style="border:1.5px solid ${c2.border};padding:10px 14px;font-size:16pt;font-weight:900;text-align:center;color:${c2.color};">${totalPortii}</td>
-                </tr></tfoot>
-              </table>
+          const claseList=Object.keys(claseProf2).sort();
+          if(!claseList.length) continue;
+
+          // ===== PAGINA SUBSECȚIUNE AVIZ =====
+          printHtml+=`<div class="print-aviz-page" style="border-color:#0e7490;background:#ecfeff;">
+            <div class="print-aviz-tag" style="background:#cffafe;color:#0e7490;border-color:#0e7490;">📦 Aviz de însoțire &nbsp;·&nbsp; ${dataF}</div>
+            <div class="print-aviz-title" style="color:#0e7490;">Nr. ${nrAviz}</div>
+            <div class="print-aviz-date" style="color:#0e7490;">${dataF}</div>
+            <div style="font-size:13pt;color:#0e7490;font-weight:600;">${cantitate} porții</div>
+          </div>`;
+
+          // ===== AVIZ — exact ca în registru_avize.html =====
+          printHtml+=`<style>${CSS_S6}</style><div class="sheet-aviz">
+  <img src="${antetSrc}" alt="Antet PNRAS" class="antet-img">
+  <table class="tbl-header"><tr>
+    <td><strong>Furnizor: SC PROCONS IAȘI SRL</strong><br>Nr. ord. reg. com.: J22/294/23.02.2015<br>C.U.I.: 34138254<br>Sat Belcești, Nr. 370, Județul Iași</td>
+    <td><strong>Beneficiar: Liceul Tehnologic „Victor Mihăilescu Craiu" Belcești</strong><br>C.U.I.: 17130374<br>Comuna Belcești, Str. Principală, Nr. 1, Județul Iași</td>
+  </tr></table>
+  <div class="nr-aviz-bloc">Nr. ${nrAviz}/${dataF}</div>
+  <div class="titlu-aviz">AVIZ DE ÎNSOȚIRE A MĂRFII</div>
+  <div class="data-aviz">Data: ${dataF}</div>
+  <table class="tbl-prod">
+    <thead><tr>
+      <th style="width:5%">Nr. crt.</th>
+      <th style="width:50%">Specificația</th>
+      <th style="width:8%">U.M.</th>
+      <th style="width:10%">Cantitate</th>
+      <th style="width:12%">Preț unitar<br>(fără T.V.A.)</th>
+      <th style="width:15%">Valoare (lei)</th>
+    </tr></thead>
+    <tbody><tr>
+      <td>1</td>
+      <td class="col-spec">${specHtml}</td>
+      <td>buc.</td>
+      <td>${cantitate}</td>
+      <td>13,8</td>
+      <td>${valF}</td>
+    </tr></tbody>
+  </table>
+  <div class="sect-text"><strong>Mențiuni:</strong>
+    <p>1. Produsele sunt livrate conform contractului de prestări servicii de catering Nr. 143/06.12.2024;</p>
+    <p>2. Produsele sunt conforme din punct de vedere sanitar-veterinar;</p>
+    <p>3. Avizul însoțește marfa pe durata transportului;</p>
+  </div>
+  <div class="sect-text"><strong>Date privind expediția:</strong>
+    <p>1. Numele delegatului: Murariu Mirela; C.I. Seria MZ, Nr. 710839</p>
+    <p>2. Expedierea s-a efectuat în prezența noastră la data de ${dataF}, ora 13.30.</p>
+  </div>
+  <div class="semnaturi">
+    <div class="semn-box">Semnătura și ștampila furnizorului,<br><br><br>_______________________</div>
+    <div class="semn-box">Semnătura de primire,<br><strong>Liceul Tehnologic „Victor Mihăilescu Craiu"</strong><br><strong>Belcești</strong><br><br><strong>Pavel Ioan</strong><br>_______________________</div>
+  </div>
+  <div class="footer-aviz">„PNRR. Finanțat de Uniunea Europeană – UrmătoareaGenerațieUE"<br>https://mfe.gov.ro/pnrr/ | https://www.facebook.com/PNRROficial/</div>
+</div>`;
+
+          // ===== LISTE PREZENȚĂ + MASĂ PER CLASĂ =====
+          for(const cl of claseList){
+            const entry=_listeZiClasa[String(p.zi)+'|'+cl];
+            const profi=(claseProf2[cl]||[]).join(', ');
+            const nrElevi=_eleviPerClasa[cl]!==undefined?_eleviPerClasa[cl]:'';
+            const expertLipsa=profi||'expertul responsabil';
+            const c3=SEC_COLORS[s.id]||{color:'#065f46',bg:'#ecfdf5',border:'#6ee7b7'};
+            // Header placeholder — apare întotdeauna
+            printHtml+=`<div class="print-placeholder-page" style="border-color:${c3.border};">
+              <div class="print-ph-tag" style="background:${c3.bg};color:${c3.color};border-color:${c3.border};">S6 — Avize / Liste &nbsp;·&nbsp; ${dataF}</div>
+              <div class="print-ph-title" style="color:${c3.color};">Lista de prezență și lista de masă<br>pentru clasa / grupa <strong>${cl}</strong>${profi?'<br><span style="font-size:14pt;font-weight:400;">Prof. '+profi+'</span>':''}</div>
+              <div class="print-ph-box" style="border-color:${c3.border};color:${c3.color};">
+                <div style="margin-bottom:8px;">📋 <strong>Listă prezență</strong> — clasa/grupa <strong>${cl}</strong> — ${dataF}${nrElevi!==''?' — <strong>'+nrElevi+' elevi</strong>':''}</div>
+                <div>🍽️ <strong>Listă masă</strong> — clasa/grupa <strong>${cl}</strong> — ${dataF}</div>
+              </div>
             </div>`;
-            // Per clasă: dacă are liste încărcate → randez PDF; altfel → disclaimer
-            const claseList3=Object.keys(claseProf2).sort();
-            for(const cl of claseList3){
-              const entry=_listeZiClasa[String(p.zi)+'|'+cl];
-              const profi=(claseProf2[cl]||[]).join(', ');
-              const nrElevi=_eleviPerClasa[cl]!==undefined?_eleviPerClasa[cl]:'';
-              const c3=SEC_COLORS[s.id]||{color:'#065f46',bg:'#ecfdf5',border:'#6ee7b7'};
-              const expertLipsa=profi||'expertul responsabil';
-              // Header pagina lista — apare intotdeauna
+            if(entry&&(entry.prez||entry.masa)){
+              if(entry.prez&&entry.prez.public_url){
+                setSt('⏳ Se procesează lista de prezență '+cl+'...','load');
+                const imgsPrez=await getImgs('prez_'+entry.prez.id,entry.prez.public_url);
+                if(imgsPrez.length) imgsPrez.forEach(src=>{printHtml+=`<div class="print-pdf-page"><img src="${src}" style="width:100%;display:block;"></div>`;});
+                else printHtml+=`<div class="print-placeholder-page" style="border-color:${c3.border};"><div class="print-ph-tag" style="background:${c3.bg};color:${c3.color};">Listă prezență — ${cl} — ${dataF}</div><div class="print-ph-icon">⚠️</div><div class="print-ph-title" style="color:${c3.color};">Eroare la procesare PDF prezență</div></div>`;
+              }
+              if(entry.masa&&entry.masa.public_url){
+                setSt('⏳ Se procesează lista de masă '+cl+'...','load');
+                const imgsMasa=await getImgs('masa_'+entry.masa.id,entry.masa.public_url);
+                if(imgsMasa.length) imgsMasa.forEach(src=>{printHtml+=`<div class="print-pdf-page"><img src="${src}" style="width:100%;display:block;"></div>`;});
+                else printHtml+=`<div class="print-placeholder-page" style="border-color:${c3.border};"><div class="print-ph-tag" style="background:${c3.bg};color:${c3.color};">Listă masă — ${cl} — ${dataF}</div><div class="print-ph-icon">⚠️</div><div class="print-ph-title" style="color:${c3.color};">Eroare la procesare PDF masă</div></div>`;
+              }
+            } else {
               printHtml+=`<div class="print-placeholder-page" style="border-color:${c3.border};">
-                <div class="print-ph-tag" style="background:${c3.bg};color:${c3.color};border-color:${c3.border};">S6 — Avize / Liste &nbsp;·&nbsp; ${dataF}</div>
-                <div class="print-ph-title" style="color:${c3.color};">Lista de prezență și lista de masă<br>pentru clasa / grupa <strong>${cl}</strong>${profi?'<br><span style="font-size:14pt;font-weight:400;">Prof. '+profi+'</span>':''}</div>
+                <div class="print-ph-tag" style="background:${c3.bg};color:${c3.color};border-color:${c3.border};">S6 — Liste lipsă — ${dataF}</div>
+                <div class="print-ph-icon">⚠️</div>
+                <div class="print-ph-title" style="color:${c3.color};">Lipsesc listele pentru clasa <strong>${cl}</strong></div>
                 <div class="print-ph-box" style="border-color:${c3.border};color:${c3.color};">
-                  <div style="margin-bottom:8px;">📋 <strong>Listă prezență</strong> — clasa/grupa <strong>${cl}</strong> — ${dataF}${nrElevi!==''?' — <strong>'+nrElevi+' elevi</strong>':''}</div>
-                  <div>🍽️ <strong>Listă masă</strong> — clasa/grupa <strong>${cl}</strong> — ${dataF}</div>
+                  <div style="margin-bottom:12px;">📋 Încarcă <strong>lista de prezență</strong> pentru <strong>${cl}</strong>, <strong>${expertLipsa}</strong>, din data de <strong>${dataF}</strong></div>
+                  <div>🍽️ Încarcă <strong>lista de masă</strong> pentru <strong>${cl}</strong>, <strong>${expertLipsa}</strong>, din data de <strong>${dataF}</strong></div>
                 </div>
               </div>`;
-              if(entry&&(entry.prez||entry.masa)){
-                // Randez prezenta
-                if(entry.prez&&entry.prez.public_url){
-                  setSt('⏳ Se procesează lista de prezență '+cl+'...','load');
-                  const imgsPrez=await getImgs('prez_'+entry.prez.id,entry.prez.public_url);
-                  if(imgsPrez.length) imgsPrez.forEach(src=>{printHtml+=`<div class="print-pdf-page"><img src="${src}" style="width:100%;display:block;"></div>`;});
-                  else printHtml+=`<div class="print-placeholder-page" style="border-color:${c3.border};"><div class="print-ph-tag" style="background:${c3.bg};color:${c3.color};">Listă prezență — ${cl} — ${dataF}</div><div class="print-ph-icon">⚠️</div><div class="print-ph-title" style="color:${c3.color};">Eroare la procesare PDF prezență</div></div>`;
-                }
-                // Randez masa
-                if(entry.masa&&entry.masa.public_url){
-                  setSt('⏳ Se procesează lista de masă '+cl+'...','load');
-                  const imgsMasa=await getImgs('masa_'+entry.masa.id,entry.masa.public_url);
-                  if(imgsMasa.length) imgsMasa.forEach(src=>{printHtml+=`<div class="print-pdf-page"><img src="${src}" style="width:100%;display:block;"></div>`;});
-                  else printHtml+=`<div class="print-placeholder-page" style="border-color:${c3.border};"><div class="print-ph-tag" style="background:${c3.bg};color:${c3.color};">Listă masă — ${cl} — ${dataF}</div><div class="print-ph-icon">⚠️</div><div class="print-ph-title" style="color:${c3.color};">Eroare la procesare PDF masă</div></div>`;
-                }
-              } else {
-                // Disclaimer imediat dupa header — lipsesc listele
-                printHtml+=`<div class="print-placeholder-page" style="border-color:${c3.border};">
-                  <div class="print-ph-tag" style="background:${c3.bg};color:${c3.color};border-color:${c3.border};">S6 — Liste lipsă — ${dataF}</div>
-                  <div class="print-ph-icon">⚠️</div>
-                  <div class="print-ph-title" style="color:${c3.color};">Lipsesc listele pentru clasa <strong>${cl}</strong></div>
-                  <div class="print-ph-box" style="border-color:${c3.border};color:${c3.color};">
-                    <div style="margin-bottom:12px;">📋 Încarcă / Adaugă <strong>lista de prezență</strong> pentru <strong>${cl}</strong>, <strong>${expertLipsa}</strong>, din data de <strong>${dataF}</strong></div>
-                    <div>🍽️ Încarcă / Adaugă <strong>lista de masă</strong> pentru <strong>${cl}</strong>, <strong>${expertLipsa}</strong>, din data de <strong>${dataF}</strong></div>
-                  </div>
-                </div>`;
-              }
             }
+          }
+
+        } else {
+          // ===== COMUNICARE NELIVRARE =====
+          const ziStart=String(ev.zi).padStart(2,'0');
+          const ziEnd=ev.ziEnd?String(ev.ziEnd).padStart(2,'0'):null;
+          const dataStart=`${ziStart}.${LC[_luna]}.${_an}`;
+          const dataEnd=ziEnd?`${ziEnd}.${LC[_luna]}.${_an}`:null;
+          const perioada=dataEnd?`${dataStart} – ${dataEnd}`:dataStart;
+          const com=ev.com;
+          const c4=SEC_COLORS[s.id]||{color:'#065f46',bg:'#ecfdf5',border:'#6ee7b7'};
+
+          if(com){
+            const nrCom=com.nr||'—';
+            const dataCom=com.dataNr||dataStart;
+            const dest=com.destinatar||'Către: Liceul Tehnologic „Victor Mihăilescu Craiu" Belcești<br>În atenția: Domnului Director';
+            const titlu=com.titlu||'COMUNICARE';
+            const salut=com.salut||'Stimate Domnule Director,';
+            const p1=com.p1||`Subscrisa, SC PROCONS SRL, reprezentată legal prin doamna Mirela MURARIU, în calitate de administrator, vă aducem la cunoștință faptul că, din motive obiective, societatea noastră nu poate asigura livrarea serviciului de masă caldă în perioada <strong>${perioada}</strong>.`;
+            const p2=com.p2||'Menționăm că această situație este independentă de voința societății noastre și depunem toate diligențele necesare pentru remedierea în cel mai scurt timp a situației apărute, astfel încât activitatea să fie reluată în condiții normale.';
+            const p3=com.p3||'Ne cerem scuze pentru eventualele inconveniente create și vă asigurăm de întreaga noastră disponibilitate pentru identificarea unor soluții temporare, dacă se consideră necesar.';
+            const p4=com.p4||'Vă mulțumim pentru înțelegere.';
+            const semn=com.semn||'Cu stimă,<br>Administrator, Mirela MURARIU<br>SC PROCONS SRL';
+
+            // ===== PAGINA SUBSECȚIUNE COMUNICARE =====
+            printHtml+=`<div class="print-aviz-page" style="border-color:#7c3aed;background:#f5f3ff;">
+              <div class="print-aviz-tag" style="background:#ede9fe;color:#7c3aed;border-color:#7c3aed;">📄 Comunicare nelivrare &nbsp;·&nbsp; ${perioada}</div>
+              <div class="print-aviz-title" style="color:#7c3aed;">Nr. ${nrCom}</div>
+              <div class="print-aviz-date" style="color:#7c3aed;">${perioada}</div>
+            </div>`;
+
+            // Comunicare — exact ca în registru_avize.html
+            printHtml+=`<style>${CSS_S6}</style><div class="sheet-com">
+  <div class="com-antet">
+    <div class="com-firma">SC PROCONS SRL</div>
+    <div class="com-det">CIF: 34138254</div>
+    <div class="com-det">Sediul: SAT BELCESTI COM. BELCESTI, NR. 370 MANSARDA</div>
+    <div class="com-nr">Nr. ${nrCom}/${dataCom}</div>
+  </div>
+  <hr class="com-sep">
+  <div class="com-dest">${dest}</div>
+  <div class="com-titlu">${titlu}</div>
+  <div class="com-corp">
+    <p>${salut}</p>
+    <p>${p1}</p>
+    <p>${p2}</p>
+    <p>${p3}</p>
+    <p>${p4}</p>
+  </div>
+  <div class="com-semn">${semn}</div>
+  <div class="com-data-semn">
+    <span>Data: ${dataCom}</span>
+    <span>Semnătura și ștampila: ___________________</span>
+  </div>
+</div>`;
+          } else {
+            // Nu există comunicare salvată — placeholder
+            printHtml+=`<div class="print-placeholder-page" style="border-color:${c4.border};">
+              <div class="print-ph-tag" style="background:${c4.bg};color:${c4.color};border-color:${c4.border};">S6 — Comunicare nelivrare — ${perioada}</div>
+              <div class="print-ph-icon">⚠️</div>
+              <div class="print-ph-title" style="color:${c4.color};">Comunicare de nelivrare lipsă<br><span style="font-size:14pt;">${perioada}</span></div>
+              <div class="print-ph-box" style="border-color:${c4.border};color:${c4.color};">Generează comunicarea din Notă de Comandă, completează și salvează.</div>
+            </div>`;
           }
         }
       }
@@ -1233,10 +1786,9 @@ async function genDosar(){
         -webkit-print-color-adjust:exact;print-color-adjust:exact;
       }
       .print-pdf-page img{width:210mm;height:297mm;display:block;object-fit:contain;}
-      /* Coperta */
+      /* Coperta — fără linii verzi peste antet */
       .print-cover-page{display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:0 0 60px 0;border:10px solid #10b981;}
-      .print-cover-page::before,.print-cover-page::after{content:'';position:absolute;left:16px;right:16px;height:4px;background:#10b981;border-radius:2px;}
-      .print-cover-page::before{top:16px;}.print-cover-page::after{bottom:16px;}
+      .print-cover-page::before,.print-cover-page::after{display:none;}
       .print-cover-antet{width:100%;max-width:100%;object-fit:cover;object-position:center top;display:block;flex-shrink:0;}
       .print-cover-body{width:100%;padding:40px 80px 0 80px;box-sizing:border-box;display:flex;flex-direction:column;align-items:center;flex:1;}
       .print-cover-divider{width:120px;height:4px;background:#10b981;border-radius:2px;margin:28px 0;}
@@ -1264,7 +1816,7 @@ async function genDosar(){
       .print-ph-icon{font-size:44pt;margin-bottom:20px;}
       .print-ph-title{font-size:18pt;font-weight:800;text-align:center;margin-bottom:24px;line-height:1.4;}
       .print-ph-box{font-size:11pt;text-align:center;padding:20px 32px;border:2px solid;border-radius:10px;line-height:2;}
-      /* Aviz */
+      /* Aviz subsecțiune */
       .print-aviz-page{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 80px;border:6px solid;}
       .print-aviz-tag{font-size:10pt;font-weight:700;padding:6px 18px;border-radius:20px;border:1.5px solid;margin-bottom:28px;letter-spacing:1px;text-transform:uppercase;}
       .print-aviz-title{font-size:32pt;font-weight:900;text-align:center;margin-bottom:12px;}
@@ -1275,6 +1827,64 @@ async function genDosar(){
       .print-doc-ref-icon{font-size:44pt;margin-bottom:16px;}
       .print-doc-ref-name{font-size:16pt;font-weight:700;color:#1e293b;margin-bottom:12px;text-align:center;}
       .print-doc-ref-note{font-size:10pt;color:#64748b;text-align:center;}
+      /* doc-sheet — Raport, PV, Nota de comandă */
+      .doc-sheet{background:white;width:210mm;min-height:297mm;padding:1.5cm;
+        font-family:"Times New Roman",Times,serif;font-size:12pt;line-height:1.3;color:#000;
+        display:flex;flex-direction:column;box-shadow:0 4px 20px rgba(0,0,0,.4);
+        box-sizing:border-box;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+      .doc-antet{width:100%;height:auto;margin-bottom:10px;}
+      .doc-nr{margin-bottom:20px;font-size:12pt;}
+      .doc-input{border:none;border-bottom:1px dotted #000;background:transparent;font-family:inherit;font-size:12pt;text-align:center;display:inline-block;min-width:30px;}
+      .doc-titlu{text-align:center;font-weight:bold;font-size:14pt;margin:5px 0;text-transform:uppercase;}
+      .doc-subtitlu{text-align:center;font-weight:bold;font-size:13pt;margin-bottom:15px;}
+      .doc-alineat{text-align:justify;text-indent:1.5cm;margin-bottom:8px;}
+      .doc-lista{margin:5px 0 10px 0;padding-left:2.5cm;text-align:justify;}
+      .doc-table{width:100%;border-collapse:collapse;margin-top:10px;table-layout:fixed;}
+      .doc-table th,.doc-table td{border:1px solid #000;padding:5px;text-align:center;font-size:9pt;}
+      .doc-table th{background:#f2f2f2;font-weight:bold;}
+      .doc-table td.spec{text-align:left;}
+      .doc-semnaturi{display:flex;justify-content:space-between;margin-top:25px;}
+      .doc-box-sem{width:32%;text-align:center;font-size:10.5pt;}
+      .doc-centrat{text-align:center;width:100%;margin-top:20px;}
+      .doc-linie{margin-top:5px;border-top:1px solid #000;width:220px;margin-left:auto;margin-right:auto;}
+      .doc-membru{margin-bottom:15px;display:block;font-size:11pt;}
+      /* sheet-aviz și sheet-com — exact ca registru_avize */
+      .sheet-aviz{width:210mm;min-height:297mm;padding:1.5cm;box-sizing:border-box;
+        display:flex;flex-direction:column;font-family:"Times New Roman",Times,serif;
+        font-size:12pt;line-height:1.15;color:#000;background:white;
+        box-shadow:0 4px 20px rgba(0,0,0,.4);-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+      .antet-img{width:100%;height:auto;margin-bottom:10px;}
+      .tbl-header{width:100%;border-collapse:collapse;margin-bottom:15px;}
+      .tbl-header td{width:50%;vertical-align:top;border:1px solid #000;padding:10px;font-size:11pt;}
+      .nr-aviz-bloc{font-size:12pt;font-weight:bold;margin:8px 0 4px 0;}
+      .titlu-aviz{text-align:center;font-weight:bold;font-size:14pt;margin-top:5px;text-transform:uppercase;}
+      .data-aviz{text-align:center;font-size:12pt;margin:6px 0 16px 0;}
+      .tbl-prod{width:100%;border-collapse:collapse;margin-bottom:20px;}
+      .tbl-prod th,.tbl-prod td{border:1px solid #000;padding:7px;text-align:center;font-size:9.5pt;vertical-align:middle;}
+      .tbl-prod th{background:#f2f2f2;font-weight:bold;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+      .col-spec{text-align:left!important;line-height:1.3;}
+      .sect-text{font-size:10.5pt;margin-bottom:12px;}
+      .sect-text strong{display:block;margin-bottom:4px;text-decoration:underline;}
+      .sect-text p{margin:2px 0;padding-left:15px;}
+      .semnaturi{display:flex;justify-content:space-between;margin-top:30px;font-size:10.5pt;}
+      .semn-box{width:45%;text-align:center;}
+      .footer-aviz{margin-top:auto;border-top:1px solid #ccc;padding-top:5px;text-align:center;font-size:8.5pt;color:#333;}
+      .sheet-com{width:210mm;min-height:297mm;padding:2cm 2.5cm;box-sizing:border-box;
+        font-family:"Times New Roman",Times,serif;font-size:12pt;line-height:1.15;color:#000;
+        background:white;box-shadow:0 4px 20px rgba(0,0,0,.4);
+        -webkit-print-color-adjust:exact;print-color-adjust:exact;}
+      .com-antet{margin-bottom:15px;}
+      .com-firma{font-size:14pt;font-weight:bold;margin-bottom:4px;}
+      .com-det{font-size:9.5pt;color:#333;}
+      .com-nr{margin-top:8px;font-weight:bold;font-size:11.5pt;}
+      .com-sep{border:none;border-top:1px solid #1e40af;margin:14px 0;}
+      .com-dest{margin-bottom:18px;font-size:10.5pt;line-height:1.8;}
+      .com-titlu{text-align:center;font-size:15pt;font-weight:bold;text-transform:uppercase;margin:18px 0;letter-spacing:2px;}
+      .com-corp p{text-indent:1.25cm;text-align:justify;margin-bottom:10px;line-height:1.6;font-size:11pt;}
+      .com-corp p:first-child{text-indent:0;}
+      .com-semn{margin-top:35px;text-align:right;line-height:1.8;font-weight:bold;font-size:11pt;}
+      .com-data-semn{display:flex;justify-content:space-between;margin-top:45px;font-size:9.5pt;}
+      iframe{width:210mm;min-height:297mm;border:none;display:block;box-shadow:0 4px 20px rgba(0,0,0,.4);}
       @media print{
         @page{size:A4 portrait;margin:0;}
         .viewer-toolbar{display:none!important;}
@@ -1285,6 +1895,9 @@ async function genDosar(){
         }
         .print-pdf-page:last-child{page-break-after:avoid;break-after:avoid;}
         .print-pdf-page img{width:210mm;height:297mm;object-fit:contain;}
+        .doc-sheet,.sheet-doc{width:210mm;height:297mm;min-height:unset;box-shadow:none;page-break-after:always;break-after:page;page-break-inside:avoid;break-inside:avoid;overflow:hidden;margin:0!important;}
+        .sheet-aviz,.sheet-com{width:210mm;min-height:297mm;box-shadow:none;page-break-after:always;break-after:page;page-break-inside:avoid;break-inside:avoid;}
+        iframe{box-shadow:none;page-break-after:always;break-after:page;}
       }
     `;
     const standAlone=`<!DOCTYPE html><html lang="ro"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">${fonts}<style>${viewerCss}</style></head><body>`

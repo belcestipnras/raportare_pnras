@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comunicări Nelivrare - PNRAS</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: "Times New Roman", Times, serif; font-size: 12pt; background: #475569; display: flex; flex-direction: column; align-items: center; padding: 80px 20px 40px 20px; min-height: 100vh; }
+        .controls-print { position: fixed; top: 0; left: 0; right: 0; z-index: 1000; display: flex; gap: 12px; padding: 14px 24px; background: #1e293b; box-shadow: 0 2px 8px rgba(0,0,0,0.4); align-items: center; }
+        .controls-print button { padding: 12px 28px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 15px; }
+        .btn-print { background: #1e40af; color: white; }
+        .btn-close { background: #ef4444; color: white; }
+        .loading { color: white; font-size: 14pt; margin-top: 20px; }
+        .save-status { position: fixed; bottom: 15px; right: 15px; background: white; padding: 8px 16px; border-radius: 20px; border: 2px solid #10b981; font-weight: bold; font-size: 12px; display: none; z-index: 999; }
+        .page { background: white; width: min(210mm, 96vw); min-height: 297mm; margin: 0 0 30px 0; padding: 2cm 2.5cm; box-shadow: 0 0 20px rgba(0,0,0,0.3); page-break-after: always; box-sizing: border-box; }
+        .antet-box { margin-bottom: 15px; }
+        .firma-nume { font-size: 15pt; font-weight: bold; margin-bottom: 4px; }
+        .firma-detalii { font-size: 10pt; color: #333; }
+        .nr-inreg { margin-top: 8px; font-weight: bold; font-size: 12pt; }
+        .inp-nr { border: none; border-bottom: 1px solid #000; font-family: inherit; font-size: inherit; font-weight: bold; width: 50px; text-align: center; outline: none; background: transparent; }
+        .inp-data { border: none; border-bottom: 1px solid #000; font-family: inherit; font-size: inherit; font-weight: bold; width: 120px; text-align: center; outline: none; background: transparent; }
+        .separator { border: none; border-top: 1px solid #1e40af; margin: 15px 0; }
+        .destinatar { margin-bottom: 20px; font-size: 11pt; line-height: 1.8; }
+        .titlu { text-align: center; font-size: 16pt; font-weight: bold; text-transform: uppercase; margin: 20px 0; letter-spacing: 2px; }
+        .corp p { text-indent: 1.25cm; text-align: justify; margin-bottom: 10px; line-height: 1.6; }
+        .corp p:first-child { text-indent: 0; }
+        .semnatura-bloc { margin-top: 40px; text-align: right; line-height: 1.8; font-weight: bold; }
+        .data-semn { display: flex; justify-content: space-between; margin-top: 50px; font-weight: normal; font-size: 10pt; }
+        @media print {
+            @page { size: A4 portrait; margin: 0; }
+            body { background: white; padding: 0; display: block; }
+            .controls-print, .save-status { display: none !important; }
+            .page { margin: 0; box-shadow: none; width: 100%; padding: 1.5cm 2cm; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="controls-print">
+    <button class="btn-print" onclick="window.print()">🖨️ Printează</button>
+    <button class="btn-close" onclick="history.back()">✕ Închide</button>
+</div>
+<div class="save-status" id="save-status">Se salvează...</div>
+<div class="loading" id="loading">⏳ Se încarcă comunicările...</div>
+
+<script>
+const URL_S = 'https://aexjrbdgajurxzngfkpx.supabase.co';
+const KEY_S = 'sb_publishable_KPV__0BA9z4EvRl5eqC0FQ_hmBLOLYv';
+const sb = supabase.createClient(URL_S, KEY_S);
+
+const params = new URLSearchParams(window.location.search);
+const luna = params.get('luna') || '';
+const targetIdx = params.get('idx') !== null ? parseInt(params.get('idx')) : null;
+const an = parseInt(params.get('an') || '2025');
+
+const luniMap = {"Ianuarie":"01","Februarie":"02","Martie":"03","Aprilie":"04","Mai":"05",
+                 "Iunie":"06","Iulie":"07","August":"08","Septembrie":"09",
+                 "Octombrie":"10","Noiembrie":"11","Decembrie":"12"};
+const luniNames = ["Ianuarie","Februarie","Martie","Aprilie","Mai","Iunie",
+                   "Iulie","August","Septembrie","Octombrie","Noiembrie","Decembrie"];
+
+let comData = [];
+let saveTimer = null;
+const docId = 'COMUNICARE_' + an + '_' + luna;
+
+function suntConsecutive(zi1, zi2, luna, an) {
+    let d = new Date(an, luniNames.indexOf(luna), zi1);
+    d.setDate(d.getDate() + 1);
+    while (d.getDay() === 0) d.setDate(d.getDate() + 1);
+    return d.getDate() === zi2;
+}
+
+function grupeazaZile(zile, luna, an) {
+    if (zile.length === 0) return [];
+    const grupuri = [];
+    let grupCurent = [zile[0]];
+    for (let i = 1; i < zile.length; i++) {
+        if (suntConsecutive(grupCurent[grupCurent.length-1], zile[i], luna, an)) {
+            grupCurent.push(zile[i]);
+        } else {
+            grupuri.push([...grupCurent]);
+            grupCurent = [zile[i]];
+        }
+    }
+    grupuri.push([...grupCurent]);
+    return grupuri;
+}
+
+function formatData(zi, luna) {
+    return zi.toString().padStart(2,'0') + '.' + (luniMap[luna]||'00') + '.' + an;
+}
+
+async function saveCloud() {
+    const st = document.getElementById('save-status');
+    st.style.display = 'block'; st.innerText = 'Se salvează...';
+    try {
+        await fetch(URL_S + '/rest/v1/planificari_documente?on_conflict=tip_document', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'apikey': KEY_S, 'Authorization': 'Bearer ' + KEY_S, 'Prefer': 'return=minimal,resolution=merge-duplicates' },
+            body: JSON.stringify({ tip_document: docId, an, luna, continut_json: { comunicari: comData }, expert: 'AUTOSAVE' })
+        });
+        st.innerText = 'Salvat ✓';
+        setTimeout(() => { st.style.display = 'none'; }, 1500);
+    } catch(e) { st.innerText = 'Eroare salvare'; }
+}
+
+async function init() {
+    document.title = 'Comunicări Nelivrare — ' + luna + ' ' + an;
+
+    // 1. Preia zilele fără masă
+    const { data: pontajData } = await sb.from('pontaj_detaliat')
+        .select('zi').eq('an', an).eq('luna', luna).eq('fara_masa', true);
+
+    const zileFaraMasa = [...new Set((pontajData || []).map(r => r.zi))].sort((a,b) => a-b);
+    if (zileFaraMasa.length === 0) {
+        document.getElementById('loading').textContent = 'Nu există zile fără masă pentru ' + luna + ' ' + an + '.';
+        return;
+    }
+
+    const grupuri = grupeazaZile(zileFaraMasa, luna, an);
+
+    // 2. Preia datele salvate
+    const { data: savedDoc } = await sb.from('planificari_documente')
+        .select('continut_json').eq('tip_document', docId).maybeSingle();
+    const savedComunicari = savedDoc?.continut_json?.comunicari || [];
+
+    // 3. Preia numerele din registru_documente
+    const { data: regRows } = await sb.from('registru_documente')
+        .select('nr, data_doc, referinta')
+        .eq('tip', 'COMUNICARE').eq('an', an).eq('luna', luna)
+        .order('nr', { ascending: true });
+
+    // 4. Construiește comData
+    comData = grupuri.map((grup, idx) => {
+        const dataStart = formatData(grup[0], luna);
+        const dataEnd = grup.length > 1 ? formatData(grup[grup.length-1], luna) : null;
+        const obj = { idx, dataStart, dataEnd, nr: '', dataNr: '' };
+        // Restaurează datele salvate
+        const saved = savedComunicari.find(s => s.idx === idx);
+        if (saved) {
+            ['dataNr','destinatar','titlu','salut','p1','p2','p3','p4','semn'].forEach(f => {
+                if (saved[f]) obj[f] = saved[f];
+            });
+        }
+        // Restaurează nr din registru
+        const refKey = 'COMUNICARE_' + an + '_' + luna + '_' + idx;
+        const reg = (regRows || []).find(r => r.referinta === refKey);
+        if (reg) {
+            obj.nr = String(reg.nr);
+            if (!obj.dataNr) obj.dataNr = reg.data_doc || '';
+        }
+        return obj;
+    });
+
+    // 5. Randează paginile
+    document.getElementById('loading').remove();
+
+    comData.forEach((com, i) => {
+        const perioada = com.dataEnd ? (com.dataStart + ' – ' + com.dataEnd) : com.dataStart;
+        const nrVal = com.nr || '';
+        const dataNrVal = com.dataNr || '';
+
+        const defDest = 'Către: Liceul Tehnologic „Victor Mihăilescu Craiu" Belcești<br>În atenția: Domnului Director';
+        const defSalut = 'Stimate Domnule Director,';
+        const defP1 = 'Subscrisa, SC PROCONS SRL, reprezentată legal prin doamna Mirela MURARIU, în calitate de administrator, vă aducem la cunoștință faptul că, din motive obiective, societatea noastră nu poate asigura livrarea serviciului de masă caldă în perioada <strong>' + perioada + '</strong>.';
+        const defP2 = 'Menționăm că această situație este independentă de voința societății noastre și depunem toate diligențele necesare pentru remedierea în cel mai scurt timp a situației apărute, astfel încât activitatea să fie reluată în condiții normale.';
+        const defP3 = 'Ne cerem scuze pentru eventualele inconveniente create și vă asigurăm de întreaga noastră disponibilitate pentru identificarea unor soluții temporare, dacă se consideră necesar.';
+        const defP4 = 'Vă mulțumim pentru înțelegere.';
+        const defSemn = 'Cu stimă,<br>Administrator, Mirela MURARIU<br>SC PROCONS SRL';
+
+        const page = document.createElement('div');
+        page.className = 'page';
+        page.id = 'page-' + i;
+        page.innerHTML =
+            '<div class="antet-box">' +
+                '<div class="firma-nume">SC PROCONS SRL</div>' +
+                '<div class="firma-detalii">CIF: 34138254</div>' +
+                '<div class="firma-detalii">Sediul: SAT BELCESTI COM. BELCESTI, NR. 370 MANSARDA</div>' +
+                '<div class="nr-inreg">Nr. <input type="text" class="inp-nr" data-idx="' + i + '" data-field="nr" value="' + nrVal + '"> / <input type="text" class="inp-data" data-idx="' + i + '" data-field="dataNr" value="' + dataNrVal + '"></div>' +
+            '</div>' +
+            '<hr class="separator">' +
+            '<div class="destinatar" contenteditable="true" data-idx="' + i + '" data-field="destinatar">' + (com.destinatar || defDest) + '</div>' +
+            '<div class="titlu" contenteditable="true" data-idx="' + i + '" data-field="titlu">' + (com.titlu || 'COMUNICARE') + '</div>' +
+            '<div class="corp">' +
+                '<p contenteditable="true" data-idx="' + i + '" data-field="salut">' + (com.salut || defSalut) + '</p>' +
+                '<p contenteditable="true" data-idx="' + i + '" data-field="p1">' + (com.p1 || defP1) + '</p>' +
+                '<p contenteditable="true" data-idx="' + i + '" data-field="p2">' + (com.p2 || defP2) + '</p>' +
+                '<p contenteditable="true" data-idx="' + i + '" data-field="p3">' + (com.p3 || defP3) + '</p>' +
+                '<p contenteditable="true" data-idx="' + i + '" data-field="p4">' + (com.p4 || defP4) + '</p>' +
+            '</div>' +
+            '<div class="semnatura-bloc" contenteditable="true" data-idx="' + i + '" data-field="semn">' + (com.semn || defSemn) + '</div>' +
+            '<div class="data-semn"><span>Data: <span id="data-auto-' + i + '">' + dataNrVal + '</span></span><span>Semnătura și ștampila: ___________________</span></div>';
+
+        document.body.appendChild(page);
+    });
+
+    // Event listeners — salvare la modificare
+    document.querySelectorAll('.inp-nr, .inp-data').forEach(inp => {
+        inp.addEventListener('input', () => {
+            comData[parseInt(inp.dataset.idx)][inp.dataset.field] = inp.value;
+            if (inp.dataset.field === 'dataNr') {
+                const el = document.getElementById('data-auto-' + inp.dataset.idx);
+                if (el) el.innerText = inp.value;
+            }
+            clearTimeout(saveTimer);
+            saveTimer = setTimeout(saveCloud, 1500);
+        });
+    });
+    document.querySelectorAll('[contenteditable][data-field]').forEach(ce => {
+        ce.addEventListener('input', () => {
+            comData[parseInt(ce.dataset.idx)][ce.dataset.field] = ce.innerHTML;
+            clearTimeout(saveTimer);
+            saveTimer = setTimeout(saveCloud, 1500);
+        });
+    });
+
+    // Scroll la comunicarea cu indexul cerut
+    if (targetIdx !== null && targetIdx >= 0) {
+        setTimeout(() => {
+            const el = document.getElementById('page-' + targetIdx);
+            if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 200);
+    }
+}
+
+init();
+</script>
+</body>
+</html>
