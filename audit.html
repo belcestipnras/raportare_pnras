@@ -1432,8 +1432,16 @@ async function r2DeleteFile(publicUrl, bucketKey) {
             if (allDocs.length === 0) {
                 html += '<div class="empty">Nu există documente încărcate pentru acest stat de plată.</div>';
             } else {
+                const LISTA_SALARII_ORDINE = ['Foaie de pontaj colectiv', 'Stat de plată', 'ALOP', 'Ordin de plată', 'Extras de cont'];
+                const docsSortate = [...allDocs].sort((a, b) => {
+                    const iA = LISTA_SALARII_ORDINE.indexOf(a.tip_document);
+                    const iB = LISTA_SALARII_ORDINE.indexOf(b.tip_document);
+                    const orderA = iA === -1 ? 999 : iA;
+                    const orderB = iB === -1 ? 999 : iB;
+                    return orderA - orderB;
+                });
                 html += '<div class="file-list">';
-                allDocs.forEach((f, idx) => {
+                docsSortate.forEach((f, idx) => {
                     const tipDoc = f.tip_document || 'Document';
                     const numeFisier = f.nume_fisier || 'Fișier';
                     const link = f.link_drive || '';
