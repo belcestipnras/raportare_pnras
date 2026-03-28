@@ -210,13 +210,15 @@ body{font-family:'Inter',sans-serif;background:#0f172a;color:#e2e8f0;min-height:
   .print-cover-opis-label{flex:1;}
 
   .print-sec-page{
-    width:100%;min-height:100vh;box-sizing:border-box;
+    width:210mm;height:297mm;box-sizing:border-box;
     display:flex;flex-direction:column;align-items:center;justify-content:center;
     page-break-after:always;break-after:page;
+    page-break-inside:avoid;break-inside:avoid;
     border:8px solid;border-radius:0;
     background:#fff;
     padding:60px 80px;
     font-family:'Inter',Arial,sans-serif;
+    overflow:hidden;
   }
   .print-sec-num{font-size:16pt;font-weight:900;letter-spacing:4px;text-transform:uppercase;margin-bottom:28px;}
   .print-sec-icon{font-size:56pt;margin-bottom:20px;}
@@ -225,13 +227,15 @@ body{font-family:'Inter',sans-serif;background:#0f172a;color:#e2e8f0;min-height:
   .print-sec-sub{font-size:12pt;font-weight:600;text-align:center;letter-spacing:1px;}
 
   .print-placeholder-page{
-    width:100%;min-height:100vh;box-sizing:border-box;
+    width:210mm;height:297mm;box-sizing:border-box;
     display:flex;flex-direction:column;align-items:center;justify-content:center;
     page-break-after:always;break-after:page;
+    page-break-inside:avoid;break-inside:avoid;
     border:3px dashed;
     background:#fff;
     padding:60px 80px;
     font-family:'Inter',Arial,sans-serif;
+    overflow:hidden;
   }
   .print-ph-tag{font-size:9pt;font-weight:700;padding:5px 14px;border-radius:20px;border:1.5px solid;margin-bottom:32px;letter-spacing:1px;text-transform:uppercase;}
   .print-ph-icon{font-size:44pt;margin-bottom:20px;}
@@ -240,28 +244,35 @@ body{font-family:'Inter',sans-serif;background:#0f172a;color:#e2e8f0;min-height:
   .print-ph-box{font-size:11pt;text-align:center;padding:20px 32px;border:2px solid;border-radius:10px;line-height:2;}
 
   .print-doc-ref{
-    width:100%;min-height:100vh;box-sizing:border-box;
+    width:210mm;height:297mm;box-sizing:border-box;
     display:flex;flex-direction:column;align-items:center;justify-content:center;
     page-break-after:always;break-after:page;
+    page-break-inside:avoid;break-inside:avoid;
     background:#fff;padding:60px 80px;
     font-family:'Inter',Arial,sans-serif;
+    overflow:hidden;
   }
   .print-doc-ref-icon{font-size:44pt;margin-bottom:16px;}
   .print-doc-ref-name{font-size:16pt;font-weight:700;color:#1e293b;margin-bottom:12px;text-align:center;}
   .print-doc-ref-note{font-size:10pt;color:#64748b;text-align:center;}
   .print-pdf-page{
-    width:100%;box-sizing:border-box;
+    width:210mm;height:297mm;box-sizing:border-box;
     page-break-after:always;break-after:page;
+    page-break-inside:avoid;break-inside:avoid;
     background:#fff;
+    overflow:hidden;
   }
-  .print-pdf-page img{width:100%;height:auto;display:block;}
+  .print-pdf-page:last-child{page-break-after:avoid;break-after:avoid;}
+  .print-pdf-page img{width:210mm;height:297mm;display:block;object-fit:contain;}
   .print-aviz-page{
-    width:100%;min-height:100vh;box-sizing:border-box;
+    width:210mm;height:297mm;box-sizing:border-box;
     display:flex;flex-direction:column;align-items:center;justify-content:center;
     page-break-after:always;break-after:page;
+    page-break-inside:avoid;break-inside:avoid;
     border:6px solid;background:#fff;
     padding:60px 80px;
     font-family:'Inter',Arial,sans-serif;
+    overflow:hidden;
     -webkit-print-color-adjust:exact;print-color-adjust:exact;
   }
   .print-aviz-tag{font-size:10pt;font-weight:700;padding:6px 18px;border-radius:20px;border:1.5px solid;margin-bottom:28px;letter-spacing:1px;text-transform:uppercase;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
@@ -1221,7 +1232,7 @@ async function genDosar(){
         box-sizing:border-box;position:relative;overflow:hidden;
         -webkit-print-color-adjust:exact;print-color-adjust:exact;
       }
-      .print-pdf-page img{width:100%;height:auto;display:block;}
+      .print-pdf-page img{width:210mm;height:297mm;display:block;object-fit:contain;}
       /* Coperta */
       .print-cover-page{display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:0 0 60px 0;border:10px solid #10b981;}
       .print-cover-page::before,.print-cover-page::after{content:'';position:absolute;left:16px;right:16px;height:4px;background:#10b981;border-radius:2px;}
@@ -1270,8 +1281,10 @@ async function genDosar(){
         body{background:#fff;padding:0;}
         .viewer-pages{padding:0;gap:0;}
         .print-sec-page,.print-placeholder-page,.print-cover-page,.print-pdf-page,.print-aviz-page,.print-doc-ref{
-          width:210mm;min-height:297mm;box-shadow:none;page-break-after:always;break-after:page;
+          width:210mm;height:297mm;box-shadow:none;page-break-after:always;break-after:page;page-break-inside:avoid;break-inside:avoid;overflow:hidden;
         }
+        .print-pdf-page:last-child{page-break-after:avoid;break-after:avoid;}
+        .print-pdf-page img{width:210mm;height:297mm;object-fit:contain;}
       }
     `;
     const standAlone=`<!DOCTYPE html><html lang="ro"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">${fonts}<style>${viewerCss}</style></head><body>`
@@ -1314,11 +1327,26 @@ async function genDosar(){
   }
 }
 
+async function stergeDosarSalvat(){
+  if(!confirm(`Ștergi dosarul salvat pentru ${_luna} ${_an}?`)) return;
+  const tipD=`DOSAR_MASA_${_luna}_${_an}`;
+  const{data}=await db.from('documente_contract').select('id,link_drive').eq('contract_id',CTR_ID).eq('tip_document',tipD);
+  if(data&&data.length){
+    for(const v of data){ if(v.link_drive) await r2Del(v.link_drive); }
+    await db.from('documente_contract').delete().eq('contract_id',CTR_ID).eq('tip_document',tipD);
+  }
+  const printDiv=document.getElementById('print-dosar-container');
+  if(printDiv) printDiv.remove();
+  const panel=document.getElementById('dosar-salvat-header');
+  if(panel) panel.innerHTML=`<span class="btn-dosar-salvat-empty">📂 Niciun dosar salvat</span>`;
+  setSt('🗑️ Dosar șters.','ok');
+}
+
 async function renderDosarSalvat(tipD,url){
-  // Actualizează panoul dosar salvat din sidebar
   const panel=document.getElementById('dosar-salvat-header');
   if(!panel)return;
-  panel.innerHTML=`<a href="${url}" target="_blank" class="btn btn-dosar-salvat" style="text-decoration:none;">📂 DOSAR SALVAT — ${_luna} ${_an}</a>`;
+  panel.innerHTML=`<a href="${url}" target="_blank" class="btn btn-dosar-salvat" style="text-decoration:none;">📂 DOSAR SALVAT — ${_luna} ${_an}</a>`
+    +`<button class="btn" style="background:#7f1d1d;color:#fca5a5;font-size:11px;padding:6px 10px;" onclick="stergeDosarSalvat()" title="Șterge dosarul salvat">🗑️</button>`;
 }
 
 async function loadDosarSalvat(){
@@ -1329,7 +1357,8 @@ async function loadDosarSalvat(){
   if(data&&data.length&&data[0].link_drive){
     const d=data[0];
     const dataF=d.data_upload?new Date(d.data_upload).toLocaleDateString('ro-RO',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}):'';
-    panel.innerHTML=`<a href="${d.link_drive}" target="_blank" class="btn btn-dosar-salvat" title="Generat: ${dataF}" style="text-decoration:none;">📂 DOSAR SALVAT — ${_luna} ${_an}</a>`;
+    panel.innerHTML=`<a href="${d.link_drive}" target="_blank" class="btn btn-dosar-salvat" title="Generat: ${dataF}" style="text-decoration:none;">📂 DOSAR SALVAT — ${_luna} ${_an}</a>`
+      +`<button class="btn" style="background:#7f1d1d;color:#fca5a5;font-size:11px;padding:6px 10px;" onclick="stergeDosarSalvat()" title="Șterge dosarul salvat">🗑️</button>`;
   } else {
     panel.innerHTML=`<span class="btn-dosar-salvat-empty">📂 Niciun dosar salvat</span>`;
   }
