@@ -110,7 +110,7 @@
             }
 
             .stat-item { display: flex; flex-direction: column; gap: 1px; }
-            .stat-label { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: #64748b; }
+            .stat-label { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: #1e293b; }
             .stat-value { font-size: 17px; font-weight: 800; color: var(--deep-blue); }
             .stat-divider { width: 1px; height: 28px; background: #e2e8f0; }
 
@@ -216,7 +216,7 @@
                 font-weight: 600;
                 text-transform: uppercase;
                 letter-spacing: 0.5px;
-                color: #94a3b8;
+                color: #1e293b;
             }
 
             /* ── VIEW: tabel lună (cu buton înapoi) ── */
@@ -377,7 +377,7 @@
         .coperta-subtitlu {
             font-size: 12px;
             font-weight: 500;
-            color: #475569;
+            color: #1e293b;
             margin: 0 0 10mm 0;
             letter-spacing: 0.5px;
         }
@@ -393,7 +393,7 @@
         .coperta-an {
             font-size: 17px;
             font-weight: 600;
-            color: #64748b;
+            color: #1e293b;
             margin: 0 0 12mm 0;
         }
 
@@ -428,7 +428,7 @@
             font-weight: 600;
             text-transform: uppercase;
             letter-spacing: 1px;
-            color: #94a3b8;
+            color: #1e293b;
         }
 
         .coperta-stat-divider {
@@ -443,7 +443,7 @@
             padding-top: 8mm;
             border-top: 1px solid #e2e8f0;
             font-size: 7.5px;
-            color: #94a3b8;
+            color: #1e293b;
             text-align: center;
             letter-spacing: 0.5px;
         }
@@ -497,7 +497,7 @@
 
         .activ-loading {
             font-size: 8px;
-            color: #94a3b8;
+            color: #1e293b;
             font-style: italic;
             padding: 6px 0;
         }
@@ -512,7 +512,7 @@
             text-transform: uppercase;
             letter-spacing: 1px;
             color: var(--deep-blue);
-            margin: 6px 0 8px 0;
+            margin: 28px 0 8px 0;
             padding-bottom: 5px;
             border-bottom: 2px solid var(--border-blue);
         }
@@ -523,7 +523,7 @@
         .pontaj-table {
             border-collapse: collapse;
             width: 100%;
-            font-size: 9px;
+            font-size: 11px;
             font-weight: 600;
             font-family: 'Inter', sans-serif;
         }
@@ -532,19 +532,19 @@
         .pontaj-table thead tr:first-child th {
             background: var(--deep-blue);
             color: white;
-            padding: 2px 1px;
+            padding: 3px 1px;
             text-align: center;
             font-weight: 700;
-            font-size: 8.5px;
+            font-size: 10px;
             border: 0.5px solid #2d4a9e;
         }
 
         .pontaj-table thead tr:first-child th.col-expert {
             text-align: left;
-            padding-left: 4px;
-            font-size: 8px;
-            min-width: 110px;
-            width: 110px;
+            padding-left: 6px;
+            font-size: 10px;
+            min-width: 140px;
+            width: 140px;
         }
 
         .pontaj-table thead tr:first-child th.col-total {
@@ -560,7 +560,7 @@
         /* Header rând 2 - litere zile */
         .pontaj-table thead tr.subheader th {
             background: #f0f4ff;
-            color: #334155;
+            color: #1e293b;
             padding: 1px;
             text-align: center;
             font-size: 8px;
@@ -587,14 +587,14 @@
             text-align: center;
             vertical-align: middle;
             border: 0.5px solid #e8eef8;
-            height: 16px;
+            height: 22px;
         }
 
         .pontaj-table td.col-expert {
             text-align: left;
-            padding: 1px 4px;
+            padding: 2px 6px;
             font-weight: 700;
-            font-size: 9px;
+            font-size: 11px;
             color: #1e293b;
             white-space: nowrap;
             background: #f8fafc;
@@ -617,7 +617,7 @@
 
         .pontaj-table td.col-total .ore-val {
             font-size: 8px;
-            color: #64748b;
+            color: #1e293b;
             font-weight: 600;
             display: block;
         }
@@ -666,7 +666,7 @@
         /* Sumar sub tabel */
         .luna-sumar {
             font-size: 7.5px;
-            color: #475569;
+            color: #1e293b;
             margin-top: 4px;
             text-align: right;
             width: 100%;
@@ -676,7 +676,7 @@
         .nr-inreg {
             font-size: 13px;
             font-weight: 600;
-            color: #334155;
+            color: #1e293b;
             margin-bottom: 5px;
             text-align: left;
             width: 100%;
@@ -684,7 +684,6 @@
 
         .nr-inreg input {
             border: none;
-            border-bottom: 1.5px solid #94a3b8;
             background: transparent;
             font-size: 13px;
             font-weight: 700;
@@ -696,7 +695,7 @@
 
         @media print {
             .nr-inreg input {
-                border-bottom: 1px solid #334155;
+                border: none;
             }
         }
 
@@ -719,21 +718,18 @@
         .semnatura-titlu {
             font-size: 8px;
             font-weight: 600;
-            color: #475569;
+            color: #1e293b;
             text-transform: uppercase;
             letter-spacing: 0.5px;
             margin-bottom: 2px;
         }
 
         .semnatura-linie {
-            width: 100%;
-            height: 1px;
-            background: #334155;
-            margin: 6mm 0 3px 0;
+            display: none;
         }
 
         .semnatura-nume {
-            font-size: 8px;
+            font-size: 11px;
             font-weight: 700;
             color: #1e293b;
             text-align: center;
@@ -741,7 +737,7 @@
 
         .semnatura-functie {
             font-size: 7px;
-            color: #64748b;
+            color: #1e293b;
             text-align: center;
             font-style: italic;
         }
@@ -750,7 +746,7 @@
         .empty-state {
             text-align: center;
             padding: 60px 20px;
-            color: #94a3b8;
+            color: #1e293b;
             font-size: 14px;
         }
 
@@ -797,6 +793,26 @@
     let g_an   = 2025;
     let g_data = [];
     let g_lunaSelectata = null; // null = dashboard
+    let g_nrInreg = {}; // { luna: 'valoare' }
+    let g_nrInregTimer = null;
+
+    async function saveNrInreg(luna, valoare) {
+        clearTimeout(g_nrInregTimer);
+        g_nrInregTimer = setTimeout(async () => {
+            await _supabase
+                .from('pontaj_nr_inregistrare')
+                .upsert({ an: g_an, luna, nr_inregistrare: valoare }, { onConflict: 'an,luna' });
+        }, 800);
+    }
+
+    async function loadNrInreg() {
+        const { data } = await _supabase
+            .from('pontaj_nr_inregistrare')
+            .select('luna, nr_inregistrare')
+            .eq('an', g_an);
+        g_nrInreg = {};
+        if (data) data.forEach(r => { g_nrInreg[r.luna] = r.nr_inregistrare; });
+    }
 
     let g_index      = {};
     let g_experti    = [];
@@ -862,6 +878,7 @@
         }
 
         g_data = data || [];
+        await loadNrInreg();
         buildIndex();
         showDashboard();
     }
@@ -1052,9 +1069,15 @@
         page.appendChild(wrapper);
 
         wrapper.innerHTML = `
-            <img src="antet_pnras.jpeg" class="antet-img" onerror="this.style.display='none'">
-            <div class="nr-inreg"><input type="text" placeholder="Nr. _______ / _______"></div>
+            <img src="https://aexjrbdgajurxzngfkpx.supabase.co/storage/v1/object/public/arhiva_pnras/antet_pnras_landscape.jpeg" class="antet-img" onerror="this.style.display='none'">
+            <div class="nr-inreg"><input type="text" placeholder="Nr. _______ / _______" value="${g_nrInreg[luna] || ''}"></div>
         `;
+
+        // Salvează valoarea la fiecare modificare
+        wrapper.querySelector('.nr-inreg input').addEventListener('input', function() {
+            g_nrInreg[luna] = this.value;
+            saveNrInreg(luna, this.value);
+        });
 
         const titlu = document.createElement('div');
         titlu.className = 'titlu-luna';
