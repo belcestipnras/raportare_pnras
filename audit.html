@@ -1520,7 +1520,12 @@ async function r2DeleteFile(publicUrl, bucketKey) {
 
             if (fisiere.length > 0) {
                 html += '<div class="check-files-list">';
-                fisiere.forEach(f => {
+                const fisiereSortate = [...fisiere].sort((a, b) => {
+                    const dA = a.data_inregistrare ? new Date(a.data_inregistrare) : new Date(0);
+                    const dB = b.data_inregistrare ? new Date(b.data_inregistrare) : new Date(0);
+                    return dA - dB;
+                });
+                fisiereSortate.forEach(f => {
                     if (!f.link_drive) return;
                     const titluSafe = titlu.replace(/'/g, "\\'");
                     html += '<div class="check-file-row">';
@@ -1544,7 +1549,12 @@ async function r2DeleteFile(publicUrl, bucketKey) {
                     '<span class="check-icon">📄</span><span class="check-name">' + tip + '</span></div>';
                 if (fisiere.length > 0) {
                     html += '<div class="check-files-list">';
-                    fisiere.forEach(f => {
+                    const fisiereSortateExtra = [...fisiere].sort((a, b) => {
+                        const dA = a.data_inregistrare ? new Date(a.data_inregistrare) : new Date(0);
+                        const dB = b.data_inregistrare ? new Date(b.data_inregistrare) : new Date(0);
+                        return dA - dB;
+                    });
+                    fisiereSortateExtra.forEach(f => {
                         if (!f.link_drive) return;
                         const titluSafe = titlu.replace(/'/g, "\\'");
                         html += '<div class="check-file-row">';
