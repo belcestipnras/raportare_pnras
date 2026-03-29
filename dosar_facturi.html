@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dosar Facturi</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Montserrat:wght@700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Inter',sans-serif;background:#0f172a;color:#e2e8f0;min-height:100vh;}
+
+/* ===== INDEX ===== */
+#view-index{padding:36px 20px;}
+.idx-header{text-align:center;margin-bottom:28px;}
+.idx-title{font-family:'Montserrat',sans-serif;font-size:24px;font-weight:800;color:#f59e0b;letter-spacing:2px;text-transform:uppercase;margin-bottom:6px;}
+.idx-sub{color:#475569;font-size:13px;}
+.idx-contract{background:#1e293b;border:1px solid #2d3f5e;border-radius:12px;padding:14px 18px;max-width:900px;margin:0 auto 22px auto;}
+.idx-contract-label{font-size:9px;font-weight:800;color:#f59e0b;text-transform:uppercase;letter-spacing:1px;margin-bottom:3px;}
+.idx-contract-value{font-size:14px;font-weight:700;color:#e2e8f0;}
+.idx-contract-furn{font-size:11px;color:#64748b;margin-top:2px;}
+
+.idx-toolbar{display:flex;align-items:center;justify-content:space-between;max-width:900px;margin:0 auto 16px auto;flex-wrap:wrap;gap:10px;}
+
+.facturi-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px;max-width:900px;margin:0 auto;}
+
+.fact-card{background:#1e293b;border:1px solid #2d3f5e;border-radius:12px;padding:16px;cursor:pointer;transition:.2s;position:relative;}
+.fact-card:hover{border-color:#f59e0b;background:#1a2540;transform:translateY(-2px);box-shadow:0 4px 20px rgba(245,158,11,.12);}
+.fact-card-icon{font-size:26px;margin-bottom:8px;}
+.fact-card-nr{font-size:10px;font-weight:800;color:#f59e0b;margin-bottom:3px;}
+.fact-card-title{font-size:12px;font-weight:700;color:#e2e8f0;margin-bottom:6px;line-height:1.4;word-break:break-word;}
+.fact-card-meta{font-size:11px;color:#64748b;display:flex;flex-direction:column;gap:3px;}
+.fact-card-progress{margin-top:10px;background:#0f172a;border-radius:4px;height:5px;overflow:hidden;}
+.fact-card-bar{height:100%;background:linear-gradient(90deg,#f59e0b,#d97706);border-radius:4px;transition:width .3s;}
+.fact-card-pct{font-size:9px;color:#475569;margin-top:3px;}
+
+/* ===== DOSAR ===== */
+#view-dosar{display:none;}
+.cp{position:sticky;top:0;z-index:100;background:linear-gradient(135deg,#0f172a,#1e293b);border-bottom:3px solid #f59e0b;padding:10px 20px;}
+.cp-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.cp-title{font-weight:800;font-size:14px;color:#f59e0b;letter-spacing:1px;text-transform:uppercase;margin-right:auto;}
+.cp-fact{background:#0f172a;border:1px solid #f59e0b;border-radius:6px;padding:4px 12px;font-size:12px;font-weight:700;color:#f59e0b;max-width:340px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.btn{padding:7px 16px;border:none;border-radius:6px;font-weight:700;font-size:12px;cursor:pointer;display:inline-flex;align-items:center;gap:5px;color:white;transition:.15s;font-family:'Inter',sans-serif;}
+.btn:hover{filter:brightness(1.1);}
+.btn-back{background:#334155;}
+.btn-add{background:linear-gradient(135deg,#d97706,#b45309);}
+#status-bar{margin-top:6px;padding:5px 10px;border-radius:5px;font-size:11px;font-weight:600;display:none;}
+.st-load{background:#fef3c7;color:#92400e;display:block!important;}
+.st-ok{background:#dcfce7;color:#166534;display:block!important;}
+.st-err{background:#fee2e2;color:#991b1b;display:block!important;}
+
+.dosar-body{display:flex;min-height:calc(100vh - 68px);}
+
+/* Sidebar */
+.sidebar{width:230px;min-width:230px;background:#0f172a;border-right:1px solid #1e293b;overflow-y:auto;padding:8px 0;position:sticky;top:68px;height:calc(100vh - 68px);}
+.sb-sec{padding:7px 12px 3px;font-size:9px;font-weight:800;color:#f59e0b;text-transform:uppercase;letter-spacing:1px;border-top:1px solid #1e293b;margin-top:4px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;user-select:none;}
+.sb-sec:first-child{border-top:none;margin-top:0;}
+.sb-sec .arr{font-size:8px;color:#334155;transition:.2s;}
+.sb-sec.open .arr{transform:rotate(90deg);}
+.sb-items{display:none;}
+.sb-sec.open+.sb-items{display:block;}
+.sb-item{padding:5px 12px 5px 18px;font-size:10px;color:#475569;cursor:pointer;display:flex;align-items:center;gap:5px;transition:.1s;border-left:2px solid transparent;}
+.sb-item:hover{background:#1e293b;color:#94a3b8;border-left-color:#334155;}
+.sb-item.ok{color:#f59e0b;border-left-color:#f59e0b;}
+.sb-item .dot{width:5px;height:5px;border-radius:50%;background:#334155;flex-shrink:0;}
+.sb-item.ok .dot{background:#f59e0b;}
+
+/* Main */
+.dosar-main{flex:1;padding:20px 28px;overflow-y:auto;}
+
+/* Section card */
+.sec-card{background:#1e293b;border:1px solid #2d3f5e;border-radius:10px;margin-bottom:16px;overflow:hidden;}
+.sec-hdr{display:flex;align-items:center;gap:10px;padding:12px 14px;background:linear-gradient(135deg,#0f172a,#162033);border-bottom:1px solid #2d3f5e;cursor:pointer;user-select:none;}
+.sec-hdr-icon{font-size:18px;}
+.sec-hdr-info{flex:1;}
+.sec-hdr-num{font-size:9px;font-weight:800;color:#f59e0b;text-transform:uppercase;letter-spacing:1px;}
+.sec-hdr-title{font-size:13px;font-weight:700;color:#e2e8f0;}
+.sec-hdr-cnt{font-size:10px;color:#475569;background:#0f172a;padding:2px 8px;border-radius:10px;}
+.sec-hdr-arr{color:#475569;font-size:10px;transition:.2s;}
+.sec-card.collapsed .sec-hdr-arr{transform:rotate(-90deg);}
+.sec-body{padding:12px 14px;}
+.sec-card.collapsed .sec-body{display:none;}
+
+/* Files */
+.file-list{display:flex;flex-direction:column;gap:5px;margin-bottom:8px;}
+.file-item{display:flex;align-items:center;gap:7px;background:#162033;border:1px solid #2d3f5e;border-radius:5px;padding:6px 10px;}
+.fi-icon{font-size:13px;flex-shrink:0;}
+.fi-name{flex:1;font-size:11px;color:#cbd5e1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.fi-acts{display:flex;gap:4px;flex-shrink:0;align-items:center;}
+.bsm{padding:3px 8px;border:none;border-radius:4px;font-size:10px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;transition:.1s;}
+.bsm:hover{filter:brightness(1.15);}
+.bv{background:#1e3a5f;color:#60a5fa;}
+.bd{background:#1e0000;color:#ef4444;}
+.no-docs{font-size:11px;color:#334155;padding:3px 0;margin-bottom:8px;}
+.fi-excluded{opacity:.45;}
+.fi-excluded .fi-name{text-decoration:line-through;color:#475569;}
+.toggle-print-wrap{display:inline-flex;align-items:center;gap:3px;cursor:pointer;}
+.toggle-print-wrap input[type=checkbox]{width:13px;height:13px;accent-color:#f59e0b;cursor:pointer;}
+.toggle-print-lbl{font-size:9px;font-weight:700;color:#64748b;white-space:nowrap;}
+
+/* Auto docs */
+.auto-row{display:flex;align-items:center;gap:7px;background:#071a07;border:1px solid #1a4d1a;border-radius:5px;padding:6px 10px;margin-bottom:5px;}
+.auto-badge{font-size:9px;font-weight:800;color:#10b981;background:#052010;border:1px solid #065f46;border-radius:10px;padding:1px 7px;white-space:nowrap;flex-shrink:0;}
+
+/* Subtipuri tabs */
+.subtip-tabs{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;}
+.subtip-tab{padding:4px 10px;border-radius:20px;border:1px solid #2d3f5e;background:#0f172a;color:#64748b;font-size:10px;font-weight:700;cursor:pointer;transition:.15s;}
+.subtip-tab.active{background:#f59e0b;color:#0f172a;border-color:#f59e0b;}
+
+/* Upload zone */
+.upzone{border:2px dashed #2d3f5e;border-radius:7px;padding:14px;text-align:center;cursor:pointer;transition:.2s;margin-top:4px;}
+.upzone:hover,.upzone.drag{border-color:#f59e0b;background:rgba(245,158,11,.04);}
+.upzone-txt{font-size:11px;color:#475569;}
+.upzone-txt b{color:#f59e0b;}
+.up-prog{margin-top:6px;display:none;}
+.up-bar{height:4px;background:#0f172a;border-radius:2px;overflow:hidden;}
+.up-fill{height:100%;background:linear-gradient(90deg,#f59e0b,#d97706);transition:width .3s;}
+.up-txt{font-size:10px;color:#64748b;margin-top:3px;}
+
+/* PDF Modal */
+#pdfm{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.85);z-index:1000;align-items:center;justify-content:center;}
+#pdfm.open{display:flex;}
+.pdfm-box{background:#1e293b;border-radius:10px;width:92%;max-width:860px;max-height:90vh;display:flex;flex-direction:column;overflow:hidden;}
+.pdfm-hdr{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid #334155;flex-shrink:0;}
+.pdfm-title{flex:1;font-size:12px;font-weight:700;color:#e2e8f0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.pdfm-body{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;align-items:center;gap:10px;}
+.pdfm-body canvas{max-width:100%;box-shadow:0 2px 8px rgba(0,0,0,.5);}
+.pdfm-body img{max-width:100%;border-radius:4px;}
+</style>
+</head>
+<body>
+
+<!-- ===== INDEX ===== -->
+<div id="view-index">
+  <div class="idx-header">
+    <div class="idx-title">🧾 Dosar Facturi</div>
+    <div class="idx-sub">PNRAS — Liceul Tehnologic „Victor Mihăilescu Craiu" Belcești</div>
+  </div>
+
+  <div class="idx-contract" id="idx-contract">
+    <div class="idx-contract-label">Contract</div>
+    <div class="idx-contract-value" id="idx-contract-value">—</div>
+    <div class="idx-contract-furn" id="idx-contract-furn"></div>
+  </div>
+
+  <div class="idx-toolbar">
+    <button class="btn btn-back" id="btnInapoiIndex">⬅ Înapoi la contract</button>
+    <button class="btn btn-add" onclick="document.getElementById('fileInputNou').click()">➕ Adaugă factură</button>
+    <input type="file" id="fileInputNou" multiple accept=".pdf,.jpg,.jpeg,.png" style="display:none">
+  </div>
+
+  <div class="facturi-grid" id="facturi-grid">
+    <div style="grid-column:1/-1;text-align:center;color:#475569;padding:40px;">⏳ Se încarcă...</div>
+  </div>
+</div>
+
+<!-- ===== DOSAR ===== -->
+<div id="view-dosar">
+  <div class="cp">
+    <div class="cp-row">
+      <button class="btn btn-back" onclick="goBack()">⬅ Înapoi</button>
+      <span class="cp-title">🧾 Dosar Factură</span>
+      <span class="cp-fact" id="cp-fact-label">—</span>
+    </div>
+    <div id="status-bar"></div>
+  </div>
+  <div class="dosar-body">
+    <div class="sidebar" id="sidebar"></div>
+    <div class="dosar-main" id="dosar-main"></div>
+  </div>
+</div>
+
+<!-- PDF Modal -->
+<div id="pdfm">
+  <div class="pdfm-box">
+    <div class="pdfm-hdr">
+      <span class="pdfm-title" id="pdfm-title">—</span>
+      <a id="pdfm-link" target="_blank" style="font-size:10px;color:#60a5fa;text-decoration:none;white-space:nowrap;">🔗 Deschide</a>
+      <button class="bsm bv" onclick="closePdfModal()" style="margin-left:8px;">✕</button>
+    </div>
+    <div class="pdfm-body" id="pdfm-body"></div>
+  </div>
+</div>
+
+<script>
+/* ============ CONFIG ============ */
+const SB_URL = 'https://aexjrbdgajurxzngfkpx.supabase.co';
+const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFleGpyYmRnYWp1cnh6bmdma3B4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgxMzE3NTYsImV4cCI6MjA4MzcwNzc1Nn0.VUx0QOKgjX4m23HOF2rBpE9vWA3T18KtjLc0w_iXhqA';
+const db     = supabase.createClient(SB_URL, SB_KEY);
+const WORKER = 'https://r2-proxy.belcesti-pnras2024.workers.dev';
+const R2PUB  = 'https://pub-21fd5af81dd046f08d14c67f1291f051.r2.dev';
+
+/* ============ PARAMS ============ */
+const params     = new URLSearchParams(location.search);
+const contractId = params.get('id')   || '';
+const contractDen= params.get('den')  || '';
+const contractFurn=params.get('furn') || '';
+let numeAfisat=contractDen, furnAfisat=contractFurn;
+if(contractDen.includes('(')){const p=contractDen.split('(');numeAfisat=p[0].trim();furnAfisat=p[1].replace(')','').trim();}
+
+/* ============ SECTIUNI ============ */
+const SECTIUNI = [
+  { id:'S1', label:'Contract',                     icon:'📋', auto:true  },
+  { id:'S2', label:'Factură',                      icon:'💰', auto:true  },
+  { id:'S3', label:'PV Recepție / PV Punere în Funcțiune / PV Dare în Folosință / Raport de Activitate',
+             icon:'📋', auto:false,
+             subtipuri:['PV Recepție','PV Punere în Funcțiune','PV Dare în Folosință','Raport de Activitate'] },
+  { id:'S4', label:'ALOP',                         icon:'💼', auto:false },
+  { id:'S5', label:'Ordin de Plată (OP)',           icon:'🏦', auto:false },
+  { id:'S6', label:'Extras de Cont',               icon:'🏧', auto:false },
+  { id:'S7', label:'NIR / BC / Fișa Mijlocului Fix / Fișa de Magazie',
+             icon:'📦', auto:false,
+             subtipuri:['NIR','BC','Fișa Mijlocului Fix','Fișa de Magazie'] },
+];
+
+/* ============ STATE ============ */
+let _facturaActiva = null;
+let _contractDocs  = [];
+let _byTip         = {};
+
+/* ============ PDF.JS ============ */
+fetch('https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js')
+  .then(r=>r.blob()).then(b=>{pdfjsLib.GlobalWorkerOptions.workerSrc=URL.createObjectURL(b);})
+  .catch(()=>{pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';});
+
+/* ============ R2 ============ */
+async function r2Up(fileName,blob){
+  const r=await fetch(`${WORKER}/upload`,{method:'PUT',headers:{'X-Bucket':'contracte','X-File-Name':fileName,'Content-Type':blob.type||'application/octet-stream'},body:blob});
+  if(!r.ok) throw new Error('Upload eșuat: '+await r.text());
+  return(await r.json()).url;
+}
+async function r2Del(url){
+  try{const fn=decodeURIComponent(url.split('?')[0].replace(R2PUB+'/',''));await fetch(`${WORKER}/delete`,{method:'DELETE',headers:{'X-Bucket':'contracte','X-File-Name':fn}});}catch(e){}
+}
+
+/* ============ UTILS ============ */
+function safeName(n){return(n||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-zA-Z0-9._-]/g,'_').replace(/_+/g,'_');}
+function fileIcon(link){const e=(link||'').split('?')[0].split('.').pop().toLowerCase();return{pdf:'📄',doc:'📝',docx:'📝',jpg:'🖼️',jpeg:'🖼️',png:'🖼️',webp:'🖼️'}[e]||'📎';}
+function toRoman(n){const v=[1000,900,500,400,100,90,50,40,10,9,5,4,1],s=['M','CM','D','CD','C','XC','L','XL','X','IX','V','IV','I'];let r='';for(let i=0;i<v.length;i++)while(n>=v[i]){r+=s[i];n-=v[i];}return r;}
+function fmtData(d){if(!d)return'—';return d.split('-').reverse().join('.');}
+
+/* mk() — construiește tip_document pentru stocare */
+function mk(secId, subtip=''){
+  const base=`FACT_${_facturaActiva.id}_${secId}`;
+  return subtip?base+'_'+safeName(subtip):base;
+}
+
+function setSt(msg,cls){const el=document.getElementById('status-bar');el.className=cls?'st-'+cls:'';el.textContent=msg;el.style.display=msg?'':'none';}
+
+/* ============ INDEX ============ */
+async function init(){
+  document.getElementById('idx-contract-value').textContent=numeAfisat||contractDen||'—';
+  document.getElementById('idx-contract-furn').textContent =furnAfisat||'';
+  document.getElementById('btnInapoiIndex').onclick=()=>{
+    window.location.href='dosar_contract.html?id='+contractId+'&den='+encodeURIComponent(contractDen)+'&furn='+encodeURIComponent(contractFurn);
+  };
+  await loadFacturi();
+}
+
+async function loadFacturi(){
+  const grid=document.getElementById('facturi-grid');
+  grid.innerHTML='<div style="grid-column:1/-1;text-align:center;color:#475569;padding:40px;">⏳ Se încarcă...</div>';
+  if(!contractId){grid.innerHTML='<div style="grid-column:1/-1;color:#ef4444;text-align:center;padding:40px;">⚠️ Lipsă contract ID.</div>';return;}
+
+  const{data:facturi,error}=await db.from('documente_contract').select('*')
+    .eq('contract_id',contractId).eq('tip_document','13. Factura').order('data_inregistrare',{ascending:true});
+  if(error){grid.innerHTML=`<div style="grid-column:1/-1;color:#ef4444;text-align:center;padding:40px;">❌ ${error.message}</div>`;return;}
+
+  // Toate documentele dosar pentru facturile din acest contract
+  const{data:allDosarDocs}=await db.from('documente_contract').select('tip_document,furnizor')
+    .eq('contract_id',contractId).like('tip_document','FACT_%');
+  const dosarDocs=allDosarDocs||[];
+
+  grid.innerHTML='';
+  const secManuale=SECTIUNI.filter(s=>!s.auto);
+
+  (facturi||[]).forEach(f=>{
+    const completate=secManuale.filter(s=>dosarDocs.some(d=>d.tip_document.startsWith(`FACT_${f.id}_${s.id}`))).length;
+    const pct=secManuale.length?Math.round((completate/secManuale.length)*100):0;
+    const isPdf=(f.link_drive||'').toLowerCase().split('?')[0].endsWith('.pdf');
+
+    const card=document.createElement('div');
+    card.className='fact-card';
+    card.innerHTML=`
+      <div class="fact-card-icon">${isPdf?'📄':'🖼️'}</div>
+      ${f.nr_inregistrare?`<div class="fact-card-nr">Nr. ${f.nr_inregistrare}</div>`:''}
+      <div class="fact-card-title">${f.nume_fisier||'Factură fără nume'}</div>
+      <div class="fact-card-meta">
+        <span>📅 ${fmtData(f.data_inregistrare)}</span>
+        <span style="color:${pct===100?'#10b981':pct>0?'#f59e0b':'#475569'}">📂 ${completate}/${secManuale.length} secțiuni</span>
+      </div>
+      <div class="fact-card-progress"><div class="fact-card-bar" style="width:${pct}%"></div></div>
+      <div class="fact-card-pct">${pct}% dosar completat</div>`;
+    card.onclick=()=>openDosar(f);
+    grid.appendChild(card);
+  });
+
+  if(!facturi||!facturi.length){
+    grid.innerHTML='<div style="grid-column:1/-1;text-align:center;color:#475569;padding:40px;">Nu există facturi înregistrate.</div>';
+  }
+}
+
+/* Upload factură nouă din index */
+document.getElementById('fileInputNou').addEventListener('change',async function(){
+  const files=this.files;if(!files.length)return;
+  for(const file of files){
+    const{data:ex}=await db.from('documente_contract').select('id').eq('contract_id',contractId).eq('nume_fisier',file.name).limit(1);
+    if(ex&&ex.length){alert(`⚠️ "${file.name}" există deja.`);continue;}
+    const fn=`${contractId}_${Date.now()}_${safeName(file.name)}`;
+    let url;try{url=await r2Up(fn,file);}catch(e){alert('Eroare upload: '+e.message);this.value='';return;}
+    const{error}=await db.from('documente_contract').insert([{contract_id:contractId,nume_contract:numeAfisat||'',furnizor:furnAfisat||'',tip_document:'13. Factura',nume_fisier:file.name,link_drive:url}]);
+    if(error){alert('Eroare salvare: '+error.message);this.value='';return;}
+  }
+  this.value='';await loadFacturi();
+});
+
+/* ============ DOSAR FACTURĂ ============ */
+async function openDosar(factura){
+  _facturaActiva=factura;
+  document.getElementById('view-index').style.display='none';
+  document.getElementById('view-dosar').style.display='block';
+  const nr=factura.nr_inregistrare?`Nr. ${factura.nr_inregistrare} — `:'';
+  const dt=factura.data_inregistrare?fmtData(factura.data_inregistrare)+' — ':'';
+  document.getElementById('cp-fact-label').textContent=nr+dt+(factura.nume_fisier||'Factură');
+  await load();
+}
+
+function goBack(){
+  _facturaActiva=null;_byTip={};
+  document.getElementById('view-dosar').style.display='none';
+  document.getElementById('view-index').style.display='block';
+  loadFacturi();
+}
+
+/* ============ LOAD DOSAR ============ */
+async function load(){
+  setSt('⏳ Se încarcă dosarul...','load');
+  try{
+    // Contract docs
+    const{data:ctr}=await db.from('documente_contract').select('*').eq('contract_id',contractId).eq('tip_document','9. Contract');
+    _contractDocs=ctr||[];
+
+    // Dosar docs pentru factura activă
+    const{data:dd}=await db.from('documente_contract').select('*')
+      .eq('contract_id',contractId).like('tip_document',`FACT_${_facturaActiva.id}_%`);
+    _byTip={};
+    (dd||[]).forEach(d=>{if(!_byTip[d.tip_document])_byTip[d.tip_document]=[];_byTip[d.tip_document].push(d);});
+
+    renderSidebar();
+    renderMain();
+    setSt('','');
+  }catch(e){setSt('❌ '+e.message,'err');console.error(e);}
+}
+
+/* ============ SIDEBAR ============ */
+function renderSidebar(){
+  document.getElementById('sidebar').innerHTML=SECTIUNI.map((s,i)=>{
+    let cnt=0;
+    if(s.id==='S1') cnt=_contractDocs.filter(d=>!d.exclude_print).length;
+    else if(s.id==='S2') cnt=(_facturaActiva&&_facturaActiva.link_drive&&!_facturaActiva.exclude_print)?1:0;
+    else cnt=Object.keys(_byTip).filter(k=>k.startsWith(mk(s.id))).reduce((a,k)=>a+(_byTip[k]||[]).filter(d=>!d.exclude_print).length,0);
+    const ok=cnt>0;
+    return`<div class="sb-sec open" id="sbsec_${s.id}" onclick="toggleSb('${s.id}')">
+        <span>${s.icon} ${toRoman(i+1)}. ${s.id}</span><span class="arr">▶</span>
+      </div>
+      <div class="sb-items">
+        <div class="sb-item${ok?' ok':''}" onclick="scrollTo_('sc_${s.id}')">
+          <span class="dot"></span>${ok?cnt+' doc.':'Fără documente'}
+        </div>
+      </div>`;
+  }).join('');
+}
+function toggleSb(id){document.getElementById('sbsec_'+id).classList.toggle('open');}
+function scrollTo_(id){const el=document.getElementById(id);if(el)el.scrollIntoView({behavior:'smooth',block:'start'});}
+
+/* ============ MAIN ============ */
+function renderMain(){
+  document.getElementById('dosar-main').innerHTML=SECTIUNI.map((s,i)=>{
+    let body='',cnt=0;
+
+    if(s.id==='S1'){
+      cnt=_contractDocs.length;
+      body=cnt
+        ?'<div class="file-list">'+_contractDocs.map(d=>autoRow(d)).join('')+'</div>'
+        :'<div class="no-docs" style="color:#f59e0b;">⚠️ Contractul nu a fost găsit.</div>';
+    }
+    else if(s.id==='S2'){
+      const f=_facturaActiva;
+      cnt=f&&f.link_drive?1:0;
+      body=cnt
+        ?'<div class="file-list">'+autoRow(f)+'</div>'
+        :'<div class="no-docs" style="color:#f59e0b;">⚠️ Fișierul facturii nu este atașat.</div>';
+    }
+    else if(s.subtipuri){
+      cnt=Object.keys(_byTip).filter(k=>k.startsWith(mk(s.id))).reduce((a,k)=>a+(_byTip[k]||[]).length,0);
+      const tabs='<div class="subtip-tabs">'+s.subtipuri.map(st=>`<span class="subtip-tab" onclick="activateSt('${s.id}','${st.replace(/'/g,"\\'")}',this)">${st}</span>`).join('')+'</div>';
+      const blocks=s.subtipuri.map(st=>{
+        const key=mk(s.id,st);
+        const docs=_byTip[key]||[];
+        return`<div id="stb_${s.id}_${safeName(st)}" style="display:none;">${fileListHtml(docs,s.id,st)}${upzoneHtml(s.id,st)}</div>`;
+      }).join('');
+      body=tabs+blocks;
+    }
+    else{
+      const key=mk(s.id);const docs=_byTip[key]||[];cnt=docs.length;
+      body=fileListHtml(docs,s.id)+upzoneHtml(s.id);
+    }
+
+    return`<div class="sec-card collapsed" id="sc_${s.id}">
+      <div class="sec-hdr" onclick="toggleSec('${s.id}')">
+        <span class="sec-hdr-icon">${s.icon}</span>
+        <div class="sec-hdr-info">
+          <div class="sec-hdr-num">Secțiunea ${toRoman(i+1)}</div>
+          <div class="sec-hdr-title">${s.label}</div>
+        </div>
+        <span class="sec-hdr-cnt">${cnt} doc.</span>
+        <span class="sec-hdr-arr">▾</span>
+      </div>
+      <div class="sec-body">${body}</div>
+    </div>`;
+  }).join('');
+
+  // Activează primul subtip implicit pentru S3 și S7
+  SECTIUNI.filter(s=>s.subtipuri).forEach(s=>{
+    const firstTab=document.querySelector(`#sc_${s.id} .subtip-tab`);
+    if(firstTab)firstTab.click();
+  });
+}
+
+function activateSt(secId,subtip,el){
+  const sec=document.getElementById('sc_'+secId);
+  sec.querySelectorAll('.subtip-tab').forEach(t=>t.classList.remove('active'));
+  sec.querySelectorAll('[id^="stb_'+secId+'_"]').forEach(b=>b.style.display='none');
+  el.classList.add('active');
+  const b=document.getElementById('stb_'+secId+'_'+safeName(subtip));
+  if(b)b.style.display='block';
+}
+
+function toggleSec(id){document.getElementById('sc_'+id).classList.toggle('collapsed');}
+
+/* ============ FILE HELPERS ============ */
+function autoRow(d){
+  const nm=(d.nume_fisier||'document').replace(/'/g,"\\'");
+  const lk=(d.link_drive||'').replace(/'/g,"\\'");
+  return`<div class="auto-row">
+    <span class="fi-icon">${fileIcon(d.link_drive)}</span>
+    <span class="fi-name" title="${d.nume_fisier||''}">${d.nume_fisier||'—'}</span>
+    <span class="auto-badge">AUTO</span>
+    <div class="fi-acts">
+      <button class="bsm bv" onclick="viewDoc('${lk}','${nm}')">👁 Vezi</button>
+      <a class="bsm bv" href="${lk}" target="_blank" style="text-decoration:none;">🔗 Deschide</a>
+    </div>
+  </div>`;
+}
+
+function fileListHtml(docs,secId,subtip=''){
+  if(!docs.length)return`<div class="no-docs">Niciun document adăugat.</div>`;
+  const st=subtip.replace(/'/g,"\\'");
+  return`<div class="file-list">${docs.map(d=>{
+    const nm=(d.nume_fisier||'document').replace(/'/g,"\\'");
+    const lk=(d.link_drive||'').replace(/'/g,"\\'");
+    const ex=d.exclude_print===true;
+    return`<div class="file-item${ex?' fi-excluded':''}" id="fi_${d.id}">
+      <span class="fi-icon">${fileIcon(d.link_drive)}</span>
+      <span class="fi-name" title="${d.nume_fisier||''}">${d.nume_fisier||'document'}</span>
+      <div class="fi-acts">
+        <button class="bsm bv" onclick="viewDoc('${lk}','${nm}')">👁 Vezi</button>
+        <label class="toggle-print-wrap">
+          <input type="checkbox" class="toggle-print-cb" ${ex?'':'checked'} onchange="toggleExclude('${d.id}',!this.checked)">
+          <span class="toggle-print-lbl">${ex?'🚫 Print':'🖨 Print'}</span>
+        </label>
+        <button class="bsm bd" onclick="delDoc('${d.id}','${lk}','${secId}','${st}')">🗑 Șterge</button>
+      </div>
+    </div>`;
+  }).join('')}</div>`;
+}
+
+function upzoneHtml(secId,subtip=''){
+  const safe=safeName(subtip);
+  const uid=`up_${secId}_${safe}`;
+  const fid=`fi_${secId}_${safe}`;
+  const st=subtip.replace(/'/g,"\\'");
+  return`<div class="upzone" id="${uid}"
+    onclick="document.getElementById('${fid}').click()"
+    ondragover="event.preventDefault();this.classList.add('drag')"
+    ondragleave="this.classList.remove('drag')"
+    ondrop="onDrop(event,'${secId}','${st}')">
+    <div class="upzone-txt"><b>➕ Adaugă document</b><br>Click sau trage fișierul (PDF, imagine, Word)</div>
+    <div class="up-prog" id="prog_${secId}_${safe}">
+      <div class="up-bar"><div class="up-fill" id="fill_${secId}_${safe}" style="width:0%"></div></div>
+      <div class="up-txt" id="txt_${secId}_${safe}">Se urcă...</div>
+    </div>
+  </div>
+  <input type="file" id="${fid}" style="display:none" multiple onchange="onFileInput(event,'${secId}','${st}')">`;
+}
+
+/* ============ UPLOAD DOSAR ============ */
+function onDrop(ev,secId,subtip){ev.preventDefault();document.getElementById(`up_${secId}_${safeName(subtip)}`).classList.remove('drag');uploadFiles([...ev.dataTransfer.files],secId,subtip);}
+function onFileInput(ev,secId,subtip){uploadFiles([...ev.target.files],secId,subtip);ev.target.value='';}
+
+async function uploadFiles(files,secId,subtip){
+  if(!files.length||!_facturaActiva)return;
+  const safe=safeName(subtip);
+  const prog=document.getElementById(`prog_${secId}_${safe}`);
+  const fill=document.getElementById(`fill_${secId}_${safe}`);
+  const txt =document.getElementById(`txt_${secId}_${safe}`);
+  if(prog)prog.style.display='block';
+  const tipDoc=mk(secId,subtip);
+
+  for(let i=0;i<files.length;i++){
+    const f=files[i];
+    if(txt)txt.textContent=`Urcă: ${f.name} (${i+1}/${files.length})`;
+    if(fill)fill.style.width='20%';
+    try{
+      const fn=`facturi/${_facturaActiva.id}_${secId}${subtip?'_'+safe:''}_${Date.now()}_${safeName(f.name)}`;
+      const url=await r2Up(fn,f);
+      if(fill)fill.style.width='75%';
+      const{error}=await db.from('documente_contract').insert({
+        contract_id:contractId,
+        tip_document:tipDoc,
+        nume_fisier:f.name,
+        link_drive:url,
+        furnizor:_facturaActiva.id   // referință la factura-părinte
+      });
+      if(error)throw error;
+      if(fill)fill.style.width='100%';
+      if(txt)txt.textContent=`✅ ${f.name}`;
+    }catch(e){
+      if(txt)txt.textContent='❌ '+e.message;
+      if(fill){fill.style.background='#ef4444';fill.style.width='100%';}
+    }
+    await new Promise(r=>setTimeout(r,400));
+  }
+  setTimeout(async()=>{
+    if(prog){prog.style.display='none';if(fill){fill.style.width='0%';fill.style.background='';}}
+    await load();
+  },600);
+}
+
+/* ============ DELETE / EXCLUDE ============ */
+async function toggleExclude(id,exclude){
+  try{
+    await db.from('documente_contract').update({exclude_print:exclude}).eq('id',id);
+    const el=document.getElementById('fi_'+id);
+    if(el){el.classList.toggle('fi-excluded',exclude);const lbl=el.querySelector('.toggle-print-lbl');if(lbl)lbl.textContent=exclude?'🚫 Print':'🖨 Print';}
+    renderSidebar();
+  }catch(e){alert('Eroare: '+e.message);}
+}
+
+async function delDoc(id,link,secId,subtip){
+  if(!confirm('Ștergi documentul?'))return;
+  try{if(link)await r2Del(link);await db.from('documente_contract').delete().eq('id',id);await load();}
+  catch(e){alert('Eroare: '+e.message);}
+}
+
+/* ============ PDF MODAL ============ */
+async function viewDoc(url,name){
+  if(!url)return;
+  document.getElementById('pdfm-title').textContent=name;
+  document.getElementById('pdfm-link').href=url;
+  const body=document.getElementById('pdfm-body');
+  body.innerHTML='<div style="color:#64748b;padding:20px;">Se încarcă...</div>';
+  document.getElementById('pdfm').classList.add('open');
+  const ext=(url.split('?')[0].split('.').pop()||'').toLowerCase();
+  if(['jpg','jpeg','png','webp','gif','bmp'].includes(ext)){body.innerHTML=`<img src="${url}">`;return;}
+  if(ext==='pdf'){
+    try{
+      const pdf=await pdfjsLib.getDocument({url,cMapUrl:'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/cmaps/',cMapPacked:true}).promise;
+      body.innerHTML='';
+      for(let n=1;n<=pdf.numPages;n++){
+        const pg=await pdf.getPage(n);const vp=pg.getViewport({scale:1.5});
+        const cv=document.createElement('canvas');cv.width=vp.width;cv.height=vp.height;
+        await pg.render({canvasContext:cv.getContext('2d'),viewport:vp}).promise;
+        body.appendChild(cv);
+      }
+    }catch(e){body.innerHTML=`<div style="color:#ef4444;">Eroare: ${e.message}</div>`;}
+    return;
+  }
+  body.innerHTML=`<div style="color:#94a3b8;text-align:center;padding:30px;"><div style="font-size:36px;margin-bottom:10px;">📎</div><div>Previzualizare indisponibilă.</div><a href="${url}" target="_blank" style="color:#f59e0b;font-weight:700;display:block;margin-top:10px;">🔗 Deschide fișierul</a></div>`;
+}
+function closePdfModal(){document.getElementById('pdfm').classList.remove('open');document.getElementById('pdfm-body').innerHTML='';}
+document.getElementById('pdfm').addEventListener('click',function(e){if(e.target===this)closePdfModal();});
+
+/* ============ INIT ============ */
+init();
+</script>
+</body>
+</html>

@@ -36,6 +36,7 @@
     <button class="btn" onclick="stampilaToate()" style="background:#eff6ff;color:#2563eb;border-color:#93c5fd;">🖋️ Ștampilă pe toate</button>
     <button class="btn" id="btnStampilaSelectate" onclick="stampilaSelectate()" style="display:none;background:#f0fdf4;color:#16a34a;border-color:#86efac;">🖋️ Ștampilă selectate</button>
     <button class="btn" onclick="stergeTotal()" style="background:#fee2e2;color:#dc2626;border-color:#fca5a5;">🗑️ Șterge tot</button>
+    <button class="btn" onclick="window.location.href='dosar_facturi.html?id='+contractId+'&den='+encodeURIComponent(contractNumeFull)+'&furn='+encodeURIComponent(furnFull)" style="margin-left:auto;background:#fefce8;color:#854d0e;border-color:#fde68a;">🧾 Dosar facturi</button>
   </h1>
 
   <input type="file" id="fileInput" multiple style="display:none" />
@@ -539,15 +540,17 @@ const listaDocumente_DEFAULT = [
   "5.4 Declarație art. 164/165/167","6. Proces-verbal selecție oferte","7. Comunicare selecție oferte",
   "8. Dovadă achiziție SICAP","9. Contract","10. Decizie comisie recepție",
   "11. Proces-verbal de recepție","12. Proces-verbal de dare în folosință",
-  "13. Factura","14. OP","15. Fotografii","16. Alte documente"
+  "13. Factură","14. ALOP","15. Ordin de plată","16. Extras de cont",
+  "17. NIR/BC/Fișa mijloc fix/Fișa de magazie","18. Fotografii","19. Alte documente"
 ];
 let listaDocumente = [];
+let listaAscunse = [];  // cartonașe excluse din dosar
 
 const obligatorii = [
   "1. Referat de necesitate","2. Notă de justificare","3. Cerere de ofertă","4. Anunț achiziție",
   "5. Ofertă","6. Proces-verbal selecție oferte","7. Comunicare selecție oferte",
   "8. Dovadă achiziție SICAP","9. Contract","10. Decizie comisie recepție",
-  "11. Proces-verbal de recepție","13. Factura","14. OP"
+  "11. Proces-verbal de recepție","13. Factură","14. ALOP","15. Ordin de plată","16. Extras de cont"
 ];
 
 let tipSelectat = "";
@@ -575,24 +578,80 @@ function getListaDefault() {
 
 async function salveazaCartonase() {
   await supabaseClient.from("cartonase_config")
-    .upsert({ contract_id: contractId, cartonase: listaDocumente }, { onConflict: "contract_id" });
+    .upsert({ contract_id: contractId, cartonase: listaDocumente, ascunse: listaAscunse }, { onConflict: "contract_id" });
 }
 
 async function incarcaDocumente(){
   const denLowerInc = (contractNumeFull || "").toLowerCase();
   const eStatDePlata = denLowerInc.includes("salarii") || denLowerInc.includes("stat de plat");
 
+  const CTR_PROCONS_ID = '275eb452-1c8b-4b7a-b1a6-d73fad65490c';
+  const eProcons = contractId === CTR_PROCONS_ID;
+
   if (eStatDePlata) {
     listaDocumente.splice(0, listaDocumente.length, ...getListaDefault());
     await salveazaCartonase();
   } else {
-    const { data: cfgData } = await supabaseClient.from("cartonase_config").select("cartonase").eq("contract_id", contractId).maybeSingle();
+    const { data: cfgData } = await supabaseClient.from("cartonase_config").select("cartonase,ascunse").eq("contract_id", contractId).maybeSingle();
     if (cfgData) {
-      listaDocumente.splice(0, listaDocumente.length, ...(cfgData.cartonase || []));
+      listaAscunse = cfgData.ascunse || [];
+      let lista = cfgData.cartonase || [];
+      // Migrare specială pentru Procons
+      if (eProcons) {
+        const standardProcons = [
+          "1. Referat de necesitate","2. Notă de justificare","3. Cerere de ofertă","4. Anunț achiziție",
+          "5. Ofertă","5.1 CIF","5.2 Certificat constatator","5.3 Declarație beneficiar real",
+          "5.4 Declarație art. 164/165/167","6. Proces-verbal selecție oferte","7. Comunicare selecție oferte",
+          "8. Dovadă achiziție SICAP","9. Contract","10. Alte documente"
+        ];
+        const deElminatProcons = ["13. Factura","14. OP","15. Fotografii","16. Alte documente"];
+        // Păstrăm cartonașele MASA_ și eliminăm vechile standard greșite
+        const masaCartonase = lista.filter(c => !standardProcons.includes(c) && !deElminatProcons.includes(c));
+        // Adăugăm standardele care lipsesc din 1-9
+        const standardLipsa = standardProcons.filter(c => !lista.includes(c));
+        const listaProcons = [...standardProcons, ...masaCartonase];
+        // Adăugăm standardele lipsă doar dacă chiar lipseau
+        const modificatP = standardLipsa.length > 0 || deElminatProcons.some(c => lista.includes(c));
+        listaDocumente.splice(0, listaDocumente.length, ...listaProcons);
+        if (modificatP) await salveazaCartonase();
+      } else {
+      // Cartonașele vechi de șters (înlocuite de cele noi)
+      // Migrare doar dacă lista nu conține deja toate canonicele 12-19
+      const areCanoniceNoi = lista.includes("19. Alte documente") && lista.includes("12. Proces-verbal de dare în folosință");
+      if (areCanoniceNoi) {
+        listaDocumente.splice(0, listaDocumente.length, ...lista);
+      } else {
+      // Cartonașele canonice fixe 12-19
+      const canonice12plus = [
+        "12. Proces-verbal de dare în folosință",
+        "13. Factură","14. ALOP","15. Ordin de plată","16. Extras de cont",
+        "17. NIR/BC/Fișa mijloc fix/Fișa de magazie","18. Fotografii","19. Alte documente"
+      ];
+      // Cartonașele canonice 1-11 (dacă lipsesc, se adaugă)
+      const canonice1_11 = [
+        "1. Referat de necesitate","2. Notă de justificare","3. Cerere de ofertă","4. Anunț achiziție",
+        "5. Ofertă","5.1 CIF","5.2 Certificat constatator","5.3 Declarație beneficiar real",
+        "5.4 Declarație art. 164/165/167","6. Proces-verbal selecție oferte","7. Comunicare selecție oferte",
+        "8. Dovadă achiziție SICAP","9. Contract","10. Decizie comisie recepție",
+        "11. Proces-verbal de recepție"
+      ];
+      // 1. Păstrăm doar cartonașele 1-11 din lista salvată (eliminate tot de la 12 în sus)
+      const listaFiltrata = lista.filter(c => canonice1_11.includes(c));
+      // 2. Adaugă 1-11 canonice care lipsesc
+      canonice1_11.forEach(c => {
+        if (!listaFiltrata.includes(c)) listaFiltrata.push(c);
+      });
+      // 3. Adaugă fix 12-19 la final
+      canonice12plus.forEach(c => listaFiltrata.push(c));
+      listaDocumente.splice(0, listaDocumente.length, ...listaFiltrata);
+      await salveazaCartonase();
+      } // end areCanoniceNoi
+      } // end if(!eProcons)
     } else {
       const { data: de } = await supabaseClient.from("documente_contract").select("tip_document").eq("contract_id", contractId);
       const tu = [...new Set((de||[]).map(d=>d.tip_document).filter(t=>t&&t!=="DOSAR ACHIZIȚIE PDF"))]
         .sort((a,b)=>a.localeCompare(b,undefined,{numeric:true,sensitivity:'base'}));
+      listaAscunse = [];
       listaDocumente.splice(0, listaDocumente.length, ...(tu.length?tu:getListaDefault()));
       await salveazaCartonase();
     }
@@ -616,11 +675,19 @@ async function incarcaDocumente(){
     tbody.innerHTML = `<tr><td style="color:#888;text-align:center">Niciun document încă</td></tr>`;
   } else {
     const grupate = {};
-    data.forEach(d => { if(!grupate[d.tip_document]) grupate[d.tip_document]=[]; grupate[d.tip_document].push(d); });
+    data.filter(d=>!listaAscunse.includes(d.tip_document)).forEach(d => { if(!grupate[d.tip_document]) grupate[d.tip_document]=[]; grupate[d.tip_document].push(d); });
 
     let html = "";
     const LISTA_SALARII_ORDINE = ["Foaie de pontaj colectiv", "Stat de plată", "ALOP", "Ordin de plată", "Extras de cont"];
-    const sortedTips = Object.keys(grupate).sort((a, b) => {
+    const CTR_PROCONS = '275eb452-1c8b-4b7a-b1a6-d73fad65490c';
+    const sortedTips = Object.keys(grupate).filter(tip => {
+      if (contractId === CTR_PROCONS) {
+        const t = tip.toUpperCase();
+        // Exclude tipurile care nu sunt facturi sau dosare
+        if (!listaDocumente.includes(tip) && !t.includes('FACTUR') && !t.includes('DOSAR')) return false;
+      }
+      return true;
+    }).sort((a, b) => {
       const iA = LISTA_SALARII_ORDINE.indexOf(a);
       const iB = LISTA_SALARII_ORDINE.indexOf(b);
       if (iA !== -1 && iB !== -1) return iA - iB;
@@ -677,36 +744,61 @@ async function incarcaDocumente(){
   container.innerHTML = "";
   let totalOk = 0;
 
+  // Match cartonaș față de documente existente — după denumire exactă SAU prefix numeric ("12.")
+  function docExista(doc, existente) {
+    if (existente.includes(doc)) return true;
+    const prefix = doc.match(/^(\d+(?:\.\d+)?)\.\s/);
+    if (prefix) {
+      const p = prefix[1] + '.';
+      return existente.some(e => e.startsWith(p));
+    }
+    return false;
+  }
+
   listaDocumente.forEach(doc => {
-    let ok = existente.includes(doc);
-    if(doc==="5. Ofertă"){
+    const eAscuns = listaAscunse.includes(doc);
+    let ok = !eAscuns && docExista(doc, existente);
+    if(!eAscuns && doc==="5. Ofertă"){
       const sub=["5. Ofertă","5.1 CIF","5.2 Certificat constatator","5.3 Declarație beneficiar real","5.4 Declarație art. 164/165/167"];
-      ok=sub.every(s=>existente.includes(s));
+      ok=sub.every(s=>docExista(s, existente));
     }
     let culoare="#f1f5f9", textColor="#334155";
-    if(ok){culoare="#22c55e";textColor="white";totalOk++;}
+    if(eAscuns){ culoare="#e2e8f0"; textColor="#94a3b8"; }
+    else if(ok){culoare="#22c55e";textColor="white";totalOk++;}
     else if(obligatorii.includes(doc)){culoare="#fee2e2";}
     else{culoare="#fef9c3";}
 
     const docIdx = listaDocumente.indexOf(doc);
     const wrapper = document.createElement("div");
-    wrapper.id=`cartonas_${docIdx}`; wrapper.dataset.doc=doc; wrapper.draggable=true;
-    wrapper.style.cssText=`position:relative;padding:10px 10px 8px 28px;border-radius:12px;background:${culoare};color:${textColor};border:1px solid #e2e8f0;box-shadow:0 1px 2px rgba(0,0,0,0.05);font-size:13px;text-align:center;font-weight:600;transition:opacity 0.15s,box-shadow 0.15s;`;
+    wrapper.id=`cartonas_${docIdx}`; wrapper.dataset.doc=doc; wrapper.draggable=!eAscuns;
+    wrapper.style.cssText=`position:relative;padding:10px 10px 8px 28px;border-radius:12px;background:${culoare};color:${textColor};border:1px solid #e2e8f0;box-shadow:0 1px 2px rgba(0,0,0,0.05);font-size:13px;text-align:center;font-weight:600;transition:opacity 0.15s,box-shadow 0.15s;${eAscuns?'opacity:0.5;':''}`;
 
     const handle=document.createElement("div"); handle.title="Trage pentru a muta"; handle.textContent="⠿";
-    handle.style.cssText="position:absolute;left:6px;top:50%;transform:translateY(-50%);cursor:grab;font-size:16px;opacity:0.45;user-select:none;line-height:1;";
+    handle.style.cssText=`position:absolute;left:6px;top:50%;transform:translateY(-50%);cursor:${eAscuns?'default':'grab'};font-size:16px;opacity:0.45;user-select:none;line-height:1;`;
     wrapper.appendChild(handle);
 
-    const titluDiv=document.createElement("div"); titluDiv.title="Click: upload | Dublu-click: editează titlul";
+    const titluDiv=document.createElement("div"); titluDiv.title=eAscuns?"Cartonaș ascuns — apasă 👁 pentru a reactiva":"Click: upload | Dublu-click: editează titlul";
     titluDiv.style.cssText="cursor:pointer;padding-right:18px;min-height:20px;"; titluDiv.textContent=doc;
-    titluDiv.addEventListener("click",()=>selecteazaTip(doc));
-    titluDiv.addEventListener("dblclick",(e)=>{e.stopPropagation();editeazaCartonas(docIdx,titluDiv);});
+    if(!eAscuns){
+      titluDiv.addEventListener("click",()=>selecteazaTip(doc));
+      titluDiv.addEventListener("dblclick",(e)=>{e.stopPropagation();editeazaCartonas(docIdx,titluDiv);});
+    }
     wrapper.appendChild(titluDiv);
 
-    const btnEdit=document.createElement("button"); btnEdit.title="Editează"; btnEdit.textContent="✎";
-    btnEdit.style.cssText="position:absolute;bottom:4px;right:4px;background:rgba(0,0,0,0.15);border:none;border-radius:50%;width:18px;height:18px;font-size:12px;line-height:18px;cursor:pointer;color:inherit;padding:0;font-weight:bold;";
-    btnEdit.addEventListener("click",(e)=>{e.stopPropagation();editeazaCartonas(docIdx,titluDiv);});
-    wrapper.appendChild(btnEdit);
+    // Buton ascunde/activează (👁)
+    const btnToggle=document.createElement("button");
+    btnToggle.title=eAscuns?"Activează cartonaș":"Ascunde cartonaș (nu se ia în calcul la dosar)";
+    btnToggle.textContent="👁";
+    btnToggle.style.cssText="position:absolute;bottom:4px;left:28px;background:rgba(0,0,0,0.12);border:none;border-radius:50%;width:18px;height:18px;font-size:10px;line-height:18px;cursor:pointer;color:inherit;padding:0;";
+    btnToggle.addEventListener("click",(e)=>{e.stopPropagation();toggleAscunsCartonas(doc);});
+    wrapper.appendChild(btnToggle);
+
+    if(!eAscuns){
+      const btnEdit=document.createElement("button"); btnEdit.title="Editează"; btnEdit.textContent="✎";
+      btnEdit.style.cssText="position:absolute;bottom:4px;right:4px;background:rgba(0,0,0,0.15);border:none;border-radius:50%;width:18px;height:18px;font-size:12px;line-height:18px;cursor:pointer;color:inherit;padding:0;font-weight:bold;";
+      btnEdit.addEventListener("click",(e)=>{e.stopPropagation();editeazaCartonas(docIdx,titluDiv);});
+      wrapper.appendChild(btnEdit);
+    }
 
     const btnDel=document.createElement("button"); btnDel.title="Șterge cartonașul"; btnDel.textContent="✕";
     btnDel.style.cssText="position:absolute;top:4px;right:4px;background:rgba(0,0,0,0.15);border:none;border-radius:50%;width:18px;height:18px;font-size:11px;line-height:18px;cursor:pointer;color:inherit;padding:0;font-weight:bold;";
@@ -730,10 +822,11 @@ async function incarcaDocumente(){
   });
 
   const statusDiv=document.getElementById("statusDosar");
-  if(listaDocumente.length>0&&totalOk===listaDocumente.length)
-    statusDiv.innerHTML=`<span style="color:#16a34a">DOSAR COMPLET ✔</span> (${totalOk}/${listaDocumente.length})`;
+  const listaActiva = listaDocumente.filter(d=>!listaAscunse.includes(d));
+  if(listaActiva.length>0&&totalOk===listaActiva.length)
+    statusDiv.innerHTML=`<span style="color:#16a34a">DOSAR COMPLET ✔</span> (${totalOk}/${listaActiva.length})`;
   else
-    statusDiv.innerHTML=`<span style="color:#dc2626">DOSAR INCOMPLET</span> (${totalOk}/${listaDocumente.length})`;
+    statusDiv.innerHTML=`<span style="color:#dc2626">DOSAR INCOMPLET</span> (${totalOk}/${listaActiva.length})`;
 }
 
 /* ===================== EDIT NR / DATA / TITLU ===================== */
@@ -830,6 +923,14 @@ async function stergeCartonas(tip){
 }
 
 /* ===================== DELETE ===================== */
+async function toggleAscunsCartonas(doc){
+  const idx = listaAscunse.indexOf(doc);
+  if(idx === -1){ listaAscunse.push(doc); }
+  else { listaAscunse.splice(idx, 1); }
+  await salveazaCartonase();
+  incarcaDocumente();
+}
+
 async function stergeDoc(id,link){
   if(!confirm("Ștergi documentul?"))return;
   try{ if(link)await r2DeleteFile(link,"contracte"); await supabaseClient.from("documente_contract").delete().eq("id",id); incarcaDocumente(); }
@@ -1007,7 +1108,7 @@ async function genereazaDosar(){
       y-=18;ri++;
     }
 
-    for(const tip of listaDocumente.filter(t=>t&&t!=='DOSAR ACHIZIȚIE PDF')){
+    for(const tip of listaDocumente.filter(t=>t&&t!=='DOSAR ACHIZIȚIE PDF'&&!listaAscunse.includes(t))){
       if(y<40)break;
       const niv=getNivel(tip),fmt=getFmt(niv),ft=gopd[tip]||[];
       const fd=niv===1?{font:fOB,indent:0,size:9,areDoc:true,areNrCrt:false}:{...fmt,areDoc:true,areNrCrt:false};
