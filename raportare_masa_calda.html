@@ -569,7 +569,7 @@ function renderMain(byTip){
   document.getElementById('dosar-main').innerHTML=SECTIUNI.map((s,i)=>{
     let body='';
     if(s.avize){
-      if(_pontaj.length===0){body='<div class="no-docs">Nu există date în pontaj pentru această lună.</div>';}
+      if(_pontaj.length===0){body='<div class="no-docs">Nu există date în pontaj pentru această lună.</div>'+fileListHtml(byTip[mk(s.id)]||[],s.id)+upzoneHtml(s.id);}
       else{
         // Grupăm zilele consecutive nelivrate
         const grupe=groupZile(_pontaj);
