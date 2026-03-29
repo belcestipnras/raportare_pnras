@@ -1320,7 +1320,7 @@ async function build(expert,luna,an){
     aLH+=`<div class="rap-lista-activitati"><b>${nrAct}.</b> <b>${normClasa(cls)}</b> | Data: <b>${z2(p.zi)}.${lc}.${an}</b> | Elevi: <b>${nE}</b> | Ore: <b>${oP===1?'1 oră':oP+' ore'}</b><br><i>Conținut: ${esc(tema)}</i></div>`;});});
 
   const rspT=lsG(pid+'_resp','<p>Realizarea sesiunilor de sprijin educațional cu elevii din grupul țintă;</p><p>Punerea în aplicare a planului de servicii educaționale personalizat;</p><p>Realizarea instrumentelor și fișelor de lucru necesare;</p><p>Colaborarea cu membrii echipei de management;</p><p>Monitorizarea frecvenței și progresului elevilor;</p><p>Realizarea documentelor de raportare lunară.</p>');
-  const rezT=lsG(pid+'_rez',`<ul><li><b>${nrAct}</b> ore de activități susținute;</li><li><b>${nrAct}</b> liste de prezență;</li><li>Consilierea și sprijinirea elevilor.</li></ul>`);
+  const rezT=lsG(pid+'_rez',`<ul><li><b>${nrAct}</b> activități susținute;</li><li><b>${nrAct}</b> liste de prezență;</li><li>Consilierea și sprijinirea elevilor.</li></ul>`);
   const livT=lsG(pid+'_livr',`<ul><li>Planificări: ${clase.map(c=>normClasa(c)).join(', ')};</li><li><b>${cnt.fi}</b> Fișe & Liste prezență;</li><li><b>${cnt.ma}</b> Liste masă caldă;</li><li>Pontaj ${luna}; Orar ${luna}.</li></ul>`);
 
   H+=pg(ec,`<div class="antet-wrap">${antetImg()}</div>
