@@ -292,6 +292,10 @@ body{font-family:'Inter',sans-serif;background:#0f172a;color:#e2e8f0;min-height:
   </div>
   <div class="years-wrap">
     <div class="year-block">
+      <div class="year-label">📅 2024</div>
+      <div class="months-grid" id="grid-2024"></div>
+    </div>
+    <div class="year-block">
       <div class="year-label">📅 2025</div>
       <div class="months-grid" id="grid-2025"></div>
     </div>
@@ -378,6 +382,18 @@ async function init(){
   const{data:docs}=await db.from('documente_contract').select('tip_document').eq('contract_id',CTR_ID);
   const cnt={};
   (docs||[]).filter(d=>d.tip_document&&d.tip_document.startsWith('MASA_')).forEach(d=>{const m=d.tip_document.match(/MASA_([^_]+)_(\d{4})/);if(m){const k=m[1]+'_'+m[2];cnt[k]=(cnt[k]||0)+1;}});
+
+  // 2024 — doar Decembrie
+  const g2024=document.getElementById('grid-2024');g2024.innerHTML='';
+  ['Decembrie'].forEach(luna=>{
+    const k=luna+'_2024',c=cnt[k]||0;
+    const el=document.createElement('div');
+    el.className='month-card'+(c?' has-docs':'');
+    el.innerHTML=`<span class="mc-name">${luna}</span><span class="mc-count">${c||'—'}</span>`;
+    el.onclick=()=>open_(luna,'2024');
+    g2024.appendChild(el);
+  });
+
   [2025,2026].forEach(an=>{
     const g=document.getElementById('grid-'+an);g.innerHTML='';
     LUNI.forEach(luna=>{
