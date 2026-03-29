@@ -569,7 +569,7 @@ function renderMain(byTip){
   document.getElementById('dosar-main').innerHTML=SECTIUNI.map((s,i)=>{
     let body='';
     if(s.avize){
-      if(_pontaj.length===0){body='<div class="no-docs">Nu există date în pontaj pentru această lună.</div>'+fileListHtml(byTip[mk(s.id)]||[],s.id)+upzoneHtml(s.id);}
+      if(!_pontaj||_pontaj.length===0){body='<div class="no-docs">Nu există date în pontaj pentru această lună.</div>'+fileListHtml(byTip[mk(s.id)]||[],s.id)+upzoneHtml(s.id);}
       else{
         // Grupăm zilele consecutive nelivrate
         const grupe=groupZile(_pontaj);
@@ -1346,31 +1346,24 @@ function printClasaPlaceholders(secId,idx,zi,dataF,claseProf){
 async function pdfToImages(url,scale=1.8){
   return fileToImages(url,scale);
 }
-async function fileToImages(url,scale=1.8){
+async function fileToImages(url,scale=1.2){
   const images=[];
   const ext=(url.split('?')[0].split('.').pop()||'').toLowerCase();
   try{
     if(['jpg','jpeg','png','webp','gif','bmp','tiff','tif','avif'].includes(ext)){
-      // Imagine standard: fetch → canvas → jpeg
-      const resp=await fetch(url);
-      const blob=await resp.blob();
-      const dataUrl=await new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=rej;r.readAsDataURL(blob);});
-      const img=await new Promise((res,rej)=>{const i=new Image();i.onload=()=>res(i);i.onerror=rej;i.src=dataUrl;});
-      const cv=document.createElement('canvas');cv.width=img.naturalWidth;cv.height=img.naturalHeight;
-      cv.getContext('2d').drawImage(img,0,0);
-      images.push(cv.toDataURL('image/jpeg',0.92));
+      // Imagine standard: folosim URL direct — nu convertim în base64
+      images.push(url);
     } else if(['heic','heif'].includes(ext)){
-      // HEIC: fetch blob → heic2any → data URL
       const resp=await fetch(url);
       const blob=await resp.blob();
-      const converted=await heic2any({blob,toType:'image/jpeg',quality:0.92});
+      const converted=await heic2any({blob,toType:'image/jpeg',quality:0.75});
       const arrBlob=Array.isArray(converted)?converted:[converted];
       for(const b of arrBlob){
         const dataUrl=await new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=rej;r.readAsDataURL(b);});
         images.push(dataUrl);
       }
     } else {
-      // PDF (sau orice altceva) via pdf.js
+      // PDF via pdf.js — scala redusă, calitate redusă
       const pdf=await pdfjsLib.getDocument({
         url,
         cMapUrl:'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/cmaps/',
@@ -1381,7 +1374,7 @@ async function fileToImages(url,scale=1.8){
         const vp=pg.getViewport({scale});
         const cv=document.createElement('canvas');cv.width=vp.width;cv.height=vp.height;
         await pg.render({canvasContext:cv.getContext('2d'),viewport:vp}).promise;
-        images.push(cv.toDataURL('image/jpeg',0.92));
+        images.push(cv.toDataURL('image/jpeg',0.75));
       }
     }
   }catch(e){console.warn('fileToImages error ('+ext+'):',e);}
@@ -1402,11 +1395,33 @@ async function genDosar(){
     antetSrc=await new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=rej;r.readAsDataURL(blob);});
   }catch(e){console.warn('Antet fallback URL',e);}
 
-  // Cache imagini — populat secvential la procesare
+  // Cache imagini — uploadează paginile în R2 și returnează URL-uri
   const _imgCache={};
   async function getImgs(key,url){
-    if(!_imgCache[key])_imgCache[key]=await pdfToImages(url);
-    return _imgCache[key];
+    if(_imgCache[key]) return _imgCache[key];
+    const pages=await pdfToImages(url);
+    // Dacă sunt deja URL-uri (imagini directe) — returnează ca atare
+    if(pages.length&&pages[0].startsWith('http')){
+      _imgCache[key]=pages;
+      return pages;
+    }
+    // PDF pages — uploadează fiecare în R2
+    const urls=[];
+    for(let pi=0;pi<pages.length;pi++){
+      try{
+        const b64=pages[pi];
+        const byteStr=atob(b64.split(',')[1]);
+        const ab=new ArrayBuffer(byteStr.length);
+        const ia=new Uint8Array(ab);
+        for(let j=0;j<byteStr.length;j++) ia[j]=byteStr.charCodeAt(j);
+        const imgBlob=new Blob([ab],{type:'image/jpeg'});
+        const fn=`masa_calda/tmp/${_luna}_${_an}_${key}_p${pi+1}_${Date.now()}.jpg`;
+        const imgUrl=await r2Up(fn,imgBlob);
+        urls.push(imgUrl);
+      }catch(e){console.warn('upload page error:',e);urls.push(pages[pi]);}
+    }
+    _imgCache[key]=urls;
+    return urls;
   }
 
 
@@ -1531,9 +1546,11 @@ async function genDosar(){
     } else if(s.avize){
       // S6 — ordine cronologică: zile livrate (aviz + liste) intercalate cu comunicări nelivrare
 
-      // Dacă nu există pontaj (ex. Decembrie 2024) — preia documentele uploadate direct
+      // Dacă nu există pontaj — preia documentele uploadate direct la S6
       if(!_pontaj||_pontaj.length===0){
-        const docsS6=(_byTip[mk(s.id)]||[]).filter(d=>!d.exclude_print&&d.link_drive);
+        const{data:docsS6Direct}=await db.from('documente_contract').select('*')
+          .eq('contract_id',CTR_ID).ilike('tip_document',`MASA_${_luna}_${_an}_S6%`);
+        const docsS6=(docsS6Direct||[]).filter(d=>!d.exclude_print&&d.link_drive);
         if(docsS6.length){
           for(const d of docsS6){
             setSt('⏳ Se procesează S6...','load');
@@ -1542,9 +1559,11 @@ async function genDosar(){
             else printHtml+=printPlaceholder(s.id,i,s.label,'Eroare la procesare: '+(d.nume_fisier||'document'));
           }
         } else {
-          printHtml+=printPlaceholder(s.id,i,s.label,'Niciun document încărcat pentru această lună.');
+          printHtml+=printPlaceholder(s.id,i,s.label,'Niciun document încărcat pentru S6.');
         }
       } else {
+
+      // Preia datele avizelor din registru_documente (nr înregistrare + cantitate)
       const{data:regAvize}=await db.from('registru_documente').select('zi,nr,data_doc,cantitate').eq('tip','AVIZ').eq('luna',_luna).eq('an',parseInt(_an));
       const regByZi={};(regAvize||[]).forEach(r=>{regByZi[String(r.zi)]=r;});
 
@@ -1651,16 +1670,6 @@ async function genDosar(){
             <div style="font-size:13pt;color:#0e7490;font-weight:600;">${cantitate} porții</div>
           </div>`;
 
-          // ===== AVIZ — PDF uploadat cu prioritate, altfel generat =====
-          const docsAvizZi=(_byTip[mk(s.id,p.zi)]||[]).filter(d=>!d.exclude_print&&d.link_drive);
-          if(docsAvizZi.length){
-            for(const d of docsAvizZi){
-              const imgs=await getImgs('doc_'+d.id,d.link_drive);
-              if(imgs.length) imgs.forEach(src=>{printHtml+=`<div class="print-pdf-page"><img src="${src}" style="width:100%;display:block;"></div>`;});
-              else printHtml+=printPlaceholder(s.id,i,s.label,'Eroare la procesare aviz '+dataF);
-            }
-          } else {
-
           // ===== AVIZ — exact ca în registru_avize.html =====
           printHtml+=`<style>${CSS_S6}</style><div class="sheet-aviz">
   <img src="${antetSrc}" alt="Antet PNRAS" class="antet-img">
@@ -1704,7 +1713,6 @@ async function genDosar(){
   </div>
   <div class="footer-aviz">„PNRR. Finanțat de Uniunea Europeană – UrmătoareaGenerațieUE"<br>https://mfe.gov.ro/pnrr/ | https://www.facebook.com/PNRROficial/</div>
 </div>`;
-          } // end else (aviz generat)
 
           // ===== LISTE PREZENȚĂ + MASĂ PER CLASĂ =====
           for(const cl of claseList){
@@ -1777,16 +1785,6 @@ async function genDosar(){
               <div class="print-aviz-date" style="color:#7c3aed;">${perioada}</div>
             </div>`;
 
-            // PDF uploadat cu prioritate, altfel comunicare generată
-            const groupKey2=`${ev.zi}-${ev.ziEnd||ev.zi}`;
-            const docsCom=(_byTip[mk(s.id,'com_'+groupKey2)]||[]).filter(d=>!d.exclude_print&&d.link_drive);
-            if(docsCom.length){
-              for(const d of docsCom){
-                const imgs=await getImgs('doc_'+d.id,d.link_drive);
-                if(imgs.length) imgs.forEach(src=>{printHtml+=`<div class="print-pdf-page"><img src="${src}" style="width:100%;display:block;"></div>`;});
-                else printHtml+=printPlaceholder(s.id,i,s.label,'Eroare la procesare comunicare '+perioada);
-              }
-            } else {
             // Comunicare — exact ca în registru_avize.html
             printHtml+=`<style>${CSS_S6}</style><div class="sheet-com">
   <div class="com-antet">
@@ -1811,7 +1809,6 @@ async function genDosar(){
     <span>Semnătura și ștampila: ___________________</span>
   </div>
 </div>`;
-            } // end else (comunicare generată)
           } else {
             // Nu există comunicare salvată — placeholder
             printHtml+=`<div class="print-placeholder-page" style="border-color:${c4.border};">
@@ -1823,7 +1820,8 @@ async function genDosar(){
           }
         }
       }
-      } // end else (_pontaj.length > 0)    }
+      } // end else pontaj există
+    }
   }
 
   // ===== SALVEAZĂ DOSARUL =====
