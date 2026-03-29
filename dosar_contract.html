@@ -546,6 +546,7 @@ const listaDocumente_DEFAULT = [
 let listaDocumente = [];
 let _existente = [];
 let _saritMigrare = false;
+let _migratLocal = false;
 let listaAscunse = [];  // cartonașe excluse din dosar
 
 const obligatorii = [
@@ -578,9 +579,9 @@ function getListaDefault() {
   return listaDocumente_DEFAULT;
 }
 
-async function salveazaCartonase(migrat=false) {
+async function salveazaCartonase(setMigrat=false) {
   const payload = { contract_id: contractId, cartonase: listaDocumente, ascunse: listaAscunse };
-  if (migrat) payload.migrat = true;
+  if (setMigrat || _migratLocal) payload.migrat = true;
   await supabaseClient.from("cartonase_config").upsert(payload, { onConflict: "contract_id" });
 }
 
@@ -616,13 +617,16 @@ async function incarcaDocumente(){
         // Adăugăm standardele lipsă doar dacă chiar lipseau
         const modificatP = standardLipsa.length > 0 || deElminatProcons.some(c => lista.includes(c));
         listaDocumente.splice(0, listaDocumente.length, ...listaProcons);
-        if (modificatP) await salveazaCartonase();
+        _migratLocal = true;
+        if (modificatP) await salveazaCartonase(true);
       } else {
       // Cartonașele vechi de șters (înlocuite de cele noi)
       // Migrare doar dacă lista nu conține deja toate canonicele 12-19
       // Migrare doar dacă nu a fost deja efectuată (marcată în Supabase)
       if (cfgData.migrat || _saritMigrare) {
+        _migratLocal = true;
         listaDocumente.splice(0, listaDocumente.length, ...lista);
+        if (!cfgData.migrat) await salveazaCartonase(true); // persista migrat=true
       } else {
       // Cartonașele canonice fixe 12-19
       const canonice12plus = [
@@ -647,6 +651,7 @@ async function incarcaDocumente(){
       // 3. Adaugă fix 12-19 la final
       canonice12plus.forEach(c => listaFiltrata.push(c));
       listaDocumente.splice(0, listaDocumente.length, ...listaFiltrata);
+      _migratLocal = true;
       await salveazaCartonase(true);
       } // end migrat
       } // end if(!eProcons)
