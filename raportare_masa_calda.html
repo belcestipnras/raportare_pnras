@@ -450,7 +450,13 @@ async function load(){
     ]);
     // Fetch secundar — nu blochează dacă eșuează
     const[factR,eleviR,listeR]=await Promise.all([
-      db.from('buget_pnras').select('id,titlu,numar,data_document,valoare,val_fara_tva').eq('parent_id',CTR_ID).eq('tip_rand','FACTURA').ilike('titlu','%'+_luna.toLowerCase()+'%').order('data_document',{ascending:true}).then(r=>r).catch(()=>({data:[]})),
+      db.from('buget_pnras').select('id,titlu,numar,data_document,valoare,val_fara_tva').eq('parent_id',CTR_ID).eq('tip_rand','FACTURA').ilike('titlu','%'+_luna.toLowerCase()+'%').order('data_document',{ascending:true}).then(r=>{
+        if(r.data) r.data=r.data.filter(f=>{
+          if(!f.data_document) return true;
+          return String(new Date(f.data_document).getFullYear())===String(_an);
+        });
+        return r;
+      }).catch(()=>({data:[]})),
       db.from('elevi').select('clasa_grupa').then(r=>r).catch(()=>({data:[]})),
       db.from('liste_fisiere').select('*').eq('luna',_luna).eq('an',_an).then(r=>r).catch(()=>({data:[]}))
     ]);
