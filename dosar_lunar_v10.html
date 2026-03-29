@@ -1243,10 +1243,20 @@ async function build(expert,luna,an){
       const lpFisier=allListe.find(l=>l.zi==p.zi&&l.clasa===cls&&l.tip==='prezenta');
       if(lpFisier&&lpFisier.public_url){
         // Fișier încărcat de expert — îl randăm pixel-perfect
-        const extLP=(lpFisier.public_url.split('.').pop()||'').toLowerCase();
+        const extLP=(lpFisier.public_url.split('?')[0].split('.').pop()||'').toLowerCase();
         try{
           const bufLP=await fetch(lpFisier.public_url).then(r=>r.arrayBuffer());
-          if(extLP==='pdf')H+=await renderPdfFromBuffer(bufLP,lpFisier.public_url,ec);
+          const bLP=new Uint8Array(bufLP.slice(0,16));
+          const isImgLP=['jpg','jpeg','png','gif','webp','bmp','tiff','tif','heic','heif','avif'].includes(extLP)||(bLP[0]===0xFF&&bLP[1]===0xD8)||(bLP[0]===0x89&&bLP[1]===0x50)||(bLP[0]===0x47&&bLP[1]===0x49&&bLP[2]===0x46);
+          const isPdfLP=bLP[0]===0x25&&bLP[1]===0x50&&bLP[2]===0x44&&bLP[3]===0x46;
+          const isPkLP=bLP[0]===0x50&&bLP[1]===0x4B;
+          if(isImgLP&&!isPdfLP&&!isPkLP){
+            const mimeLP=extLP==='png'?'image/png':extLP==='gif'?'image/gif':extLP==='webp'?'image/webp':(extLP==='heic'||extLP==='heif')?'image/heic':'image/jpeg';
+            let blobLP=new Blob([bufLP],{type:mimeLP});
+            if(extLP==='heic'||extLP==='heif'){try{blobLP=await heic2any({blob:blobLP,toType:'image/jpeg',quality:0.92});if(Array.isArray(blobLP))blobLP=blobLP[0];}catch(e){}}
+            const b64LP=await new Promise(res=>{const rd=new FileReader();rd.onload=()=>res(rd.result);rd.readAsDataURL(blobLP);});
+            H+=pg(ec,`<img src="${b64LP}" class="r2-foto">`);
+          }else if(isPdfLP||extLP==='pdf')H+=await renderPdfFromBuffer(bufLP,lpFisier.public_url,ec);
           else H+=await renderWordFromBuffer(bufLP,lpFisier.public_url,ec);
         }catch(e){
           P.push({t:'warn',s:`III. Prezență ${normClasa(cls)} ${z2(p.zi)}.${lc}.${an}`,m:'Fișier prezență nu a putut fi randat: '+e.message});
@@ -1264,10 +1274,20 @@ async function build(expert,luna,an){
       if(!p.fara_masa){
         const lmFisier=allListe.find(l=>l.zi==p.zi&&l.clasa===cls&&l.tip==='masa');
         if(lmFisier&&lmFisier.public_url){
-          const extLM=(lmFisier.public_url.split('.').pop()||'').toLowerCase();
+          const extLM=(lmFisier.public_url.split('?')[0].split('.').pop()||'').toLowerCase();
           try{
             const bufLM=await fetch(lmFisier.public_url).then(r=>r.arrayBuffer());
-            if(extLM==='pdf')H+=await renderPdfFromBuffer(bufLM,lmFisier.public_url,ec);
+            const bLM=new Uint8Array(bufLM.slice(0,16));
+            const isImgLM=['jpg','jpeg','png','gif','webp','bmp','tiff','tif','heic','heif','avif'].includes(extLM)||(bLM[0]===0xFF&&bLM[1]===0xD8)||(bLM[0]===0x89&&bLM[1]===0x50)||(bLM[0]===0x47&&bLM[1]===0x49&&bLM[2]===0x46);
+            const isPdfLM=bLM[0]===0x25&&bLM[1]===0x50&&bLM[2]===0x44&&bLM[3]===0x46;
+            const isPkLM=bLM[0]===0x50&&bLM[1]===0x4B;
+            if(isImgLM&&!isPdfLM&&!isPkLM){
+              const mimeLM=extLM==='png'?'image/png':extLM==='gif'?'image/gif':extLM==='webp'?'image/webp':(extLM==='heic'||extLM==='heif')?'image/heic':'image/jpeg';
+              let blobLM=new Blob([bufLM],{type:mimeLM});
+              if(extLM==='heic'||extLM==='heif'){try{blobLM=await heic2any({blob:blobLM,toType:'image/jpeg',quality:0.92});if(Array.isArray(blobLM))blobLM=blobLM[0];}catch(e){}}
+              const b64LM=await new Promise(res=>{const rd=new FileReader();rd.onload=()=>res(rd.result);rd.readAsDataURL(blobLM);});
+              H+=pg(ec,`<img src="${b64LM}" class="r2-foto">`);
+            }else if(isPdfLM||extLM==='pdf')H+=await renderPdfFromBuffer(bufLM,lmFisier.public_url,ec);
             else H+=await renderWordFromBuffer(bufLM,lmFisier.public_url,ec);
           }catch(e){
             P.push({t:'warn',s:`III. Masă ${normClasa(cls)} ${z2(p.zi)}.${lc}.${an}`,m:'Fișier masă nu a putut fi randat: '+e.message});

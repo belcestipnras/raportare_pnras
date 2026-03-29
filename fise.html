@@ -540,7 +540,7 @@ REGULI: NU scrie altceva în afară de aceste 5 secțiuni. Fiecare secțiune pe 
                 try { fisier = await convertToJpeg(fisier); } catch(e) { console.warn('Conversie fallback:', e); }
             }
 
-            const extensie = tip === 'FOTO' ? 'jpg' : 'pdf';
+            const extReala = fisier.name.split(".").pop().toLowerCase(); const extensie = tip === "FOTO" ? "jpg" : (extReala || "pdf");
             const expertNorm = normalizeaza(config.expert);
             const clasaNorm  = normalizeaza(config.clasa);
             const lunaNorm   = normalizeaza(config.luna);
@@ -913,7 +913,7 @@ REGULI: NU scrie altceva în afară de aceste 5 secțiuni. Fiecare secțiune pe 
     function triggerUploadPeData(tip, data, grupDiv, fisiereLista) {
         const inp = document.createElement('input');
         inp.type = 'file';
-        inp.accept = tip === 'FOTO' ? 'image/*' : 'application/pdf';
+        inp.accept = tip === 'FOTO' ? 'image/*' : 'application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,.pdf,.docx';
         inp.multiple = true;
         inp.style.display = 'none';
         document.body.appendChild(inp);
@@ -948,7 +948,7 @@ REGULI: NU scrie altceva în afară de aceste 5 secțiuni. Fiecare secțiune pe 
                 try { fisier = await convertToJpeg(fisier); } catch(e) { console.warn('Conversie fallback:', e); }
             }
 
-            const extensie = tip === 'FOTO' ? 'jpg' : 'pdf';
+            const extReala = fisier.name.split(".").pop().toLowerCase(); const extensie = tip === "FOTO" ? "jpg" : (extReala || "pdf");
             const expertNorm = normalizeaza(config.expert);
             const clasaNorm  = normalizeaza(config.clasa);
             const lunaNorm   = normalizeaza(config.luna);
