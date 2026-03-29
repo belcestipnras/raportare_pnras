@@ -544,6 +544,8 @@ const listaDocumente_DEFAULT = [
   "17. NIR/BC/Fișa mijloc fix/Fișa de magazie","18. Fotografii","19. Alte documente"
 ];
 let listaDocumente = [];
+let _existente = [];
+let _saritMigrare = false;
 let listaAscunse = [];  // cartonașe excluse din dosar
 
 const obligatorii = [
@@ -576,9 +578,10 @@ function getListaDefault() {
   return listaDocumente_DEFAULT;
 }
 
-async function salveazaCartonase() {
-  await supabaseClient.from("cartonase_config")
-    .upsert({ contract_id: contractId, cartonase: listaDocumente, ascunse: listaAscunse }, { onConflict: "contract_id" });
+async function salveazaCartonase(migrat=false) {
+  const payload = { contract_id: contractId, cartonase: listaDocumente, ascunse: listaAscunse };
+  if (migrat) payload.migrat = true;
+  await supabaseClient.from("cartonase_config").upsert(payload, { onConflict: "contract_id" });
 }
 
 async function incarcaDocumente(){
@@ -592,7 +595,7 @@ async function incarcaDocumente(){
     listaDocumente.splice(0, listaDocumente.length, ...getListaDefault());
     await salveazaCartonase();
   } else {
-    const { data: cfgData } = await supabaseClient.from("cartonase_config").select("cartonase,ascunse").eq("contract_id", contractId).maybeSingle();
+    const { data: cfgData } = await supabaseClient.from("cartonase_config").select("cartonase,ascunse,migrat").eq("contract_id", contractId).maybeSingle();
     if (cfgData) {
       listaAscunse = cfgData.ascunse || [];
       let lista = cfgData.cartonase || [];
@@ -617,8 +620,8 @@ async function incarcaDocumente(){
       } else {
       // Cartonașele vechi de șters (înlocuite de cele noi)
       // Migrare doar dacă lista nu conține deja toate canonicele 12-19
-      const areCanoniceNoi = lista.includes("19. Alte documente") && lista.includes("12. Proces-verbal de dare în folosință");
-      if (areCanoniceNoi) {
+      // Migrare doar dacă nu a fost deja efectuată (marcată în Supabase)
+      if (cfgData.migrat || _saritMigrare) {
         listaDocumente.splice(0, listaDocumente.length, ...lista);
       } else {
       // Cartonașele canonice fixe 12-19
@@ -644,8 +647,8 @@ async function incarcaDocumente(){
       // 3. Adaugă fix 12-19 la final
       canonice12plus.forEach(c => listaFiltrata.push(c));
       listaDocumente.splice(0, listaDocumente.length, ...listaFiltrata);
-      await salveazaCartonase();
-      } // end areCanoniceNoi
+      await salveazaCartonase(true);
+      } // end migrat
       } // end if(!eProcons)
     } else {
       const { data: de } = await supabaseClient.from("documente_contract").select("tip_document").eq("contract_id", contractId);
@@ -666,6 +669,7 @@ async function incarcaDocumente(){
     return true;
   });
   const existente = data.map(d=>d.tip_document);
+  _existente = existente;
 
   document.getElementById("bifaComplet").checked = !!data.find(d=>d.dosar_complet_manual===true);
 
@@ -740,20 +744,25 @@ async function incarcaDocumente(){
   }
 
   /* ---- CARTONAȘE ---- */
+  randeazaCartonase(existente);
+}
+
+
+// Match cartonaș față de documente existente — după denumire exactă SAU prefix numeric ("12.")
+function docExista(doc, existente) {
+  if (existente.includes(doc)) return true;
+  const prefix = doc.match(/^(\d+(?:\.\d+)?)\.\s/);
+  if (prefix) {
+    const p = prefix[1] + '.';
+    return existente.some(e => e.startsWith(p));
+  }
+  return false;
+}
+
+function randeazaCartonase(existente) {
   const container = document.getElementById("cartonaseContainer");
   container.innerHTML = "";
   let totalOk = 0;
-
-  // Match cartonaș față de documente existente — după denumire exactă SAU prefix numeric ("12.")
-  function docExista(doc, existente) {
-    if (existente.includes(doc)) return true;
-    const prefix = doc.match(/^(\d+(?:\.\d+)?)\.\s/);
-    if (prefix) {
-      const p = prefix[1] + '.';
-      return existente.some(e => e.startsWith(p));
-    }
-    return false;
-  }
 
   listaDocumente.forEach(doc => {
     const eAscuns = listaAscunse.includes(doc);
@@ -900,8 +909,13 @@ function editeazaCartonas(idx,titleDiv){
     const io=obligatorii.indexOf(vechuNume); if(io!==-1)obligatorii[io]=nouNume;
     if(nouNume!==vechuNume){
       await salveazaCartonase();
-      supabaseClient.from("documente_contract").update({tip_document:nouNume}).eq("contract_id",contractId).eq("tip_document",vechuNume).then(()=>incarcaDocumente());
-    } else incarcaDocumente();
+      await supabaseClient.from("documente_contract").update({tip_document:nouNume}).eq("contract_id",contractId).eq("tip_document",vechuNume);
+      _saritMigrare = true;
+      await incarcaDocumente();
+      _saritMigrare = false;
+    } else {
+      randeazaCartonase(_existente);
+    }
   }
   inp.addEventListener("blur",salveaza);
   inp.addEventListener("keydown",function(e){if(e.key==="Enter")inp.blur();if(e.key==="Escape")incarcaDocumente();});

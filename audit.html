@@ -532,7 +532,7 @@ async function r2DeleteFile(publicUrl, bucketKey) {
         "4. Anunț achiziție", "5. Ofertă", "6. Proces-verbal selecție oferte",
         "7. Comunicare selecție oferte", "8. Dovadă achiziție SICAP", "9. Contract",
         "10. Decizie comisie recepție", "11. Proces-verbal de recepție",
-        "13. Factura", "14. OP"
+        "13. Factură", "14. ALOP", "15. Ordin de plată", "16. Extras de cont"
     ];
 
     const LISTA_DOCUMENTE = [
@@ -542,8 +542,24 @@ async function r2DeleteFile(publicUrl, bucketKey) {
         "6. Proces-verbal selecție oferte", "7. Comunicare selecție oferte",
         "8. Dovadă achiziție SICAP", "9. Contract", "10. Decizie comisie recepție",
         "11. Proces-verbal de recepție", "12. Proces-verbal de dare în folosință",
-        "13. Factura", "14. OP", "15. Fotografii", "16. Alte documente"
+        "13. Factură", "14. ALOP", "15. Ordin de plată", "16. Extras de cont",
+        "17. NIR/BC/Fișa mijloc fix/Fișa de magazie", "18. Fotografii", "19. Alte documente"
     ];
+
+
+    // Completează lista cu 12-19 canonice dacă lipsesc (pentru contracte cu config parțială)
+    const CTR_PROCONS = '275eb452-1c8b-4b7a-b1a6-d73fad65490c';
+    const CANONICE_12_19 = [
+        "12. Proces-verbal de dare în folosință",
+        "13. Factură", "14. ALOP", "15. Ordin de plată", "16. Extras de cont",
+        "17. NIR/BC/Fișa mijloc fix/Fișa de magazie", "18. Fotografii", "19. Alte documente"
+    ];
+    function completeazaLista(lista, ctrId) {
+        if (ctrId === CTR_PROCONS) return lista;
+        const rez = [...lista];
+        CANONICE_12_19.forEach(c => { if (!rez.includes(c)) rez.push(c); });
+        return rez;
+    }
 
     // ===================== DIALOG =====================
     function arataDialog(titlu, mesaj, butoane, cuInput, placeholder, valoareInitiala) {
@@ -737,10 +753,11 @@ async function r2DeleteFile(publicUrl, bucketKey) {
             .eq('card_id', '00000000-0000-0000-0000-000000000001').eq('tip', 'blocat').eq('sters', false);
         const blocateSet = new Set((blocate || []).map(b => b.titlu));
 
-        const { data: cartonaseConfig } = await db.from('cartonase_config').select('contract_id, cartonase');
+        const { data: cartonaseConfig } = await db.from('cartonase_config').select('contract_id, cartonase, ascunse');
         const cartonasePer = {};
+        const ascunsePer = {};
         if (cartonaseConfig) {
-            cartonaseConfig.forEach(c => { cartonasePer[c.contract_id] = c.cartonase || []; });
+            cartonaseConfig.forEach(c => { cartonasePer[c.contract_id] = c.cartonase || []; ascunsePer[c.contract_id] = c.ascunse || []; });
         }
 
         // Separare contracte vs state de plată (subcategorie 'c' = state de plată)
@@ -761,7 +778,8 @@ async function r2DeleteFile(publicUrl, bucketKey) {
         function genContractItem(c, esteBlockat) {
             const ex = docPer[c.id] || [];
             const listaCustom = cartonasePer[c.id];
-            const lista = (listaCustom && listaCustom.length > 0) ? listaCustom : LISTA_DOCUMENTE;
+            const ascunse = ascunsePer[c.id] || [];
+            const lista = completeazaLista((listaCustom && listaCustom.length > 0) ? listaCustom : LISTA_DOCUMENTE, c.id).filter(t => !ascunse.includes(t));
             const totalOk = lista.filter(d => ex.includes(d)).length;
             const complet = lista.length > 0 && totalOk === lista.length;
             let st = '';
@@ -915,10 +933,11 @@ async function r2DeleteFile(publicUrl, bucketKey) {
             .eq('card_id', '00000000-0000-0000-0000-000000000004').eq('tip', 'blocat').eq('sters', false);
         const blocateSet = new Set((blocate || []).map(b => b.titlu));
 
-        const { data: cartonaseConfig } = await db.from('cartonase_config').select('contract_id, cartonase');
+        const { data: cartonaseConfig } = await db.from('cartonase_config').select('contract_id, cartonase, ascunse');
         const cartonasePer = {};
+        const ascunsePer2 = {};
         if (cartonaseConfig) {
-            cartonaseConfig.forEach(c => { cartonasePer[c.contract_id] = c.cartonase || []; });
+            cartonaseConfig.forEach(c => { cartonasePer[c.contract_id] = c.cartonase || []; ascunsePer2[c.contract_id] = c.ascunse || []; });
         }
 
         const LISTA_SALARII = ['Foaie de pontaj colectiv', 'Stat de plată', 'ALOP', 'Ordin de plată', 'Extras de cont'];
@@ -936,7 +955,8 @@ async function r2DeleteFile(publicUrl, bucketKey) {
         function genStatItem(c, esteBlockat) {
             const ex = docPer[c.id] || [];
             const listaCustom = cartonasePer[c.id];
-            const lista = (listaCustom && listaCustom.length > 0) ? listaCustom : LISTA_SALARII;
+            const ascunse2 = ascunsePer2[c.id] || [];
+            const lista = ((listaCustom && listaCustom.length > 0) ? listaCustom : LISTA_SALARII).filter(t => !ascunse2.includes(t));
             const totalOk = lista.filter(d => ex.includes(d)).length;
             const complet = lista.length > 0 && totalOk === lista.length;
             let st = '';
@@ -1417,9 +1437,10 @@ async function r2DeleteFile(publicUrl, bucketKey) {
         const { data: docs } = await db.from('documente_contract').select('*').eq('contract_id', contractId);
 
         const { data: cfgData } = await db.from('cartonase_config')
-            .select('cartonase').eq('contract_id', contractId).maybeSingle();
-        const listaCartonase = (cfgData && cfgData.cartonase && cfgData.cartonase.length)
-            ? cfgData.cartonase : LISTA_DOCUMENTE;
+            .select('cartonase, ascunse').eq('contract_id', contractId).maybeSingle();
+        const ascunseContract = (cfgData && cfgData.ascunse) || [];
+        const listaCartonase = completeazaLista((cfgData && cfgData.cartonase && cfgData.cartonase.length)
+            ? cfgData.cartonase : LISTA_DOCUMENTE, contractId).filter(t => !ascunseContract.includes(t));
 
         const { data: contractRow } = await db.from('buget_pnras').select('subcategorie').eq('id', contractId).maybeSingle();
         const esteStatPlata = contractRow && contractRow.subcategorie === 'c';
@@ -1464,8 +1485,14 @@ async function r2DeleteFile(publicUrl, bucketKey) {
 
         // ===== CONTRACTE — checklist documente achiziție =====
         const existente = docs ? docs.map(d => d.tip_document) : [];
+        // Facturile din dosar_facturi (furnizor=UUID, tip=13. Factura) — tratate separat (exclus Procons)
+        const facturiDosar = contractId === CTR_PROCONS ? [] : (docs || []).filter(d =>
+            d.tip_document === '13. Factura' && d.furnizor && d.furnizor.length === 36
+        );
         const grupate = {};
-        if (docs) docs.forEach(d => {
+        if (docs) docs.filter(d =>
+            !(d.tip_document === '13. Factura' && d.furnizor && d.furnizor.length === 36)
+        ).forEach(d => {
             if (!grupate[d.tip_document]) grupate[d.tip_document] = [];
             grupate[d.tip_document].push(d);
         });
@@ -1504,14 +1531,14 @@ async function r2DeleteFile(publicUrl, bucketKey) {
                 '<span class="check-name">' + tip + '</span>' +
                 '</div>';
 
-            if (tip === '9. Contract' || tip === '13. Factura') {
+            if (tip === '9. Contract' || tip === '13. Factură') {
                 html += '<div style="margin-top:7px;margin-left:28px;display:flex;align-items:flex-start;gap:6px;color:#9ca3af;font-size:11px;font-style:italic;line-height:1.6;">' +
                     '<span style="flex-shrink:0;margin-top:1px;">⚠️</span>' +
                     '<span>Verifică să fie menționate: <b>Codul Proiectului</b>, <b>Bun de plată</b>, <b>Viza CFP</b>, <b>Certificat în privința realității, regularității, legalității</b></span>' +
                     '</div>';
             }
 
-            if (tip === '14. OP') {
+            if (tip === '14. ALOP') {
                 html += '<div style="margin-top:7px;margin-left:28px;display:flex;align-items:flex-start;gap:6px;color:#9ca3af;font-size:11px;font-style:italic;line-height:1.6;">' +
                     '<span style="flex-shrink:0;margin-top:1px;">⚠️</span>' +
                     '<span>Verifică să fie menționate: <b>Codul Proiectului</b>, <b>Certificat în privința realității, regularității, legalității</b></span>' +
@@ -1541,11 +1568,30 @@ async function r2DeleteFile(publicUrl, bucketKey) {
         const tipuriExtra = Object.keys(grupate).filter(tip => {
             if (listaCartonase.includes(tip)) return false;
             if (tip === 'DOSAR ACHIZIȚIE PDF') return false;
+            if (tip === '13. Factura') return false;
             const t = tip.toUpperCase();
             return t.includes('FACTUR') || t.includes('DOSAR');
         });
-        if (tipuriExtra.length > 0) {
+        const areAltceva = tipuriExtra.length > 0 || facturiDosar.length > 0;
+        if (areAltceva) {
             html += '<div style="margin-top:12px;font-size:12px;color:#888;font-style:italic;">Alte documente:</div>';
+            // Buton Dosar facturi pentru fiecare factură
+            if (facturiDosar.length > 0) {
+                const titluEnc = encodeURIComponent(titlu);
+                facturiDosar.forEach(f => {
+                    const nrF = f.nr_inregistrare ? 'Nr. ' + f.nr_inregistrare + ' — ' : '';
+                    const dataF = f.data_inregistrare ? f.data_inregistrare.split('-').reverse().join('.') + ' — ' : '';
+                    const numeF = f.nume_fisier || 'Factură';
+                    const url = 'dosar_facturi.html?id=' + contractId + '&den=' + titluEnc;
+                    html += '<div class="check-item check-opt"><div class="check-item-header">' +
+                        '<span class="check-icon">🧾</span>' +
+                        '<span class="check-name">' + nrF + dataF + numeF + '</span>' +
+                        '</div>' +
+                        '<div style="margin-top:6px;margin-left:28px;">' +
+                        '<a href="' + url + '" style="font-size:12px;color:#2563eb;font-weight:600;text-decoration:none;">📂 Deschide Dosar Factură</a>' +
+                        '</div></div>';
+                });
+            }
             tipuriExtra.forEach(tip => {
                 const fisiere = grupate[tip] || [];
                 html += '<div class="check-item check-opt"><div class="check-item-header">' +
