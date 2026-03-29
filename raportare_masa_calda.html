@@ -1531,7 +1531,20 @@ async function genDosar(){
     } else if(s.avize){
       // S6 — ordine cronologică: zile livrate (aviz + liste) intercalate cu comunicări nelivrare
 
-      // Preia datele avizelor din registru_documente (nr înregistrare + cantitate)
+      // Dacă nu există pontaj (ex. Decembrie 2024) — preia documentele uploadate direct
+      if(!_pontaj||_pontaj.length===0){
+        const docsS6=(_byTip[mk(s.id)]||[]).filter(d=>!d.exclude_print&&d.link_drive);
+        if(docsS6.length){
+          for(const d of docsS6){
+            setSt('⏳ Se procesează S6...','load');
+            const imgs=await getImgs('doc_'+d.id,d.link_drive);
+            if(imgs.length) imgs.forEach(src=>{printHtml+=`<div class="print-pdf-page"><img src="${src}" style="width:100%;display:block;"></div>`;});
+            else printHtml+=printPlaceholder(s.id,i,s.label,'Eroare la procesare: '+(d.nume_fisier||'document'));
+          }
+        } else {
+          printHtml+=printPlaceholder(s.id,i,s.label,'Niciun document încărcat pentru această lună.');
+        }
+      } else {
       const{data:regAvize}=await db.from('registru_documente').select('zi,nr,data_doc,cantitate').eq('tip','AVIZ').eq('luna',_luna).eq('an',parseInt(_an));
       const regByZi={};(regAvize||[]).forEach(r=>{regByZi[String(r.zi)]=r;});
 
@@ -1810,7 +1823,7 @@ async function genDosar(){
           }
         }
       }
-    }
+      } // end else (_pontaj.length > 0)    }
   }
 
   // ===== SALVEAZĂ DOSARUL =====
