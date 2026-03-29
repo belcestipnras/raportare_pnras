@@ -668,10 +668,12 @@ async function incarcaDocumente(){
   const { data:docs, error } = await supabaseClient.from("documente_contract").select("*").eq("contract_id", contractId);
   if(error){ console.log("EROARE LOAD:", error); return; }
 
-  const areFactura = listaDocumente.includes("13. Factura");
-  const data = (docs||[]).filter(d => {
-    if(d.furnizor&&d.furnizor.length===36&&d.tip_document==="13. Factura") return areFactura;
-    return true;
+  // Facturile din buget_achizitii (furnizor=UUID, tip=13. Factura) → le remapăm la "13. Factură"
+  const data = (docs||[]).map(d => {
+    if(d.furnizor&&d.furnizor.length===36&&d.tip_document==="13. Factura") {
+      return {...d, tip_document:"13. Factură"};
+    }
+    return d;
   });
   const existente = data.map(d=>d.tip_document);
   _existente = existente;
