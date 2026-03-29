@@ -1638,6 +1638,16 @@ async function genDosar(){
             <div style="font-size:13pt;color:#0e7490;font-weight:600;">${cantitate} porții</div>
           </div>`;
 
+          // ===== AVIZ — PDF uploadat cu prioritate, altfel generat =====
+          const docsAvizZi=(_byTip[mk(s.id,p.zi)]||[]).filter(d=>!d.exclude_print&&d.link_drive);
+          if(docsAvizZi.length){
+            for(const d of docsAvizZi){
+              const imgs=await getImgs('doc_'+d.id,d.link_drive);
+              if(imgs.length) imgs.forEach(src=>{printHtml+=`<div class="print-pdf-page"><img src="${src}" style="width:100%;display:block;"></div>`;});
+              else printHtml+=printPlaceholder(s.id,i,s.label,'Eroare la procesare aviz '+dataF);
+            }
+          } else {
+
           // ===== AVIZ — exact ca în registru_avize.html =====
           printHtml+=`<style>${CSS_S6}</style><div class="sheet-aviz">
   <img src="${antetSrc}" alt="Antet PNRAS" class="antet-img">
@@ -1681,6 +1691,7 @@ async function genDosar(){
   </div>
   <div class="footer-aviz">„PNRR. Finanțat de Uniunea Europeană – UrmătoareaGenerațieUE"<br>https://mfe.gov.ro/pnrr/ | https://www.facebook.com/PNRROficial/</div>
 </div>`;
+          } // end else (aviz generat)
 
           // ===== LISTE PREZENȚĂ + MASĂ PER CLASĂ =====
           for(const cl of claseList){
@@ -1753,6 +1764,16 @@ async function genDosar(){
               <div class="print-aviz-date" style="color:#7c3aed;">${perioada}</div>
             </div>`;
 
+            // PDF uploadat cu prioritate, altfel comunicare generată
+            const groupKey2=`${ev.zi}-${ev.ziEnd||ev.zi}`;
+            const docsCom=(_byTip[mk(s.id,'com_'+groupKey2)]||[]).filter(d=>!d.exclude_print&&d.link_drive);
+            if(docsCom.length){
+              for(const d of docsCom){
+                const imgs=await getImgs('doc_'+d.id,d.link_drive);
+                if(imgs.length) imgs.forEach(src=>{printHtml+=`<div class="print-pdf-page"><img src="${src}" style="width:100%;display:block;"></div>`;});
+                else printHtml+=printPlaceholder(s.id,i,s.label,'Eroare la procesare comunicare '+perioada);
+              }
+            } else {
             // Comunicare — exact ca în registru_avize.html
             printHtml+=`<style>${CSS_S6}</style><div class="sheet-com">
   <div class="com-antet">
@@ -1777,6 +1798,7 @@ async function genDosar(){
     <span>Semnătura și ștampila: ___________________</span>
   </div>
 </div>`;
+            } // end else (comunicare generată)
           } else {
             // Nu există comunicare salvată — placeholder
             printHtml+=`<div class="print-placeholder-page" style="border-color:${c4.border};">
