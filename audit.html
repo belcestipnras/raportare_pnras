@@ -1448,7 +1448,13 @@ async function r2DeleteFile(publicUrl, bucketKey) {
             .select('cartonase, ascunse').eq('contract_id', contractId).maybeSingle();
         const ascunseContract = (cfgData && cfgData.ascunse) || [];
         const listaCartonase = completeazaLista((cfgData && cfgData.cartonase && cfgData.cartonase.length)
-            ? cfgData.cartonase : LISTA_DOCUMENTE, contractId).filter(t => !ascunseContract.includes(t));
+            ? cfgData.cartonase : LISTA_DOCUMENTE, contractId)
+            .filter(t => !ascunseContract.includes(t))
+            .sort((a, b) => {
+                const na = parseFloat((a.match(/^([\d.]+)/) || [0,0])[1]) || 999;
+                const nb = parseFloat((b.match(/^([\d.]+)/) || [0,0])[1]) || 999;
+                return na - nb;
+            });
 
         const { data: contractRow } = await db.from('buget_pnras').select('subcategorie').eq('id', contractId).maybeSingle();
         const esteStatPlata = contractRow && contractRow.subcategorie === 'c';
