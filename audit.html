@@ -771,7 +771,10 @@ async function r2DeleteFile(publicUrl, bucketKey) {
         if (documente) {
             documente.forEach(d => {
                 if (!docPer[d.contract_id]) docPer[d.contract_id] = [];
-                if (!docPer[d.contract_id].includes(d.tip_document)) docPer[d.contract_id].push(d.tip_document);
+                // Remap facturile din buget_achizitii
+                const tip = (d.furnizor && d.furnizor.length === 36 && d.tip_document === '13. Factura')
+                    ? '13. Factură' : d.tip_document;
+                if (!docPer[d.contract_id].includes(tip)) docPer[d.contract_id].push(tip);
             });
         }
 
@@ -780,7 +783,12 @@ async function r2DeleteFile(publicUrl, bucketKey) {
             const listaCustom = cartonasePer[c.id];
             const ascunse = ascunsePer[c.id] || [];
             const lista = completeazaLista((listaCustom && listaCustom.length > 0) ? listaCustom : LISTA_DOCUMENTE, c.id).filter(t => !ascunse.includes(t));
-            const totalOk = lista.filter(d => ex.includes(d)).length;
+            const totalOk = lista.filter(tip => {
+                if (ex.includes(tip)) return true;
+                const prefix = tip.match(/^(\d+(?:\.\d+)?)\.\s/);
+                if (prefix) { const p = prefix[1] + '.'; return ex.some(e => e.startsWith(p)); }
+                return false;
+            }).length;
             const complet = lista.length > 0 && totalOk === lista.length;
             let st = '';
             if (complet) st = '<span class="contract-status" style="background:#dcfce7;color:#166534;">COMPLET ✔</span>';
@@ -1484,21 +1492,38 @@ async function r2DeleteFile(publicUrl, bucketKey) {
         }
 
         // ===== CONTRACTE — checklist documente achiziție =====
-        const existente = docs ? docs.map(d => d.tip_document) : [];
-        // Facturile din dosar_facturi (furnizor=UUID, tip=13. Factura) — tratate separat (exclus Procons)
-        const facturiDosar = contractId === CTR_PROCONS ? [] : (docs || []).filter(d =>
-            d.tip_document === '13. Factura' && d.furnizor && d.furnizor.length === 36
+        // Remap facturile din buget_achizitii (furnizor=UUID, tip=13. Factura) → "13. Factură"
+        const docsMapped = (docs || []).map(d => {
+            if (d.furnizor && d.furnizor.length === 36 && d.tip_document === '13. Factura') {
+                return {...d, tip_document: '13. Factură'};
+            }
+            return d;
+        });
+        const existente = docsMapped.map(d => d.tip_document);
+        // Facturile din dosar_facturi (furnizor=UUID, tip=13. Factură după remap) — tratate separat (exclus Procons)
+        const facturiDosar = contractId === CTR_PROCONS ? [] : docsMapped.filter(d =>
+            d.tip_document === '13. Factură' && d.furnizor && d.furnizor.length === 36
         );
         const grupate = {};
-        if (docs) docs.filter(d =>
-            !(d.tip_document === '13. Factura' && d.furnizor && d.furnizor.length === 36)
+        docsMapped.filter(d =>
+            !(d.tip_document === '13. Factură' && d.furnizor && d.furnizor.length === 36)
         ).forEach(d => {
             if (!grupate[d.tip_document]) grupate[d.tip_document] = [];
             grupate[d.tip_document].push(d);
         });
 
         const dosarPdf = docs ? docs.find(d => d.tip_document === 'DOSAR ACHIZIȚIE PDF') : null;
-        const totalOk = listaCartonase.filter(tip => existente.includes(tip)).length;
+        // Prefix matching: "13. Factură" se potrivește cu orice doc care începe cu "13."
+        function docExistaAudit(tip, existente) {
+            if (existente.includes(tip)) return true;
+            const prefix = tip.match(/^(\d+(?:\.\d+)?)\.\s/);
+            if (prefix) {
+                const p = prefix[1] + '.';
+                return existente.some(e => e.startsWith(p));
+            }
+            return false;
+        }
+        const totalOk = listaCartonase.filter(tip => docExistaAudit(tip, existente)).length;
         const complet = listaCartonase.length > 0 && totalOk === listaCartonase.length;
 
         let html = '<div style="padding:14px 18px;border-radius:10px;margin-bottom:16px;font-size:15px;font-weight:700;' +
@@ -1521,7 +1546,7 @@ async function r2DeleteFile(publicUrl, bucketKey) {
         html += '<div class="checklist">';
         listaCartonase.forEach(tip => {
             const fisiere = grupate[tip] || [];
-            const areDoc = existente.includes(tip);
+            const areDoc = docExistaAudit(tip, existente);
             let cls = 'check-miss', ico = '❌';
             if (areDoc) { cls = 'check-ok'; ico = '✅'; }
 

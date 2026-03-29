@@ -90,6 +90,39 @@ function safeName(name){
     .replace(/[^a-zA-Z0-9.\-_]/g,"_").replace(/_+/g,"_");
 }
 
+/* Comprimă imaginile înainte de upload (maxSide=1600px, quality=0.75) */
+async function comprimaImagine(file) {
+  const tipuri = ['image/jpeg','image/jpg','image/png','image/webp','image/bmp'];
+  if (!tipuri.includes(file.type)) return file; // nu e imagine → returnează original
+  return new Promise((resolve) => {
+    const MAX_SIDE = 1600;
+    const QUALITY  = 0.75;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        let w = img.width, h = img.height;
+        if (Math.max(w, h) > MAX_SIDE) {
+          const sc = MAX_SIDE / Math.max(w, h);
+          w = Math.round(w * sc); h = Math.round(h * sc);
+        }
+        const cv = document.createElement('canvas');
+        cv.width = w; cv.height = h;
+        cv.getContext('2d').drawImage(img, 0, 0, w, h);
+        cv.toBlob((blob) => {
+          if (!blob || blob.size >= file.size) { resolve(file); return; } // daca e mai mare, pastreaza originalul
+          const numeNou = file.name.replace(/\.[^.]+$/, '.jpg');
+          resolve(new File([blob], numeNou, { type: 'image/jpeg' }));
+        }, 'image/jpeg', QUALITY);
+      };
+      img.onerror = () => resolve(file);
+      img.src = e.target.result;
+    };
+    reader.onerror = () => resolve(file);
+    reader.readAsDataURL(file);
+  });
+}
+
 /* ===== CLOUDFLARE R2 ===== */
 const WORKER_URL = "https://r2-proxy.belcesti-pnras2024.workers.dev";
 const PUBLIC_URLS = {
@@ -866,9 +899,10 @@ document.getElementById("fileInputAdauga").addEventListener("change",async funct
   for(const file of files){
     const{data:ex}=await supabaseClient.from("documente_contract").select("id").eq("contract_id",contractId).eq("nume_fisier",file.name).limit(1);
     if(ex&&ex.length>0){alert("⚠️ Fișierul \""+file.name+"\" există deja.");continue;}
-    const fn=`${contractId}_${Date.now()}_${safeName(file.name)}`;
-    let url; try{url=await r2UploadFile(fn,file,"contracte");}catch(e){alert("Eroare upload: "+e.message);this.value="";return;}
-    const ins=await supabaseClient.from("documente_contract").insert([{contract_id:contractId,nume_contract:nume||"",furnizor:furn||"",tip_document:tipAdauga,nume_fisier:file.name,link_drive:url}]);
+    const fileComp=await comprimaImagine(file);
+    const fn=`${contractId}_${Date.now()}_${safeName(fileComp.name)}`;
+    let url; try{url=await r2UploadFile(fn,fileComp,"contracte");}catch(e){alert("Eroare upload: "+e.message);this.value="";return;}
+    const ins=await supabaseClient.from("documente_contract").insert([{contract_id:contractId,nume_contract:nume||"",furnizor:furn||"",tip_document:tipAdauga,nume_fisier:fileComp.name,link_drive:url}]);
     if(ins.error){alert("Eroare salvare: "+ins.error.message);this.value="";return;}
   }
   this.value=""; incarcaDocumente();
@@ -886,9 +920,10 @@ document.getElementById("fileInput").addEventListener("change",async function(){
   for(const file of files){
     const{data:ex2}=await supabaseClient.from("documente_contract").select("id").eq("contract_id",contractId).eq("nume_fisier",file.name).limit(1);
     if(ex2&&ex2.length>0){alert("⚠️ Fișierul \""+file.name+"\" există deja.");continue;}
-    const fn=`${contractId}_${Date.now()}_${safeName(file.name)}`;
-    let url; try{url=await r2UploadFile(fn,file,"contracte");}catch(e){alert("Eroare upload: "+e.message);this.value="";return;}
-    const ins=await supabaseClient.from("documente_contract").insert([{contract_id:contractId,nume_contract:nume||"",furnizor:furn||"",tip_document:tipSelectat,nume_fisier:file.name,link_drive:url}]);
+    const fileComp2=await comprimaImagine(file);
+    const fn=`${contractId}_${Date.now()}_${safeName(fileComp2.name)}`;
+    let url; try{url=await r2UploadFile(fn,fileComp2,"contracte");}catch(e){alert("Eroare upload: "+e.message);this.value="";return;}
+    const ins=await supabaseClient.from("documente_contract").insert([{contract_id:contractId,nume_contract:nume||"",furnizor:furn||"",tip_document:tipSelectat,nume_fisier:fileComp2.name,link_drive:url}]);
     if(ins.error){alert("Eroare salvare: "+ins.error.message);this.value="";return;}
   }
   this.value=""; incarcaDocumente();
