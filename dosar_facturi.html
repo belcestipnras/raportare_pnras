@@ -725,31 +725,104 @@ async function genereazaDosarFactura(){
     const pdfFinal = await PDFDocument.create();
     pdfFinal.registerFontkit(fontkit);
 
-    // ---- COPERTĂ ----
-    upd(2,'Se încarcă coperta...');
-    const coverBytes=await downloadBytes("https://aexjrbdgajurxzngfkpx.supabase.co/storage/v1/object/public/contracte/coperta_template.pdf");
-    const coverDoc=await PDFDocument.load(coverBytes);
-    const pageCover=coverDoc.getPages()[0];
-    const ww=pageCover.getWidth();
-    const fB=await coverDoc.embedFont(StandardFonts.HelveticaBold);
-    const portocaliu=rgb(0.75,0.28,0.02);
-    const nrFact = _facturaActiva.nr_inregistrare ? 'Nr. ' + _facturaActiva.nr_inregistrare : '';
-    const dataFact = _facturaActiva.data_inregistrare ? _facturaActiva.data_inregistrare.split('-').reverse().join('.') : '';
-    const nrDataFact = [nrFact, dataFact].filter(Boolean).join(' / ');
-    const t1=roPDF("Dosar factura");
-    const t2=roPDF(nrDataFact);
-    pageCover.drawText(t1,{x:Math.max(20,(ww-fB.widthOfTextAtSize(t1,26))/2),y:390,size:26,font:fB,color:portocaliu});
-    if(t2)pageCover.drawText(t2,{x:Math.max(20,(ww-fB.widthOfTextAtSize(t2,20))/2),y:350,size:20,font:fB,color:portocaliu});
-    (await pdfFinal.copyPages(coverDoc,coverDoc.getPageIndices())).forEach(p=>pdfFinal.addPage(p));
+    // ---- ANTET (incarcat inainte de coperta) ----
+    upd(2,'Se încarcă antet...');
+    let imgAntetCover=null, imgCraiCover=null;
+    try{const r=await fetch("https://aexjrbdgajurxzngfkpx.supabase.co/storage/v1/object/public/arhiva_pnras/antet_pnras.jpeg");if(r.ok)imgAntetCover=await pdfFinal.embedJpg(new Uint8Array(await r.arrayBuffer()));}catch(e){}
+    try{const r=await fetch("https://aexjrbdgajurxzngfkpx.supabase.co/storage/v1/object/public/arhiva_pnras/crai.jpeg");if(r.ok)imgCraiCover=await pdfFinal.embedJpg(new Uint8Array(await r.arrayBuffer()));}catch(e){}
 
     const font=await pdfFinal.embedFont(StandardFonts.Helvetica);
     const bold=await pdfFinal.embedFont(StandardFonts.HelveticaBold);
 
-    // ---- ANTET + CRAI ----
-    upd(5,'Se încarcă antet...');
-    let imgAntet=null, imgCrai=null;
-    try{const r=await fetch("https://aexjrbdgajurxzngfkpx.supabase.co/storage/v1/object/public/arhiva_pnras/antet_pnras.jpeg");if(r.ok)imgAntet=await pdfFinal.embedJpg(new Uint8Array(await r.arrayBuffer()));}catch(e){}
-    try{const r=await fetch("https://aexjrbdgajurxzngfkpx.supabase.co/storage/v1/object/public/arhiva_pnras/crai.jpeg");if(r.ok)imgCrai=await pdfFinal.embedJpg(new Uint8Array(await r.arrayBuffer()));}catch(e){}
+    // ---- COPERTĂ (generată din cod, fundal verde) ----
+    upd(3,'Se generează coperta...');
+    const nrFact = _facturaActiva.nr_inregistrare ? 'Nr. ' + _facturaActiva.nr_inregistrare : '';
+    const dataFact = _facturaActiva.data_inregistrare ? _facturaActiva.data_inregistrare.split('-').reverse().join('.') : '';
+    const nrDataFact = [nrFact, dataFact].filter(Boolean).join(' / ');
+    {
+      const W=595,H=842;
+      const pageCover = pdfFinal.addPage([W,H]);
+      const fB = await pdfFinal.embedFont(StandardFonts.HelveticaBold);
+      const fR = await pdfFinal.embedFont(StandardFonts.Helvetica);
+      const verde       = rgb(0.04, 0.37, 0.25);
+      const verdeDark   = rgb(0.02, 0.24, 0.16);
+      const verdeMediu  = rgb(0.06, 0.50, 0.32);
+      const alb         = rgb(1,1,1);
+      const alb2        = rgb(1,1,1);
+
+      const SEP = 300; // separator alb/verde la y=300 (zona verde mai mica)
+      // Fundal verde jos
+      pageCover.drawRectangle({x:0,y:0,width:W,height:SEP,color:verde});
+      pageCover.drawRectangle({x:0,y:0,width:12,height:SEP,color:verdeDark,opacity:0.4});
+      pageCover.drawEllipse({x:W+50,y:-50,xScale:200,yScale:200,color:verdeMediu,opacity:0.15});
+      // Fundal ALB sus
+      pageCover.drawRectangle({x:0,y:SEP,width:W,height:H-SEP,color:alb2});
+      // Linie separator
+      pageCover.drawLine({start:{x:0,y:SEP},end:{x:W,y:SEP},thickness:3,color:verde});
+
+      // Antet PNRAS
+      const antetH2 = imgAntetCover ? (imgAntetCover.scale(1).height/imgAntetCover.scale(1).width)*(W-40)+18 : 0;
+      if(imgAntetCover){
+        const d=imgAntetCover.scale(1);
+        const aW=W-40; const aH=(d.height/d.width)*aW;
+        pageCover.drawImage(imgAntetCover,{x:20,y:H-aH-18,width:aW,height:aH});
+      }
+
+      // Titlu sus, sub antet
+      const titluCover = roPDF("DOSAR FACTURA");
+      const tsz = 26;
+      const tw = fB.widthOfTextAtSize(titluCover, tsz);
+      const titluY = H - antetH2 - 55;
+      pageCover.drawText(titluCover, {x:(W-tw)/2, y:titluY, size:tsz, font:fB, color:verde});
+      pageCover.drawRectangle({x:(W-120)/2, y:titluY-10, width:120, height:2, color:verde});
+
+      // Nr. / Data sub titlu
+      if(nrDataFact){
+        const t2txt = roPDF(nrDataFact);
+        const t2sz = 18;
+        const t2w = fB.widthOfTextAtSize(t2txt, t2sz);
+        pageCover.drawText(t2txt, {x:(W-t2w)/2, y:titluY-32, size:t2sz, font:fB, color:verdeDark});
+      }
+
+      // Crai mare, deasupra separatorului
+      if(imgCraiCover){
+        const d=imgCraiCover.scale(1);
+        const cH=160; const cW=(d.width/d.height)*cH;
+        const cY=SEP+20;
+        pageCover.drawImage(imgCraiCover,{x:(W-cW)/2,y:cY,width:cW,height:cH});
+      }
+
+      // Antet PNRAS sus
+      if(imgAntetCover){
+        const d=imgAntetCover.scale(1);
+        const aW=W-40; const aH=(d.height/d.width)*aW;
+        pageCover.drawImage(imgAntetCover,{x:20,y:H-aH-18,width:aW,height:aH});
+      }
+
+
+      // Opis sectiuni in zona verde
+      const opisSectiuni = SECTIUNI.map((s,i) => `${toRoman(i+1)}. ${s.label}`);
+      const osz = 11;
+      const opisTotalH = opisSectiuni.length * (osz + 6) + 22;
+      let oy = SEP - 30;
+      // Titlu OPIS
+      const opisLbl = roPDF("OPIS");
+      const opisLblW = fB.widthOfTextAtSize(opisLbl, 11);
+      pageCover.drawText(opisLbl, {x:(W-opisLblW)/2, y:oy, size:11, font:fB, color:alb, opacity:0.95});
+      pageCover.drawRectangle({x:(W-60)/2, y:oy-6, width:60, height:1, color:alb, opacity:0.4});
+      oy -= 20;
+      opisSectiuni.forEach(linie => {
+        if(oy < 40) return;
+        const lt = roPDF(linie);
+        pageCover.drawText(lt, {x:60, y:oy, size:osz, font:fR, color:alb, opacity:0.92});
+        oy -= osz + 6;
+      });
+
+      // Footer
+      pageCover.drawRectangle({x:0,y:0,width:W,height:32,color:verdeDark,opacity:0.55});
+      pageCover.drawText(roPDF("Dosar Factura  |  PNRAS  |  Liceul Tehnologic Victor Mihailescu Craiu Belcesti"),
+        {x:36,y:11,size:8,font:fR,color:alb,opacity:0.82});
+    }
 
     // ---- FONT ICONIȚE ----
     upd(7,'Se încarcă font...');
@@ -769,8 +842,8 @@ async function genereazaDosarFactura(){
       const culoareMediu=rgb(Math.min(1,st.r+0.20),Math.min(1,st.g+0.20),Math.min(1,st.b+0.20));
       const alb=rgb(1,1,1);
       page.drawRectangle({x:0,y:H/2,width:W,height:H/2,color:alb});
-      if(imgAntet){const d=imgAntet.scale(1);const aW=W-40;const aH=(d.height/d.width)*aW;page.drawImage(imgAntet,{x:20,y:H-aH-18,width:aW,height:aH});}
-      if(imgCrai){const d=imgCrai.scale(1);const cH=165;const cW=(d.width/d.height)*cH;const antetH=imgAntet?(imgAntet.scale(1).height/imgAntet.scale(1).width)*(W-40)+18:80;const antetBottom=H-antetH-18;const spatAlb=antetBottom-H/2;const cY=H/2+(spatAlb-cH)/2;page.drawImage(imgCrai,{x:(W-cW)/2,y:cY,width:cW,height:cH});}
+      if(imgAntetCover){const d=imgAntetCover.scale(1);const aW=W-40;const aH=(d.height/d.width)*aW;page.drawImage(imgAntetCover,{x:20,y:H-aH-18,width:aW,height:aH});}
+      if(imgCraiCover){const d=imgCraiCover.scale(1);const cH=165;const cW=(d.width/d.height)*cH;const antetH=imgAntetCover?(imgAntetCover.scale(1).height/imgAntetCover.scale(1).width)*(W-40)+18:80;const antetBottom=H-antetH-18;const spatAlb=antetBottom-H/2;const cY=H/2+(spatAlb-cH)/2;page.drawImage(imgCraiCover,{x:(W-cW)/2,y:cY,width:cW,height:cH});}
       page.drawLine({start:{x:0,y:H/2},end:{x:W,y:H/2},thickness:2,color:culoare});
       page.drawRectangle({x:0,y:0,width:W,height:H/2,color:culoare});
       page.drawRectangle({x:0,y:0,width:12,height:H/2,color:culoareDark,opacity:0.4});
