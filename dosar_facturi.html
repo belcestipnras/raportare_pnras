@@ -6,6 +6,8 @@
 <title>Dosar Facturi</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"></script>
+<script src="https://unpkg.com/@pdf-lib/fontkit/dist/fontkit.umd.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Montserrat:wght@700;800&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
@@ -162,6 +164,9 @@ body{font-family:'Inter',sans-serif;background:#0f172a;color:#e2e8f0;min-height:
       <button class="btn btn-back" onclick="goBack()">⬅ Înapoi</button>
       <span class="cp-title">🧾 Dosar Factură</span>
       <span class="cp-fact" id="cp-fact-label">—</span>
+      <button class="btn" onclick="genereazaDosarFactura()" style="background:linear-gradient(135deg,#2563eb,#1e40af);">📄 Generează dosar</button>
+      <a id="btnDosarGenerat" href="#" target="_blank" style="display:none;padding:7px 16px;border-radius:6px;font-weight:700;font-size:12px;background:linear-gradient(135deg,#065f46,#047857);color:#6ee7b7;text-decoration:none;">📂 Deschide dosar</a>
+      <a id="btnDosarDescarca" href="#" download style="display:none;padding:7px 16px;border-radius:6px;font-weight:700;font-size:12px;background:linear-gradient(135deg,#334155,#1e293b);color:#e2e8f0;text-decoration:none;">⬇ Salvează</a>
     </div>
     <div id="status-bar"></div>
   </div>
@@ -204,20 +209,21 @@ const SECTIUNI = [
   { id:'S1', label:'Contract',                     icon:'📋', auto:true  },
   { id:'S2', label:'Factură',                      icon:'💰', auto:true  },
   { id:'S3', label:'PV Recepție / PV Punere în Funcțiune / PV Dare în Folosință / Raport de Activitate',
-             icon:'📋', auto:false,
-             subtipuri:['PV Recepție','PV Punere în Funcțiune','PV Dare în Folosință','Raport de Activitate'] },
-  { id:'S4', label:'ALOP',                         icon:'💼', auto:false },
-  { id:'S5', label:'Ordin de Plată (OP)',           icon:'🏦', auto:false },
-  { id:'S6', label:'Extras de Cont',               icon:'🏧', auto:false },
+             icon:'📋', auto:false, autoPrefix:['11.','12.'] },
+  { id:'S4', label:'ALOP',                         icon:'💼', auto:false, autoPrefix:['14.'] },
+  { id:'S5', label:'Ordin de Plată (OP)',           icon:'🏦', auto:false, autoPrefix:['15.'] },
+  { id:'S6', label:'Extras de Cont',               icon:'🏧', auto:false, autoPrefix:['16.'] },
   { id:'S7', label:'NIR / BC / Fișa Mijlocului Fix / Fișa de Magazie',
-             icon:'📦', auto:false,
-             subtipuri:['NIR','BC','Fișa Mijlocului Fix','Fișa de Magazie'] },
+             icon:'📦', auto:false, autoPrefix:['17.'] },
 ];
 
 /* ============ STATE ============ */
 let _facturaActiva = null;
 let _contractDocs  = [];
 let _byTip         = {};
+let _autoDocs      = {}; // documente preluate automat din dosar_contract per secțiune
+let _dosarUrl      = null;  // URL-ul dosarului generat pentru factura activă
+let _excluseFactura = new Set(); // ID-uri documente excluse pentru factura activă
 
 /* ============ PDF.JS ============ */
 fetch('https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js')
@@ -337,11 +343,30 @@ function goBack(){
 async function load(){
   setSt('⏳ Se încarcă dosarul...','load');
   try{
-    // Contract docs
+    // Contract docs (S1)
     const{data:ctr}=await db.from('documente_contract').select('*').eq('contract_id',contractId).eq('tip_document','9. Contract');
     _contractDocs=ctr||[];
 
-    // Dosar docs pentru factura activă
+    // Toate documentele din dosar_contract pentru prefixele auto (S3-S7)
+    const{data:allDocs}=await db.from('documente_contract').select('*').eq('contract_id',contractId);
+    _autoDocs={};
+    SECTIUNI.filter(s=>s.autoPrefix).forEach(s=>{
+      _autoDocs[s.id]=(allDocs||[]).filter(d=>
+        s.autoPrefix.some(p=>d.tip_document&&d.tip_document.startsWith(p))
+      ).sort((a,b)=>(a.tip_document||'').localeCompare(b.tip_document||'',undefined,{numeric:true}));
+    });
+
+    // Excluderi per factura
+    const{data:exclData}=await db.from('documente_contract').select('furnizor')
+      .eq('contract_id',contractId).eq('tip_document',`EXCL_${_facturaActiva.id}`);
+    _excluseFactura=new Set((exclData||[]).map(d=>d.furnizor));
+
+    // Dosar generat existent
+    const tipDosarFact=`DOSAR_FACT_${_facturaActiva.id}`;
+    const{data:dosarExistent}=await db.from('documente_contract').select('link_drive').eq('contract_id',contractId).eq('tip_document',tipDosarFact).maybeSingle();
+    _dosarUrl=dosarExistent&&dosarExistent.link_drive?dosarExistent.link_drive:null;
+
+    // Dosar docs pentru factura activă (uploadate manual)
     const{data:dd}=await db.from('documente_contract').select('*')
       .eq('contract_id',contractId).like('tip_document',`FACT_${_facturaActiva.id}_%`);
     _byTip={};
@@ -349,16 +374,31 @@ async function load(){
 
     renderSidebar();
     renderMain();
+    updateBtnDosar();
     setSt('','');
   }catch(e){setSt('❌ '+e.message,'err');console.error(e);}
 }
 
 /* ============ SIDEBAR ============ */
 function renderSidebar(){
-  document.getElementById('sidebar').innerHTML=SECTIUNI.map((s,i)=>{
+  const dosarBox=_dosarUrl
+    ?`<div style="margin:10px 10px 0;padding:10px;background:#0d2010;border:1px solid #065f46;border-radius:8px;">
+        <div style="font-size:9px;font-weight:800;color:#10b981;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">📄 Dosar generat</div>
+        <a href="${_dosarUrl}" target="_blank" style="display:flex;align-items:center;gap:5px;font-size:11px;font-weight:700;color:#10b981;text-decoration:none;margin-bottom:5px;">📂 Deschide</a>
+        <a href="${_dosarUrl}" download style="display:flex;align-items:center;gap:5px;font-size:11px;font-weight:700;color:#6ee7b7;text-decoration:none;">⬇ Salvează</a>
+      </div>`
+    :`<div style="margin:10px 10px 0;padding:10px;background:#0f172a;border:1px dashed #1e293b;border-radius:8px;text-align:center;">
+        <div style="font-size:10px;color:#334155;">Niciun dosar generat</div>
+      </div>`;
+  document.getElementById('sidebar').innerHTML=dosarBox+SECTIUNI.map((s,i)=>{
     let cnt=0;
     if(s.id==='S1') cnt=_contractDocs.filter(d=>!d.exclude_print).length;
     else if(s.id==='S2') cnt=(_facturaActiva&&_facturaActiva.link_drive&&!_facturaActiva.exclude_print)?1:0;
+    else if(s.autoPrefix){
+      const autoCnt=(_autoDocs[s.id]||[]).filter(d=>!_excluseFactura.has(d.id)).length;
+      const manualCnt=Object.keys(_byTip).filter(k=>k.startsWith(mk(s.id))).reduce((a,k)=>a+(_byTip[k]||[]).filter(d=>!d.exclude_print).length,0);
+      cnt=autoCnt+manualCnt;
+    }
     else cnt=Object.keys(_byTip).filter(k=>k.startsWith(mk(s.id))).reduce((a,k)=>a+(_byTip[k]||[]).filter(d=>!d.exclude_print).length,0);
     const ok=cnt>0;
     return`<div class="sb-sec open" id="sbsec_${s.id}" onclick="toggleSb('${s.id}')">
@@ -392,15 +432,21 @@ function renderMain(){
         ?'<div class="file-list">'+autoRow(f)+'</div>'
         :'<div class="no-docs" style="color:#f59e0b;">⚠️ Fișierul facturii nu este atașat.</div>';
     }
-    else if(s.subtipuri){
-      cnt=Object.keys(_byTip).filter(k=>k.startsWith(mk(s.id))).reduce((a,k)=>a+(_byTip[k]||[]).length,0);
-      const tabs='<div class="subtip-tabs">'+s.subtipuri.map(st=>`<span class="subtip-tab" onclick="activateSt('${s.id}','${st.replace(/'/g,"\\'")}',this)">${st}</span>`).join('')+'</div>';
-      const blocks=s.subtipuri.map(st=>{
-        const key=mk(s.id,st);
-        const docs=_byTip[key]||[];
-        return`<div id="stb_${s.id}_${safeName(st)}" style="display:none;">${fileListHtml(docs,s.id,st)}${upzoneHtml(s.id,st)}</div>`;
-      }).join('');
-      body=tabs+blocks;
+    else if(s.autoPrefix){
+      const autoDocs=_autoDocs[s.id]||[];
+      const manualDocs=Object.keys(_byTip).filter(k=>k.startsWith(mk(s.id))).flatMap(k=>_byTip[k]||[]);
+      cnt=autoDocs.length+manualDocs.length;
+      let autoHtml='';
+      if(autoDocs.length){
+        autoHtml='<div style="margin-bottom:6px;font-size:10px;font-weight:800;color:#f59e0b;text-transform:uppercase;letter-spacing:1px;">📥 Din dosar contract</div>';
+        autoHtml+='<div class="file-list">'+autoDocs.map(d=>autoRowToggle(d)).join('')+'</div>';
+      } else {
+        autoHtml='<div class="no-docs">Niciun document găsit în dosar contract.</div>';
+      }
+      const manualHtml=manualDocs.length
+        ?'<div style="margin:8px 0 6px;font-size:10px;font-weight:800;color:#64748b;text-transform:uppercase;letter-spacing:1px;">📎 Adăugate manual</div>'+fileListHtml(manualDocs,s.id)
+        :'';
+      body=autoHtml+manualHtml+upzoneHtml(s.id);
     }
     else{
       const key=mk(s.id);const docs=_byTip[key]||[];cnt=docs.length;
@@ -421,21 +467,10 @@ function renderMain(){
     </div>`;
   }).join('');
 
-  // Activează primul subtip implicit pentru S3 și S7
-  SECTIUNI.filter(s=>s.subtipuri).forEach(s=>{
-    const firstTab=document.querySelector(`#sc_${s.id} .subtip-tab`);
-    if(firstTab)firstTab.click();
-  });
+
 }
 
-function activateSt(secId,subtip,el){
-  const sec=document.getElementById('sc_'+secId);
-  sec.querySelectorAll('.subtip-tab').forEach(t=>t.classList.remove('active'));
-  sec.querySelectorAll('[id^="stb_'+secId+'_"]').forEach(b=>b.style.display='none');
-  el.classList.add('active');
-  const b=document.getElementById('stb_'+secId+'_'+safeName(subtip));
-  if(b)b.style.display='block';
-}
+
 
 function toggleSec(id){document.getElementById('sc_'+id).classList.toggle('collapsed');}
 
@@ -450,6 +485,25 @@ function autoRow(d){
     <div class="fi-acts">
       <button class="bsm bv" onclick="viewDoc('${lk}','${nm}')">👁 Vezi</button>
       <a class="bsm bv" href="${lk}" target="_blank" style="text-decoration:none;">🔗 Deschide</a>
+    </div>
+  </div>`;
+}
+
+function autoRowToggle(d){
+  const nm=(d.nume_fisier||'document').replace(/'/g,"\'");
+  const lk=(d.link_drive||'').replace(/'/g,"\'");
+  const ex=_excluseFactura.has(d.id);
+  return`<div class="file-item${ex?' fi-excluded':''}" id="fi_auto_${d.id}">
+    <span class="fi-icon">${fileIcon(d.link_drive)}</span>
+    <span class="fi-name" title="${d.nume_fisier||''}">${d.nume_fisier||'—'}</span>
+    <span class="auto-badge">AUTO</span>
+    <div class="fi-acts">
+      <button class="bsm bv" onclick="viewDoc('${lk}','${nm}')">👁 Vezi</button>
+      <a class="bsm bv" href="${lk}" target="_blank" style="text-decoration:none;">🔗 Deschide</a>
+      <label class="toggle-print-wrap">
+        <input type="checkbox" class="toggle-print-cb" ${ex?'':'checked'} onchange="toggleExcludeAuto('${d.id}',!this.checked)">
+        <span class="toggle-print-lbl">${ex?'🚫 Print':'🖨 Print'}</span>
+      </label>
     </div>
   </div>`;
 }
@@ -548,6 +602,34 @@ async function toggleExclude(id,exclude){
   }catch(e){alert('Eroare: '+e.message);}
 }
 
+async function toggleExcludeAuto(docId, exclude){
+  try{
+    if(exclude){
+      // Adauga excludere
+      if(!_excluseFactura.has(docId)){
+        await db.from('documente_contract').insert({
+          contract_id: contractId,
+          tip_document: `EXCL_${_facturaActiva.id}`,
+          furnizor: docId,
+          nume_fisier: 'excludere',
+          link_drive: ''
+        });
+        _excluseFactura.add(docId);
+      }
+    } else {
+      // Sterge excludere
+      await db.from('documente_contract').delete()
+        .eq('contract_id', contractId)
+        .eq('tip_document', `EXCL_${_facturaActiva.id}`)
+        .eq('furnizor', docId);
+      _excluseFactura.delete(docId);
+    }
+    const el=document.getElementById('fi_auto_'+docId);
+    if(el){el.classList.toggle('fi-excluded',exclude);const lbl=el.querySelector('.toggle-print-lbl');if(lbl)lbl.textContent=exclude?'🚫 Print':'🖨 Print';}
+    renderSidebar();
+  }catch(e){alert('Eroare: '+e.message);}
+}
+
 async function delDoc(id,link,secId,subtip){
   if(!confirm('Ștergi documentul?'))return;
   try{if(link)await r2Del(link);await db.from('documente_contract').delete().eq('id',id);await load();}
@@ -581,6 +663,223 @@ async function viewDoc(url,name){
 }
 function closePdfModal(){document.getElementById('pdfm').classList.remove('open');document.getElementById('pdfm-body').innerHTML='';}
 document.getElementById('pdfm').addEventListener('click',function(e){if(e.target===this)closePdfModal();});
+
+function updateBtnDosar(){
+  const btnD=document.getElementById('btnDosarGenerat');
+  const btnS=document.getElementById('btnDosarDescarca');
+  if(_dosarUrl){
+    btnD.href=_dosarUrl;btnD.style.display='';
+    btnS.href=_dosarUrl;btnS.style.display='';
+  } else {
+    btnD.style.display='none';
+    btnS.style.display='none';
+  }
+}
+
+/* ============ UTILS PDF ============ */
+function roPDF(t){if(!t)return"";return String(t).replace(/ă/g,"a").replace(/Ă/g,"A").replace(/â/g,"a").replace(/Â/g,"A").replace(/î/g,"i").replace(/Î/g,"I").replace(/ș/g,"s").replace(/Ș/g,"S").replace(/ț/g,"t").replace(/Ț/g,"T");}
+
+async function downloadBytes(url){const r=await fetch(url);if(!r.ok)throw new Error("HTTP "+r.status);return new Uint8Array(await r.arrayBuffer());}
+
+/* ============ GENERARE DOSAR FACTURĂ ============ */
+async function genereazaDosarFactura(){
+  if(!_facturaActiva){alert("Nicio factură activă.");return;}
+
+  const {PDFDocument,StandardFonts,rgb} = PDFLib;
+
+  // Progress modal
+  const pm=document.createElement('div');
+  pm.style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;z-index:10000;";
+  pm.innerHTML=`<div style="background:white;padding:30px 40px;border-radius:14px;min-width:380px;box-shadow:0 8px 30px rgba(0,0,0,0.3);text-align:center;">
+    <div style="font-size:18px;font-weight:bold;margin-bottom:6px;">⏳ Generare dosar factură</div>
+    <div id="pf-txt" style="font-size:13px;color:#64748b;margin-bottom:16px;">Inițializare...</div>
+    <div style="background:#e2e8f0;border-radius:99px;height:12px;overflow:hidden;">
+      <div id="pf-bar" style="height:100%;width:0%;background:linear-gradient(90deg,#f59e0b,#d97706);border-radius:99px;transition:width 0.3s;"></div>
+    </div>
+    <div id="pf-pct" style="font-size:13px;color:#f59e0b;font-weight:bold;margin-top:8px;">0%</div>
+  </div>`;
+  document.body.appendChild(pm);
+  function upd(pct,txt){document.getElementById('pf-bar').style.width=pct+'%';document.getElementById('pf-pct').textContent=Math.round(pct)+'%';if(txt)document.getElementById('pf-txt').textContent=txt;}
+
+  try{
+    const pdfFinal = await PDFDocument.create();
+    pdfFinal.registerFontkit(fontkit);
+
+    // ---- COPERTĂ ----
+    upd(2,'Se încarcă coperta...');
+    const coverBytes=await downloadBytes("https://aexjrbdgajurxzngfkpx.supabase.co/storage/v1/object/public/contracte/coperta_template.pdf");
+    const coverDoc=await PDFDocument.load(coverBytes);
+    const pageCover=coverDoc.getPages()[0];
+    const ww=pageCover.getWidth();
+    const fB=await coverDoc.embedFont(StandardFonts.HelveticaBold);
+    const portocaliu=rgb(0.75,0.28,0.02);
+    const nrFact = _facturaActiva.nr_inregistrare ? 'Nr. ' + _facturaActiva.nr_inregistrare : '';
+    const dataFact = _facturaActiva.data_inregistrare ? _facturaActiva.data_inregistrare.split('-').reverse().join('.') : '';
+    const nrDataFact = [nrFact, dataFact].filter(Boolean).join(' / ');
+    const t1=roPDF("Dosar factura");
+    const t2=roPDF(nrDataFact);
+    pageCover.drawText(t1,{x:Math.max(20,(ww-fB.widthOfTextAtSize(t1,26))/2),y:390,size:26,font:fB,color:portocaliu});
+    if(t2)pageCover.drawText(t2,{x:Math.max(20,(ww-fB.widthOfTextAtSize(t2,20))/2),y:350,size:20,font:fB,color:portocaliu});
+    (await pdfFinal.copyPages(coverDoc,coverDoc.getPageIndices())).forEach(p=>pdfFinal.addPage(p));
+
+    const font=await pdfFinal.embedFont(StandardFonts.Helvetica);
+    const bold=await pdfFinal.embedFont(StandardFonts.HelveticaBold);
+
+    // ---- ANTET + CRAI ----
+    upd(5,'Se încarcă antet...');
+    let imgAntet=null, imgCrai=null;
+    try{const r=await fetch("https://aexjrbdgajurxzngfkpx.supabase.co/storage/v1/object/public/arhiva_pnras/antet_pnras.jpeg");if(r.ok)imgAntet=await pdfFinal.embedJpg(new Uint8Array(await r.arrayBuffer()));}catch(e){}
+    try{const r=await fetch("https://aexjrbdgajurxzngfkpx.supabase.co/storage/v1/object/public/arhiva_pnras/crai.jpeg");if(r.ok)imgCrai=await pdfFinal.embedJpg(new Uint8Array(await r.arrayBuffer()));}catch(e){}
+
+    // ---- FONT ICONIȚE ----
+    upd(7,'Se încarcă font...');
+    let fontIco=null;
+    try{const faBytes=await downloadBytes("https://aexjrbdgajurxzngfkpx.supabase.co/storage/v1/object/public/contracte/fa-solid-900.ttf");fontIco=await pdfFinal.embedFont(faBytes,{subset:false});}catch(e){}
+
+    const FA_ICONS={"contract":"","factura":"","pv":"","receptie":"","alop":"","op":"","extras":"","nir":"","bc":"","fisa":"","default":""};
+    function getFaIcon(tip){const tl=(tip||"").toLowerCase();for(const[k,v]of Object.entries(FA_ICONS)){if(k!=="default"&&tl.includes(k))return v;}return FA_ICONS.default;}
+
+    const CULORI={S1:{r:0.75,g:0.28,b:0.02},S2:{r:0.10,g:0.50,b:0.20},S3:{r:0.80,g:0.30,b:0.10},S4:{r:0.55,g:0.10,b:0.10},S5:{r:0.20,g:0.45,b:0.65},S6:{r:0.10,g:0.40,b:0.70},S7:{r:0.35,g:0.35,b:0.35}};
+
+    function deseneazaSeparator(page,sectiune,nrSec){
+      const W=595,H=842;
+      const st=CULORI[sectiune.id]||CULORI.S1;
+      const culoare=rgb(st.r,st.g,st.b);
+      const culoareDark=rgb(st.r*0.7,st.g*0.7,st.b*0.7);
+      const culoareMediu=rgb(Math.min(1,st.r+0.20),Math.min(1,st.g+0.20),Math.min(1,st.b+0.20));
+      const alb=rgb(1,1,1);
+      page.drawRectangle({x:0,y:H/2,width:W,height:H/2,color:alb});
+      if(imgAntet){const d=imgAntet.scale(1);const aW=W-40;const aH=(d.height/d.width)*aW;page.drawImage(imgAntet,{x:20,y:H-aH-18,width:aW,height:aH});}
+      if(imgCrai){const d=imgCrai.scale(1);const cH=165;const cW=(d.width/d.height)*cH;const antetH=imgAntet?(imgAntet.scale(1).height/imgAntet.scale(1).width)*(W-40)+18:80;const antetBottom=H-antetH-18;const spatAlb=antetBottom-H/2;const cY=H/2+(spatAlb-cH)/2;page.drawImage(imgCrai,{x:(W-cW)/2,y:cY,width:cW,height:cH});}
+      page.drawLine({start:{x:0,y:H/2},end:{x:W,y:H/2},thickness:2,color:culoare});
+      page.drawRectangle({x:0,y:0,width:W,height:H/2,color:culoare});
+      page.drawRectangle({x:0,y:0,width:12,height:H/2,color:culoareDark,opacity:0.4});
+      page.drawEllipse({x:W+50,y:-50,xScale:200,yScale:200,color:culoareMediu,opacity:0.15});
+      if(fontIco){const ico=getFaIcon(sectiune.label);const sz=82;const iw=fontIco.widthOfTextAtSize(ico,sz);page.drawText(ico,{x:(W-iw)/2,y:H/4-50-sz*0.35,size:sz,font:fontIco,color:alb,opacity:0.90});}
+      // Titlu sectiune
+      const titluRaw=roPDF(("Sectiunea "+toRoman(nrSec)+" — "+sectiune.label).toUpperCase());
+      const maxC=30;let lines=[];
+      if(titluRaw.length<=maxC){lines=[titluRaw];}else{const words=titluRaw.split(' ');let l1='',l2='',l3='';for(const w of words){if((l1+' '+w).trim().length<=maxC)l1=(l1+' '+w).trim();else if((l2+' '+w).trim().length<=maxC)l2=(l2+' '+w).trim();else l3=(l3+' '+w).trim();}lines=[l1,l2,l3].filter(l=>l);}
+      const tsz=lines.length>2?17:lines.length>1?20:23;const lsp=tsz+7;const topY=H/2-28-tsz;
+      lines.forEach((line,i)=>{const tw=bold.widthOfTextAtSize(line,tsz);page.drawText(line,{x:(W-tw)/2,y:topY-i*lsp,size:tsz,font:bold,color:alb});});
+      // Info factura
+      let iy=topY-lines.length*lsp-14;const isz=9.5;const ilh=isz+7;
+      const nrF=_facturaActiva.nr_inregistrare?'Nr. '+_facturaActiva.nr_inregistrare:'';
+      const dtF=_facturaActiva.data_inregistrare?_facturaActiva.data_inregistrare.split('-').reverse().join('.'):'';
+      const nrDtF=[nrF,dtF].filter(Boolean).join(' / ');
+      if(nrDtF){
+        const lbl=roPDF("Dosar factura: ");const lw=font.widthOfTextAtSize(lbl,isz);
+        page.drawText(lbl,{x:36,y:iy,size:isz,font,color:alb,opacity:0.65});
+        page.drawText(roPDF(nrDtF),{x:36+lw,y:iy,size:isz,font:bold,color:alb,opacity:0.92});
+        iy-=ilh;
+      }
+      if(numeAfisat){const lbl=roPDF("Contract: ");const lw=font.widthOfTextAtSize(lbl,isz);page.drawText(lbl,{x:36,y:iy,size:isz,font,color:alb,opacity:0.65});page.drawText(roPDF(numeAfisat),{x:36+lw,y:iy,size:isz,font:bold,color:alb,opacity:0.92});}
+      const nrText=roPDF("Sectiunea "+String(nrSec).padStart(2,'0'));
+      page.drawText(nrText,{x:(W-font.widthOfTextAtSize(nrText,9))/2,y:38,size:9,font,color:alb,opacity:0.55});
+      page.drawRectangle({x:0,y:0,width:W,height:32,color:culoareDark,opacity:0.55});
+      page.drawText(roPDF("Dosar Factura  |  "+(numeAfisat||"PNRAS")),{x:36,y:11,size:9,font,color:alb,opacity:0.82});
+    }
+
+    async function embedDoc(d,pdfFinal,calitate){
+      const bytes=await downloadBytes(d.link_drive);
+      if((d.link_drive||"").toLowerCase().split('?')[0].endsWith('.pdf')){
+        if(!pdfjsLib.GlobalWorkerOptions.workerSrc)pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+        const pdfjsDoc=await pdfjsLib.getDocument({data:bytes.buffer}).promise;
+        for(let pi=1;pi<=pdfjsDoc.numPages;pi++){
+          const pg=await pdfjsDoc.getPage(pi);const vp=pg.getViewport({scale:calitate.scale});
+          const cv=document.createElement('canvas');cv.width=vp.width;cv.height=vp.height;
+          await pg.render({canvasContext:cv.getContext('2d'),viewport:vp}).promise;
+          const jb64=cv.toDataURL('image/jpeg',calitate.quality).split(',')[1];
+          const img=await pdfFinal.embedJpg(Uint8Array.from(atob(jb64),c=>c.charCodeAt(0)));
+          const pg2=pdfFinal.addPage([595,842]);const sc=Math.min(595/img.width,842/img.height);
+          pg2.drawImage(img,{x:(595-img.width*sc)/2,y:(842-img.height*sc)/2,width:img.width*sc,height:img.height*sc});
+        }
+      } else {
+        try{
+          const b2=new Blob([bytes],{type:(d.link_drive||'').toLowerCase().includes('.png')?'image/png':'image/jpeg'});
+          const bUrl=URL.createObjectURL(b2);const bmp=await createImageBitmap(await fetch(bUrl).then(r=>r.blob()));URL.revokeObjectURL(bUrl);
+          const cv2=document.createElement('canvas');const sc2=Math.min(1,calitate.maxSide/Math.max(bmp.width,bmp.height));
+          cv2.width=Math.round(bmp.width*sc2);cv2.height=Math.round(bmp.height*sc2);
+          cv2.getContext('2d').drawImage(bmp,0,0,cv2.width,cv2.height);
+          const jb2=cv2.toDataURL('image/jpeg',calitate.quality).split(',')[1];
+          const img2=await pdfFinal.embedJpg(Uint8Array.from(atob(jb2),c=>c.charCodeAt(0)));
+          const pg3=pdfFinal.addPage([595,842]);const sc=Math.min(500/img2.width,700/img2.height);
+          pg3.drawImage(img2,{x:(595-img2.width*sc)/2,y:(842-img2.height*sc)/2,width:img2.width*sc,height:img2.height*sc});
+        }catch(e){const pe=pdfFinal.addPage([595,842]);pe.drawText("EROARE FISIER: "+roPDF(d.nume_fisier||""),{x:80,y:500,size:14,font:bold,color:rgb(0.8,0,0)});}
+      }
+    }
+
+    // ---- CALITATE ----
+    const calitate={scale:1.5,quality:0.72,maxSide:1200};
+
+    // ---- COLECTARE DOCUMENTE PER SECȚIUNE ----
+    upd(10,'Se colectează documentele...');
+    // Documentele manuale din dosar (FACT_...)
+    const{data:dd}=await db.from('documente_contract').select('*').eq('contract_id',contractId).like('tip_document',`FACT_${_facturaActiva.id}_%`);
+    const byTipGen={};(dd||[]).forEach(d=>{if(!byTipGen[d.tip_document])byTipGen[d.tip_document]=[];byTipGen[d.tip_document].push(d);});
+
+    let nrSec=0;
+    const totalEstimat=SECTIUNI.length;
+
+    for(let si=0;si<SECTIUNI.length;si++){
+      const s=SECTIUNI[si];
+      upd(10+(si/totalEstimat)*75,`Secțiunea ${toRoman(si+1)}: ${s.label}...`);
+
+      // Colectam documentele pentru aceasta sectiune
+      let docsSecAuto=[];
+      let docsSecManual=[];
+
+      if(s.id==='S1'){
+        docsSecAuto=_contractDocs.filter(d=>!d.exclude_print&&d.link_drive);
+      } else if(s.id==='S2'){
+        if(_facturaActiva&&_facturaActiva.link_drive&&!_facturaActiva.exclude_print)docsSecAuto=[_facturaActiva];
+      } else if(s.autoPrefix){
+        docsSecAuto=(_autoDocs[s.id]||[]).filter(d=>!_excluseFactura.has(d.id)&&d.link_drive);
+        docsSecManual=Object.keys(byTipGen).filter(k=>k.startsWith(`FACT_${_facturaActiva.id}_${s.id}`)).flatMap(k=>byTipGen[k]||[]).filter(d=>!d.exclude_print&&d.link_drive);
+      } else {
+        docsSecManual=Object.keys(byTipGen).filter(k=>k.startsWith(`FACT_${_facturaActiva.id}_${s.id}`)).flatMap(k=>byTipGen[k]||[]).filter(d=>!d.exclude_print&&d.link_drive);
+      }
+
+      const docsSec=[...docsSecAuto,...docsSecManual];
+      if(!docsSec.length)continue;
+
+      // Separator
+      nrSec++;
+      deseneazaSeparator(pdfFinal.addPage([595,842]),s,nrSec);
+
+      // Embed documente
+      for(const d of docsSec){
+        try{await embedDoc(d,pdfFinal,calitate);}
+        catch(e){const pe=pdfFinal.addPage([595,842]);pe.drawText("EROARE: "+roPDF(d.nume_fisier||""),{x:80,y:500,size:14,font:bold,color:rgb(0.8,0,0)});}
+      }
+    }
+
+    upd(88,'Se salvează PDF-ul...');
+    const pdfBytes=await pdfFinal.save();
+    const blob=new Blob([pdfBytes],{type:"application/pdf"});
+
+    upd(92,'Se urcă în storage...');
+    const numeFact=(_facturaActiva.nume_fisier||'Factura').replace(/\.[^.]+$/,'').replace(/^\d+\.\s*/,'');
+    const fn=`Dosar_${numeFact}.pdf`;
+    let dosarUrl;
+    try{
+      const r=await fetch(`${WORKER}/upload`,{method:'PUT',headers:{'X-Bucket':'contracte','X-File-Name':fn,'Content-Type':'application/pdf'},body:blob});
+      if(!r.ok)throw new Error(await r.text());
+      dosarUrl=(await r.json()).url;
+    }catch(e){pm.remove();alert("PDF generat dar nu s-a putut urca: "+e.message);const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=fn;a.click();return;}
+
+    // Sterge dosarul vechi si salveaza noul
+    const tipDosarFact=`DOSAR_FACT_${_facturaActiva.id}`;
+    const{data:vechi}=await db.from('documente_contract').select('link_drive').eq('contract_id',contractId).eq('tip_document',tipDosarFact);
+    if(vechi&&vechi.length){for(const v of vechi){if(v.link_drive)await r2Del(v.link_drive);}await db.from('documente_contract').delete().eq('contract_id',contractId).eq('tip_document',tipDosarFact);}
+    await db.from('documente_contract').insert([{contract_id:contractId,tip_document:tipDosarFact,nume_fisier:fn,link_drive:dosarUrl,furnizor:_facturaActiva.id}]);
+
+    _dosarUrl=dosarUrl;
+    upd(100,'Gata!');
+    setTimeout(()=>{pm.remove();updateBtnDosar();load();},600);
+
+  }catch(err){pm.remove();alert("Eroare: "+err.message);console.error(err);}
+}
 
 /* ============ INIT ============ */
 init();
