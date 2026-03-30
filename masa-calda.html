@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title>Management Masă Caldă PNRAS</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@400;700&display=swap" rel="stylesheet">
     <style>
         :root { --bg: #0b0f14; --panel: #1a1f26; --accent: #10b981; --border: #30363d; --text: #e6edf3; }
@@ -76,6 +77,7 @@
     <div class="btns-luna">
         <button id="btn-print-luna" class="btn-print-luna btn-raport" onclick="printLuna()">📊 GENEREAZĂ RAPORT LUNAR</button>
         <button class="btn-print-luna btn-pv" onclick="printPV()">📋 GENEREAZĂ PROCES VERBAL DE RECEPȚIE</button>
+        <button class="btn-print-luna" style="background:#7c3aed;color:#fff;" onclick="window.open(`avize-toate.html?luna=${state.luna}&an=${state.an}&print=1`)">📄 PRINTEAZĂ TOATE AVIZELE</button>
     </div>
 </div>
 
@@ -159,6 +161,118 @@
     }
 
     init();
+
+    const meniuriConfigPDF = {
+        1: ["Meniu 1: Snizel de pui cu garnitura, salata si paine","Carne: snizel de pui (>130 g) | Garnitura: cartofi la cuptor/piure (>150 g)","Salata: salata de varza | Paine: 3 felii | Ambalaj si tacamuri"],
+        2: ["Meniu 2: Pulpa de pui cu garnitura, salata si paine","Carne: pulpa de pui la cuptor (>130 g) | Garnitura: orez legume/cartofi (>150 g)","Salata: salata varza/asortata | Paine: 3 felii | Ambalaj si tacamuri"],
+        3: ["Meniu 3: Hamburger de pui","Carne: burger de pui (>130 g) | Garnitura: cartofi pai (>150 g)","Salata: legume | Paine: chifla | Ambalaj si tacamuri"],
+        4: ["Meniu 4: Piept de pui cu garnitura, salata si paine","Carne: piept pui (>130 g) | Garnitura: natur/piure (>150 g)","Salata: varza/asortata | Paine: 3 felii | Ambalaj si tacamuri"],
+        5: ["Meniu 5: Mancare cartofi cu carne porc, muraturi si paine","Carne: porc (>130 g) | Garnitura: mancarica cartofi (>150 g)","Salata: muraturi asortate | Paine: 3 felii | Ambalaj si tacamuri"]
+    };
+    const luniMapPDF = {"Ianuarie":"01","Februarie":"02","Martie":"03","Aprilie":"04","Mai":"05","Iunie":"06","Iulie":"07","August":"08","Septembrie":"09","Octombrie":"10","Noiembrie":"11","Decembrie":"12"};
+    const PRET_PDF = 13.8;
+    function ro(t){if(!t)return"";return String(t).replace(/ă/g,"a").replace(/Ă/g,"A").replace(/â/g,"a").replace(/î/g,"i").replace(/Î/g,"I").replace(/ș/g,"s").replace(/Ș/g,"S").replace(/ț/g,"t").replace(/Ț/g,"T");}
+
+    async function genereazaToateAvizele() {
+        const {PDFDocument,StandardFonts,rgb} = PDFLib;
+        const pm = document.createElement('div');
+        pm.style = "position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.75);display:flex;align-items:center;justify-content:center;z-index:9999;";
+        pm.innerHTML = '<div style="background:#1a1f26;border:1px solid #10b981;padding:30px 40px;border-radius:12px;min-width:340px;text-align:center;color:#e6edf3;"><div style="font-size:16px;font-weight:bold;color:#10b981;margin-bottom:8px;">Generare avize PDF</div><div id="pm-txt" style="font-size:13px;color:#94a3b8;margin-bottom:14px;">Se incarca datele...</div><div style="background:#0b0f14;border-radius:99px;height:10px;overflow:hidden;"><div id="pm-bar" style="height:100%;width:0%;background:linear-gradient(90deg,#10b981,#059669);border-radius:99px;transition:width 0.3s;"></div></div><div id="pm-pct" style="font-size:12px;color:#10b981;margin-top:6px;">0%</div></div>';
+        document.body.appendChild(pm);
+        const upd = (pct,txt) => { document.getElementById('pm-bar').style.width=pct+'%'; document.getElementById('pm-pct').textContent=Math.round(pct)+'%'; if(txt) document.getElementById('pm-txt').textContent=txt; };
+        try {
+            const {data:pontaj} = await supabaseClient.from('setari_pontaj').select('*').match({luna:state.luna, an:state.an});
+            const zile = (pontaj||[]).filter(r=>parseInt(r.valoare_aviz)>0).sort((a,b)=>parseInt(a.zi)-parseInt(b.zi));
+            if(!zile.length){pm.remove();alert('Nu exista avize pentru luna selectata.');return;}
+            const {data:registru} = await supabaseClient.from('registru_documente').select('nr,zi').match({tip:'AVIZ',luna:state.luna,an:parseInt(state.an)});
+            const nrPtZi = {}; (registru||[]).forEach(r=>nrPtZi[String(r.zi)]=r.nr);
+            upd(5,'Se incarca antetul...');
+            let antetImg = null;
+            try { const r=await fetch('https://aexjrbdgajurxzngfkpx.supabase.co/storage/v1/object/public/arhiva_pnras/antet_pnras.jpeg'); if(r.ok) antetImg=new Uint8Array(await r.arrayBuffer()); } catch(e){}
+            const pdf = await PDFDocument.create();
+            const fR=await pdf.embedFont(StandardFonts.TimesRoman);
+            const fB=await pdf.embedFont(StandardFonts.TimesRomanBold);
+            const fI=await pdf.embedFont(StandardFonts.TimesRomanItalic);
+            let imgA=null; if(antetImg) imgA=await pdf.embedJpg(antetImg);
+            const W=595,H=842,M=42,negru=rgb(0,0,0),gri=rgb(0.95,0.95,0.95);
+
+            for(let idx=0;idx<zile.length;idx++){
+                const r=zile[idx];
+                const zi=String(r.zi), ziP=zi.padStart(2,'0');
+                const lunaNum=luniMapPDF[state.luna];
+                const dataF=`${ziP}.${lunaNum}.${state.an}`;
+                const cant=parseInt(r.valoare_aviz)||0;
+                const val=(cant*PRET_PDF).toFixed(2);
+                const nrAviz=nrPtZi[zi]||'?';
+                const spec=meniuriConfigPDF[r.tip_meniu]||["Meniu nespecificat"];
+                upd(10+(idx/zile.length)*85,`Aviz ${idx+1}/${zile.length} - ${dataF}`);
+                const page=pdf.addPage([W,H]);
+                const txt=(t,x,y,font=fR,size=9)=>page.drawText(ro(t),{x,y,size,font,color:negru});
+                let y=H-M;
+                // Antet
+                if(imgA){const d=imgA.scale(1);const aW=W-2*M;const aH=(d.height/d.width)*aW;page.drawImage(imgA,{x:M,y:y-aH,width:aW,height:aH});y-=aH+10;}
+                // Tabel furnizor/beneficiar
+                const hw=(W-2*M)/2;
+                page.drawRectangle({x:M,y:y-52,width:hw,height:52,borderColor:negru,borderWidth:0.5,color:rgb(1,1,1)});
+                page.drawRectangle({x:M+hw,y:y-52,width:hw,height:52,borderColor:negru,borderWidth:0.5,color:rgb(1,1,1)});
+                txt("Furnizor: SC PROCONS IASI SRL",M+5,y-12,fB,8);
+                txt("Nr. ord. reg. com.: J22/294/23.02.2015",M+5,y-22,fR,7.5);
+                txt("C.U.I.: 34138254 | Sat Belcesti, Jud. Iasi",M+5,y-32,fR,7.5);
+                txt('Beneficiar: Liceul Tehn. "V. Mihailescu Craiu" Belcesti',M+hw+5,y-12,fB,8);
+                txt("C.U.I.: 17130374",M+hw+5,y-22,fR,7.5);
+                txt("Com. Belcesti, Str. Principala, Nr. 1, Jud. Iasi",M+hw+5,y-32,fR,7.5);
+                y-=62;
+                txt(`Nr. ${nrAviz}/${dataF}`,M,y,fB,10); y-=16;
+                // Titlu
+                const titlu="AVIZ DE INSOTIRE A MARFII";
+                page.drawText(titlu,{x:(W-fB.widthOfTextAtSize(titlu,14))/2,y,size:14,font:fB,color:negru}); y-=14;
+                const dt=`Data: ${dataF}`;
+                page.drawText(ro(dt),{x:(W-fR.widthOfTextAtSize(ro(dt),11))/2,y,size:11,font:fR,color:negru}); y-=20;
+                // Tabel produse header
+                const cW=[28,285,42,55,70,83];
+                const cX=[M]; cW.forEach((w,i)=>cX.push(cX[i]+w));
+                const hdrs=["Nr.\ncrt.","Specificatia","U.M.","Cant.","Pret unit.\n(f. TVA)","Valoare\n(lei)"];
+                hdrs.forEach((h,ci)=>{
+                    page.drawRectangle({x:cX[ci],y:y-26,width:cW[ci],height:26,borderColor:negru,borderWidth:0.5,color:gri});
+                    h.split('\n').forEach((line,li)=>{const lw=fB.widthOfTextAtSize(line,7);page.drawText(line,{x:cX[ci]+(cW[ci]-lw)/2,y:y-10-li*9,size:7,font:fB,color:negru});});
+                });
+                y-=26;
+                // Rand produs
+                const rH=Math.max(38,spec.length*11+12);
+                cW.forEach((_,ci)=>page.drawRectangle({x:cX[ci],y:y-rH,width:cW[ci],height:rH,borderColor:negru,borderWidth:0.5,color:rgb(1,1,1)}));
+                txt("1",cX[0]+10,y-rH/2-3,fR,9);
+                spec.forEach((line,li)=>txt(line,cX[1]+4,y-11-li*11,li===0?fB:fR,li===0?8.5:7.5));
+                txt("buc.",cX[2]+(cW[2]-fR.widthOfTextAtSize("buc.",9))/2,y-rH/2-3,fR,9);
+                page.drawText(String(cant),{x:cX[3]+(cW[3]-fB.widthOfTextAtSize(String(cant),10))/2,y:y-rH/2-3,size:10,font:fB,color:negru});
+                page.drawText("13,8",{x:cX[4]+(cW[4]-fR.widthOfTextAtSize("13,8",9))/2,y:y-rH/2-3,size:9,font:fR,color:negru});
+                page.drawText(val,{x:cX[5]+(cW[5]-fB.widthOfTextAtSize(val,9))/2,y:y-rH/2-3,size:9,font:fB,color:negru});
+                y-=rH+12;
+                // Mentiuni
+                txt("Mentiuni:",M,y,fB,10); y-=13;
+                ["1. Produsele sunt livrate conform contractului Nr. 143/06.12.2024;","2. Produsele sunt conforme din punct de vedere sanitar-veterinar;","3. Avizul insoteste marfa pe durata transportului;"].forEach(m=>{txt(m,M+10,y,fR,9);y-=13;});
+                y-=6;
+                // Expeditie
+                txt("Date privind expeditia:",M,y,fB,10); y-=13;
+                txt("1. Numele delegatului: Murariu Mirela; C.I. Seria MZ, Nr. 710839",M+10,y,fR,9); y-=13;
+                txt(`2. Expedierea s-a efectuat in prezenta noastra la data de ${dataF}, ora 13.30.`,M+10,y,fR,9); y-=35;
+                // Semnaturi
+                txt("Semnatura si stampila furnizorului,",M+10,y,fR,9);
+                txt("Semnatura de primire,",M+320,y,fR,9); y-=13;
+                txt('Liceul Tehn. "V. Mihailescu Craiu" Belcesti',M+300,y,fB,8); y-=13;
+                txt("Pavel Ioan",M+350,y,fB,9); y-=40;
+                page.drawLine({start:{x:M+10,y},end:{x:M+170,y},thickness:0.5,color:negru});
+                page.drawLine({start:{x:M+300,y},end:{x:M+480,y},thickness:0.5,color:negru});
+                // Footer
+                const ft=ro("PNRR. Finantat de Uniunea Europeana | https://mfe.gov.ro/pnrr/");
+                page.drawLine({start:{x:M,y:M+18},end:{x:W-M,y:M+18},thickness:0.3,color:rgb(0.7,0.7,0.7)});
+                page.drawText(ft,{x:(W-fI.widthOfTextAtSize(ft,7))/2,y:M+6,size:7,font:fI,color:rgb(0.4,0.4,0.4)});
+            }
+            upd(97,'Se salveaza PDF-ul...');
+            const blob=new Blob([await pdf.save()],{type:'application/pdf'});
+            const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=`Avize_${state.luna}_${state.an}.pdf`; a.click();
+            upd(100,'Gata!'); setTimeout(()=>pm.remove(),800);
+        } catch(e){ pm.remove(); alert('Eroare: '+e.message); console.error(e); }
+    }
 </script>
 </body>
 </html>
