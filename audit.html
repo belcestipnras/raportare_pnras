@@ -1551,7 +1551,20 @@ async function r2DeleteFile(publicUrl, bucketKey) {
 
         html += '<div class="checklist">';
         listaCartonase.forEach(tip => {
-            const fisiere = grupate[tip] || [];
+            // Colectam toate fisierele cu prefix numeric potrivit
+            const prefix = tip.match(/^([\d.]+)\.\s/);
+            let fisiere = grupate[tip] || [];
+            if (prefix && fisiere.length === 0) {
+                const p = prefix[1] + '.';
+                fisiere = Object.keys(grupate).filter(k => k.startsWith(p)).flatMap(k => grupate[k]);
+            }
+            // Excludem cartonasele duplicate cu acelasi prefix (le afisam doar la primul)
+            const prefixNr = tip.match(/^(\d+)\./);
+            if (prefixNr) {
+                const idx = listaCartonase.indexOf(tip);
+                const firstWithPrefix = listaCartonase.findIndex(t => t.match(/^(\d+)\./)?.[1] === prefixNr[1]);
+                if (idx !== firstWithPrefix) return; // skip duplicate prefix
+            }
             const areDoc = docExistaAudit(tip, existente);
             let cls = 'check-miss', ico = '❌';
             if (areDoc) { cls = 'check-ok'; ico = '✅'; }
@@ -1576,19 +1589,27 @@ async function r2DeleteFile(publicUrl, bucketKey) {
                     '</div>';
             }
 
-            if (fisiere.length > 0) {
+            // Pentru 13. Factura adaugam si facturile din buget_achizitii
+            let fisiereAfisate = [...fisiere];
+            if (tip === '13. Factură') {
+                const factBuget = docsMapped.filter(d => d.tip_document === '13. Factură' && d.furnizor && d.furnizor.length === 36 && d.link_drive);
+                fisiereAfisate = [...fisiereAfisate, ...factBuget];
+            }
+            if (fisiereAfisate.length > 0) {
                 html += '<div class="check-files-list">';
-                const fisiereSortate = [...fisiere].sort((a, b) => {
+                const fisiereSortate = [...fisiereAfisate].sort((a, b) => {
                     const dA = a.data_inregistrare ? new Date(a.data_inregistrare) : new Date(0);
                     const dB = b.data_inregistrare ? new Date(b.data_inregistrare) : new Date(0);
                     return dA - dB;
                 });
                 fisiereSortate.forEach(f => {
                     if (!f.link_drive) return;
-                    const titluSafe = titlu.replace(/'/g, "\\'");
+                    const titluSafe = titlu.replace(/'/g, "\'");
                     html += '<div class="check-file-row">';
                     html += '<a class="check-files" href="' + f.link_drive + '" target="_blank">📎 ' + (f.nume_fisier || 'Deschide') + '</a>';
-                    html += '<button class="btn-del-storage" onclick="stergeTabelFisier(\'' + f.id + '\', \'' + contractId + '\', \'' + titluSafe + '\')" title="Șterge fișier">🗑️</button>';
+                    if (!f.furnizor || f.furnizor.length !== 36) {
+                        html += '<button class="btn-del-storage" onclick="stergeTabelFisier(\'' + f.id + '\', \'' + contractId + '\', \'' + titluSafe + '\')" title="Șterge fișier">🗑️</button>';
+                    }
                     html += '</div>';
                 });
                 html += '</div>';
@@ -1600,29 +1621,33 @@ async function r2DeleteFile(publicUrl, bucketKey) {
             if (listaCartonase.includes(tip)) return false;
             if (tip === 'DOSAR ACHIZIȚIE PDF') return false;
             if (tip === '13. Factura') return false;
+            if (tip.startsWith('DOSAR_FACT_')) return false;
             const t = tip.toUpperCase();
             return t.includes('FACTUR') || t.includes('DOSAR');
         });
-        const areAltceva = tipuriExtra.length > 0 || facturiDosar.length > 0;
+        // Preluam dosarele generate (DOSAR_FACT_{facturaId}) pentru fiecare factura
+        // furnizor in DOSAR_FACT_ = id-ul facturii din documente_contract
+        const dosareFact = {};
+        (docs || []).filter(d => d.tip_document && d.tip_document.startsWith('DOSAR_FACT_')).forEach(d => {
+            if (d.furnizor) dosareFact[d.furnizor] = d;
+        });
+
+        // Toate facturile (13. Factura cu furnizor=UUID) — pentru dosare generate
+        const toateFacturile = (docs || []).filter(d =>
+            d.tip_document === '13. Factura' && d.furnizor && d.furnizor.length === 36
+        );
+
+        const areAltceva = tipuriExtra.length > 0 || toateFacturile.some(f => dosareFact[f.id]);
         if (areAltceva) {
-            html += '<div style="margin-top:12px;font-size:12px;color:#888;font-style:italic;">Alte documente:</div>';
-            // Buton Dosar facturi pentru fiecare factură
-            if (facturiDosar.length > 0) {
-                const titluEnc = encodeURIComponent(titlu);
-                facturiDosar.forEach(f => {
-                    const nrF = f.nr_inregistrare ? 'Nr. ' + f.nr_inregistrare + ' — ' : '';
-                    const dataF = f.data_inregistrare ? f.data_inregistrare.split('-').reverse().join('.') + ' — ' : '';
-                    const numeF = f.nume_fisier || 'Factură';
-                    const url = 'dosar_facturi.html?id=' + contractId + '&den=' + titluEnc;
-                    html += '<div class="check-item check-opt"><div class="check-item-header">' +
-                        '<span class="check-icon">🧾</span>' +
-                        '<span class="check-name">' + nrF + dataF + numeF + '</span>' +
-                        '</div>' +
-                        '<div style="margin-top:6px;margin-left:28px;">' +
-                        '<a href="' + url + '" style="font-size:12px;color:#2563eb;font-weight:600;text-decoration:none;">📂 Deschide Dosar Factură</a>' +
-                        '</div></div>';
-                });
-            }
+            html += '<div style="margin-top:20px;margin-bottom:8px;padding:8px 14px;background:#eff6ff;border-left:4px solid #2563eb;border-radius:0 8px 8px 0;font-size:14px;font-weight:700;color:#1e40af;">📎 Alte documente</div>';
+            toateFacturile.forEach(f => {
+                const dosarGenerat = dosareFact[f.id];
+                if (dosarGenerat && dosarGenerat.link_drive) {
+                    html += '<div class="check-file-row">' +
+                        '<a class="check-files" href="' + dosarGenerat.link_drive + '" target="_blank">📎 ' + (dosarGenerat.nume_fisier || 'Dosar factură') + '</a>' +
+                        '</div>';
+                }
+            });
             tipuriExtra.forEach(tip => {
                 const fisiere = grupate[tip] || [];
                 html += '<div class="check-item check-opt"><div class="check-item-header">' +
