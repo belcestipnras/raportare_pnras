@@ -1558,13 +1558,6 @@ async function r2DeleteFile(publicUrl, bucketKey) {
                 const p = prefix[1] + '.';
                 fisiere = Object.keys(grupate).filter(k => k.startsWith(p)).flatMap(k => grupate[k]);
             }
-            // Excludem cartonasele duplicate cu acelasi prefix (le afisam doar la primul)
-            const prefixNr = tip.match(/^(\d+)\./);
-            if (prefixNr) {
-                const idx = listaCartonase.indexOf(tip);
-                const firstWithPrefix = listaCartonase.findIndex(t => t.match(/^(\d+)\./)?.[1] === prefixNr[1]);
-                if (idx !== firstWithPrefix) return; // skip duplicate prefix
-            }
             const areDoc = docExistaAudit(tip, existente);
             let cls = 'check-miss', ico = '❌';
             if (areDoc) { cls = 'check-ok'; ico = '✅'; }
