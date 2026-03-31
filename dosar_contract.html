@@ -1148,6 +1148,21 @@ async function genereazaDosar(){
     const gopd={};
     if(docs) docs.forEach(d=>{if(d.tip_document==='DOSAR ACHIZIȚIE PDF')return;if(!gopd[d.tip_document])gopd[d.tip_document]=[];gopd[d.tip_document].push(d);});
 
+    // Completează nr/dată factură din buget_pnras pentru documentele de tip factură
+    const {data:facturiBuget} = await supabaseClient.from('buget_pnras').select('id,numar,data_document,titlu').eq('parent_id', contractId).eq('tip_rand','FACTURA').order('data_document',{ascending:true});
+    if(facturiBuget && facturiBuget.length) {
+      const fbMap = Object.fromEntries(facturiBuget.map(f=>([f.id, f])));
+      const tipFactura = Object.keys(gopd).find(t => t.toLowerCase().includes('factur'));
+      if(tipFactura && gopd[tipFactura]) {
+        gopd[tipFactura].forEach(d => {
+          const fb = fbMap[d.furnizor];
+          if(!d.nr_inregistrare && fb) d.nr_inregistrare = fb.numar || '';
+          if(!d.data_inregistrare && fb) d.data_inregistrare = fb.data_document ? fb.data_document.split('T')[0] : null;
+        });
+        gopd[tipFactura].sort((a,b) => (a.data_inregistrare||'').localeCompare(b.data_inregistrare||''));
+      }
+    }
+
     function getNivel(t){const m=t.match(/^(\d+(\.\d+)*)/);if(!m)return 1;return m[1].split('.').filter(s=>s!=='').length;}
     function getFmt(n){
       if(n===1)return{font:fOB,indent:0,size:9,areDoc:false};
