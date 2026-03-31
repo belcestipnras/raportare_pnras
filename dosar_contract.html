@@ -1150,18 +1150,13 @@ async function genereazaDosar(){
     if(docs) docs.forEach(d=>{if(d.tip_document==='DOSAR ACHIZIȚIE PDF')return;if(!gopd[d.tip_document])gopd[d.tip_document]=[];gopd[d.tip_document].push(d);});
 
     // Completează nr/dată factură din buget_pnras pentru documentele de tip factură
-    console.log('[OPIS-FACTURI] contractId:', contractId);
-    console.log('[OPIS-FACTURI] chei gopd:', Object.keys(gopd));
     const {data:facturiBuget, error:errFB} = await supabaseClient.from('buget_pnras').select('id,numar,data_document,titlu').eq('parent_id', contractId).eq('tip_rand','FACTURA').order('data_document',{ascending:true});
-    console.log('[OPIS-FACTURI] facturiBuget:', facturiBuget, 'eroare:', errFB);
     if(facturiBuget && facturiBuget.length) {
       const fbMap = Object.fromEntries(facturiBuget.map(f=>([f.id, f])));
       const tipFactura = Object.keys(gopd).find(t => t.toLowerCase().includes('factur'));
-      console.log('[OPIS-FACTURI] tipFactura găsit:', tipFactura);
       if(tipFactura && gopd[tipFactura]) {
         gopd[tipFactura].forEach(d => {
           const fb = fbMap[d.furnizor];
-          console.log('[OPIS-FACTURI] doc.furnizor:', d.furnizor, '→ fb găsit:', fb);
           if(fb) {
             d.nr_inregistrare = fb.numar || '';
             d.data_inregistrare = fb.data_document ? fb.data_document.split('T')[0] : null;
