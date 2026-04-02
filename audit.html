@@ -1228,10 +1228,20 @@ async function r2DeleteFile(publicUrl, bucketKey) {
 
             // ===== OPIS =====
             const LISTA_SALARII = ['Foaie de pontaj colectiv', 'Stat de plată', 'ALOP', 'Ordin de plată', 'Extras de cont'];
-            const docMap = {};
+            // Grupam toate documentele per tip, sortate cronologic
+            const docMapMultiple = {};
             (docs || []).forEach(d => {
                 const tip = d.tip_document;
-                if (!docMap[tip]) docMap[tip] = d;
+                if (!docMapMultiple[tip]) docMapMultiple[tip] = [];
+                docMapMultiple[tip].push(d);
+            });
+            // Sortare cronologica in cadrul fiecarui tip
+            Object.keys(docMapMultiple).forEach(tip => {
+                docMapMultiple[tip].sort((a, b) => {
+                    const dA = a.data_inregistrare ? new Date(a.data_inregistrare) : new Date(0);
+                    const dB = b.data_inregistrare ? new Date(b.data_inregistrare) : new Date(0);
+                    return dA - dB;
+                });
             });
 
             // Linie separator deasupra opisului
@@ -1251,45 +1261,52 @@ async function r2DeleteFile(publicUrl, bucketKey) {
             let opisNr = 1;
             const opisItems = [];
             for (const tip of LISTA_SALARII) {
-                const doc = docMap[tip];
-                if (!doc) continue;
-                opisItems.push({ tip, doc, nr: opisNr });
+                const docsPerTip = docMapMultiple[tip];
+                if (!docsPerTip || docsPerTip.length === 0) continue;
+                for (const doc of docsPerTip) {
+                    opisItems.push({ tip, doc, nr: opisNr });
 
-                let detaliu = '';
-                if (tip === 'Extras de cont') {
-                    detaliu = doc.data_inregistrare ? doc.data_inregistrare.split('T')[0].split('-').reverse().join('.') : '';
-                } else {
-                    const nr = doc.nr_inregistrare || '';
-                    const data = doc.data_inregistrare ? doc.data_inregistrare.split('T')[0].split('-').reverse().join('.') : '';
-                    detaliu = nr && data ? 'Nr. ' + nr + '/' + data : (nr ? 'Nr. ' + nr : data);
+                    let detaliu = '';
+                    if (tip === 'Extras de cont') {
+                        detaliu = doc.data_inregistrare ? doc.data_inregistrare.split('T')[0].split('-').reverse().join('.') : '';
+                    } else {
+                        const nr = doc.nr_inregistrare || '';
+                        const data = doc.data_inregistrare ? doc.data_inregistrare.split('T')[0].split('-').reverse().join('.') : '';
+                        detaliu = nr && data ? 'Nr. ' + nr + '/' + data : (nr ? 'Nr. ' + nr : data);
+                    }
+
+                    const fullLine = opisNr + '. ' + tip + (detaliu ? ': ' + detaliu : '');
+                    coperta.drawText(fullLine, {
+                        x: CHENAR + 30, y: yOpis,
+                        size: 10, font: fontReg, color: rgb(0.1, 0.1, 0.1)
+                    });
+                    yOpis -= 17;
+                    opisNr++;
                 }
-
-                const fullLine = opisNr + '. ' + tip + (detaliu ? ': ' + detaliu : '');
-                coperta.drawText(fullLine, {
-                    x: CHENAR + 30, y: yOpis,
-                    size: 10, font: fontReg, color: rgb(0.1, 0.1, 0.1)
-                });
-                yOpis -= 17;
-                opisNr++;
             }
 
             // ===== SECTIUNI + PDF-URI =====
-            for (const { tip, doc, nr } of opisItems) {
-                const culoare = SECTIUNE_CULORI[(nr - 1) % SECTIUNE_CULORI.length];
+            // Grupam opisItems pe tip pentru a face o singura pagina de sectiune per tip
+            const tipuriVazute = [];
+            const opisPeTip = {};
+            for (const item of opisItems) {
+                if (!opisPeTip[item.tip]) { opisPeTip[item.tip] = []; tipuriVazute.push(item.tip); }
+                opisPeTip[item.tip].push(item);
+            }
+
+            let sectiuneNr = 0;
+            for (const tip of tipuriVazute) {
+                const docsInTip = opisPeTip[tip];
+                const culoare = SECTIUNE_CULORI[sectiuneNr % SECTIUNE_CULORI.length];
+                sectiuneNr++;
                 const bgColor = rgb(culoare.bg[0]/255, culoare.bg[1]/255, culoare.bg[2]/255);
-                const txtColor = rgb(culoare.text[0]/255, culoare.text[1]/255, culoare.text[2]/255);
 
-                // Pagina de sectiune - fundal alb, chenar colorat gros
+                // O singura pagina de sectiune per tip
                 const secPag = pdfDoc.addPage([A4W, A4H]);
-
-                // Fundal alb
                 secPag.drawRectangle({ x: 0, y: 0, width: A4W, height: A4H, color: rgb(1,1,1) });
-
-                // Chenar colorat - aceeasi grosime ca coperta
                 secPag.drawRectangle({ x: CHENAR, y: CHENAR, width: A4W - 2*CHENAR, height: A4H - 2*CHENAR,
                     borderColor: bgColor, borderWidth: 3 });
 
-                // Antet pe pagina de sectiune - toata latimea chenarului, ca pe coperta
                 const secInnerW = A4W - 2*CHENAR - 8;
                 const secImgDims = antetImg.scaleToFit(secInnerW, 140);
                 secPag.drawImage(antetImg, {
@@ -1297,51 +1314,68 @@ async function r2DeleteFile(publicUrl, bucketKey) {
                     width: secInnerW, height: secImgDims.height
                 });
 
-                // Text centrat vertical si orizontal
-                let detaliuSec = '';
-                if (tip === 'Extras de cont') {
-                    detaliuSec = doc.data_inregistrare ? doc.data_inregistrare.split('T')[0].split('-').reverse().join('.') : '';
-                } else {
-                    const nr2 = doc.nr_inregistrare || '';
-                    const data2 = doc.data_inregistrare ? doc.data_inregistrare.split('T')[0].split('-').reverse().join('.') : '';
-                    detaliuSec = nr2 && data2 ? 'Nr. ' + nr2 + '/' + data2 : (nr2 ? 'Nr. ' + nr2 : data2);
-                }
-
+                // Titlu tip centrat
                 const numeSize = 26;
-                const detSize = 18;
-                const lineGap = 14;
-                const totalTextH = numeSize + (detaliuSec ? lineGap + detSize : 0);
-                const centerY = A4H / 2;
-                const numeY = centerY + totalTextH / 2;
-                const detY = numeY - numeSize - lineGap;
-
                 const numeW = fontBold.widthOfTextAtSize(tip, numeSize);
+                const centerY = A4H / 2;
+
+                // Construim lista de detalii pentru toate documentele din acest tip
+                const detaliiLinii = docsInTip.map(({ doc }) => {
+                    if (tip === 'Extras de cont') {
+                        return doc.data_inregistrare ? doc.data_inregistrare.split('T')[0].split('-').reverse().join('.') : '';
+                    } else {
+                        const nr2 = doc.nr_inregistrare || '';
+                        const data2 = doc.data_inregistrare ? doc.data_inregistrare.split('T')[0].split('-').reverse().join('.') : '';
+                        return nr2 && data2 ? 'Nr. ' + nr2 + '/' + data2 : (nr2 ? 'Nr. ' + nr2 : data2);
+                    }
+                }).filter(Boolean);
+
+                const detSize = 16;
+                const lineGap = 10;
+                const totalH = numeSize + (detaliiLinii.length > 0 ? lineGap + detaliiLinii.length * (detSize + 6) : 0);
+                const numeY = centerY + totalH / 2;
+
                 secPag.drawText(tip, {
                     x: (A4W - numeW) / 2, y: numeY,
                     size: numeSize, font: fontBold, color: bgColor
                 });
 
-                if (detaliuSec) {
-                    const detW = fontReg.widthOfTextAtSize(detaliuSec, detSize);
-                    secPag.drawText(detaliuSec, {
-                        x: (A4W - detW) / 2, y: detY,
+                let yDet = numeY - numeSize - lineGap;
+                for (const linie of detaliiLinii) {
+                    const detW = fontReg.widthOfTextAtSize(linie, detSize);
+                    secPag.drawText(linie, {
+                        x: (A4W - detW) / 2, y: yDet,
                         size: detSize, font: fontReg, color: bgColor
                     });
+                    yDet -= detSize + 6;
                 }
 
-                // Embed PDF document
-                const linkDoc = doc.link_drive || '';
-                if (!linkDoc) continue;
-                try {
-                    const docResp = await fetch(linkDoc);
-                    if (!docResp.ok) continue;
-                    const docBytes = new Uint8Array(await docResp.arrayBuffer());
-                    const docPdf = await PDFDocument.load(docBytes, { ignoreEncryption: true });
-                    const pageCount = docPdf.getPageCount();
-                    const copiedPages = await pdfDoc.copyPages(docPdf, [...Array(pageCount).keys()]);
-                    copiedPages.forEach(p => pdfDoc.addPage(p));
-                } catch(e) {
-                    console.warn('Skip doc:', tip, e);
+                // Adaugam PDF-urile tuturor documentelor din acest tip
+                for (const { doc } of docsInTip) {
+                    const linkDoc = doc.link_drive || '';
+                    if (!linkDoc) continue;
+                    try {
+                        const docResp = await fetch(linkDoc);
+                        if (!docResp.ok) continue;
+                        const docBytes = new Uint8Array(await docResp.arrayBuffer());
+                        const docPdf = await PDFDocument.load(docBytes, { ignoreEncryption: true });
+                        const pageCount = docPdf.getPageCount();
+                        const copiedPages = await pdfDoc.copyPages(docPdf, [...Array(pageCount).keys()]);
+                        copiedPages.forEach(p => {
+                            pdfDoc.addPage(p);
+                            const { width: pw, height: ph } = p.getSize();
+                            const landscape = pw > ph;
+                            const targetW = landscape ? A4H : A4W;
+                            const targetH = landscape ? A4W : A4H;
+                            if (pw > targetW + 1 || ph > targetH + 1) {
+                                const scale = Math.min(targetW / pw, targetH / ph);
+                                p.scaleContent(scale, scale);
+                                p.setSize(targetW, targetH);
+                            }
+                        });
+                    } catch(e) {
+                        console.warn('Skip doc:', tip, e);
+                    }
                 }
             }
 
@@ -1357,11 +1391,13 @@ async function r2DeleteFile(publicUrl, bucketKey) {
                 a.click();
             } else {
                 const url = URL.createObjectURL(blob);
-                const iframe = document.createElement('iframe');
-                iframe.style.display = 'none';
-                iframe.src = url;
-                document.body.appendChild(iframe);
-                iframe.onload = () => { iframe.contentWindow.print(); };
+                const printWin = window.open(url, '_blank');
+                if (printWin) {
+                    printWin.onload = () => { printWin.focus(); printWin.print(); };
+                } else {
+                    const a2 = document.createElement('a');
+                    a2.href = url; a2.target = '_blank'; a2.click();
+                }
             }
 
         } catch(e) {
