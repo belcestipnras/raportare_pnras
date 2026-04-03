@@ -231,6 +231,14 @@
         .check-files.storage { color: #0369a1; }
         .btn-del-storage { background: none; border: none; cursor: pointer; font-size: 13px; color: #dc2626; padding: 0 2px; line-height: 1; opacity: 0.6; }
         .btn-del-storage:hover { opacity: 1; }
+        .check-files-dosar {
+            display: inline-flex; align-items: center; gap: 6px;
+            font-size: 14px; font-weight: 700; color: #1e40af;
+            background: #dbeafe; border: 1.5px solid #93c5fd;
+            border-radius: 8px; padding: 7px 14px;
+            cursor: pointer; text-decoration: none; transition: all 0.2s;
+        }
+        .check-files-dosar:hover { background: #bfdbfe; border-color: #3b82f6; text-decoration: none; }
 
         /* ===== DIALOG ===== */
         .overlay {
@@ -1672,8 +1680,8 @@ async function r2DeleteFile(publicUrl, bucketKey) {
             toateFacturile.forEach(f => {
                 const dosarGenerat = dosareFact[f.id];
                 if (dosarGenerat && dosarGenerat.link_drive) {
-                    html += '<div class="check-file-row">' +
-                        '<a class="check-files" href="' + dosarGenerat.link_drive + '" target="_blank">📎 ' + (dosarGenerat.nume_fisier || 'Dosar factură') + '</a>' +
+                    html += '<div class="check-file-row" style="margin:6px 0;">' +
+                        '<a class="check-files-dosar" href="' + dosarGenerat.link_drive + '" target="_blank">📎 ' + (dosarGenerat.nume_fisier || 'Dosar factură') + '</a>' +
                         '</div>';
                 }
             });
