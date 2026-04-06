@@ -354,10 +354,10 @@ const SECTIUNI=[
   {id:'S3',label:'Raport Lunar',icon:'📊'},
   {id:'S4',label:'Proces Verbal Recepție',icon:'📋'},
   {id:'S5',label:'Notă de Comandă',icon:'📝'},
-  {id:'S6',label:'Avize / Comunicări / Liste',icon:'📦',avize:true},
-  {id:'S7',label:'ALOP',icon:'💼'},
-  {id:'S8',label:'Ordin de Plată (OP)',icon:'🏦'},
-  {id:'S9',label:'Extras de Cont',icon:'🏧'},
+  {id:'S6',label:'ALOP',icon:'💼'},
+  {id:'S7',label:'Ordin de Plată (OP)',icon:'🏦'},
+  {id:'S8',label:'Extras de Cont',icon:'🏧'},
+  {id:'S9',label:'Avize / Comunicări / Liste',icon:'📦',avize:true},
 ];
 
 let _luna='',_an='',_pontaj=[],_pontDet=[],_byTip={},_ctrDocs=[],_facturi=[],_eleviPerClasa={},_listeZiClasa={};
@@ -1299,10 +1299,10 @@ const SEC_COLORS={
   S3:{color:'#0f766e',bg:'#f0fdfa',border:'#5eead4',icon:'📊'},
   S4:{color:'#7c3aed',bg:'#f5f3ff',border:'#c4b5fd',icon:'📋'},
   S5:{color:'#be185d',bg:'#fdf2f8',border:'#f9a8d4',icon:'📝'},
-  S6:{color:'#065f46',bg:'#ecfdf5',border:'#6ee7b7',icon:'📦'},
-  S7:{color:'#9a3412',bg:'#fff7ed',border:'#fdba74',icon:'💼'},
-  S8:{color:'#1e3a8a',bg:'#eff6ff',border:'#60a5fa',icon:'🏦'},
-  S9:{color:'#3730a3',bg:'#eef2ff',border:'#a5b4fc',icon:'🏧'},
+  S6:{color:'#9a3412',bg:'#fff7ed',border:'#fdba74',icon:'💼'},
+  S7:{color:'#1e3a8a',bg:'#eff6ff',border:'#60a5fa',icon:'🏦'},
+  S8:{color:'#3730a3',bg:'#eef2ff',border:'#a5b4fc',icon:'🏧'},
+  S9:{color:'#065f46',bg:'#ecfdf5',border:'#6ee7b7',icon:'📦'},
 };
 
 function printSecPage(secId,label,idx){
@@ -1528,7 +1528,7 @@ async function genDosar(){
         printHtml+=printPlaceholder(s.id,i,s.label,'⚠️ Niciun fișier încărcat — Notă de Comandă lipsă. Încarcă documentul PDF în secțiunea S5.');
       }
     } else if(!['S1','S2','S3','S4','S5'].includes(s.id)&&!s.avize){
-      // S7, S8, S9 — documente uploadate manual, filtrate exclude_print
+      // S6, S7, S8 — ALOP, OP, Extras cont — documente uploadate manual, filtrate exclude_print
       const uploadedDocs=(_byTip[mk(s.id)]||[]).filter(d=>!d.exclude_print);
       for(const d of uploadedDocs){
         if(!d.link_drive)continue;
