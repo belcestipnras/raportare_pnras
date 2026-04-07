@@ -361,6 +361,31 @@ const SECTIUNI=[
 ];
 
 let _luna='',_an='',_pontaj=[],_pontDet=[],_byTip={},_ctrDocs=[],_facturi=[],_eleviPerClasa={},_listeZiClasa={};
+// Comunicări ascunse manual — salvate în Supabase
+let _comunicariAscunse={};
+function _tipComAsc(){return `COM_ASCUNSE_${_luna}_${_an}`;}
+function esteAscunsa(gk){return !!_comunicariAscunse[gk];}
+async function toggleAscundeCom(gk){
+  if(_comunicariAscunse[gk]) delete _comunicariAscunse[gk];
+  else _comunicariAscunse[gk]=true;
+  await salveazaComunicariAscunse();
+  renderMain(_byTip);
+  renderSidebar(_byTip);
+}
+async function salveazaComunicariAscunse(){
+  try{
+    await db.from('planificari_documente').upsert(
+      {tip_document:_tipComAsc(), continut_json:_comunicariAscunse},
+      {onConflict:'tip_document'}
+    );
+  }catch(e){console.warn('salveazaComunicariAscunse:',e);}
+}
+async function loadComunicariAscunse(){
+  try{
+    const{data}=await db.from('planificari_documente').select('continut_json').eq('tip_document',_tipComAsc()).maybeSingle();
+    _comunicariAscunse=(data?.continut_json)||{};
+  }catch(e){_comunicariAscunse={};}
+}
 
 // Carica worker pdf.js ca blob pentru a evita erori file://
 fetch('https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js')
@@ -409,15 +434,34 @@ async function init(){
 
 async function open_(luna,an){
   _luna=luna;_an=an;
+  location.hash=luna+'_'+an;
+  await loadComunicariAscunse();
   document.getElementById('view-index').style.display='none';
   document.getElementById('view-dosar').style.display='block';
   document.getElementById('cp-luna').textContent=luna+' '+an;
   await load();
 }
 function goBack(){
+  location.hash='';
   document.getElementById('view-dosar').style.display='none';
   document.getElementById('view-index').style.display='block';
+  // Restaurează starea din URL hash la refresh
+(async()=>{
+  const hash=location.hash.replace('#','');
+  if(hash){
+    const parts=hash.split('_');
+    // hash format: Luna_An (ex: Mai_2025)
+    if(parts.length>=2){
+      const an=parts[parts.length-1];
+      const luna=parts.slice(0,parts.length-1).join('_');
+      if(LUNI.includes(luna)&&/^\d{4}$/.test(an)){
+        await open_(luna,an);
+        return;
+      }
+    }
+  }
   init();
+})();
 }
 
 // tip_document format: MASA_Luna_An_SecId[_zi]
@@ -501,15 +545,34 @@ async function load(){
     }
     _pontDet=detR.data||[];
     const ziCuActivitate=new Set((_pontDet||[]).map(p=>String(p.zi)));
-    _pontaj=(pontR.data||[]).filter(p=>p.valoare_aviz>0||ziCuActivitate.has(String(p.zi)));
 
-    // Adaugă zilele cu fara_masa=true — apar ca comunicări nelivrare
+    // Helper: verifică dacă o zi (număr) din luna/an curent e weekend
+    function esteWeekend(zi){
+      const lunaIdx=["Ianuarie","Februarie","Martie","Aprilie","Mai","Iunie","Iulie","August","Septembrie","Octombrie","Noiembrie","Decembrie"].indexOf(_luna);
+      const d=new Date(Number(_an),lunaIdx,Number(zi));
+      return d.getDay()===0||d.getDay()===6;
+    }
+
+    // Preia zilele cu fara_masa=true — SINGURA sursă de comunicări nelivrare
     const{data:faraMasaR}=await db.from('pontaj_detaliat')
       .select('zi').eq('luna',_luna).eq('an',_an).eq('fara_masa',true);
+    const zileFaraMasaSet=new Set((faraMasaR||[]).map(r=>String(r.zi)));
+
+    // Păstrăm în _pontaj DOAR:
+    // 1. Zile cu aviz livrat (valoare_aviz > 0)
+    // 2. Zile cu fara_masa=true explicit marcate — apar ca comunicări nelivrare
+    // Excludem zilele care au doar activitate în pontaj_detaliat fără aviz și fără fara_masa
+    _pontaj=(pontR.data||[]).filter(p=>{
+      if(p.valoare_aviz>0) return true; // livrat
+      if(zileFaraMasaSet.has(String(p.zi))) return true; // comunicare nelivrare explicită
+      return false; // altceva — ignorăm
+    });
+
+    // Adaugă zilele cu fara_masa=true care nu sunt deja în setari_pontaj
     if(faraMasaR&&faraMasaR.length){
-      const zileFM=[...new Set(faraMasaR.map(r=>r.zi))];
+      const zileFM=[...new Set(faraMasaR.map(r=>Number(r.zi)))];
       zileFM.forEach(zi=>{
-        if(!_pontaj.find(p=>p.zi===zi))
+        if(!_pontaj.find(p=>Number(p.zi)===zi))
           _pontaj.push({zi,valoare_aviz:0,tip_meniu:null,luna:_luna,an:_an});
       });
       _pontaj.sort((a,b)=>a.zi-b.zi);
@@ -539,11 +602,16 @@ function renderSidebar(byTip){
             <span class="dot"></span>${zi}.${LC[_luna]}.${_an} (${cnt})
           </div>`;
         } else {
-          const gk='com_'+g.zile[0].zi+'-'+g.zile[g.zile.length-1].zi;
-          const k=mk(s.id,gk);const cnt=(byTip[k]||[]).length;
+          const gk=g.zile[0].zi+'-'+g.zile[g.zile.length-1].zi;
+          const k=mk(s.id,'com_'+gk);const cnt=(byTip[k]||[]).length;
           const z1=String(g.zile[0].zi).padStart(2,'0');
           const z2=String(g.zile[g.zile.length-1].zi).padStart(2,'0');
           const lbl=g.zile.length===1?z1+'.'+LC[_luna]+'.'+_an:z1+'—'+z2+'.'+LC[_luna]+'.'+_an;
+          if(esteAscunsa(gk)){
+            return`<div class="sb-item" style="opacity:.35;text-decoration:line-through;" onclick="scrollTo_('${s.id}_com_${gk}')">
+              <span class="dot"></span>🙈 ${lbl}
+            </div>`;
+          }
           return`<div class="sb-item${cnt?' ok':''}" onclick="scrollTo_('${s.id}_com_${gk}')">
             <span class="dot"></span>⚠️ ${lbl} (${cnt})
           </div>`;
@@ -670,10 +738,21 @@ function renderMain(byTip){
             const groupKey=`${g.zile[0].zi}-${g.zile[g.zile.length-1].zi}`;
             const k=mk(s.id,'com_'+groupKey);
             const docs=byTip[k]||[];
+            const ascunsa=esteAscunsa(groupKey);
+            if(ascunsa){
+              return`<div class="day-group" id="sc_${s.id}_com_${groupKey}" style="opacity:.45;border-style:dashed;">
+                <div class="day-hdr" style="justify-content:space-between;">
+                  <span class="day-date" style="text-decoration:line-through;color:#475569;">📅 ${label}</span>
+                  <span style="font-size:9px;color:#475569;font-style:italic;">ascunsă din dosar</span>
+                  <button class="bsm" style="background:#1e3a5f;color:#60a5fa;font-size:9px;" onclick="toggleAscundeCom('${groupKey}')">↩ Restabilește</button>
+                </div>
+              </div>`;
+            }
             return`<div class="day-group" id="sc_${s.id}_com_${groupKey}">
               <div class="day-hdr">
                 <span class="day-date">📅 ${label}</span>
                 <span class="day-badge nelivrat">⚠️ Comunicare nelivrare${g.zile.length>1?' ('+g.zile.length+' zile)':''}</span>
+                <button class="bsm bd" onclick="toggleAscundeCom('${groupKey}')" style="margin-left:auto;font-size:9px;" title="Ascunde din dosar (nu șterge din baza de date)">🙈 Ascunde</button>
               </div>
               <div class="day-body">
                 <div style="margin-bottom:8px;">
@@ -1628,7 +1707,9 @@ async function genDosar(){
           const dataStart=`${ziStart}.${LC[_luna]}.${_an}`;
           const dataEnd=ziEnd?`${ziEnd}.${LC[_luna]}.${_an}`:null;
           const perioada=dataEnd?`${dataStart} – ${dataEnd}`:dataStart;
-          const gk='com_'+ev.zi+'-'+(ev.ziEnd||ev.zi);
+          const gk=ev.zi+'-'+(ev.ziEnd||ev.zi);
+          // Dacă comunicarea e ascunsă manual — o sărim complet, fără warning
+          if(esteAscunsa(gk)) continue;
           const comKey=mk(s.id,gk);
           const comDocs=(_byTip[comKey]||[]).filter(d=>!d.exclude_print&&d.link_drive);
           if(comDocs.length){
