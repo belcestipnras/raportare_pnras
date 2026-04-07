@@ -758,6 +758,32 @@ async function r2DeleteFile(publicUrl, bucketKey) {
         }
     }
 
+    async function recalculeazaToatePaginile() {
+        const elSub = document.getElementById('ct-subtitle');
+        const elPagini = document.getElementById('ct-pagini');
+        if (elSub) elSub.textContent = 'Se pregătesc fișierele...';
+        if (elPagini) elPagini.textContent = '0';
+
+        // Preia toate fișierele (fără reset în masă — poate bloca RLS)
+        const [r1, r2] = await Promise.all([
+            db.from('audit_continut').select('id, fisier_url').eq('sters', false).eq('tip', 'fisier'),
+            db.from('documente_contract').select('id, link_drive')
+        ]);
+        const fisiere = (r1.data || []).filter(f => f.fisier_url);
+        const documente = (r2.data || []).filter(d => d.link_drive && d.link_drive.includes('r2.dev'));
+        const total = fisiere.length + documente.length;
+
+        if (elSub) elSub.textContent = 'Se procesează ' + total + ' fișiere...';
+
+        // Procesează ambele surse în paralel
+        await Promise.all([
+            completeazaPaginiDinR2(fisiere, 'audit'),
+            completeazaPaginiDinR2(documente, 'documente_contract')
+        ]);
+
+        if (elSub) elSub.textContent = 'Recalculare completă ✓';
+    }
+
     // ===================== CONTOR TOTAL PAGINI =====================
     async function calculeazaContorTotal() {
         const [r1, r2] = await Promise.all([
@@ -786,8 +812,7 @@ async function r2DeleteFile(publicUrl, bucketKey) {
         // Documente contract fără pagini — doar cele cu URL R2 (pub-...r2.dev)
         const documenteFaraPagini = documente.filter(d => !(d.nr_pagini > 0) && d.link_drive && d.link_drive.includes('r2.dev'));
 
-        console.log('[CONTOR] fisiere fara pagini:', fisiereFaraPagini.length, '| url exemple:', fisiereFaraPagini.slice(0,2).map(f => f.fisier_url));
-        console.log('[CONTOR] documente contract fara pagini (R2):', documenteFaraPagini.length, '| url exemple:', documenteFaraPagini.slice(0,2).map(d => d.link_drive));
+        console.log('[CONTOR] fisiere fara pagini:', fisiereFaraPagini.length, '| documente fara pagini:', documenteFaraPagini.length);
 
         if (fisiereFaraPagini.length > 0) completeazaPaginiDinR2(fisiereFaraPagini, 'audit');
         if (documenteFaraPagini.length > 0) completeazaPaginiDinR2(documenteFaraPagini, 'documente_contract');
@@ -796,31 +821,9 @@ async function r2DeleteFile(publicUrl, bucketKey) {
     }
 
     async function completeazaPaginiDinR2(fisiere, sursa) {
-        const BATCH = 8;
+        const BATCH = 5;
 
-        async function numaraPaginiRapid(url) {
-            // Încearcă mai întâi cu Range request (ultimii 100KB) — mult mai rapid
-            try {
-                const headResp = await fetch(url, { method: 'HEAD' });
-                const fileSize = parseInt(headResp.headers.get('content-length') || '0');
-                if (fileSize > 0) {
-                    const rangeStart = Math.max(0, fileSize - 102400); // ultimii 100KB
-                    const rangeResp = await fetch(url, {
-                        headers: { 'Range': `bytes=${rangeStart}-${fileSize - 1}` }
-                    });
-                    if (rangeResp.status === 206) {
-                        const text = await rangeResp.text();
-                        // Caută /Count în xref trailer
-                        const matches = [...text.matchAll(/\/Count\s+(\d+)/g)];
-                        if (matches.length > 0) {
-                            const counts = matches.map(m => parseInt(m[1]));
-                            return Math.max(...counts);
-                        }
-                    }
-                }
-            } catch(e) { /* fallback */ }
-
-            // Fallback: descarcă tot și folosește PDFLib
+        async function numaraPagini(url) {
             const { PDFDocument } = PDFLib;
             const resp = await fetch(url);
             if (!resp.ok) return 0;
@@ -833,7 +836,7 @@ async function r2DeleteFile(publicUrl, bucketKey) {
             const url = sursa === 'documente_contract' ? f.link_drive : f.fisier_url;
             if (!url) return;
             try {
-                const pagini = await numaraPaginiRapid(url);
+                const pagini = await numaraPagini(url);
                 if (!pagini || pagini <= 0) return;
 
                 if (sursa === 'documente_contract') {
@@ -872,6 +875,9 @@ async function r2DeleteFile(publicUrl, bucketKey) {
             '<div class="contor-total-item"><div class="contor-total-num" id="ct-fisiere">—</div><div class="contor-total-label">Fișiere totale</div></div>' +
             '<div class="contor-total-sep"></div>' +
             '<div class="contor-total-item"><div class="contor-total-num" id="ct-pagini">—</div><div class="contor-total-label">Pagini înregistrate</div></div>' +
+            '<div style="margin-left:auto;">' +
+                '<button onclick="recalculeazaToatePaginile()" style="background:rgba(255,255,255,0.2);border:1px solid rgba(255,255,255,0.4);color:#fff;border-radius:8px;padding:7px 13px;font-size:11px;font-weight:700;cursor:pointer;" title="Recalculează paginile pentru toate fișierele">🔄 Recalculează</button>' +
+            '</div>' +
         '</div>';
 
         html += '<div class="cards-grid">';
