@@ -407,29 +407,25 @@ select:focus{ outline:none; border-color:#10b981; }
 .A4 .rap-info-label { font-weight:800; text-transform:uppercase; font-size:9px; color:#444; font-family:'Inter',sans-serif; }
 .A4 .rap-info-val { font-weight:600; color:#000; font-family:'Inter',sans-serif; }
 
-/* R2 embeds — imagine ocupă tot spațiul util al paginii A4 */
+/* R2 embeds */
 .r2-foto-label{ font-size:9pt; color:#475569; text-align:center; margin-bottom:8px; font-family:sans-serif; }
 
-/* Pagina A4 dedicată imaginii: fără padding propriu, imaginea gestionează spațiul */
+/* Pagina dedicată imaginii (prezență/masă) — umple tot A4-ul */
 .A4.r2-foto-page{
-  padding:8mm!important;
+  padding:5mm!important;
   display:flex!important;
   flex-direction:column!important;
   align-items:stretch!important;
-  justify-content:stretch!important;
+  justify-content:center!important;
   box-sizing:border-box!important;
 }
-
-/* Imaginea umple TOATĂ zona disponibilă a paginii A4 */
-.r2-foto{
+.A4.r2-foto-page .r2-foto{
   display:block!important;
   width:100%!important;
-  /* Înălțimea calculată = A4(297mm) - margini pagină(2×15mm) - padding intern(2×8mm) */
   height:calc(297mm - 46mm)!important;
   object-fit:contain!important;
   object-position:center center!important;
   margin:0!important;
-  flex:1 1 0!important;
 }
 
 /* ===== SIDEBAR DOCUMENTE DREAPTA ===== */
@@ -551,7 +547,12 @@ body.cu-dosare-sidebar #pp,
 body.cu-dosare-sidebar #dc { margin-left: 230px; }
 @media print { #dosare-sidebar { display: none !important; } }
 @media print{
-  body{ background:white!important; margin:0; padding:0; }
+  html{ max-width:100%; overflow:hidden; }
+  body{ background:white!important; margin:0; padding:0; max-width:100%; overflow:hidden; }
+  /* Niciun element nu poate depăși lățimea paginii — previne scale-down automat */
+  .A4 *{ max-width:100%!important; box-sizing:border-box!important; }
+  .A4 img{ max-width:100%!important; height:auto!important; }
+  .A4 table{ max-width:100%!important; table-layout:fixed!important; word-break:break-word!important; }
   .cp,#pp{ display:none!important; }
   #dc{ padding:0; display:block; margin-left:0!important; }
   body.cu-dosare-sidebar .cp,
@@ -655,23 +656,22 @@ body.cu-dosare-sidebar #dc { margin-left: 230px; }
   .cv-body{ padding:6mm 18mm!important; }
   .cv-bottom-bar{ padding:8px 18mm!important; }
 
-  /* Fotografii / liste prezență-masă — imaginea umple toată pagina fizică */
+  /* Fotografii — scoped strict la pagina dedicată imaginii */
   .A4.r2-foto-page{
     padding:0!important;
     display:flex!important;
     flex-direction:column!important;
     align-items:stretch!important;
-    justify-content:stretch!important;
+    justify-content:center!important;
   }
-  .r2-foto{
-    display:block!important;
+  .A4.r2-foto-page .r2-foto{
     width:100%!important;
-    height:100vh!important;       /* pagina fizică la print = 100vh */
+    height:100vh!important;
     max-height:none!important;
     object-fit:contain!important;
     object-position:center center!important;
+    display:block!important;
     margin:0!important;
-    flex:1 1 0!important;
   }
 
   /* Toate fundalurile colorate se pastreaza */
