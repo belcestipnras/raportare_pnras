@@ -374,16 +374,16 @@ async function toggleAscundeCom(gk){
 }
 async function salveazaComunicariAscunse(){
   try{
-    await db.from('planificari_documente').upsert(
-      {tip_document:_tipComAsc(), continut_json:_comunicariAscunse},
-      {onConflict:'tip_document'}
+    await db.from('com_ascunse').upsert(
+      {luna:_luna,an:_an,com_ascunse:_comunicariAscunse},
+      {onConflict:'luna,an'}
     );
   }catch(e){console.warn('salveazaComunicariAscunse:',e);}
 }
 async function loadComunicariAscunse(){
   try{
-    const{data}=await db.from('planificari_documente').select('continut_json').eq('tip_document',_tipComAsc()).maybeSingle();
-    _comunicariAscunse=(data?.continut_json)||{};
+    const{data}=await db.from('com_ascunse').select('com_ascunse').eq('luna',_luna).eq('an',_an).maybeSingle();
+    _comunicariAscunse=(data?.com_ascunse)||{};
   }catch(e){_comunicariAscunse={};}
 }
 
@@ -1710,7 +1710,7 @@ async function genDosar(){
           const gk=ev.zi+'-'+(ev.ziEnd||ev.zi);
           // Dacă comunicarea e ascunsă manual — o sărim complet, fără warning
           if(esteAscunsa(gk)) continue;
-          const comKey=mk(s.id,gk);
+          const comKey=mk(s.id,'com_'+gk);
           const comDocs=(_byTip[comKey]||[]).filter(d=>!d.exclude_print&&d.link_drive);
           if(comDocs.length){
             setSt(`⏳ Se procesează comunicare nelivrare ${perioada}...`,'load');
