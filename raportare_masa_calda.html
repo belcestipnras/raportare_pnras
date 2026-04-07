@@ -41,6 +41,7 @@ body{font-family:'Inter',sans-serif;background:#0f172a;color:#e2e8f0;min-height:
 .btn-dosar-salvat:hover{filter:brightness(1.15);}
 .btn-dosar-salvat-empty{font-size:11px;color:#334155;padding:7px 4px;}
 .btn-gen{background:linear-gradient(135deg,#10b981,#059669);font-size:13px;padding:9px 20px;}
+.btn-gen-teh{background:linear-gradient(135deg,#7c3aed,#5b21b6);font-size:13px;padding:9px 20px;}
 .btn-print{background:linear-gradient(135deg,#2563eb,#1e3a8a);}
 #status-bar{margin-top:6px;padding:5px 10px;border-radius:5px;font-size:11px;font-weight:600;display:none;}
 .st-load{background:#fef3c7;color:#92400e;display:block!important;}
@@ -103,6 +104,11 @@ body{font-family:'Inter',sans-serif;background:#0f172a;color:#e2e8f0;min-height:
 .dosar-salvat-luna{font-size:13px;font-weight:700;color:#e2e8f0;margin-bottom:4px;}
 .dosar-salvat-data{font-size:9px;color:#475569;margin-bottom:8px;}
 .dosar-salvat-acts{display:flex;flex-direction:column;gap:4px;}
+.sb-teh-sep{border-top:2px solid #78350f;margin:10px 0 6px;padding:6px 12px 0;font-size:9px;font-weight:800;color:#d97706;text-transform:uppercase;letter-spacing:1px;}
+.dosar-teh-salvat-box{background:#1c0a00;border:1px solid #d97706;border-radius:8px;padding:10px;margin:0 8px 8px;}
+.dosar-teh-salvat-box.empty{background:#0f172a;border-color:#1e293b;color:#334155;font-size:10px;text-align:center;padding:12px;}
+.btn-dosar-teh-salvat{padding:7px 16px;border:none;border-radius:6px;font-weight:700;font-size:12px;cursor:pointer;display:inline-flex;align-items:center;gap:5px;background:linear-gradient(135deg,#92400e,#d97706);color:#fef3c7;transition:.15s;font-family:'Inter',sans-serif;white-space:nowrap;text-decoration:none;}
+.btn-dosar-teh-salvat:hover{filter:brightness(1.15);}
 .liste-sectiune-title{padding:5px 10px;font-size:9px;font-weight:800;color:#f59e0b;letter-spacing:1px;text-transform:uppercase;border-bottom:1px solid #1e3a5f;background:#1a1000;}
 .lista-clasa-row{display:flex;align-items:center;gap:8px;padding:5px 10px;border-bottom:1px solid #1e293b;flex-wrap:wrap;}
 .lista-clasa-row:last-child{border-bottom:none;}
@@ -434,6 +440,7 @@ async function init(){
 
 async function open_(luna,an){
   _luna=luna;_an=an;
+  _sbOpen=new Set(); // toate colapsate la deschidere
   location.hash=luna+'_'+an;
   await loadComunicariAscunse();
   document.getElementById('view-index').style.display='none';
@@ -584,13 +591,18 @@ async function load(){
     try{renderSidebar(byTip);}catch(e){console.error('renderSidebar:',e);}
     try{renderMain(byTip);}catch(e){console.error('renderMain:',e);}
     await loadDosarSalvat().catch(e=>console.warn('loadDosarSalvat:',e));
+    await loadDosarTehnicSalvat().catch(e=>console.warn('loadDosarTehnicSalvat:',e));
     setSt('','');
   }catch(e){console.error('load() catch:',e);setSt('❌ '+e.message,'err');}
 }
 
 // ===== SIDEBAR =====
+// Starea secțiunilor deschise — persistă între re-render-uri, gol la deschidere = toate colapsate
+let _sbOpen=new Set();
+
 function renderSidebar(byTip){
   document.getElementById('sidebar').innerHTML=SECTIUNI.map((s,i)=>{
+    const isOpen=_sbOpen.has(s.id);
     let items='';
     if(s.avize){
       const grupe=groupZile(_pontaj);
@@ -623,13 +635,23 @@ function renderSidebar(byTip){
         <span class="dot"></span>${cnt?cnt+' doc.':'Fără documente'}
       </div>`;
     }
-    return`<div class="sb-sec open" id="sbsec_${s.id}" onclick="toggleSb('${s.id}')">
+    return`<div class="sb-sec${isOpen?' open':''}" id="sbsec_${s.id}" onclick="toggleSb('${s.id}')">
         <span>${s.icon} ${i+1}. ${s.label}</span><span class="arr">▶</span>
       </div>
       <div class="sb-items">${items}</div>`;
-  }).join('');
+  }).join('')
+  // Bloc dosar tehnic în josul sidebar-ului
+  +`<div class="sb-teh-sep">📂 Al doilea dosar</div>`
+  +`<div style="padding:0 8px 6px;"><button onclick="genDosarTehnic()" style="width:100%;padding:8px 10px;border:none;border-radius:6px;font-weight:700;font-size:11px;cursor:pointer;background:linear-gradient(135deg,#92400e,#d97706);color:#fef3c7;font-family:'Inter',sans-serif;letter-spacing:.5px;">🗂️ GENEREAZĂ DOSAR</button></div>`
+  +`<div id="dosar-teh-salvat-panel" style="padding:0 8px 8px;"></div>`;
 }
-function toggleSb(id){document.getElementById('sbsec_'+id).classList.toggle('open');}
+function toggleSb(id){
+  const el=document.getElementById('sbsec_'+id);
+  if(!el)return;
+  el.classList.toggle('open');
+  if(el.classList.contains('open')) _sbOpen.add(id);
+  else _sbOpen.delete(id);
+}
 function scrollTo_(id){const el=document.getElementById('sc_'+id);if(el)el.scrollIntoView({behavior:'smooth',block:'start'});}
 
 // ===== MAIN =====
@@ -1976,6 +1998,425 @@ function setSt(msg,type){
   // Auto-clear dupa 8s pentru mesaje ok/load ramase
   if(type==='ok')_stTimer=setTimeout(()=>setSt('',''),4000);
   if(type==='load')_stTimer=setTimeout(()=>setSt('',''),3000);
+}
+
+// ===== DOSAR TEHNIC =====
+const SECTIUNI_TEH=[
+  {id:'ST1',label:'Secțiunea I: Notă de Comandă',   icon:'📝', srcId:'S5', avize:false},
+  {id:'ST2',label:'Secțiunea II: Avize / Comunicări / Liste de Prezență / Liste Masă', icon:'📦', srcId:'S9', avize:true},
+  {id:'ST3',label:'Secțiunea III: Raport Lunar de Activitate', icon:'📊', srcId:'S3', avize:false},
+  {id:'ST4',label:'Secțiunea IV: Proces-Verbal de Recepție',   icon:'📋', srcId:'S4', avize:false},
+];
+const SEC_COLORS_TEH={
+  ST1:{color:'#be185d',bg:'#fdf2f8',border:'#f9a8d4'},
+  ST2:{color:'#065f46',bg:'#ecfdf5',border:'#6ee7b7'},
+  ST3:{color:'#0f766e',bg:'#f0fdfa',border:'#5eead4'},
+  ST4:{color:'#7c3aed',bg:'#f5f3ff',border:'#c4b5fd'},
+};
+
+function printSecPageTeh(stId,label,idx){
+  const c=SEC_COLORS_TEH[stId]||{color:'#334155',bg:'#f8fafc',border:'#cbd5e1'};
+  const shortLabel=label.replace(/Secțiunea [IVX]+:\s*/,'');
+  return`<div class="print-sec-page" style="border-color:${c.border};background:${c.bg};">
+    <div class="print-sec-num" style="color:${c.color};">Secțiunea ${idx+1}</div>
+    <div class="print-sec-title" style="color:${c.color};font-size:26pt;">${shortLabel}</div>
+    <div class="print-sec-line" style="background:${c.color};"></div>
+    <div class="print-sec-sub" style="color:${c.color};">Liceul Tehnologic „Victor Mihăilescu Craiu" Belcești — PNRAS</div>
+  </div>`;
+}
+
+async function genDosarTehnic(){
+  setSt('⏳ Se generează dosarul tehnic...','load');
+  const warnings=[];
+
+  let antetSrc=ANTET_URL;
+  try{
+    const resp=await fetch(ANTET_URL);
+    const blob=await resp.blob();
+    antetSrc=await new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=rej;r.readAsDataURL(blob);});
+  }catch(e){console.warn('Antet fallback',e);}
+
+  const _imgCacheTeh={};
+  async function getImgsTeh(key,url){
+    if(_imgCacheTeh[key]) return _imgCacheTeh[key];
+    const pages=await pdfToImages(url);
+    if(pages.length&&pages[0].startsWith('http')){_imgCacheTeh[key]=pages;return pages;}
+    const urls=[];
+    for(let pi=0;pi<pages.length;pi++){
+      try{
+        const b64=pages[pi];
+        const byteStr=atob(b64.split(',')[1]);
+        const ab=new ArrayBuffer(byteStr.length);
+        const ia=new Uint8Array(ab);
+        for(let j=0;j<byteStr.length;j++) ia[j]=byteStr.charCodeAt(j);
+        const imgBlob=new Blob([ab],{type:'image/jpeg'});
+        const fn=`masa_calda/tmp/teh_${_luna}_${_an}_${key}_p${pi+1}_${Date.now()}.jpg`;
+        const imgUrl=await r2Up(fn,imgBlob);
+        urls.push(imgUrl);
+      }catch(e){console.warn('upload teh page error:',e);urls.push(pages[pi]);}
+    }
+    _imgCacheTeh[key]=urls;
+    return urls;
+  }
+
+  let printHtml='';
+
+  // COPERTĂ
+  printHtml+=`<div class="print-cover-page" style="border-color:#7c3aed;">
+    <img class="print-cover-antet" src="${antetSrc}" alt="Antet PNRAS">
+    <div class="print-cover-body">
+      <div class="print-cover-divider" style="background:#2563eb;"></div>
+      <div class="print-cover-title">Dosar Masă Caldă</div>
+      <div class="print-cover-luna" style="color:#2563eb;">Luna ${_luna} ${_an}</div>
+      <div class="print-cover-meta" style="border-color:#2563eb;background:#eff6ff;">
+        <div class="print-cover-meta-row"><span class="print-cover-meta-lbl" style="color:#1e3a8a;">Contract:</span> nr. 143/06.12.2024</div>
+        <div class="print-cover-meta-row"><span class="print-cover-meta-lbl" style="color:#1e3a8a;">Furnizor:</span> SC PROCONS SRL</div>
+        <div class="print-cover-meta-row"><span class="print-cover-meta-lbl" style="color:#1e3a8a;">Activitate:</span> II.3. Gustări/Masă rece/caldă și sănătoasă</div>
+      </div>
+      <div class="print-cover-opis" style="border-top-color:#2563eb;">
+        <div class="print-cover-opis-title" style="color:#1e3a8a;">CUPRINS DOSAR</div>
+        ${SECTIUNI_TEH.map((s,i)=>`
+          <div class="print-cover-opis-row" style="border-bottom-color:#bfdbfe;">
+            <span class="print-cover-opis-nr" style="color:#2563eb;">${i+1}.</span>
+            <span class="print-cover-opis-label">${s.label}</span>
+          </div>`).join('')}
+      </div>
+      <div style="margin-top:18px;width:100%;border-top:2px solid #2563eb;padding-top:14px;">
+        <div style="font-size:7pt;font-weight:800;color:#1e3a8a;letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;text-align:center;">REZUMAT DOCUMENTE</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
+          ${(()=>{
+            // Calculează rezumatul
+            const nrAvize=(_pontaj||[]).filter(p=>p.valoare_aviz>0).length;
+            const ziActiveLivrate=(_pontaj||[]).filter(p=>p.valoare_aviz>0).map(p=>p.zi);
+            // Total liste prezență + masă
+            let nrPrez=0,nrMasa=0,nrClaseZi=0;
+            ziActiveLivrate.forEach(zi=>{
+              const claseProf={};
+              _pontDet.filter(pd=>String(pd.zi)===String(zi)).forEach(pd=>{
+                pd.clase_grupe.split(',').forEach(c2=>{const cl=c2.trim();if(cl)claseProf[cl]=true;});
+              });
+              const clase=Object.keys(claseProf);
+              nrClaseZi+=clase.length;
+              clase.forEach(cl=>{
+                const entry=_listeZiClasa[String(zi)+'|'+cl];
+                if(entry&&entry.prez&&entry.prez.public_url) nrPrez++;
+                if(entry&&entry.masa&&entry.masa.public_url) nrMasa++;
+              });
+            });
+            const grupe=groupZile(_pontaj);
+            const nrCom=grupe.filter(g=>g.type==='nelivrat'&&!esteAscunsa(g.zile[0].zi+'-'+g.zile[g.zile.length-1].zi)).length;
+            const nrNC=(_byTip[mk('S5')]||[]).filter(d=>!d.exclude_print&&d.link_drive).length;
+            const nrRaport=(_byTip[mk('S3')]||[]).filter(d=>!d.exclude_print&&d.link_drive).length;
+            const nrPV=(_byTip[mk('S4')]||[]).filter(d=>!d.exclude_print&&d.link_drive).length;
+            const items=[
+              {icon:'📝',label:'Notă de comandă',val:nrNC,total:1},
+              {icon:'📦',label:'Avize de livrare',val:nrAvize,total:nrAvize},
+              {icon:'⚠️',label:'Comunicări nelivrare',val:nrCom,total:nrCom},
+              {icon:'📋',label:'Liste de prezență',val:nrPrez,total:nrClaseZi},
+              {icon:'🍽️',label:'Liste de masă',val:nrMasa,total:nrClaseZi},
+              {icon:'📊',label:'Raport lunar',val:nrRaport,total:1},
+              {icon:'✅',label:'Proces-verbal recepție',val:nrPV,total:1},
+            ];
+            return items.map(it=>`<div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:6px;padding:6px 8px;display:flex;align-items:center;gap:6px;">
+              <span style="font-size:13pt;">${it.icon}</span>
+              <div style="flex:1;">
+                <div style="font-size:7.5pt;color:#1e3a8a;font-weight:700;">${it.label}</div>
+                <div style="font-size:10pt;font-weight:800;color:${it.val===it.total&&it.total>0?'#15803d':it.val===0?'#dc2626':'#d97706'};">${it.val}${it.total!==it.val?' / '+it.total:''}</div>
+              </div>
+            </div>`).join('');
+          })()}
+        </div>
+      </div>
+    </div>
+  </div>`;
+
+  // SECȚIUNI
+  for(let i=0;i<SECTIUNI_TEH.length;i++){
+    const st=SECTIUNI_TEH[i];
+    const srcId=st.srcId;
+    const c=SEC_COLORS_TEH[st.id]||{color:'#334155',bg:'#f8fafc',border:'#e2e8f0'};
+    // Culori separate pentru avize vs liste în Secțiunea II
+    const cAviz={color:'#065f46',bg:'#ecfdf5',border:'#6ee7b7'}; // verde — avize
+    const cListe={color:'#1d4ed8',bg:'#eff6ff',border:'#93c5fd'}; // albastru — liste
+
+    printHtml+=printSecPageTeh(st.id,st.label,i);
+
+    if(st.avize){
+      // SECȚIUNEA II — Avize + Liste
+      const grupe=groupZile(_pontaj);
+      const events=[];
+      grupe.forEach(g=>{
+        if(g.type==='livrat') events.push({type:'livrat',zi:g.zile[0].zi,pontaj:g.zile[0]});
+        else events.push({type:'nelivrat',zi:g.zile[0].zi,ziEnd:g.zile[g.zile.length-1].zi,g});
+      });
+      events.sort((a,b)=>a.zi-b.zi);
+
+      if(!events.length){
+        warnings.push('Secțiunea II — Avize: niciun pontaj găsit.');
+        printHtml+=`<div class="print-placeholder-page" style="border-color:${c.border};"><div class="print-ph-icon">⚠️</div><div class="print-ph-title" style="color:${c.color};">Niciun pontaj pentru această lună</div></div>`;
+      }
+
+      for(const ev of events){
+        if(ev.type==='livrat'){
+          const p=ev.pontaj;
+          const zi=String(p.zi).padStart(2,'0');
+          const dataF=`${zi}.${LC[_luna]}.${_an}`;
+
+          // Pagina separator aviz zilnic — VERDE
+          printHtml+=`<div class="print-aviz-page" style="border-color:${cAviz.border};background:${cAviz.bg};">
+            <div class="print-aviz-tag" style="background:${cAviz.bg};color:${cAviz.color};border-color:${cAviz.border};">Secțiunea II — Aviz</div>
+            <div class="print-aviz-title" style="color:${cAviz.color};">📦 Aviz de livrare</div>
+            <div class="print-aviz-date" style="color:${cAviz.color};">${dataF}</div>
+          </div>`;
+
+          // Fișier aviz
+          const avizKey=mk('S9',p.zi);
+          const avizDocs=(_byTip[avizKey]||[]).filter(d=>!d.exclude_print&&d.link_drive);
+          if(avizDocs.length){
+            setSt(`⏳ Procesare aviz ${dataF}...`,'load');
+            for(const d of avizDocs){
+              const imgs=await getImgsTeh('taviz_'+d.id,d.link_drive);
+              if(imgs.length) imgs.forEach(src=>{printHtml+=`<div class="print-pdf-page"><img src="${src}" style="width:100%;display:block;"></div>`;});
+              else{warnings.push(`Secț. II — Aviz ${dataF}: eroare procesare.`);printHtml+=`<div class="print-placeholder-page" style="border-color:${cAviz.border};"><div class="print-ph-icon">⚠️</div><div class="print-ph-title" style="color:${cAviz.color};">Eroare procesare aviz ${dataF}</div></div>`;}
+            }
+          } else {
+            warnings.push(`Secț. II — Aviz ${dataF}: niciun fișier uploadat.`);
+            printHtml+=`<div class="print-placeholder-page" style="border-color:${cAviz.border};">
+              <div class="print-ph-tag" style="background:${cAviz.bg};color:${cAviz.color};border-color:${cAviz.border};">Aviz lipsă</div>
+              <div class="print-ph-icon">⚠️</div>
+              <div class="print-ph-title" style="color:${cAviz.color};">Aviz lipsă — ${dataF}</div>
+              <div class="print-ph-box" style="border-color:${cAviz.border};color:${cAviz.color};">Încarcă PDF-ul avizului în S6 → ${dataF}</div>
+            </div>`;
+          }
+
+          // Liste per clasă
+          const claseProf={};
+          _pontDet.filter(pd=>String(pd.zi)===String(p.zi)).forEach(pd=>{
+            pd.clase_grupe.split(',').forEach(c2=>{
+              const cl=c2.trim();if(!cl)return;
+              if(!claseProf[cl])claseProf[cl]=[];
+              if(pd.expert&&!claseProf[cl].includes(pd.expert))claseProf[cl].push(pd.expert);
+            });
+          });
+          const claseList=Object.keys(claseProf).sort();
+
+          for(const cl of claseList){
+            const entry=_listeZiClasa[String(p.zi)+'|'+cl];
+            const nrElevi=_eleviPerClasa[cl]!==undefined?_eleviPerClasa[cl]:'';
+
+            // Pagina separator clasă — ALBASTRU
+            printHtml+=`<div class="print-aviz-page" style="border-color:${cListe.border};background:${cListe.bg};">
+              <div class="print-aviz-tag" style="background:${cListe.bg};color:${cListe.color};border-color:${cListe.border};">Secțiunea II — Liste ${dataF}</div>
+              <div class="print-aviz-title" style="color:${cListe.color};font-size:24pt;">📋 Clasa / Grupa ${cl}</div>
+              <div class="print-aviz-date" style="color:${cListe.color};">${dataF}${nrElevi!==''?' · '+nrElevi+' elevi':''}</div>
+            </div>`;
+
+            // Listă prezență
+            if(entry&&entry.prez&&entry.prez.public_url){
+              setSt(`⏳ Procesare prezență ${cl} ${dataF}...`,'load');
+              const imgsPrez=await getImgsTeh('tprez_'+entry.prez.id,entry.prez.public_url);
+              if(imgsPrez.length) imgsPrez.forEach(src=>{printHtml+=`<div class="print-pdf-page"><img src="${src}" style="width:100%;display:block;"></div>`;});
+              else{warnings.push(`Secț. II — Prezență ${cl}/${dataF}: eroare.`);printHtml+=`<div class="print-placeholder-page" style="border-color:${cListe.border};"><div class="print-ph-icon">⚠️</div><div class="print-ph-title" style="color:${cListe.color};">Eroare procesare listă prezență ${cl} — ${dataF}</div></div>`;}
+            } else {
+              warnings.push(`Secț. II — Prezență ${cl}/${dataF}: lipsă.`);
+              printHtml+=`<div class="print-placeholder-page" style="border-color:${cListe.border};">
+                <div class="print-ph-tag" style="background:${cListe.bg};color:${cListe.color};border-color:${cListe.border};">Listă prezență lipsă</div>
+                <div class="print-ph-icon">📋</div>
+                <div class="print-ph-title" style="color:${cListe.color};">Listă prezență — ${cl} — ${dataF}</div>
+              </div>`;
+            }
+
+            // Listă masă
+            if(entry&&entry.masa&&entry.masa.public_url){
+              setSt(`⏳ Procesare masă ${cl} ${dataF}...`,'load');
+              const imgsMasa=await getImgsTeh('tmasa_'+entry.masa.id,entry.masa.public_url);
+              if(imgsMasa.length) imgsMasa.forEach(src=>{printHtml+=`<div class="print-pdf-page"><img src="${src}" style="width:100%;display:block;"></div>`;});
+              else{warnings.push(`Secț. II — Masă ${cl}/${dataF}: eroare.`);printHtml+=`<div class="print-placeholder-page" style="border-color:${cListe.border};"><div class="print-ph-icon">⚠️</div><div class="print-ph-title" style="color:${cListe.color};">Eroare procesare listă masă ${cl} — ${dataF}</div></div>`;}
+            } else {
+              warnings.push(`Secț. II — Masă ${cl}/${dataF}: lipsă.`);
+              printHtml+=`<div class="print-placeholder-page" style="border-color:${cListe.border};">
+                <div class="print-ph-tag" style="background:${cListe.bg};color:${cListe.color};border-color:${cListe.border};">Listă masă lipsă</div>
+                <div class="print-ph-icon">🍽️</div>
+                <div class="print-ph-title" style="color:${cListe.color};">Listă masă — ${cl} — ${dataF}</div>
+              </div>`;
+            }
+          }
+        } else {
+          // Zi nelivrată
+          const ziStart=String(ev.zi).padStart(2,'0');
+          const ziEnd=ev.ziEnd?String(ev.ziEnd).padStart(2,'0'):null;
+          const dataStart=`${ziStart}.${LC[_luna]}.${_an}`;
+          const dataEnd=ziEnd?`${ziEnd}.${LC[_luna]}.${_an}`:null;
+          const perioada=dataEnd?`${dataStart} – ${dataEnd}`:dataStart;
+          const gk=ev.zi+'-'+(ev.ziEnd||ev.zi);
+          if(esteAscunsa(gk)) continue;
+          const comKey=mk('S9','com_'+gk);
+          const comDocs=(_byTip[comKey]||[]).filter(d=>!d.exclude_print&&d.link_drive);
+          if(comDocs.length){
+            setSt(`⏳ Procesare comunicare ${perioada}...`,'load');
+            for(const d of comDocs){
+              const imgs=await getImgsTeh('tcom_'+d.id,d.link_drive);
+              if(imgs.length) imgs.forEach(src=>{printHtml+=`<div class="print-pdf-page"><img src="${src}" style="width:100%;display:block;"></div>`;});
+              else{warnings.push(`Secț. II — Comunicare ${perioada}: eroare.`);printHtml+=`<div class="print-placeholder-page" style="border-color:${cAviz.border};"><div class="print-ph-icon">⚠️</div><div class="print-ph-title" style="color:${cAviz.color};">Eroare comunicare nelivrare ${perioada}</div></div>`;}
+            }
+          } else {
+            warnings.push(`Secț. II — Comunicare nelivrare ${perioada}: lipsă.`);
+            printHtml+=`<div class="print-placeholder-page" style="border-color:${cAviz.border};">
+              <div class="print-ph-tag" style="background:${cAviz.bg};color:${cAviz.color};border-color:${cAviz.border};">Comunicare nelivrare lipsă</div>
+              <div class="print-ph-icon">⚠️</div>
+              <div class="print-ph-title" style="color:${cAviz.color};">Comunicare nelivrare — ${perioada}</div>
+            </div>`;
+          }
+        }
+      }
+    } else {
+      // Secțiuni simple: S5 (Notă comandă), S3 (Raport), S4 (PV)
+      const docs=(_byTip[mk(srcId)]||[]).filter(d=>!d.exclude_print&&d.link_drive);
+      if(docs.length){
+        for(const d of docs){
+          setSt(`⏳ Procesare ${st.label}...`,'load');
+          const imgs=await getImgsTeh('tsec_'+d.id,d.link_drive);
+          if(imgs.length) imgs.forEach(src=>{printHtml+=`<div class="print-pdf-page"><img src="${src}" style="width:100%;display:block;"></div>`;});
+          else{warnings.push(`${st.label}: eroare la procesare fișier.`);printHtml+=`<div class="print-placeholder-page" style="border-color:${c.border};"><div class="print-ph-icon">⚠️</div><div class="print-ph-title" style="color:${c.color};">Eroare procesare: ${d.nume_fisier||'document'}</div></div>`;}
+        }
+      } else {
+        warnings.push(`${st.label}: niciun fișier încărcat.`);
+        printHtml+=`<div class="print-placeholder-page" style="border-color:${c.border};">
+          <div class="print-ph-tag" style="background:${c.bg};color:${c.color};border-color:${c.border};">${st.label}</div>
+          <div class="print-ph-icon">⚠️</div>
+          <div class="print-ph-title" style="color:${c.color};">Niciun document încărcat</div>
+          <div class="print-ph-box" style="border-color:${c.border};color:${c.color};">Încarcă documentul în secțiunea corespunzătoare.</div>
+        </div>`;
+      }
+    }
+  }
+
+  if(warnings.length){
+    const continua=confirm('⚠️ Dosar tehnic — documente lipsă:\n\n'+warnings.map((w,idx)=>`${idx+1}. ${w}`).join('\n')+'\n\nSe generează dosarul cu pagini de avertisment?');
+    if(!continua){setSt('❌ Generare dosar tehnic anulată.','err');return;}
+  }
+
+  setSt('⏳ Se salvează dosarul tehnic...','load');
+  try{
+    const fonts='<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Montserrat:wght@700;800&display=swap" rel="stylesheet">';
+    const viewerCss=`
+      *{box-sizing:border-box;margin:0;padding:0;}
+      body{background:#525659;font-family:'Inter',Arial,sans-serif;padding:0;}
+      .viewer-toolbar{position:fixed;top:0;left:0;right:0;z-index:1000;background:#1e3a8a;padding:10px 20px;display:flex;align-items:center;gap:12px;box-shadow:0 2px 8px rgba(0,0,0,.4);}
+      .viewer-title{color:#e2e8f0;font-size:13px;font-weight:700;flex:1;}
+      .viewer-btn{padding:7px 18px;border:none;border-radius:5px;font-weight:700;font-size:12px;cursor:pointer;font-family:'Inter',sans-serif;}
+      .viewer-btn-print{background:#2563eb;color:#fff;}
+      .viewer-btn-print:hover{background:#1d4ed8;}
+      .viewer-pages{padding:60px 20px 40px;display:flex;flex-direction:column;align-items:center;gap:16px;}
+      .print-sec-page,.print-placeholder-page,.print-cover-page,.print-pdf-page,.print-aviz-page{
+        width:210mm;min-height:297mm;background:#fff;box-shadow:0 4px 20px rgba(0,0,0,.4);
+        box-sizing:border-box;position:relative;overflow:hidden;-webkit-print-color-adjust:exact;print-color-adjust:exact;
+      }
+      .print-pdf-page img{width:210mm;height:297mm;display:block;object-fit:contain;}
+      .print-cover-page{display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:0 0 60px 0;border:10px solid #2563eb;}
+      .print-cover-antet{width:100%;max-width:100%;object-fit:cover;display:block;flex-shrink:0;}
+      .print-cover-body{width:100%;padding:40px 80px 0 80px;box-sizing:border-box;display:flex;flex-direction:column;align-items:center;flex:1;}
+      .print-cover-divider{width:120px;height:4px;background:#7c3aed;border-radius:2px;margin:28px 0;}
+      .print-cover-title{font-size:28pt;font-weight:800;color:#0f172a;text-align:center;letter-spacing:1px;margin-bottom:16px;}
+      .print-cover-luna{font-size:20pt;font-weight:700;color:#7c3aed;text-align:center;letter-spacing:2px;text-transform:uppercase;}
+      .print-cover-meta{margin-top:28px;border:2px solid #7c3aed;border-radius:10px;padding:18px 36px;text-align:left;background:#f5f3ff;width:100%;}
+      .print-cover-meta-row{font-size:12pt;color:#0f172a;margin-bottom:10px;line-height:1.6;}
+      .print-cover-meta-row:last-child{margin-bottom:0;}
+      .print-cover-meta-lbl{font-weight:800;color:#5b21b6;}
+      .print-cover-opis{margin-top:24px;width:100%;border-top:2px solid #7c3aed;padding-top:16px;}
+      .print-cover-opis-title{font-size:7pt;font-weight:800;color:#5b21b6;letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;text-align:center;}
+      .print-cover-opis-row{display:flex;align-items:baseline;gap:6px;padding:3px 0;border-bottom:1px dotted #e9d5ff;font-size:8pt;color:#374151;}
+      .print-cover-opis-row:last-child{border-bottom:none;}
+      .print-cover-opis-nr{font-weight:700;color:#7c3aed;min-width:16px;flex-shrink:0;}
+      .print-cover-opis-label{flex:1;}
+      .print-sec-page{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 80px;border:8px solid;}
+      .print-sec-num{font-size:16pt;font-weight:900;letter-spacing:4px;text-transform:uppercase;margin-bottom:28px;}
+      .print-sec-title{font-size:26pt;font-weight:900;text-align:center;margin-bottom:32px;letter-spacing:2px;}
+      .print-sec-line{height:6px;width:160px;border-radius:3px;margin-bottom:24px;}
+      .print-sec-sub{font-size:12pt;font-weight:600;text-align:center;letter-spacing:1px;}
+      .print-placeholder-page{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 80px;border:3px dashed;}
+      .print-ph-tag{font-size:9pt;font-weight:700;padding:5px 14px;border-radius:20px;border:1.5px solid;margin-bottom:32px;letter-spacing:1px;text-transform:uppercase;}
+      .print-ph-icon{font-size:44pt;margin-bottom:20px;}
+      .print-ph-title{font-size:18pt;font-weight:800;text-align:center;margin-bottom:24px;line-height:1.4;}
+      .print-ph-box{font-size:11pt;text-align:center;padding:20px 32px;border:2px solid;border-radius:10px;line-height:2;}
+      .print-aviz-page{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 80px;border:6px solid;}
+      .print-aviz-tag{font-size:10pt;font-weight:700;padding:6px 18px;border-radius:20px;border:1.5px solid;margin-bottom:28px;letter-spacing:1px;text-transform:uppercase;}
+      .print-aviz-title{font-size:32pt;font-weight:900;text-align:center;margin-bottom:12px;}
+      .print-aviz-date{font-size:18pt;font-weight:700;text-align:center;margin-bottom:36px;opacity:.8;}
+      @media print{
+        @page{size:A4 portrait;margin:0;}
+        .viewer-toolbar{display:none!important;}
+        body{background:#fff;padding:0;}
+        .viewer-pages{padding:0;gap:0;}
+        .print-sec-page,.print-placeholder-page,.print-cover-page,.print-pdf-page,.print-aviz-page{
+          width:210mm;height:297mm;box-shadow:none;page-break-after:always;break-after:page;
+          page-break-inside:avoid;break-inside:avoid;overflow:hidden;
+        }
+        .print-pdf-page img{width:210mm;height:297mm;object-fit:contain;}
+      }
+    `;
+    const standAlone=`<!DOCTYPE html><html lang="ro"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">${fonts}<style>${viewerCss}</style></head><body>`
+      +`<div class="viewer-toolbar">`
+      +`<div class="viewer-title">📂 Dosar Masă Caldă — ${_luna} ${_an}</div>`
+      +`<button class="viewer-btn viewer-btn-print" onclick="window.print()">🖨️ Printează / Salvează PDF</button>`
+      +`</div>`
+      +`<div class="viewer-pages">${printHtml}</div>`
+      +`</body></html>`;
+
+    const blob=new Blob([standAlone],{type:'text/html;charset=utf-8'});
+    const fn=`masa_calda/DOSAR_TEH_${_luna}_${_an}_${Date.now()}.html`;
+    const url=await r2Up(fn,blob);
+
+    const tipD=`DOSAR_TEH_MASA_${_luna}_${_an}`;
+    const{data:vechi}=await db.from('documente_contract').select('id,link_drive').eq('contract_id',CTR_ID).eq('tip_document',tipD);
+    if(vechi&&vechi.length){for(const v of vechi){if(v.link_drive)await r2Del(v.link_drive);}await db.from('documente_contract').delete().eq('contract_id',CTR_ID).eq('tip_document',tipD);}
+    await db.from('documente_contract').insert({contract_id:CTR_ID,tip_document:tipD,nume_fisier:`Dosar Tehnic Masă Caldă — ${_luna} ${_an}.html`,link_drive:url,furnizor:'dosar_tehnic_masa'});
+
+    setSt('✅ Dosar tehnic salvat!','ok');
+    await renderDosarTehnicSalvat(url);
+    setTimeout(()=>window.open(url,'_blank'),400);
+  }catch(e){
+    setSt('⚠️ Salvare dosar tehnic eșuată: '+e.message,'err');
+  }
+}
+
+async function loadDosarTehnicSalvat(){
+  const panel=document.getElementById('dosar-teh-salvat-panel');
+  if(!panel)return;
+  const tipD=`DOSAR_TEH_MASA_${_luna}_${_an}`;
+  const{data}=await db.from('documente_contract').select('link_drive,data_upload').eq('contract_id',CTR_ID).eq('tip_document',tipD).order('data_upload',{ascending:false}).limit(1);
+  if(data&&data.length&&data[0].link_drive){
+    const d=data[0];
+    const dataF=d.data_upload?new Date(d.data_upload).toLocaleDateString('ro-RO',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}):'';
+    panel.innerHTML=`<div style="display:flex;align-items:center;gap:4px;padding:2px 4px;">
+      <a href="${d.link_drive}" target="_blank" title="Generat: ${dataF}" style="text-decoration:none;font-size:10px;font-weight:700;color:#d97706;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">📂 Dosar — ${_luna} ${_an}</a>
+      <button onclick="stergeDosarTehnicSalvat()" title="Șterge dosarul salvat" style="background:none;border:none;cursor:pointer;color:#475569;font-size:12px;padding:0;line-height:1;flex-shrink:0;">🗑️</button>
+    </div>`;
+  } else {
+    panel.innerHTML=`<span style="font-size:10px;color:#334155;padding:4px 2px;display:block;">📂 Niciun dosar tehnic salvat</span>`;
+  }
+}
+
+async function renderDosarTehnicSalvat(url){
+  const panel=document.getElementById('dosar-teh-salvat-panel');
+  if(!panel)return;
+  panel.innerHTML=`<div style="display:flex;align-items:center;gap:4px;padding:2px 4px;">
+    <a href="${url}" target="_blank" style="text-decoration:none;font-size:10px;font-weight:700;color:#d97706;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">📂 Dosar — ${_luna} ${_an}</a>
+    <button onclick="stergeDosarTehnicSalvat()" title="Șterge dosarul salvat" style="background:none;border:none;cursor:pointer;color:#475569;font-size:12px;padding:0;line-height:1;flex-shrink:0;">🗑️</button>
+  </div>`;
+}
+
+async function stergeDosarTehnicSalvat(){
+  if(!confirm(`Ștergi dosarul tehnic salvat pentru ${_luna} ${_an}?`)) return;
+  const tipD=`DOSAR_TEH_MASA_${_luna}_${_an}`;
+  const{data}=await db.from('documente_contract').select('id,link_drive').eq('contract_id',CTR_ID).eq('tip_document',tipD);
+  if(data&&data.length){
+    for(const v of data){if(v.link_drive)await r2Del(v.link_drive);}
+    await db.from('documente_contract').delete().eq('contract_id',CTR_ID).eq('tip_document',tipD);
+  }
+  const panel=document.getElementById('dosar-teh-salvat-panel');
+  if(panel) panel.innerHTML=`<span style="font-size:10px;color:#334155;padding:4px 2px;display:block;">📂 Niciun dosar tehnic salvat</span>`;
+  setSt('🗑️ Dosar tehnic șters.','ok');
 }
 
 init();
