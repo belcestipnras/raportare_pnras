@@ -46,6 +46,37 @@
         /* ===== CONTAINER ===== */
         .container { max-width: 1200px; margin: 20px auto; padding: 0 20px; }
 
+        /* ===== CONTOR TOTAL PAGINI ===== */
+        .contor-total-bar {
+            display: flex; align-items: center; gap: 24px; flex-wrap: wrap;
+            background: linear-gradient(135deg, #1a56db 0%, #6366f1 100%);
+            border-radius: 14px; padding: 18px 28px; margin-bottom: 22px;
+            box-shadow: 0 4px 18px rgba(26,86,219,0.18);
+            color: #fff;
+        }
+        .contor-total-item {
+            display: flex; flex-direction: column; align-items: center; min-width: 80px;
+        }
+        .contor-total-num {
+            font-size: 36px; font-weight: 800; line-height: 1;
+            font-variant-numeric: tabular-nums; letter-spacing: -1px;
+        }
+        .contor-total-label {
+            font-size: 11px; font-weight: 600; opacity: 0.75;
+            text-transform: uppercase; letter-spacing: 0.5px; margin-top: 3px;
+        }
+        .contor-total-sep {
+            width: 1px; height: 44px; background: rgba(255,255,255,0.25); flex-shrink: 0;
+        }
+        .contor-total-title {
+            font-size: 14px; font-weight: 700; opacity: 0.9; flex: 1;
+        }
+        .contor-total-loading {
+            font-size: 12px; opacity: 0.6; font-style: italic; margin-left: 8px;
+        }
+        @keyframes contor-pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+        .contor-loading-dot { animation: contor-pulse 1.2s infinite; display:inline-block; }
+
         /* ===== CARDURI ===== */
         .cards-grid {
             display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
@@ -334,6 +365,65 @@
         }
         .upload-progress-overall-label {
             font-size: 11px; color: #888; margin-top: 6px;
+        }
+
+        /* ===== CONTOR PAGINI PDF ===== */
+        .page-counter-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.55); display: flex; align-items: center;
+            justify-content: center; z-index: 3000;
+        }
+        .page-counter-box {
+            background: #fff; border-radius: 18px; padding: 32px 38px;
+            min-width: 380px; max-width: 520px; width: 92%;
+            box-shadow: 0 16px 56px rgba(0,0,0,0.3);
+        }
+        .page-counter-title {
+            font-size: 17px; font-weight: 800; color: #1a1a2e; margin-bottom: 4px;
+            display: flex; align-items: center; gap: 10px;
+        }
+        .page-counter-subtitle {
+            font-size: 12px; color: #888; margin-bottom: 22px;
+        }
+        .page-counter-doc {
+            font-size: 13px; font-weight: 600; color: #1a56db;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+            margin-bottom: 10px; min-height: 18px;
+        }
+        .page-counter-pages {
+            display: flex; align-items: center; gap: 14px; margin-bottom: 16px;
+        }
+        .page-counter-num {
+            font-size: 42px; font-weight: 800; color: #1a56db; line-height: 1;
+            min-width: 70px; text-align: center; font-variant-numeric: tabular-nums;
+        }
+        .page-counter-label {
+            font-size: 12px; color: #aaa; font-weight: 600; text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .page-counter-sep {
+            width: 1px; height: 50px; background: #e2e6ea; flex-shrink: 0;
+        }
+        .page-counter-bar-bg {
+            background: #e8ecf1; border-radius: 8px; height: 8px; overflow: hidden; margin-bottom: 6px;
+        }
+        .page-counter-bar-fill {
+            height: 100%; background: linear-gradient(90deg, #1a56db, #6366f1);
+            border-radius: 8px; transition: width 0.2s ease; min-width: 4px;
+        }
+        .page-counter-status {
+            font-size: 11px; color: #999; text-align: right;
+        }
+        .page-counter-fisiere {
+            margin-top: 14px; padding-top: 14px; border-top: 1px solid #f0f2f5;
+            font-size: 11px; color: #aaa;
+        }
+        .page-counter-fisiere span { font-weight: 700; color: #555; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .pc-spinner {
+            display: inline-block; width: 18px; height: 18px;
+            border: 3px solid #e2e6ea; border-top-color: #1a56db;
+            border-radius: 50%; animation: spin 0.7s linear infinite;
         }
 
         /* ===== NR. CRT. BADGE ===== */
@@ -668,13 +758,123 @@ async function r2DeleteFile(publicUrl, bucketKey) {
         }
     }
 
+    // ===================== CONTOR TOTAL PAGINI =====================
+    async function calculeazaContorTotal() {
+        const [r1, r2] = await Promise.all([
+            db.from('audit_continut').select('id, fisier_url, fisier_pagini').eq('sters', false).eq('tip', 'fisier'),
+            db.from('documente_contract').select('id, link_drive, nr_pagini')
+        ]);
+
+        console.log('[CONTOR] audit_continut fisiere:', r1.data, 'eroare:', r1.error);
+        console.log('[CONTOR] documente_contract:', r2.data, 'eroare:', r2.error);
+
+        const fisiere = r1.data || [];
+        const documente = r2.data || [];
+
+        console.log('[CONTOR] nr fisiere:', fisiere.length, '| exemple fisier_pagini:', fisiere.slice(0,3).map(f => f.fisier_pagini));
+
+        const totalFisiere = fisiere.length + documente.length;
+
+        let totalPagini = 0;
+        fisiere.forEach(f => { if (f.fisier_pagini > 0) totalPagini += f.fisier_pagini; });
+        documente.forEach(d => { if (d.nr_pagini > 0) totalPagini += d.nr_pagini; });
+
+        console.log('[CONTOR] totalFisiere:', totalFisiere, '| totalPagini:', totalPagini);
+
+        // Fișiere audit fără pagini
+        const fisiereFaraPagini = fisiere.filter(f => !(f.fisier_pagini > 0) && f.fisier_url);
+        // Documente contract fără pagini — doar cele cu URL R2 (pub-...r2.dev)
+        const documenteFaraPagini = documente.filter(d => !(d.nr_pagini > 0) && d.link_drive && d.link_drive.includes('r2.dev'));
+
+        console.log('[CONTOR] fisiere fara pagini:', fisiereFaraPagini.length, '| url exemple:', fisiereFaraPagini.slice(0,2).map(f => f.fisier_url));
+        console.log('[CONTOR] documente contract fara pagini (R2):', documenteFaraPagini.length, '| url exemple:', documenteFaraPagini.slice(0,2).map(d => d.link_drive));
+
+        if (fisiereFaraPagini.length > 0) completeazaPaginiDinR2(fisiereFaraPagini, 'audit');
+        if (documenteFaraPagini.length > 0) completeazaPaginiDinR2(documenteFaraPagini, 'documente_contract');
+
+        return { totalFisiere, totalPagini };
+    }
+
+    async function completeazaPaginiDinR2(fisiere, sursa) {
+        const BATCH = 8;
+
+        async function numaraPaginiRapid(url) {
+            // Încearcă mai întâi cu Range request (ultimii 100KB) — mult mai rapid
+            try {
+                const headResp = await fetch(url, { method: 'HEAD' });
+                const fileSize = parseInt(headResp.headers.get('content-length') || '0');
+                if (fileSize > 0) {
+                    const rangeStart = Math.max(0, fileSize - 102400); // ultimii 100KB
+                    const rangeResp = await fetch(url, {
+                        headers: { 'Range': `bytes=${rangeStart}-${fileSize - 1}` }
+                    });
+                    if (rangeResp.status === 206) {
+                        const text = await rangeResp.text();
+                        // Caută /Count în xref trailer
+                        const matches = [...text.matchAll(/\/Count\s+(\d+)/g)];
+                        if (matches.length > 0) {
+                            const counts = matches.map(m => parseInt(m[1]));
+                            return Math.max(...counts);
+                        }
+                    }
+                }
+            } catch(e) { /* fallback */ }
+
+            // Fallback: descarcă tot și folosește PDFLib
+            const { PDFDocument } = PDFLib;
+            const resp = await fetch(url);
+            if (!resp.ok) return 0;
+            const bytes = new Uint8Array(await resp.arrayBuffer());
+            const pdf = await PDFDocument.load(bytes, { ignoreEncryption: true });
+            return pdf.getPageCount();
+        }
+
+        async function proceseazaUnul(f) {
+            const url = sursa === 'documente_contract' ? f.link_drive : f.fisier_url;
+            if (!url) return;
+            try {
+                const pagini = await numaraPaginiRapid(url);
+                if (!pagini || pagini <= 0) return;
+
+                if (sursa === 'documente_contract') {
+                    await db.from('documente_contract').update({ nr_pagini: pagini }).eq('id', f.id);
+                } else {
+                    await db.from('audit_continut').update({ fisier_pagini: pagini }).eq('id', f.id);
+                }
+
+                const elPagini = document.getElementById('ct-pagini');
+                if (elPagini) {
+                    const curent = parseInt(elPagini.textContent.replace(/\./g, '').replace(/\D/g, '')) || 0;
+                    elPagini.textContent = (curent + pagini).toLocaleString('ro-RO');
+                }
+            } catch(e) { /* skip */ }
+        }
+
+        for (let i = 0; i < fisiere.length; i += BATCH) {
+            const batch = fisiere.slice(i, i + BATCH);
+            await Promise.all(batch.map(f => proceseazaUnul(f)));
+        }
+    }
+
     // ===================== CARDURI PRINCIPALE =====================
     async function afiseazaCarduri() {
         const cont = document.getElementById('continut');
         const { data: carduriDb } = await db.from('audit_carduri').select('*')
             .eq('sters', false).order('ordine', { ascending: true });
 
-        let html = '<div class="cards-grid">';
+        // Banner contor — apare imediat cu loading, se actualizează după calcul
+        let html = '<div class="contor-total-bar" id="contor-total-bar">' +
+            '<div>' +
+                '<div style="font-size:13px;font-weight:700;opacity:0.9;margin-bottom:2px;">📊 Sumar arhivă</div>' +
+                '<div style="font-size:11px;opacity:0.6;" id="ct-subtitle">Se calculează<span class="contor-loading-dot">...</span></div>' +
+            '</div>' +
+            '<div class="contor-total-sep"></div>' +
+            '<div class="contor-total-item"><div class="contor-total-num" id="ct-fisiere">—</div><div class="contor-total-label">Fișiere totale</div></div>' +
+            '<div class="contor-total-sep"></div>' +
+            '<div class="contor-total-item"><div class="contor-total-num" id="ct-pagini">—</div><div class="contor-total-label">Pagini înregistrate</div></div>' +
+        '</div>';
+
+        html += '<div class="cards-grid">';
 
         CARDURI_FIXE.forEach(c => {
             html += '<div class="card" onclick="deschideCard(\'' + c.id + '\', \'' + c.titlu + '\', \'' + c.tip + '\')">' +
@@ -705,6 +905,21 @@ async function r2DeleteFile(publicUrl, bucketKey) {
 
         html += '</div>';
         cont.innerHTML = html;
+
+        // Calculează contorul în fundal și actualizează numerele
+        calculeazaContorTotal().then(({ totalFisiere, totalPagini }) => {
+            const elFisiere = document.getElementById('ct-fisiere');
+            const elPagini = document.getElementById('ct-pagini');
+            const elSub = document.getElementById('ct-subtitle');
+            if (!elFisiere) return;
+            elFisiere.textContent = totalFisiere.toLocaleString('ro-RO');
+            if (elPagini) elPagini.textContent = totalPagini > 0 ? totalPagini.toLocaleString('ro-RO') : '0';
+            if (elSub) elSub.textContent = 'se completează paginile lipsă în fundal...';
+        }).catch(err => {
+            console.error('[CONTOR] Eroare:', err);
+            const el = document.getElementById('ct-fisiere');
+            if (el) el.textContent = '—';
+        });
     }
 
     // ===================== ADAUGĂ / ȘTERGE CARD =====================
@@ -1070,6 +1285,76 @@ async function r2DeleteFile(publicUrl, bucketKey) {
         genereazaDosarSalarii(cid, titlu, mod);
     }
 
+    // ===================== CONTOR PAGINI PDF =====================
+    let _pcTotalPages = 0;
+    let _pcCurrentPages = 0;
+    let _pcTotalDocs = 0;
+    let _pcCurrentDoc = 0;
+
+    function aratContorPagini(titlu) {
+        let box = document.getElementById('page-counter-overlay');
+        if (!box) {
+            box = document.createElement('div');
+            box.id = 'page-counter-overlay';
+            box.className = 'page-counter-overlay';
+            box.innerHTML = `
+                <div class="page-counter-box">
+                    <div class="page-counter-title"><span class="pc-spinner"></span> <span id="pc-titlu">Se generează PDF...</span></div>
+                    <div class="page-counter-subtitle" id="pc-subtitle">Vă rugăm așteptați</div>
+                    <div class="page-counter-doc" id="pc-doc">Se pregătesc resursele...</div>
+                    <div class="page-counter-pages">
+                        <div style="text-align:center">
+                            <div class="page-counter-num" id="pc-pagini">0</div>
+                            <div class="page-counter-label">Pagini preluate</div>
+                        </div>
+                        <div class="page-counter-sep"></div>
+                        <div style="text-align:center">
+                            <div class="page-counter-num" id="pc-total" style="color:#0d9488;font-size:28px;margin-top:8px;">0</div>
+                            <div class="page-counter-label">Total acumulate</div>
+                        </div>
+                        <div class="page-counter-sep"></div>
+                        <div style="text-align:center">
+                            <div class="page-counter-num" id="pc-doc-nr" style="color:#6366f1;font-size:28px;margin-top:8px;">0/0</div>
+                            <div class="page-counter-label">Fișier curent</div>
+                        </div>
+                    </div>
+                    <div class="page-counter-bar-bg">
+                        <div class="page-counter-bar-fill" id="pc-bar" style="width:0%"></div>
+                    </div>
+                    <div class="page-counter-status" id="pc-status">Inițializare...</div>
+                    <div class="page-counter-fisiere" id="pc-fisiere"></div>
+                </div>`;
+            document.body.appendChild(box);
+        }
+        box.style.display = 'flex';
+        _pcTotalPages = 0; _pcCurrentPages = 0; _pcTotalDocs = 0; _pcCurrentDoc = 0;
+        document.getElementById('pc-titlu').textContent = titlu || 'Se generează PDF...';
+        document.getElementById('pc-pagini').textContent = '0';
+        document.getElementById('pc-total').textContent = '0';
+        document.getElementById('pc-doc-nr').textContent = '0/0';
+        document.getElementById('pc-bar').style.width = '0%';
+        document.getElementById('pc-status').textContent = 'Inițializare...';
+        document.getElementById('pc-doc').textContent = 'Se pregătesc resursele...';
+        document.getElementById('pc-fisiere').textContent = '';
+    }
+
+    function actualizContorPagini({ docNume, paginiFisier, paginiTotal, docCurent, docTotal, status }) {
+        if (docNume !== undefined) document.getElementById('pc-doc').textContent = '📄 ' + docNume;
+        if (paginiFisier !== undefined) document.getElementById('pc-pagini').textContent = paginiFisier;
+        if (paginiTotal !== undefined) document.getElementById('pc-total').textContent = paginiTotal;
+        if (docCurent !== undefined && docTotal !== undefined) {
+            document.getElementById('pc-doc-nr').textContent = docCurent + '/' + docTotal;
+            const pct = docTotal > 0 ? Math.round((docCurent / docTotal) * 100) : 0;
+            document.getElementById('pc-bar').style.width = pct + '%';
+        }
+        if (status !== undefined) document.getElementById('pc-status').textContent = status;
+    }
+
+    function inchideContorPagini() {
+        const box = document.getElementById('page-counter-overlay');
+        if (box) box.style.display = 'none';
+    }
+
     // ===================== GENERARE DOSAR SALARII =====================
 
     const LUNI_RO = ['Ianuarie','Februarie','Martie','Aprilie','Mai','Iunie','Iulie','August','Septembrie','Octombrie','Noiembrie','Decembrie'];
@@ -1103,6 +1388,9 @@ async function r2DeleteFile(publicUrl, bucketKey) {
         const originalText = btn ? btn.innerHTML : '';
         if (btn) { btn.disabled = true; btn.innerHTML = '⏳ Se generează...'; }
 
+        aratContorPagini('Generare dosar salarii');
+        actualizContorPagini({ status: 'Se preiau datele din baza de date...' });
+
         try {
             const { PDFDocument, rgb, StandardFonts, degrees } = PDFLib;
 
@@ -1113,6 +1401,7 @@ async function r2DeleteFile(publicUrl, bucketKey) {
                 .order('tip_document', { ascending: true });
 
             // 2. Fetch antet
+            actualizContorPagini({ status: 'Se descarcă antetul și fonturile...' });
             const antetUrl = 'https://aexjrbdgajurxzngfkpx.supabase.co/storage/v1/object/public/arhiva_pnras/antet_pnras.jpeg';
             const antetResp = await fetch(antetUrl);
             const antetBytes = new Uint8Array(await antetResp.arrayBuffer());
@@ -1302,6 +1591,17 @@ async function r2DeleteFile(publicUrl, bucketKey) {
                 opisPeTip[item.tip].push(item);
             }
 
+            // Calculam totalul de documente pentru contor
+            const totalDocsDeProcesat = opisItems.length;
+            let docIndexGlobal = 0;
+            let totalPaginiAcumulate = 0;
+            actualizContorPagini({
+                docTotal: totalDocsDeProcesat,
+                docCurent: 0,
+                paginiTotal: 0,
+                status: 'Se construiesc paginile de secțiune...'
+            });
+
             let sectiuneNr = 0;
             for (const tip of tipuriVazute) {
                 const docsInTip = opisPeTip[tip];
@@ -1361,16 +1661,33 @@ async function r2DeleteFile(publicUrl, bucketKey) {
                 // Adaugam PDF-urile tuturor documentelor din acest tip
                 for (const { doc } of docsInTip) {
                     const linkDoc = doc.link_drive || '';
-                    if (!linkDoc) continue;
+                    if (!linkDoc) { docIndexGlobal++; continue; }
+                    docIndexGlobal++;
+                    const numeFisierDoc = doc.nume_fisier || doc.tip_document || 'Document';
+                    actualizContorPagini({
+                        docNume: numeFisierDoc,
+                        docCurent: docIndexGlobal,
+                        docTotal: totalDocsDeProcesat,
+                        status: 'Se descarcă fișierul...'
+                    });
                     try {
                         const docResp = await fetch(linkDoc);
-                        if (!docResp.ok) continue;
+                        if (!docResp.ok) {
+                            actualizContorPagini({ status: '⚠️ Fișierul nu a putut fi accesat, se continuă...' });
+                            continue;
+                        }
+                        actualizContorPagini({ status: 'Se încarcă PDF-ul în memorie...' });
                         const docBytes = new Uint8Array(await docResp.arrayBuffer());
                         const docPdf = await PDFDocument.load(docBytes, { ignoreEncryption: true });
                         const pageCount = docPdf.getPageCount();
+                        actualizContorPagini({
+                            paginiFisier: pageCount,
+                            status: 'Se copiază ' + pageCount + ' pagini din fișier...'
+                        });
                         const copiedPages = await pdfDoc.copyPages(docPdf, [...Array(pageCount).keys()]);
-                        copiedPages.forEach(p => {
+                        copiedPages.forEach((p, pi) => {
                             pdfDoc.addPage(p);
+                            totalPaginiAcumulate++;
                             const { width: pw, height: ph } = p.getSize();
                             const landscape = pw > ph;
                             const targetW = landscape ? A4H : A4W;
@@ -1380,14 +1697,23 @@ async function r2DeleteFile(publicUrl, bucketKey) {
                                 p.scaleContent(scale, scale);
                                 p.setSize(targetW, targetH);
                             }
+                            actualizContorPagini({
+                                paginiTotal: totalPaginiAcumulate,
+                                status: 'Pagina ' + (pi + 1) + '/' + pageCount + ' din "' + numeFisierDoc + '"'
+                            });
                         });
                     } catch(e) {
                         console.warn('Skip doc:', tip, e);
+                        actualizContorPagini({ status: '⚠️ Eroare la fișierul curent, se continuă...' });
                     }
                 }
             }
 
             // Salveaza/Printeaza
+            actualizContorPagini({
+                status: '✅ ' + totalPaginiAcumulate + ' pagini procesate. Se finalizează PDF-ul...',
+                docNume: 'Se asamblează documentul final...'
+            });
             const pdfBytes = await pdfDoc.save();
             const blob = new Blob([pdfBytes], { type: 'application/pdf' });
             const numeFisier = 'Dosar_Salarii_' + (lunaAnText.replace(' ', '_') || contractId) + '.pdf';
@@ -1409,9 +1735,11 @@ async function r2DeleteFile(publicUrl, bucketKey) {
             }
 
         } catch(e) {
+            inchideContorPagini();
             alert('Eroare la generare dosar: ' + e.message);
             console.error(e);
         } finally {
+            inchideContorPagini();
             if (btn) { btn.disabled = false; btn.innerHTML = originalText; }
         }
     }
@@ -2109,10 +2437,23 @@ async function r2DeleteFile(publicUrl, bucketKey) {
             const { data: maxOrdD } = await maxOrdQ;
             const nextOrd = (maxOrdD && maxOrdD.length > 0 && maxOrdD[0].ordine != null) ? maxOrdD[0].ordine + 1 : 0;
 
+            // Numără paginile dacă e PDF
+            let nrPagini = 0;
+            if (file.name.toLowerCase().endsWith('.pdf')) {
+                try {
+                    const { PDFDocument } = PDFLib;
+                    const arrBuf = await file.arrayBuffer();
+                    const pdfDoc = await PDFDocument.load(new Uint8Array(arrBuf), { ignoreEncryption: true });
+                    nrPagini = pdfDoc.getPageCount();
+                } catch(e) {
+                    console.warn('[UPLOAD] Nu s-au putut citi paginile:', e);
+                }
+            }
+
             const { error: dbError } = await db.from('audit_continut').insert({
                 card_id: uploadTargetCardId, parent_id: uploadTargetParentId,
                 tip: 'fisier', titlu: file.name, fisier_url: auditUrl, fisier_nume: file.name,
-                sters: false, ordine: nextOrd
+                sters: false, ordine: nextOrd, fisier_pagini: nrPagini || null
             });
             console.log('[UPLOAD] DB insert error:', dbError);
             if (dbError) uploadErrors.push(file.name + ' (DB): ' + (dbError.message || JSON.stringify(dbError)));
