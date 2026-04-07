@@ -9,39 +9,7 @@
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-    /* ── LOGIN OVERLAY ── */
-    #loginOverlay {
-      position: fixed; inset: 0;
-      background: #f0f2f7;
-      display: flex; align-items: center; justify-content: center;
-      z-index: 99999;
-    }
-    #loginBox {
-      background: white;
-      border-radius: 16px;
-      padding: 40px 48px;
-      box-shadow: 0 8px 32px rgba(0,0,0,0.12);
-      text-align: center;
-      min-width: 320px;
-    }
-    #loginBox .login-icon { font-size: 48px; margin-bottom: 12px; }
-    #loginBox h2 { font-size: 20px; font-weight: 700; color: #1e293b; margin-bottom: 6px; }
-    #loginBox p  { font-size: 13px; color: #94a3b8; margin-bottom: 24px; }
-    #loginBox input {
-      width: 100%; padding: 11px 14px;
-      border: 2px solid #e2e8f0; border-radius: 10px;
-      font-size: 15px; outline: none; margin-bottom: 12px;
-      text-align: center; letter-spacing: 3px;
-    }
-    #loginBox input:focus { border-color: #3b82f6; }
-    #loginBox button {
-      width: 100%; padding: 12px;
-      background: linear-gradient(135deg, #3b82f6, #6366f1);
-      color: white; border: none; border-radius: 10px;
-      font-size: 15px; font-weight: 700; cursor: pointer;
-    }
-    #loginBox button:hover { opacity: 0.9; }
-    #loginErr { color: #ef4444; font-size: 13px; margin-top: 10px; display: none; }
+
 
     body {
       font-family: 'Segoe UI', Arial, sans-serif;
@@ -341,17 +309,7 @@
 </head>
 <body>
 
-<!-- LOGIN OVERLAY -->
-<div id="loginOverlay">
-  <div id="loginBox">
-    <div class="login-icon">🔖</div>
-    <h2>Aplică Ștampilă</h2>
-    <p>Introduceți parola pentru acces</p>
-    <input type="password" id="loginInput" placeholder="Parolă" onkeydown="if(event.key==='Enter') verificaParola()">
-    <button onclick="verificaParola()">🔓 Intră</button>
-    <div id="loginErr">Parolă incorectă. Încearcă din nou.</div>
-  </div>
-</div>
+
 
 <header>
   <div class="logo">🔖</div>
@@ -473,27 +431,6 @@
 </div>
 
 <script>
-/* ===================== PAROLĂ ===================== */
-(function() {
-  const PASS = 'Stampila123';
-  const SESSION_KEY = 'stampila_auth';
-  if (sessionStorage.getItem(SESSION_KEY) === '1') {
-    document.getElementById('loginOverlay').style.display = 'none';
-  }
-})();
-
-function verificaParola() {
-  const val = document.getElementById('loginInput').value;
-  if (val === 'Stampila123') {
-    sessionStorage.setItem('stampila_auth', '1');
-    document.getElementById('loginOverlay').style.display = 'none';
-  } else {
-    document.getElementById('loginErr').style.display = 'block';
-    document.getElementById('loginInput').value = '';
-    document.getElementById('loginInput').focus();
-  }
-}
-
 /* ===================== CONFIG ===================== */
 const SUPABASE_URL = "https://aexjrbdgajurxzngfkpx.supabase.co";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFleGpyYmRnYWp1cnh6bmdma3B4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgxMzE3NTYsImV4cCI6MjA4MzcwNzc1Nn0.VUx0QOKgjX4m23HOF2rBpE9vWA3T18KtjLc0w_iXhqA";
