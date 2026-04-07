@@ -1543,7 +1543,9 @@ async function r2DeleteFile(publicUrl, bucketKey) {
 
         // ===== CONTRACTE — checklist documente achiziție =====
         // Remap facturile din buget_achizitii (furnizor=UUID, tip=13. Factura) → "13. Factură"
-        const docsMapped = (docs || []).map(d => {
+        const docsMapped = (docs || []).filter(d =>
+            !d.tip_document || (!d.tip_document.startsWith('DOSAR_TEH_MASA_') && !d.tip_document.startsWith('MASA_'))
+        ).map(d => {
             if (d.furnizor && d.furnizor.length === 36 && d.tip_document === '13. Factura') {
                 return {...d, tip_document: '13. Factură'};
             }
@@ -1675,17 +1677,48 @@ async function r2DeleteFile(publicUrl, bucketKey) {
         );
 
         const areAltceva = tipuriExtra.length > 0 || toateFacturile.some(f => dosareFact[f.id]);
-        if (areAltceva) {
+
+        // Separăm dosarele de raportare masă caldă din tipuriExtra
+        const dosareFinanciare = (docs || []).filter(d => d.tip_document && d.tip_document.startsWith('DOSAR_MASA_') && d.link_drive);
+        const dosareTehnice = (docs || []).filter(d => d.tip_document && d.tip_document.startsWith('DOSAR_TEH_MASA_') && d.link_drive);
+        const tipuriExtraFiltrate = tipuriExtra.filter(tip => !tip.startsWith('DOSAR_MASA_') && !tip.startsWith('DOSAR_TEH_MASA_') && !tip.startsWith('MASA_'));
+
+        const areAltcevaFiltrat = tipuriExtraFiltrate.length > 0 || toateFacturile.some(f => dosareFact[f.id]) || dosareFinanciare.length > 0 || dosareTehnice.length > 0;
+
+        if (areAltcevaFiltrat) {
             html += '<div style="margin-top:20px;margin-bottom:8px;padding:8px 14px;background:#eff6ff;border-left:4px solid #2563eb;border-radius:0 8px 8px 0;font-size:14px;font-weight:700;color:#1e40af;">📎 Alte documente</div>';
-            toateFacturile.forEach(f => {
-                const dosarGenerat = dosareFact[f.id];
-                if (dosarGenerat && dosarGenerat.link_drive) {
-                    html += '<div class="check-file-row" style="margin:6px 0;">' +
-                        '<a class="check-files-dosar" href="' + dosarGenerat.link_drive + '" target="_blank">📎 ' + (dosarGenerat.nume_fisier || 'Dosar factură') + '</a>' +
+
+            // ---- Dosare raportare financiară ----
+            if (dosareFinanciare.length > 0 || toateFacturile.some(f => dosareFact[f.id])) {
+                html += '<div style="margin:10px 0 4px;padding:6px 12px;background:#f0fdf4;border-left:3px solid #16a34a;border-radius:0 6px 6px 0;font-size:12px;font-weight:700;color:#15803d;">📊 Dosare raportare financiară</div>';
+                toateFacturile.forEach(f => {
+                    const dosarGenerat = dosareFact[f.id];
+                    if (dosarGenerat && dosarGenerat.link_drive) {
+                        html += '<div class="check-file-row" style="margin:6px 0;">' +
+                            '<a class="check-files-dosar" href="' + dosarGenerat.link_drive + '" target="_blank">📎 ' + (dosarGenerat.nume_fisier || 'Dosar factură') + '</a>' +
+                            '</div>';
+                    }
+                });
+                dosareFinanciare.sort((a,b)=>{ const ma=a.tip_document.match(/DOSAR_MASA_(.+)_(\d{4})/); const mb=b.tip_document.match(/DOSAR_MASA_(.+)_(\d{4})/); if(!ma||!mb)return 0; return (mb[2]-ma[2])||0; }).forEach(d => {
+                    const luna = d.tip_document.replace(/^DOSAR_MASA_/, '').replace(/_\d{4}$/, '').replace(/_(\d{4})$/, '');
+                    html += '<div class="check-file-row" style="margin:4px 0;">' +
+                        '<a class="check-files-dosar" href="' + d.link_drive + '" target="_blank">📎 ' + (d.nume_fisier || d.tip_document) + '</a>' +
                         '</div>';
-                }
-            });
-            tipuriExtra.forEach(tip => {
+                });
+            }
+
+            // ---- Dosare raportare tehnică ----
+            if (dosareTehnice.length > 0) {
+                html += '<div style="margin:10px 0 4px;padding:6px 12px;background:#fff7ed;border-left:3px solid #d97706;border-radius:0 6px 6px 0;font-size:12px;font-weight:700;color:#b45309;">🟠 Dosare raportare tehnică</div>';
+                dosareTehnice.forEach(d => {
+                    html += '<div class="check-file-row" style="margin:4px 0;">' +
+                        '<a class="check-files-dosar" href="' + d.link_drive + '" target="_blank">📎 ' + (d.nume_fisier || d.tip_document) + '</a>' +
+                        '</div>';
+                });
+            }
+
+            // ---- Restul documentelor extra ----
+            tipuriExtraFiltrate.forEach(tip => {
                 const fisiere = grupate[tip] || [];
                 html += '<div class="check-item check-opt"><div class="check-item-header">' +
                     '<span class="check-icon">📄</span><span class="check-name">' + tip + '</span></div>';
@@ -2311,7 +2344,11 @@ async function r2DeleteFile(publicUrl, bucketKey) {
         try {
             const { data: docs } = await db.from('documente_contract').select('*').eq('contract_id', contractId);
 
-            const fisiere = (docs || []).filter(d => d.link_drive && d.tip_document !== 'DOSAR ACHIZIȚIE PDF');
+            const fisiere = (docs || []).filter(d => d.link_drive
+                && d.tip_document !== 'DOSAR ACHIZIȚIE PDF'
+                && !d.tip_document?.startsWith('DOSAR_TEH_MASA_')
+                && !d.tip_document?.startsWith('MASA_')
+            );
             if (fisiere.length === 0) {
                 aratToast('⚠️ Nu există fișiere de descărcat.', 'error');
                 return;
