@@ -407,10 +407,30 @@ select:focus{ outline:none; border-color:#10b981; }
 .A4 .rap-info-label { font-weight:800; text-transform:uppercase; font-size:9px; color:#444; font-family:'Inter',sans-serif; }
 .A4 .rap-info-val { font-weight:600; color:#000; font-family:'Inter',sans-serif; }
 
-/* R2 embeds */
-.r2-foto-page{ justify-content:center; align-items:center; }
-.r2-foto{ width:100%; max-height:calc(297mm - 35mm); object-fit:contain; display:block; }
+/* R2 embeds — imagine ocupă tot spațiul util al paginii A4 */
 .r2-foto-label{ font-size:9pt; color:#475569; text-align:center; margin-bottom:8px; font-family:sans-serif; }
+
+/* Pagina A4 dedicată imaginii: fără padding propriu, imaginea gestionează spațiul */
+.A4.r2-foto-page{
+  padding:8mm!important;
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:stretch!important;
+  justify-content:stretch!important;
+  box-sizing:border-box!important;
+}
+
+/* Imaginea umple TOATĂ zona disponibilă a paginii A4 */
+.r2-foto{
+  display:block!important;
+  width:100%!important;
+  /* Înălțimea calculată = A4(297mm) - margini pagină(2×15mm) - padding intern(2×8mm) */
+  height:calc(297mm - 46mm)!important;
+  object-fit:contain!important;
+  object-position:center center!important;
+  margin:0!important;
+  flex:1 1 0!important;
+}
 
 /* ===== SIDEBAR DOCUMENTE DREAPTA ===== */
 #docs-sidebar {
@@ -635,12 +655,23 @@ body.cu-dosare-sidebar #dc { margin-left: 230px; }
   .cv-body{ padding:6mm 18mm!important; }
   .cv-bottom-bar{ padding:8px 18mm!important; }
 
-  /* Fotografii */
+  /* Fotografii / liste prezență-masă — imaginea umple toată pagina fizică */
+  .A4.r2-foto-page{
+    padding:0!important;
+    display:flex!important;
+    flex-direction:column!important;
+    align-items:stretch!important;
+    justify-content:stretch!important;
+  }
   .r2-foto{
-    width:100%!important;
-    max-height:200mm!important;
-    object-fit:contain!important;
     display:block!important;
+    width:100%!important;
+    height:100vh!important;       /* pagina fizică la print = 100vh */
+    max-height:none!important;
+    object-fit:contain!important;
+    object-position:center center!important;
+    margin:0!important;
+    flex:1 1 0!important;
   }
 
   /* Toate fundalurile colorate se pastreaza */
@@ -1209,7 +1240,7 @@ async function build(expert,luna,an){
           }
           const imgB64=await new Promise(res=>{const rd=new FileReader();rd.onload=()=>res(rd.result);rd.readAsDataURL(blob);});
           const labelHtml=anexaLabel?`<div style="text-align:center;font-weight:bold;font-size:13pt;margin-bottom:8px;">${anexaLabel}</div>`:'';
-          H+=pg(ec,`<div class="antet-wrap">${antetImg()}</div>${labelHtml}<img src="${imgB64}" class="r2-foto">`);
+          H+=`<div class="A4 ${ec} r2-foto-page"><div class="antet-wrap">${antetImg()}</div>${labelHtml}<img src="${imgB64}" class="r2-foto"></div>`;
         }else if(isPDF){
           st(`📄 Randare PDF: ${doc.nume_fisier||'fișier'}...`,'load');
           H+=await renderPdfFromBuffer(fileBuffer,doc.public_url,ec,anexaLabel);
@@ -1255,7 +1286,7 @@ async function build(expert,luna,an){
             let blobLP=new Blob([bufLP],{type:mimeLP});
             if(extLP==='heic'||extLP==='heif'){try{blobLP=await heic2any({blob:blobLP,toType:'image/jpeg',quality:0.92});if(Array.isArray(blobLP))blobLP=blobLP[0];}catch(e){}}
             const b64LP=await new Promise(res=>{const rd=new FileReader();rd.onload=()=>res(rd.result);rd.readAsDataURL(blobLP);});
-            H+=pg(ec,`<img src="${b64LP}" class="r2-foto">`);
+            H+=`<div class="A4 ${ec} r2-foto-page"><img src="${b64LP}" class="r2-foto"></div>`;
           }else if(isPdfLP||extLP==='pdf')H+=await renderPdfFromBuffer(bufLP,lpFisier.public_url,ec);
           else H+=await renderWordFromBuffer(bufLP,lpFisier.public_url,ec);
         }catch(e){
@@ -1286,7 +1317,7 @@ async function build(expert,luna,an){
               let blobLM=new Blob([bufLM],{type:mimeLM});
               if(extLM==='heic'||extLM==='heif'){try{blobLM=await heic2any({blob:blobLM,toType:'image/jpeg',quality:0.92});if(Array.isArray(blobLM))blobLM=blobLM[0];}catch(e){}}
               const b64LM=await new Promise(res=>{const rd=new FileReader();rd.onload=()=>res(rd.result);rd.readAsDataURL(blobLM);});
-              H+=pg(ec,`<img src="${b64LM}" class="r2-foto">`);
+              H+=`<div class="A4 ${ec} r2-foto-page"><img src="${b64LM}" class="r2-foto"></div>`;
             }else if(isPdfLM||extLM==='pdf')H+=await renderPdfFromBuffer(bufLM,lmFisier.public_url,ec);
             else H+=await renderWordFromBuffer(bufLM,lmFisier.public_url,ec);
           }catch(e){
