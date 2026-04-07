@@ -309,6 +309,7 @@
 </head>
 <body>
 
+<!-- LOGIN OVERLAY -->
 
 
 <header>
@@ -412,7 +413,10 @@
 
   <!-- 5. ISTORIC -->
   <div class="card" id="istoricCard">
-    <h2>5. Istoric ștampilări</h2>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;">
+      <h2 style="margin-bottom:0;">5. Istoric ștampilări</h2>
+      <button onclick="stergeToateIstoric()" style="padding:7px 16px;background:#fee2e2;color:#dc2626;border:1px solid #fca5a5;border-radius:8px;cursor:pointer;font-size:13px;font-weight:700;">🗑️ Șterge toate</button>
+    </div>
     <div id="istoricLoading" style="color:#94a3b8;font-size:13px;padding:10px 0;">Se încarcă...</div>
     <div id="istoricGol" style="display:none;color:#94a3b8;font-size:13px;padding:10px 0;">Niciun document ștampilat încă.</div>
     <table id="istoricTable" style="display:none;width:100%;border-collapse:collapse;font-size:13px;">
@@ -794,6 +798,32 @@ document.getElementById('reapplyBtn').addEventListener('click', () => {
   document.getElementById('applyBtn').disabled = false;
   window.scrollTo({ top: 0, behavior: 'smooth' });
 });
+
+async function stergeToateIstoric() {
+  if (!confirm('Ștergi TOATE înregistrările și fișierele din storage? Această acțiune este ireversibilă!')) return;
+  try {
+    const { data, error } = await supabaseClient.from('istoricul_stampilari').select('id,link_r2,link_original');
+    if (error) throw new Error(error.message);
+    if (!data || !data.length) { alert('Nu există înregistrări de șters.'); return; }
+    for (const row of data) {
+      if (row.link_r2) {
+        const fn = decodeURIComponent(row.link_r2.split('?')[0].replace(PUBLIC_BASE + '/', ''));
+        await fetch(`${WORKER_URL}/delete`, { method: 'DELETE', headers: { 'X-Bucket': BUCKET_KEY, 'X-File-Name': fn } });
+      }
+      if (row.link_original) {
+        const fn = decodeURIComponent(row.link_original.split('?')[0].replace(PUBLIC_BASE + '/', ''));
+        await fetch(`${WORKER_URL}/delete`, { method: 'DELETE', headers: { 'X-Bucket': BUCKET_KEY, 'X-File-Name': fn } });
+      }
+    }
+    for (const row of data) {
+      const { error: delErr } = await supabaseClient.from('istoricul_stampilari').delete().eq('id', row.id);
+      if (delErr) throw new Error(delErr.message);
+    }
+    incarcaIstoric();
+  } catch(e) {
+    alert('Eroare la ștergere: ' + e.message);
+  }
+}
 
 /* ===================== ISTORIC ===================== */
 async function incarcaIstoric() {
