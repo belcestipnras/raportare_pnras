@@ -1921,6 +1921,7 @@ async function genDosar(){
       +`<button class="viewer-btn viewer-btn-print" onclick="window.print()">🖨️ Printează / Salvează PDF</button>`
       +`</div>`
       +`<div class="viewer-pages">${printHtml}</div>`
+      +`<script>window.addEventListener('load',function(){setTimeout(function(){window.print();},800);});<\/script>`
       +`</body></html>`;
     const blob=new Blob([standAlone],{type:'text/html;charset=utf-8'});
     const fn=`masa_calda/DOSAR_${_luna}_${_an}_${Date.now()}.html`;
@@ -2364,6 +2365,7 @@ async function genDosarTehnic(){
       +`<button class="viewer-btn viewer-btn-print" onclick="window.print()">🖨️ Printează / Salvează PDF</button>`
       +`</div>`
       +`<div class="viewer-pages">${printHtml}</div>`
+      +`<script>window.addEventListener('load',function(){setTimeout(function(){window.print();},800);});<\/script>`
       +`</body></html>`;
 
     const blob=new Blob([standAlone],{type:'text/html;charset=utf-8'});
