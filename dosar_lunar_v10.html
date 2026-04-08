@@ -606,30 +606,21 @@ body.cu-dosare-sidebar #dc { margin-left: 230px; }
     page-break-before: avoid !important;
     break-before: avoid !important;
   }
-  /* Tabelele și conținutul de dinaintea semnăturilor nu permit ruptura imediat după ele */
-  .plan-table,
-  .orar-table,
-  .pontaj-table,
-  .fisa-sectiune:last-of-type,
-  .rap-lista-activitati-container,
-  .rap-grid-info-finale,
-  .rap-caseta-text,
-  .rap-activitate-card,
-  .rap-big-icon-sep {
-    page-break-after: avoid !important;
-    break-after: avoid !important;
-  }
 
   /* Sectiunile colorate si cover: pagina fizica fara margini */
   .sec-sep,.cls-sep,.cover{
     page: no-margin;
-    height:100vh!important;
+    /* 297mm fix in loc de 100vh — fiabil la print in toate browserele */
+    height:297mm!important;
     min-height:0!important;
     overflow:hidden!important;
     margin:0!important;
     width:100%!important;
     max-width:100%!important;
     box-sizing:border-box!important;
+    /* break-before forteaza inceput de pagina noua curata */
+    page-break-before:always!important;
+    break-before:page!important;
   }
 
   /* Sectiunile colorate: continut centrat */
@@ -642,7 +633,7 @@ body.cu-dosare-sidebar #dc { margin-left: 230px; }
     box-sizing:border-box!important;
   }
 
-  /* Cover */
+  /* Cover — primul element, nu are nevoie de break-before */
   .cover{
     display:flex!important;
     flex-direction:column!important;
@@ -650,15 +641,29 @@ body.cu-dosare-sidebar #dc { margin-left: 230px; }
     -webkit-print-color-adjust:exact!important;
     print-color-adjust:exact!important;
     align-items:stretch!important;
+    page-break-before:auto!important;
+    break-before:auto!important;
   }
   .cover::before,.cover::after{ display:none!important; }
   .cv-antet{ padding:10px 18mm!important; flex-shrink:0!important; }
   .cv-body{ padding:6mm 18mm!important; }
   .cv-bottom-bar{ padding:8px 18mm!important; }
 
-  /* Fotografii — scoped strict la pagina dedicată imaginii */
+  /* Fotografii — pagina dedicata, fara margini, identic cu sec-sep */
   .A4.r2-foto-page{
+    page: no-margin;
+    page-break-before:always!important;
+    break-before:page!important;
+    page-break-after:always!important;
+    break-after:page!important;
+    height:297mm!important;
+    min-height:0!important;
+    overflow:hidden!important;
+    margin:0!important;
     padding:0!important;
+    width:100%!important;
+    max-width:100%!important;
+    box-sizing:border-box!important;
     display:flex!important;
     flex-direction:column!important;
     align-items:stretch!important;
@@ -666,8 +671,8 @@ body.cu-dosare-sidebar #dc { margin-left: 230px; }
   }
   .A4.r2-foto-page .r2-foto{
     width:100%!important;
-    height:100vh!important;
-    max-height:none!important;
+    height:297mm!important;
+    max-height:297mm!important;
     object-fit:contain!important;
     object-position:center center!important;
     display:block!important;
