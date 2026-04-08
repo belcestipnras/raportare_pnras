@@ -410,21 +410,26 @@ select:focus{ outline:none; border-color:#10b981; }
 /* R2 embeds */
 .r2-foto-label{ font-size:9pt; color:#475569; text-align:center; margin-bottom:8px; font-family:sans-serif; }
 
-/* Pagina dedicată imaginii (prezență/masă) — umple tot A4-ul */
+/* Pagina dedicată imaginii (prezență/masă) — antet + imagine pe aceeași pagină */
 .A4.r2-foto-page{
   padding:5mm!important;
   display:flex!important;
   flex-direction:column!important;
   align-items:stretch!important;
-  justify-content:center!important;
+  justify-content:flex-start!important;
   box-sizing:border-box!important;
+  overflow:hidden!important;
+}
+.A4.r2-foto-page .antet-wrap{
+  flex-shrink:0!important;
 }
 .A4.r2-foto-page .r2-foto{
   display:block!important;
   width:100%!important;
-  height:calc(297mm - 46mm)!important;
+  flex:1 1 0!important;
+  min-height:0!important;
   object-fit:contain!important;
-  object-position:center center!important;
+  object-position:center top!important;
   margin:0!important;
 }
 
@@ -649,32 +654,40 @@ body.cu-dosare-sidebar #dc { margin-left: 230px; }
   .cv-body{ padding:6mm 18mm!important; }
   .cv-bottom-bar{ padding:8px 18mm!important; }
 
-  /* Fotografii — pagina dedicata, fara margini, identic cu sec-sep */
+  /* Fotografii — pagina cu margini normale, antet + imagine pe aceeasi pagina */
   .A4.r2-foto-page{
-    page: no-margin;
     page-break-before:always!important;
     break-before:page!important;
     page-break-after:always!important;
     break-after:page!important;
-    height:297mm!important;
+    height:267mm!important;
     min-height:0!important;
     overflow:hidden!important;
     margin:0!important;
-    padding:0!important;
+    padding:5mm!important;
     width:100%!important;
     max-width:100%!important;
     box-sizing:border-box!important;
     display:flex!important;
     flex-direction:column!important;
     align-items:stretch!important;
-    justify-content:center!important;
+    justify-content:flex-start!important;
+  }
+  .A4.r2-foto-page .antet-wrap{
+    flex-shrink:0!important;
+    page-break-after:avoid!important;
+    break-after:avoid!important;
+  }
+  .A4.r2-foto-page .r2-foto-label{
+    flex-shrink:0!important;
   }
   .A4.r2-foto-page .r2-foto{
     width:100%!important;
-    height:297mm!important;
-    max-height:297mm!important;
+    flex:1 1 0!important;
+    min-height:0!important;
+    max-height:100%!important;
     object-fit:contain!important;
-    object-position:center center!important;
+    object-position:center top!important;
     display:block!important;
     margin:0!important;
   }
