@@ -1,0 +1,1021 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Raport Subactivități — PNRAS</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --navy: #0f1f3d;
+      --gold: #c9a84c;
+      --gold-light: #e8c96a;
+      --border: rgba(201,168,76,0.25);
+    }
+
+    /* ── NAV ── */
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background-color: var(--navy);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2rem 1rem 4rem;
+      overflow-x: hidden;
+    }
+    body::before {
+      content: '';
+      position: fixed;
+      top: -30%; right: -20%;
+      width: 600px; height: 600px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(201,168,76,0.08) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .container { width: 100%; max-width: 760px; position: relative; z-index: 1; }
+    header { text-align: center; margin-bottom: 3rem; padding-top: 1rem; }
+    .badge { display: inline-block; font-size: 11px; font-weight: 500; letter-spacing: .12em; text-transform: uppercase; color: var(--gold); border: 1px solid var(--border); padding: 5px 14px; border-radius: 20px; margin-bottom: 1.5rem; }
+    h1 { font-family: 'DM Serif Display', serif; font-size: clamp(1.8rem,4vw,2.6rem); color: #fff; line-height: 1.2; margin-bottom: .75rem; }
+    h1 span { color: var(--gold); }
+    .subtitle { font-size: 14px; color: rgba(255,255,255,.45); font-weight: 300; }
+    .divider { width: 48px; height: 2px; background: var(--gold); margin: 1.25rem auto; opacity: .6; }
+    .nav-grid { display: flex; flex-direction: column; gap: 1.25rem; }
+    .nav-header { display: flex; align-items: center; gap: 1.5rem; background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.08); border-radius: 14px 14px 0 0; padding: 1.25rem 1.75rem; position: relative; }
+    .nav-header::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--gold); border-radius: 14px 0 0 0; }
+    .btn-code { font-family: 'DM Serif Display', serif; font-size: 1.05rem; color: var(--gold); min-width: 42px; flex-shrink: 0; }
+    .btn-title { font-size: 15px; font-weight: 500; color: #fff; }
+    .months-grid { display: grid; grid-template-columns: repeat(6,1fr); gap: 6px; padding: 1rem 1.75rem 1.25rem; background: rgba(255,255,255,.02); border: 1px solid rgba(255,255,255,.06); border-top: none; border-radius: 0 0 14px 14px; }
+    .month-btn { background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.08); border-radius: 8px; padding: 7px 4px; cursor: pointer; color: rgba(255,255,255,.6); font-family: 'DM Sans',sans-serif; font-size: 11px; text-align: center; line-height: 1.3; transition: background .2s, border-color .2s, color .2s; }
+    .month-btn:hover { background: rgba(201,168,76,.12); border-color: rgba(201,168,76,.35); color: var(--gold-light); }
+    .month-btn.active { background: rgba(201,168,76,.2); border-color: var(--gold); color: var(--gold-light); }
+    .month-btn .mn { display: block; font-weight: 500; }
+    .month-btn .my { display: block; font-size: 10px; opacity: .6; }
+    footer { text-align: center; margin-top: 3rem; font-size: 12px; color: rgba(255,255,255,.2); letter-spacing: .05em; }
+
+    /* ── OVERLAY ── */
+    .overlay { display: none; position: fixed; inset: 0; background: rgba(5,12,28,.88); z-index: 200; overflow-y: auto; padding: 0; backdrop-filter: blur(6px); }
+    .overlay.open { display: flex; flex-direction: column; }
+
+    .overlay-topbar {
+      position: sticky; top: 0; z-index: 10;
+      background: rgba(10,20,45,.97);
+      border-bottom: 1px solid rgba(201,168,76,.2);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 10px 24px; gap: 12px;
+      backdrop-filter: blur(8px);
+    }
+    .overlay-label { font-size: 13px; color: rgba(255,255,255,.5); letter-spacing: .04em; flex: 1; }
+    .save-status { font-size: 12px; font-weight: 500; min-width: 100px; text-align: center; }
+    .save-status.saving { color: #fbbf24; }
+    .save-status.saved  { color: #10b981; }
+    .save-status.error  { color: #ef4444; }
+
+    .topbar-actions { display: flex; gap: 8px; }
+    .tb-btn { border-radius: 8px; font-family: 'DM Sans',sans-serif; font-size: 12px; padding: 6px 14px; cursor: pointer; transition: background .2s; border: 1px solid rgba(255,255,255,.15); white-space: nowrap; }
+    .tb-btn.close { background: rgba(255,255,255,.07); color: rgba(255,255,255,.75); }
+    .tb-btn.print { background: rgba(201,168,76,.15); color: var(--gold-light); border-color: rgba(201,168,76,.3); }
+    .tb-btn.close:hover { background: rgba(255,255,255,.14); }
+    .tb-btn.print:hover { background: rgba(201,168,76,.28); }
+
+    .overlay-body { flex: 1; overflow-y: auto; padding: 2rem 1rem 5rem; display: flex; flex-direction: column; align-items: center; }
+
+    /* ── LOADING ── */
+    .loading-wrap { width: 210mm; max-width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 200px; gap: 16px; color: rgba(255,255,255,.5); font-size: 14px; }
+    .spinner { width: 36px; height: 36px; border: 3px solid rgba(201,168,76,.2); border-top-color: var(--gold); border-radius: 50%; animation: spin .8s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ═══════════════════════════════════════
+       A4 PAGE
+    ═══════════════════════════════════════ */
+    .a4-page {
+      width: 210mm;
+      min-height: 297mm;
+      max-width: 100%;
+      background: #fff;
+      color: #000;
+      padding: 12mm 18mm 20mm;
+      box-shadow: 0 12px 50px rgba(0,0,0,.6);
+      font-family: 'Times New Roman', serif;
+      font-size: 11pt;
+      line-height: 1.6;
+      position: relative;
+    }
+    .a4-page + .a4-page { margin-top: 14px; }
+
+    .antet-img { width: 100%; height: auto; display: block; margin-bottom: 8px; }
+
+    /* Nr. înregistrare */
+    .nr-inreg-row {
+      display: flex; justify-content: flex-start; margin-bottom: 6px;
+      font-family: 'DM Sans', sans-serif; font-size: 9.5pt; color: #000;
+    }
+    .nr-inreg-row [contenteditable] { min-width: 60px; border-bottom: 1px dashed #d1d5db; padding: 0 3px; outline: none; }
+
+    /* Titluri centrate */
+    .doc-title { text-align: center; font-size: 12.5pt; font-weight: bold; text-transform: uppercase; color: #000; margin: 10px 0 3px; line-height: 1.3; }
+    .doc-sub   { text-align: center; font-size: 11pt; font-weight: bold; color: #000; margin-bottom: 3px; }
+    .doc-disc  { text-align: center; font-size: 10.5pt; font-style: italic; color: #000; margin-bottom: 3px; }
+    .doc-luna  { text-align: center; font-size: 11pt; margin-bottom: 14px; }
+
+    /* ── SECȚIUNI COLORATE ── */
+    .sectiune {
+      border-radius: 8px;
+      margin-bottom: 12px;
+    }
+    .sectiune-header {
+      display: flex; align-items: center; gap: 8px;
+      padding: 7px 12px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 9pt; font-weight: 700; text-transform: uppercase;
+      letter-spacing: .06em;
+    }
+    .sectiune-body {
+      padding: 10px 14px;
+      font-size: 11pt; line-height: 1.7;
+    }
+
+    /* Culori secțiuni */
+    .s-intro    { border: none; }
+    .s-intro    .sectiune-header { background:#1d4ed8;color:#fff; }
+    .s-intro    .sectiune-body   { background: #fff; }
+
+    .s-romana   { border: none; }
+    .s-romana   .sectiune-header { background:#1d4ed8;color:#fff; }
+    .s-romana   .sectiune-body   { background: #fff; }
+
+    .s-mate     { border: none; }
+    .s-mate     .sectiune-header { background:#1d4ed8;color:#fff; }
+    .s-mate     .sectiune-body   { background: #fff; }
+
+    .s-total    { border: none; }
+    .s-total    .sectiune-header { background:#1d4ed8;color:#fff; }
+    .s-total    .sectiune-body   { background: #fff; }
+
+    .s-concluzie { border: none; }
+    .s-concluzie .sectiune-header { background:#1d4ed8;color:#fff; }
+    .s-concluzie .sectiune-body   { background: #fff; }
+
+    .s-experti  { border: none; }
+    .s-experti  .sectiune-header { background:#1d4ed8;color:#fff; }
+    .s-experti  .sectiune-body   { background: #fff; padding: 10px 14px; }
+
+    /* Paragrafe editabile */
+    .e-para {
+      text-align: justify;
+      text-indent: 1.2cm;
+      outline: none;
+      border-radius: 4px;
+      transition: background .15s;
+      min-height: 1.4em;
+    }
+    .e-para:focus { background: rgba(59,130,246,.05); text-decoration: none; }
+    .e-para:hover:not(:focus) { background: rgba(0,0,0,.025); }
+
+    /* Bullet list editabila */
+    .e-list { list-style: none; margin: 0; padding: 0; }
+    .e-list li { display: flex; gap: 6px; margin-bottom: 3px; font-size: 10.5pt; }
+    .e-list li::before { content: '•'; flex-shrink: 0; color: #000; }
+    .e-list li .e-val { outline: none; flex: 1; border-bottom: 1px dashed #e5e7eb; min-width: 40px; padding: 0 2px; }
+    .e-list li .e-val:focus { background: rgba(59,130,246,.05); border-bottom-color: #93c5fd; }
+    .e-list li .e-label { color: #000; white-space: nowrap; font-size: 10.5pt; }
+
+    /* Grid statistici */
+    .stats-grid {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 6px; margin-bottom: 8px;
+    }
+    .stat-box {
+      background: #fff;
+      border-radius: 6px; padding: 7px 10px;
+    }
+    .stat-box .s-label { font-family: 'DM Sans',sans-serif; font-size: 8.5pt; color: #000; text-transform: uppercase; letter-spacing: .05em; margin-bottom: 2px; }
+    .stat-box .s-val   { font-family: 'DM Sans',sans-serif; font-size: 13pt; font-weight: 700; color: #000; outline: none; }
+    .stat-box .s-val:focus { color: #000; }
+
+    /* Expert cards */
+    .expert-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .expert-card {
+      background: #fff; border-radius: 7px;
+      border: 1px solid #e2e8f0;
+      padding: 9px 11px;
+      break-inside: avoid;
+    }
+    .expert-card.ro { border-top: 3px solid #1d4ed8; }
+    .expert-card.ma { border-top: 3px solid #1d4ed8; }
+    .expert-card-name { font-family: 'DM Sans',sans-serif; font-size: 10pt; font-weight: 700; color: #000; margin-bottom: 2px; }
+    .expert-card-disc { font-family: 'DM Sans',sans-serif; font-size: 8pt; color: #000; font-style: italic; margin-bottom: 6px; }
+    .expert-card-rows { display: flex; flex-direction: column; gap: 3px; }
+    .expert-card-row { display: flex; gap: 6px; font-size: 9.5pt; align-items: baseline; }
+    .ec-label { color: #000; white-space: nowrap; font-family: 'DM Sans',sans-serif; font-size: 8.5pt; }
+    .ec-val   { font-family: 'DM Sans',sans-serif; font-weight: 600; color: #000; outline: none; border-bottom: 1px dashed #e5e7eb; min-width: 30px; }
+    .ec-val:focus { background: rgba(59,130,246,.05); border-bottom-color: #93c5fd; }
+
+    /* Semnături */
+    .semnaturi { display: flex; justify-content: space-between; margin-top: 28px; font-size: 10.5pt; break-inside: avoid; page-break-inside: avoid; break-before: avoid; page-break-before: avoid; }
+    .semnaturi .col { text-align: center; line-height: 1.7; }
+    .semnaturi .col strong { display: block; }
+
+    /* Footer pagina */
+    .page-footer-line {
+      margin-top: 18px;
+      border-top: 1px solid #e5e7eb;
+      padding-top: 4px;
+      display: flex; justify-content: space-between;
+      font-size: 8pt; color: #000;
+      font-family: 'DM Sans',sans-serif;
+    }
+
+    /* ── PRINT ── */
+    @media print {
+      @page { size: A4 portrait; margin: 18mm 18mm 18mm 18mm; }
+      * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+      body { background: white !important; padding: 0 !important; margin: 0 !important; }
+      .overlay { position: static !important; background: none !important; padding: 0 !important; backdrop-filter: none !important; display: block !important; overflow: visible !important; }
+      .overlay-topbar { display: none !important; }
+      .overlay-body { padding: 0 !important; overflow: visible !important; }
+      .a4-page { box-shadow: none !important; page-break-after: always; margin: 0 !important; padding: 0 !important; width: 100% !important; min-height: auto !important; }
+
+      .e-para:focus, .e-val:focus, .ec-val:focus, .s-val:focus { background: none !important; }
+      [contenteditable] { border: none !important; }
+      .container, header, nav, footer { display: none !important; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <div class="badge">PNRAS — Raport</div>
+    <h1>Raport <span>Subactivități</span></h1>
+    <div class="divider"></div>
+    <p class="subtitle">Selectează o lună pentru a deschide raportul</p>
+  </header>
+
+  <nav class="nav-grid" aria-label="Subactivități">
+    <div>
+      <div class="nav-header"><span class="btn-code">II.4.</span><span class="btn-title">Activități remediale</span></div>
+      <div class="months-grid" id="months-II4"></div>
+    </div>
+    <div>
+      <div class="nav-header"><span class="btn-code">II.5.</span><span class="btn-title">Activități extracurriculare</span></div>
+      <div class="months-grid" id="months-II5"></div>
+    </div>
+    <div>
+      <div class="nav-header"><span class="btn-code">II.6.</span><span class="btn-title">Clubul de lectură și literație</span></div>
+      <div class="months-grid" id="months-II6"></div>
+    </div>
+  </nav>
+
+  <footer>PNRAS &mdash; Sistem de raportare subactivități</footer>
+</div>
+
+<!-- OVERLAY -->
+<div class="overlay" id="overlay">
+  <div class="overlay-topbar">
+    <span class="overlay-label" id="overlay-label"></span>
+    <span class="save-status" id="save-status"></span>
+    <div class="topbar-actions">
+      <button class="tb-btn print" onclick="printRaport()">🖨️ Printează</button>
+      <button class="tb-btn close" onclick="closeOverlay()">✕ Închide</button>
+    </div>
+  </div>
+  <div class="overlay-body" id="overlay-body">
+    <div id="a4-container"></div>
+  </div>
+</div>
+
+<script>
+  // ── SUPABASE ──
+  const URL_S = 'https://aexjrbdgajurxzngfkpx.supabase.co';
+  const KEY_S = 'sb_publishable_KPV__0BA9z4EvRl5eqC0FQ_hmBLOLYv';
+  const sb = supabase.createClient(URL_S, KEY_S);
+
+  const EXPERTI_ROMANA = ['Angheluș Raluca', 'Baziluc Ana Maria', 'Ghemeș Anca'];
+  const EXPERTI_MATE   = ['Arotăriței Dănuț', 'Boldan Ovidiu', 'Popovici Estera', 'Iftene Ana Maria'];
+
+  const months = [
+    {name:'Ianuarie',  short:'Ian', year:'2025'},{name:'Februarie',short:'Feb',year:'2025'},
+    {name:'Martie',    short:'Mar', year:'2025'},{name:'Aprilie',  short:'Apr',year:'2025'},
+    {name:'Mai',       short:'Mai', year:'2025'},{name:'Iunie',    short:'Iun',year:'2025'},
+    {name:'Iulie',     short:'Iul', year:'2025'},{name:'August',   short:'Aug',year:'2025'},
+    {name:'Septembrie',short:'Sep', year:'2025'},{name:'Octombrie',short:'Oct',year:'2025'},
+    {name:'Noiembrie', short:'Nov', year:'2025'},{name:'Decembrie',short:'Dec',year:'2025'},
+    {name:'Ianuarie',  short:'Ian', year:'2026'},{name:'Februarie',short:'Feb',year:'2026'},
+    {name:'Martie',    short:'Mar', year:'2026'},{name:'Aprilie',  short:'Apr',year:'2026'},
+    {name:'Mai',       short:'Mai', year:'2026'},{name:'Iunie',    short:'Iun',year:'2026'}
+  ];
+
+  const sections = {
+    'II4':'II.4. Activități remediale',
+    'II5':'II.5. Activități extracurriculare',
+    'II6':'II.6. Clubul de lectură și literație'
+  };
+
+  let activeBtn = null;
+  let saveTimer = null;
+  let currentKey = null;
+
+  // ── BUILD MONTH BUTTONS ──
+  ['II4','II5','II6'].forEach(id => {
+    const grid = document.getElementById('months-' + id);
+    months.forEach(m => {
+      const btn = document.createElement('button');
+      btn.className = 'month-btn';
+      btn.innerHTML = `<span class="mn">${m.short}</span><span class="my">${m.year}</span>`;
+      btn.onclick = () => openReport(id, m, btn);
+      grid.appendChild(btn);
+    });
+  });
+
+  // ── OPEN REPORT ──
+  async function openReport(sectionId, month, btnEl) {
+    if (activeBtn) activeBtn.classList.remove('active');
+    activeBtn = btnEl;
+    btnEl.classList.add('active');
+    currentKey = `${sectionId}_${month.name}_${month.year}`;
+
+    document.getElementById('overlay-label').textContent = sections[sectionId] + ' — ' + month.name + ' ' + month.year;
+    setStatus('');
+
+    document.getElementById('a4-container').innerHTML = `
+      <div class="loading-wrap"><div class="spinner"></div><span>Se încarcă datele...</span></div>`;
+    document.getElementById('overlay').classList.add('open');
+    document.body.style.overflow = 'hidden';
+
+    try {
+      let html = '';
+      if (sectionId === 'II4')      html = await buildII4(month);
+      else if (sectionId === 'II5') html = await buildII5(month);
+      else if (sectionId === 'II6') html = await buildII6(month);
+      else html = buildPlaceholder(sectionId, month);
+      document.getElementById('a4-container').innerHTML = html;
+      attachAutoSave(sectionId, month);
+    } catch(err) {
+      document.getElementById('a4-container').innerHTML =
+        `<div class="loading-wrap"><span style="color:#ef4444">❌ Eroare: ${err.message}</span></div>`;
+    }
+  }
+
+  // ── AUTOSAVE ──
+  function attachAutoSave(sectionId, month) {
+    const page = document.querySelector('.a4-page');
+    if (!page) return;
+    page.addEventListener('input', () => {
+      setStatus('saving', '💾 Se salvează...');
+      clearTimeout(saveTimer);
+      saveTimer = setTimeout(() => doSave(sectionId, month), 1200);
+    });
+  }
+
+  async function doSave(sectionId, month) {
+    const page = document.querySelector('.a4-page');
+    if (!page) return;
+
+    // Colectăm toate câmpurile editabile
+    const fields = {};
+    page.querySelectorAll('[data-field]').forEach(el => {
+      fields[el.dataset.field] = el.innerText.trim();
+    });
+
+    try {
+      const { error } = await sb.from('rapoarte_salvate').upsert({
+        id: `${sectionId}_${month.name}_${month.year}`,
+        sectiune: sectionId,
+        luna: month.name,
+        an: parseInt(month.year),
+        continut_json: fields,
+        updated_at: new Date().toISOString()
+      }, { onConflict: 'sectiune,luna,an' });
+
+      if (error) throw error;
+      setStatus('saved', '✅ Salvat');
+      setTimeout(() => setStatus(''), 2500);
+    } catch(e) {
+      setStatus('error', '❌ Eroare salvare');
+    }
+  }
+
+  function setStatus(type, msg) {
+    const el = document.getElementById('save-status');
+    el.textContent = msg || '';
+    el.className = 'save-status ' + (type || '');
+  }
+
+  // ── HELPERS ──
+  function lunaNum(luna, an) {
+    const idx = months.findIndex(m => m.name === luna && m.year === String(an));
+    return String((idx % 12) + 1).padStart(2,'0');
+  }
+
+  function perioadaStr(zile, lNum, an) {
+    if (!zile.length) return '—';
+    const min = Math.min(...zile), max = Math.max(...zile);
+    const p = n => String(n).padStart(2,'0');
+    return min === max ? `${p(min)}.${lNum}.${an}` : `${p(min)}.${lNum}.${an} – ${p(max)}.${lNum}.${an}`;
+  }
+
+  function claseUnice(rows) {
+    const set = new Set();
+    (rows||[]).forEach(r => {
+      if (!r.clase_grupe) return;
+      r.clase_grupe.split(',').forEach(c => { const t=c.trim(); if(t) set.add(t); });
+    });
+    return [...set].sort().join(', ');
+  }
+
+  function extrageContiuturi(planuri) {
+    if (!planuri?.length) return '—';
+    const set = new Set();
+    planuri.forEach(p => {
+      try {
+        (p.continut_json?.tableRows||[]).forEach(r => {
+          if (r.cont) r.cont.split('\n').forEach(c => { const t=c.replace(/^•\s*/,'').trim(); if(t) set.add(t); });
+        });
+      } catch(e){}
+    });
+    return set.size ? [...set].slice(0,6).join('; ') : '—';
+  }
+
+  function eleviPerExpert(eleviArr, field, nume, pontajArr) {
+    const claseActive = new Set();
+    (pontajArr||[]).filter(r=>r.expert===nume).forEach(r => {
+      r.clase_grupe.split(',').forEach(c => { const t=c.trim(); if(t) claseActive.add(t); });
+    });
+    if (!claseActive.size) {
+      // fallback: toți elevii înscriși dacă nu există pontaj
+      return new Set((eleviArr||[]).filter(e=>e[field]===nume && e.cnp).map(e=>e.cnp)).size;
+    }
+    return new Set((eleviArr||[]).filter(e=>e[field]===nume && claseActive.has(e.clasa_grupa) && e.cnp).map(e=>e.cnp)).size;
+  }
+
+  // ── E (editable span helper) ──
+  function e(fieldName, value, cls='') {
+    return `<span contenteditable="true" data-field="${fieldName}" class="${cls}" spellcheck="false">${value}</span>`;
+  }
+
+  // ── BUILD II.4 ──
+  async function buildII4(month) {
+    const luna = month.name, an = parseInt(month.year);
+    const lNum = lunaNum(luna, month.year);
+
+    const [
+      { data: pontajRo }, { data: pontajMa },
+      { data: eleviRo },  { data: eleviMa },
+      { data: nrInreg },
+      { data: planRo },   { data: planMa },
+      { data: saved }
+    ] = await Promise.all([
+      sb.from('pontaj_detaliat').select('expert,zi,nr_ore,clase_grupe').eq('luna',luna).eq('an',an).in('expert',EXPERTI_ROMANA),
+      sb.from('pontaj_detaliat').select('expert,zi,nr_ore,clase_grupe').eq('luna',luna).eq('an',an).in('expert',EXPERTI_MATE),
+      sb.from('elevi').select('cnp,clasa_grupa,expert_romana').eq('anul',an).in('expert_romana',EXPERTI_ROMANA),
+      sb.from('elevi').select('cnp,clasa_grupa,expert_mate').eq('anul',an).in('expert_mate',EXPERTI_MATE),
+      sb.from('pontaj_nr_inregistrare').select('nr_inregistrare').eq('luna',luna).eq('an',an).maybeSingle(),
+      sb.from('planificari_documente').select('expert,continut_json').eq('luna',luna).eq('an',an).in('expert',EXPERTI_ROMANA),
+      sb.from('planificari_documente').select('expert,continut_json').eq('luna',luna).eq('an',an).in('expert',EXPERTI_MATE),
+      sb.from('rapoarte_salvate').select('continut_json').eq('sectiune','II4').eq('luna',luna).eq('an',an).maybeSingle()
+    ]);
+
+    // Valori salvate anterior (suprascriu calculele dacă există)
+    const sv = saved?.continut_json || {};
+    const sv_ = (field, fallback) => sv[field] !== undefined ? sv[field] : fallback;
+
+    // ── CALCULE ──
+    const oreRo = (pontajRo||[]).reduce((s,r)=>s+(r.nr_ore||0),0);
+    const oreMa = (pontajMa||[]).reduce((s,r)=>s+(r.nr_ore||0),0);
+    const oreTotal = oreRo + oreMa;
+
+    const cnpRo = new Set((eleviRo||[]).map(e=>e.cnp).filter(Boolean));
+    const cnpMa = new Set((eleviMa||[]).map(e=>e.cnp).filter(Boolean));
+    const nrEleviRo = cnpRo.size, nrEleviMa = cnpMa.size;
+    const nrEleviTotal = new Set([...cnpRo,...cnpMa]).size;
+
+    const clRo = claseUnice(pontajRo), clMa = claseUnice(pontajMa);
+    const zRo = (pontajRo||[]).map(r=>r.zi).filter(Boolean);
+    const zMa = (pontajMa||[]).map(r=>r.zi).filter(Boolean);
+    const perRo = perioadaStr(zRo, lNum, an);
+    const perMa = perioadaStr(zMa, lNum, an);
+    const perTot = perioadaStr([...zRo,...zMa], lNum, an);
+
+    const contRo = extrageContiuturi(planRo);
+    const contMa = extrageContiuturi(planMa);
+
+    const expRoActivi = [...new Set((pontajRo||[]).map(r=>r.expert))];
+    const expMaActivi = [...new Set((pontajMa||[]).map(r=>r.expert))];
+    const nExpRo = expRoActivi.length || EXPERTI_ROMANA.length;
+    const nExpMa = expMaActivi.length || EXPERTI_MATE.length;
+    const nExpTotal = new Set([...expRoActivi,...expMaActivi]).size || (EXPERTI_ROMANA.length+EXPERTI_MATE.length);
+
+    const numeRo = expRoActivi.length ? expRoActivi.join(', ') : EXPERTI_ROMANA.join(', ');
+    const numeMa = expMaActivi.length ? expMaActivi.join(', ') : EXPERTI_MATE.join(', ');
+    const nrRaport = nrInreg?.nr_inregistrare || '___';
+
+    // ── EXPERT CARDS ──
+    function expertCard(expert, pontaj, eleviArr, field, disciplina, cls) {
+      const rows = (pontaj||[]).filter(r=>r.expert===expert);
+      const ore  = rows.reduce((s,r)=>s+(r.nr_ore||0),0);
+      const zile = rows.map(r=>r.zi).filter(Boolean);
+      const per  = perioadaStr(zile, lNum, an);
+      const cls2 = claseUnice(rows);
+      const nel  = eleviPerExpert(eleviArr, field, expert, pontaj);
+      return `
+        <div class="expert-card ${cls}">
+          <div class="expert-card-name">${expert}</div>
+          <div class="expert-card-disc">${disciplina}</div>
+          <div class="expert-card-rows">
+            <div class="expert-card-row"><span class="ec-label">Ore efectuate:</span>${e('exp_ore_'+expert, ore, 'ec-val')}</div>
+            <div class="expert-card-row"><span class="ec-label">Total elevi:</span>${e('exp_elevi_'+expert, nel, 'ec-val')}</div>
+            <div class="expert-card-row"><span class="ec-label">Perioada:</span>${e('exp_per_'+expert, per, 'ec-val')}</div>
+            <div class="expert-card-row"><span class="ec-label">Clase/Grupe:</span>${e('exp_clase_'+expert, cls2||'—', 'ec-val')}</div>
+          </div>
+        </div>`;
+    }
+
+    const carduriRo = expRoActivi.map(ex => expertCard(ex, pontajRo, eleviRo, 'expert_romana', 'Activități remediale la limba și literatura română', 'ro')).join('');
+    const carduriMa = expMaActivi.map(ex => expertCard(ex, pontajMa, eleviMa, 'expert_mate',   'Matematică', 'ma')).join('');
+
+    return `
+    <div class="a4-page">
+      <img src="antet_pnras.jpeg" class="antet-img" onerror="this.style.display='none'">
+
+      <div class="nr-inreg-row">Nr. ${e('nr_inreg', sv_('nr_inreg', ''))}</div>
+
+      <div class="doc-title">Raport de activitate</div>
+      <div class="doc-sub">pentru</div>
+      <div class="doc-sub">Categoria II: Activități de prevenire, intervenție și compensare,</div>
+      <div class="doc-sub">II.4. Activități remediale și diverse activități pedagogice și de sprijin</div>
+      <div class="doc-disc">Activități remediale la limba și literatura română și matematică</div>
+      <div class="doc-luna"><strong>Luna: ${luna} ${an}</strong></div>
+
+      <!-- INTRO -->
+      <div class="sectiune s-intro">
+        <div class="sectiune-header">📋 Introducere</div>
+        <div class="sectiune-body">
+          <p class="e-para" contenteditable="true" data-field="intro" spellcheck="false">${sv_('intro',
+            `Prezentul raport lunar centralizator este întocmit pe baza documentelor lunare individuale elaborate de experții implicați în implementarea activităților din cadrul subactivității II.4. Activități remediale și diverse activități pedagogice și de sprijin, pentru disciplinele Limba și literatura română și Matematică, în luna ${luna} ${an}.`)}</p>
+          <p class="e-para" contenteditable="true" data-field="intro2" spellcheck="false" style="margin-top:8px">${sv_('intro2',
+            `În perioada raportată, activitățile remediale s-au desfășurat conform planificării stabilite în cadrul proiectului, prin implicarea a ${nExpTotal} experți, dintre care ${nExpRo} experți pentru disciplina Limba și literatura română și ${nExpMa} experți pentru disciplina Matematică. Activitățile au avut ca scop sprijinirea elevilor din grupul țintă în vederea recuperării decalajelor de învățare, consolidării competențelor de bază și îmbunătățirii participării școlare.`)}</p>
+        </div>
+      </div>
+
+      <!-- ROMÂNĂ -->
+      <div class="sectiune s-romana">
+        <div class="sectiune-header">📗 Limba și literatura română</div>
+        <div class="sectiune-body">
+          <p class="e-para" contenteditable="true" data-field="text_ro" spellcheck="false">${sv_('text_ro',
+            `La disciplina Limba și literatura română, activitățile au fost desfășurate de către experții ${numeRo}. Conform rapoartelor lunare întocmite de aceștia, în luna de referință s-au realizat, cumulat, un număr de ${oreRo} ore de activități remediale și pedagogice de sprijin, desfășurate în perioada ${perRo}, cu participarea unui număr total de ${nrEleviRo} elevi beneficiari, de gimnaziu. Conținuturile parcurse au vizat ${contRo}, în funcție de nivelul de pregătire al elevilor și de nevoile educaționale identificate. Activitățile au urmărit consolidarea competențelor de comunicare, înțelegerea și interpretarea mesajului scris/oral, dezvoltarea exprimării corecte și sprijinirea progresului școlar al elevilor participanți.`)}</p>
+          <ul class="e-list" style="margin-top:8px">
+            <li><span class="e-label">Experți implicați:</span><span class="e-val" contenteditable="true" data-field="ro_exp" spellcheck="false">${sv_('ro_exp', nExpRo)}</span></li>
+            <li><span class="e-label">Total ore desfășurate:</span><span class="e-val" contenteditable="true" data-field="ro_ore" spellcheck="false">${sv_('ro_ore', oreRo)}</span></li>
+            <li><span class="e-label">Total elevi beneficiari:</span><span class="e-val" contenteditable="true" data-field="ro_elevi" spellcheck="false">${sv_('ro_elevi', nrEleviRo)}</span></li>
+            <li><span class="e-label">Perioada activităților:</span><span class="e-val" contenteditable="true" data-field="ro_per" spellcheck="false">${sv_('ro_per', perRo)}</span></li>
+            <li><span class="e-label">Clase/Grupe beneficiare:</span><span class="e-val" contenteditable="true" data-field="ro_clase" spellcheck="false">${sv_('ro_clase', clRo||'—')}</span></li>
+            <li><span class="e-label">Conținuturi parcurse:</span><span class="e-val" contenteditable="true" data-field="ro_cont" spellcheck="false">${sv_('ro_cont', contRo)}</span></li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- MATEMATICĂ -->
+      <div class="sectiune s-mate">
+        <div class="sectiune-header">📙 Matematică</div>
+        <div class="sectiune-body">
+          <p class="e-para" contenteditable="true" data-field="text_ma" spellcheck="false">${sv_('text_ma',
+            `La disciplina Matematică, activitățile au fost desfășurate de către experții ${numeMa}. Din centralizarea rapoartelor individuale rezultă că, în luna raportată, s-au desfășurat, cumulat, ${oreMa} ore de activități remediale și de sprijin, în perioada ${perMa}, cu participarea unui număr total de ${nrEleviMa} elevi beneficiari, de gimnaziu. Conținuturile abordate au inclus ${contMa}, în concordanță cu dificultățile de învățare identificate și cu obiectivele activităților remediale. Activitățile au vizat consolidarea competențelor matematice de bază, exersarea deprinderilor de calcul, rezolvarea de exerciții și probleme, precum și susținerea elevilor în vederea îmbunătățirii rezultatelor școlare.`)}</p>
+          <ul class="e-list" style="margin-top:8px">
+            <li><span class="e-label">Experți implicați:</span><span class="e-val" contenteditable="true" data-field="ma_exp" spellcheck="false">${sv_('ma_exp', nExpMa)}</span></li>
+            <li><span class="e-label">Total ore desfășurate:</span><span class="e-val" contenteditable="true" data-field="ma_ore" spellcheck="false">${sv_('ma_ore', oreMa)}</span></li>
+            <li><span class="e-label">Total elevi beneficiari:</span><span class="e-val" contenteditable="true" data-field="ma_elevi" spellcheck="false">${sv_('ma_elevi', nrEleviMa)}</span></li>
+            <li><span class="e-label">Perioada activităților:</span><span class="e-val" contenteditable="true" data-field="ma_per" spellcheck="false">${sv_('ma_per', perMa)}</span></li>
+            <li><span class="e-label">Clase/Grupe beneficiare:</span><span class="e-val" contenteditable="true" data-field="ma_clase" spellcheck="false">${sv_('ma_clase', clMa||'—')}</span></li>
+            <li><span class="e-label">Conținuturi parcurse:</span><span class="e-val" contenteditable="true" data-field="ma_cont" spellcheck="false">${sv_('ma_cont', contMa)}</span></li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- TOTAL -->
+      <div class="sectiune s-total">
+        <div class="sectiune-header">📊 Centralizator total — II.4. ${luna} ${an}</div>
+        <div class="sectiune-body">
+          <div class="stats-grid">
+            <div class="stat-box">
+              <div class="s-label">Experți implicați</div>
+              <div class="s-val" contenteditable="true" data-field="tot_exp" spellcheck="false">${sv_('tot_exp', nExpTotal)}</div>
+            </div>
+            <div class="stat-box">
+              <div class="s-label">Total ore desfășurate</div>
+              <div class="s-val" contenteditable="true" data-field="tot_ore" spellcheck="false">${sv_('tot_ore', oreTotal)}</div>
+            </div>
+            <div class="stat-box">
+              <div class="s-label">Total elevi beneficiari</div>
+              <div class="s-val" contenteditable="true" data-field="tot_elevi" spellcheck="false">${sv_('tot_elevi', nrEleviTotal)}</div>
+            </div>
+            <div class="stat-box">
+              <div class="s-label">Perioada</div>
+              <div class="s-val" style="font-size:10pt" contenteditable="true" data-field="tot_per" spellcheck="false">${sv_('tot_per', perTot)}</div>
+            </div>
+          </div>
+          <p class="e-para" contenteditable="true" data-field="text_total" spellcheck="false">${sv_('text_total',
+            `Din analiza documentelor rezultă că activitățile desfășurate în perioada de referință au contribuit la susținerea elevilor aflați în situație de risc educațional sau cu dificultăți de învățare, prin intervenții remediale adaptate, activități de consolidare și demersuri pedagogice de sprijin, în acord cu obiectivele proiectului PNRAS.`)}</p>
+        </div>
+      </div>
+
+      <!-- EXPERȚI INDIVIDUALI -->
+      <div class="sectiune s-experti">
+        <div class="sectiune-header">👤 Situație individuală pe experți</div>
+        <div class="sectiune-body">
+          <div class="expert-grid">
+            ${carduriRo}
+            ${carduriMa}
+          </div>
+        </div>
+      </div>
+
+      <!-- CONCLUZIE -->
+      <div class="sectiune s-concluzie">
+        <div class="sectiune-header">✅ Concluzii</div>
+        <div class="sectiune-body">
+          <p class="e-para" contenteditable="true" data-field="justif" spellcheck="false">${sv_('justif',
+            `Prezentul raport centralizator a fost întocmit pe baza documentelor justificative aferente activităților desfășurate, respectiv: planificarea lunară a activităților, orarul activităților, fișele de activitate, listele de prezență, listele de distribuție a pachetului alimentar, rapoartelor de activitate, fișelor individuale de pontaj, pontajul lunar și statele de plată.`)}</p>
+          <p class="e-para" contenteditable="true" data-field="concluzie" spellcheck="false" style="margin-top:8px">${sv_('concluzie',
+            `În concluzie, activitățile desfășurate în luna ${luna} ${an} în cadrul subactivității II.4. s-au realizat conform rapoartelor transmise de experții implicați și au contribuit la atingerea obiectivelor urmărite prin proiect, prin sprijinirea directă a elevilor beneficiari și susținerea progresului acestora în procesul educațional.`)}</p>
+        </div>
+      </div>
+
+      <!-- SEMNĂTURI -->
+      <div class="semnaturi">
+        <div class="col"><strong>Întocmit,</strong>Manager proiect,<br>prof. dr. Ciprian MIHAI</div>
+        <div class="col"><strong>Avizat,</strong>Director,<br>prof. Cătălin Ionuț BAZILUC</div>
+      </div>
+
+
+    </div>`;
+  }
+
+  // ── RAPORT II.5 — ACTIVITĂȚI EXTRACURRICULARE ──
+  async function buildII5(month) {
+    const luna = month.name, an = parseInt(month.year);
+    const lNum = lunaNum(luna, month.year);
+
+    const CLUBURI = [
+      { key:'sport',   expert:'Albu Ștefan',   label:'Clubul de activități sportive și outdoor', elevField:'expert_sport',   culoare:'#1d4ed8' },
+      { key:'pictura', expert:'Marele Daniela', label:'Clubul de pictură',                        elevField:'expert_pictura', culoare:'#15803d' },
+      { key:'muzica',  expert:'Tanasă Liliana', label:'Clubul de muzică',                         elevField:'expert_muzica',  culoare:'#92400e' },
+      { key:'dansuri', expert:'Popa Gabriela',  label:'Clubul de dansuri',                        elevField:'expert_dansuri', culoare:'#9a3412' },
+      { key:'stiinte', expert:'Nohai Iuliana',  label:'Clubul de științe',                        elevField:'expert_stiinte', culoare:'#6d28d9', extra:'Nohai Vili' },
+    ];
+
+    const totiExperti = CLUBURI.flatMap(cl => cl.extra ? [cl.expert, cl.extra] : [cl.expert]);
+
+    const [
+      { data: pontajAll },
+      { data: eleviAll },
+      { data: nrInreg },
+      { data: planAll },
+      { data: saved }
+    ] = await Promise.all([
+      sb.from('pontaj_detaliat').select('expert,zi,nr_ore,clase_grupe').eq('luna',luna).eq('an',an).in('expert', totiExperti),
+      sb.from('elevi').select('cnp,clasa_grupa,expert_sport,expert_pictura,expert_muzica,expert_dansuri,expert_stiinte'),
+      sb.from('pontaj_nr_inregistrare').select('nr_inregistrare').eq('luna',luna).eq('an',an).maybeSingle(),
+      sb.from('planificari_documente').select('expert,continut_json').eq('luna',luna).eq('an',an).in('expert', totiExperti),
+      sb.from('rapoarte_salvate').select('continut_json').eq('sectiune','II5').eq('luna',luna).eq('an',an).maybeSingle()
+    ]);
+
+    const sv = saved?.continut_json || {};
+    const sv_ = (field, fallback) => sv[field] !== undefined ? sv[field] : fallback;
+
+    const cluburiActive = CLUBURI.filter(cl => {
+      const expertiClub = cl.extra ? [cl.expert, cl.extra] : [cl.expert];
+      return (pontajAll||[]).some(r => expertiClub.includes(r.expert));
+    });
+
+    const oreTotal  = (pontajAll||[]).reduce((s,r) => s+(r.nr_ore||0), 0);
+    const zileAll   = (pontajAll||[]).map(r=>r.zi).filter(Boolean);
+    const perTotal  = perioadaStr(zileAll, lNum, an);
+    const nExpTotal = new Set((pontajAll||[]).map(r=>r.expert)).size;
+
+    // Elevi unici = CNP-uri din clasele care apar în pontajul lunii
+    function claseActiveExpert(expertiClub) {
+      const set = new Set();
+      (pontajAll||[]).filter(r => expertiClub.includes(r.expert)).forEach(r => {
+        r.clase_grupe.split(',').forEach(c => { const t=c.trim(); if(t) set.add(t); });
+      });
+      return set;
+    }
+
+    function eleviDinClaseActive(cl) {
+      const expertiClub = cl.extra ? [cl.expert, cl.extra] : [cl.expert];
+      const claseActive = claseActiveExpert(expertiClub);
+      // Filtrare doar după clasa_grupa (clasele clubului sunt unice per club)
+      return new Set(
+        (eleviAll||[])
+          .filter(ev => claseActive.has(ev.clasa_grupa) && ev.cnp)
+          .map(ev => ev.cnp)
+      );
+    }
+
+    const cnpTotalSet = new Set();
+    CLUBURI.forEach(cl => { eleviDinClaseActive(cl).forEach(cnp => cnpTotalSet.add(cnp)); });
+    const nrEleviTotal = cnpTotalSet.size;
+
+    const nrRaport = nrInreg?.nr_inregistrare || '';
+
+    function calcClub(cl) {
+      const expertiClub = cl.extra ? [cl.expert, cl.extra] : [cl.expert];
+      const rows  = (pontajAll||[]).filter(r => expertiClub.includes(r.expert));
+      const ore   = rows.reduce((s,r) => s+(r.nr_ore||0), 0);
+      const zile  = rows.map(r=>r.zi).filter(Boolean);
+      const per   = perioadaStr(zile, lNum, an);
+      const clase = claseUnice(rows);
+      const claseAct = claseActiveExpert(expertiClub);
+      const cnps  = new Set((eleviAll||[]).filter(ev => claseAct.has(ev.clasa_grupa) && ev.cnp).map(ev=>ev.cnp));
+      const nElevi = cnps.size;
+      const planClub = (planAll||[]).filter(r => expertiClub.includes(r.expert));
+      const cont  = extrageContiuturi(planClub);
+      const activi = expertiClub.filter(ex => rows.some(r=>r.expert===ex));
+      return { ore, per, clase, nElevi, cont, nExp: activi.length, experti: activi };
+    }
+
+    function sectiuneClub(cl, idx) {
+      const d = calcClub(cl);
+      return `
+        <div class="sectiune">
+          <div class="sectiune-header" style="background:${cl.culoare};color:#fff">🎯 ${cl.label}</div>
+          <div class="sectiune-body" style="background:#fff">
+            <ul class="e-list">
+              <li><span class="e-label">Expert(i) implicat(i):</span><span class="e-val" contenteditable="true" data-field="c${idx}_exp" spellcheck="false">${sv_('c'+idx+'_exp', d.experti.join(', '))}</span></li>
+              <li><span class="e-label">Număr experți implicați:</span><span class="e-val" contenteditable="true" data-field="c${idx}_nexp" spellcheck="false">${sv_('c'+idx+'_nexp', d.nExp)}</span></li>
+              <li><span class="e-label">Număr total ore desfășurate:</span><span class="e-val" contenteditable="true" data-field="c${idx}_ore" spellcheck="false">${sv_('c'+idx+'_ore', d.ore)}</span></li>
+              <li><span class="e-label">Număr total elevi beneficiari:</span><span class="e-val" contenteditable="true" data-field="c${idx}_elevi" spellcheck="false">${sv_('c'+idx+'_elevi', d.nElevi)}</span></li>
+              <li><span class="e-label">Perioada desfășurării activităților:</span><span class="e-val" contenteditable="true" data-field="c${idx}_per" spellcheck="false">${sv_('c'+idx+'_per', d.per)}</span></li>
+              <li><span class="e-label">Clase/Grupe beneficiare:</span><span class="e-val" contenteditable="true" data-field="c${idx}_clase" spellcheck="false">${sv_('c'+idx+'_clase', d.clase||'—')}</span></li>
+              <li><span class="e-label">Conținuturi parcurse:</span><span class="e-val" contenteditable="true" data-field="c${idx}_cont" spellcheck="false">${sv_('c'+idx+'_cont', d.cont)}</span></li>
+            </ul>
+          </div>
+        </div>`;
+    }
+
+    function expertCardII5(cl) {
+      const d = calcClub(cl);
+      return d.experti.map(expert => {
+        const rows = (pontajAll||[]).filter(r=>r.expert===expert);
+        const ore  = rows.reduce((s,r)=>s+(r.nr_ore||0),0);
+        const per  = perioadaStr(rows.map(r=>r.zi).filter(Boolean), lNum, an);
+        const cls2 = claseUnice(rows);
+        const claseActExp = claseActiveExpert([expert]);
+        const nel  = new Set((eleviAll||[]).filter(ev=>claseActExp.has(ev.clasa_grupa) && ev.cnp).map(ev=>ev.cnp)).size;
+        const fk   = 'exp5_'+expert.replace(/[^a-zA-Z0-9]/g,'_');
+        return `
+          <div class="expert-card" style="border-top:3px solid #1d4ed8">
+            <div class="expert-card-name">${expert}</div>
+            <div class="expert-card-disc">${cl.label}</div>
+            <div class="expert-card-rows">
+              <div class="expert-card-row"><span class="ec-label">Ore efectuate:</span><span class="ec-val" contenteditable="true" data-field="${fk}_ore" spellcheck="false">${sv_(fk+'_ore', ore)}</span></div>
+              <div class="expert-card-row"><span class="ec-label">Total elevi:</span><span class="ec-val" contenteditable="true" data-field="${fk}_elevi" spellcheck="false">${sv_(fk+'_elevi', nel)}</span></div>
+              <div class="expert-card-row"><span class="ec-label">Perioada:</span><span class="ec-val" contenteditable="true" data-field="${fk}_per" spellcheck="false">${sv_(fk+'_per', per)}</span></div>
+              <div class="expert-card-row"><span class="ec-label">Clase/Grupe:</span><span class="ec-val" contenteditable="true" data-field="${fk}_clase" spellcheck="false">${sv_(fk+'_clase', cls2||'—')}</span></div>
+            </div>
+          </div>`;
+      }).join('');
+    }
+
+    return `
+    <div class="a4-page">
+      <img src="antet_pnras.jpeg" class="antet-img" onerror="this.style.display='none'">
+
+      <div class="nr-inreg-row">Nr. ${e('nr_inreg5', sv_('nr_inreg5', ''))}</div>
+
+      <div class="doc-title">Raport de activitate</div>
+      <div class="doc-sub">pentru</div>
+      <div class="doc-sub">Categoria II: Activități de prevenire, intervenție și compensare,</div>
+      <div class="doc-sub">II.5. Activități extracurriculare și/sau extrașcolare, inclusiv în parteneriate cu ONG</div>
+      <div class="doc-disc">${cluburiActive.map(cl=>cl.label).join(' • ')}</div>
+      <div class="doc-luna"><strong>Luna: ${luna} ${an}</strong></div>
+
+      <div class="sectiune s-intro">
+        <div class="sectiune-header" style="background:#1d4ed8;color:#fff">📋 Introducere</div>
+        <div class="sectiune-body" style="background:#fff">
+          <p class="e-para" contenteditable="true" data-field="ii5_intro" spellcheck="false">${sv_('ii5_intro', `Prezentul raport lunar centralizator este întocmit pe baza documentelor lunare individuale elaborate de experții implicați în implementarea activităților din cadrul subactivității II.5. Activități extracurriculare și/sau extrașcolare, inclusiv în parteneriate cu ONG, la cluburile de activități extracurriculare.`)}</p>
+          <p class="e-para" contenteditable="true" data-field="ii5_intro2" spellcheck="false" style="margin-top:8px">${sv_('ii5_intro2', `În perioada raportată, activitățile extracurriculare s-au desfășurat conform planificării stabilite în cadrul proiectului, prin implicarea a ${nExpTotal} experți. Activitățile au avut ca scop stimularea participării active a elevilor la viața școlii, dezvoltarea intereselor și aptitudinilor acestora, consolidarea relațiilor de colaborare și comunicare, precum și susținerea incluziunii și a progresului educațional.`)}</p>
+          <p class="e-para" contenteditable="true" data-field="ii5_intro3" spellcheck="false" style="margin-top:8px">${sv_('ii5_intro3', `Conform rapoartelor lunare întocmite de experți, în luna de referință s-au realizat, cumulat, un număr de ${oreTotal} ore de activități extracurriculare, desfășurate în perioada ${perTotal}, cu participarea unui număr total de ${nrEleviTotal} elevi beneficiari, de gimnaziu.`)}</p>
+        </div>
+      </div>
+
+      ${cluburiActive.map((cl, idx) => sectiuneClub(cl, idx)).join('')}
+
+      <div class="sectiune s-total">
+        <div class="sectiune-header" style="background:#1d4ed8;color:#fff">📊 Centralizator total — II.5. ${luna} ${an}</div>
+        <div class="sectiune-body" style="background:#fff">
+          <div class="stats-grid">
+            <div class="stat-box"><div class="s-label">Experți implicați</div><div class="s-val" contenteditable="true" data-field="ii5_tot_exp" spellcheck="false">${sv_('ii5_tot_exp', nExpTotal)}</div></div>
+            <div class="stat-box"><div class="s-label">Total ore desfășurate</div><div class="s-val" contenteditable="true" data-field="ii5_tot_ore" spellcheck="false">${sv_('ii5_tot_ore', oreTotal)}</div></div>
+            <div class="stat-box"><div class="s-label">Total elevi beneficiari</div><div class="s-val" contenteditable="true" data-field="ii5_tot_elevi" spellcheck="false">${sv_('ii5_tot_elevi', nrEleviTotal)}</div></div>
+            <div class="stat-box"><div class="s-label">Perioada</div><div class="s-val" style="font-size:10pt" contenteditable="true" data-field="ii5_tot_per" spellcheck="false">${sv_('ii5_tot_per', perTotal)}</div></div>
+          </div>
+          <p class="e-para" contenteditable="true" data-field="ii5_text_total" spellcheck="false">${sv_('ii5_text_total', `Per total, în cadrul subactivității II.5., în luna ${luna} ${an}, au fost implicați ${nExpTotal} experți, au fost desfășurate ${oreTotal} ore de activități extracurriculare, iar numărul total al elevilor beneficiari a fost de ${nrEleviTotal}.`)}</p>
+        </div>
+      </div>
+
+      <div class="sectiune s-experti">
+        <div class="sectiune-header" style="background:#1d4ed8;color:#fff">👤 Situație individuală pe experți</div>
+        <div class="sectiune-body" style="background:#fff">
+          <div class="expert-grid">${cluburiActive.map(cl => expertCardII5(cl)).join('')}</div>
+        </div>
+      </div>
+
+      <div class="sectiune s-concluzie">
+        <div class="sectiune-header" style="background:#1d4ed8;color:#fff">✅ Concluzii</div>
+        <div class="sectiune-body" style="background:#fff">
+          <p class="e-para" contenteditable="true" data-field="ii5_justif" spellcheck="false">${sv_('ii5_justif', `Prezentul raport centralizator a fost întocmit pe baza documentelor justificative aferente activităților desfășurate, respectiv: planificarea lunară a activităților, orarul activităților, fișele de activitate, listele de prezență, listele de distribuție a pachetului alimentar, rapoartelor de activitate, fișelor individuale de pontaj, pontajul lunar și statele de plată.`)}</p>
+          <p class="e-para" contenteditable="true" data-field="ii5_concluzie" spellcheck="false" style="margin-top:8px">${sv_('ii5_concluzie', `În concluzie, activitățile desfășurate în luna ${luna} ${an} în cadrul subactivității II.5. s-au realizat conform rapoartelor transmise de experții implicați și au contribuit la atingerea obiectivelor urmărite prin proiect, prin sprijinirea directă a elevilor beneficiari și susținerea progresului acestora în procesul educațional.`)}</p>
+        </div>
+      </div>
+
+      <div class="semnaturi">
+        <div class="col"><strong>Întocmit,</strong>Manager proiect,<br>prof. dr. Ciprian MIHAI</div>
+        <div class="col"><strong>Avizat,</strong>Director,<br>prof. Cătălin Ionuț BAZILUC</div>
+      </div>
+    </div>`;
+  }
+
+  // ── RAPORT II.6 — CLUBUL DE LECTURĂ ȘI LITERAȚIE ──
+  async function buildII6(month) {
+    const luna = month.name, an = parseInt(month.year);
+    const lNum = lunaNum(luna, month.year);
+
+    const EXPERT_LIT = 'Aparascăi Vasile';
+
+    const [
+      { data: pontajLit },
+      { data: eleviAll },
+      { data: nrInreg },
+      { data: planLit },
+      { data: saved }
+    ] = await Promise.all([
+      sb.from('pontaj_detaliat').select('expert,zi,nr_ore,clase_grupe').eq('luna',luna).eq('an',an).eq('expert', EXPERT_LIT),
+      sb.from('elevi').select('cnp,clasa_grupa,expert_literatie'),
+      sb.from('pontaj_nr_inregistrare').select('nr_inregistrare').eq('luna',luna).eq('an',an).maybeSingle(),
+      sb.from('planificari_documente').select('expert,continut_json').eq('luna',luna).eq('an',an).eq('expert', EXPERT_LIT),
+      sb.from('rapoarte_salvate').select('continut_json').eq('sectiune','II6').eq('luna',luna).eq('an',an).maybeSingle()
+    ]);
+
+    const sv = saved?.continut_json || {};
+    const sv_ = (field, fallback) => sv[field] !== undefined ? sv[field] : fallback;
+
+    // ── CALCULE ──
+    const oreTotal = (pontajLit||[]).reduce((s,r) => s+(r.nr_ore||0), 0);
+    const zileAll  = (pontajLit||[]).map(r=>r.zi).filter(Boolean);
+    const perTotal = perioadaStr(zileAll, lNum, an);
+    const clase    = claseUnice(pontajLit);
+
+    // Clase active din pontaj
+    const claseActive = new Set();
+    (pontajLit||[]).forEach(r => {
+      r.clase_grupe.split(',').forEach(c => { const t=c.trim(); if(t) claseActive.add(t); });
+    });
+
+    // Elevi unici din clasele active
+    const cnpSet = new Set(
+      (eleviAll||[])
+        .filter(ev => claseActive.has(ev.clasa_grupa) && ev.cnp)
+        .map(ev => ev.cnp)
+    );
+    const nrElevi = cnpSet.size;
+
+    const cont = extrageContiuturi(planLit) !== '—'
+      ? extrageContiuturi(planLit)
+      : 'activități de lectură ghidată, exerciții de înțelegere a textului, dezvoltarea vocabularului, exerciții de exprimare orală și scrisă, discuții tematice pe marginea textelor citite, activități de literație funcțională și alte activități adaptate nivelului de vârstă al elevilor';
+
+    const nExpTotal = (pontajLit||[]).length > 0 ? 1 : 0;
+    const nrRaport  = nrInreg?.nr_inregistrare || '';
+
+    return `
+    <div class="a4-page">
+      <img src="antet_pnras.jpeg" class="antet-img" onerror="this.style.display='none'">
+
+      <div class="nr-inreg-row">Nr. ${e('nr_inreg6', sv_('nr_inreg6', ''))}</div>
+
+      <div class="doc-title">Raport de activitate</div>
+      <div class="doc-sub">pentru</div>
+      <div class="doc-sub">Categoria II: Activități de prevenire, intervenție și compensare,</div>
+      <div class="doc-sub">II.5. Activități extracurriculare și/sau extrașcolare, inclusiv în parteneriate cu ONG</div>
+      <div class="doc-disc">Clubul de lectură și literație</div>
+      <div class="doc-luna"><strong>Luna: ${luna} ${an}</strong></div>
+
+      <!-- INTRO -->
+      <div class="sectiune s-intro">
+        <div class="sectiune-header" style="background:#1d4ed8;color:#fff">📋 Introducere</div>
+        <div class="sectiune-body" style="background:#fff">
+          <p class="e-para" contenteditable="true" data-field="ii6_intro" spellcheck="false">${sv_('ii6_intro',
+            `Prezentul raport lunar centralizator este întocmit pe baza documentelor lunare individuale elaborate de experții implicați în implementarea activităților din cadrul subactivității II.5. Activități extracurriculare și/sau extrașcolare, inclusiv în parteneriate cu ONG, respectiv în cadrul Clubului de lectură și literație.`)}</p>
+          <p class="e-para" contenteditable="true" data-field="ii6_intro2" spellcheck="false" style="margin-top:8px">${sv_('ii6_intro2',
+            `În perioada raportată, activitățile desfășurate în cadrul Clubului de lectură și literație s-au realizat conform planificării stabilite în cadrul proiectului, prin implicarea a ${nExpTotal} experți. Activitățile au avut ca scop stimularea interesului elevilor pentru lectură, dezvoltarea competențelor de literație, îmbunătățirea capacității de înțelegere și interpretare a textului, dezvoltarea exprimării orale și scrise, precum și consolidarea participării active a elevilor la activități educative cu caracter formativ.`)}</p>
+          <p class="e-para" contenteditable="true" data-field="ii6_intro3" spellcheck="false" style="margin-top:8px">${sv_('ii6_intro3',
+            `Conform rapoartelor lunare întocmite de experți, în luna de referință s-au realizat, cumulat, un număr de ${oreTotal} ore de activități extracurriculare desfășurate în cadrul Clubului de lectură și literație, în perioada ${perTotal}, cu participarea unui număr total de ${nrElevi} elevi beneficiari de gimnaziu.`)}</p>
+        </div>
+      </div>
+
+      <!-- CLUB LECTURĂ -->
+      <div class="sectiune s-romana">
+        <div class="sectiune-header" style="background:#1d4ed8;color:#fff">📚 Clubul de lectură și literație</div>
+        <div class="sectiune-body" style="background:#fff">
+          <ul class="e-list">
+            <li><span class="e-label">Expert implicat:</span><span class="e-val" contenteditable="true" data-field="ii6_expert" spellcheck="false">${sv_('ii6_expert', EXPERT_LIT)}</span></li>
+            <li><span class="e-label">Număr experți implicați:</span><span class="e-val" contenteditable="true" data-field="ii6_nexp" spellcheck="false">${sv_('ii6_nexp', nExpTotal)}</span></li>
+            <li><span class="e-label">Număr total ore desfășurate:</span><span class="e-val" contenteditable="true" data-field="ii6_ore" spellcheck="false">${sv_('ii6_ore', oreTotal)}</span></li>
+            <li><span class="e-label">Număr total elevi beneficiari:</span><span class="e-val" contenteditable="true" data-field="ii6_elevi" spellcheck="false">${sv_('ii6_elevi', nrElevi)}</span></li>
+            <li><span class="e-label">Perioada desfășurării activităților:</span><span class="e-val" contenteditable="true" data-field="ii6_per" spellcheck="false">${sv_('ii6_per', perTotal)}</span></li>
+            <li><span class="e-label">Clase/Grupe beneficiare:</span><span class="e-val" contenteditable="true" data-field="ii6_clase" spellcheck="false">${sv_('ii6_clase', clase||'—')}</span></li>
+            <li><span class="e-label">Conținuturi parcurse:</span><span class="e-val" contenteditable="true" data-field="ii6_cont" spellcheck="false">${sv_('ii6_cont', cont)}</span></li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- TOTAL -->
+      <div class="sectiune s-total">
+        <div class="sectiune-header" style="background:#1d4ed8;color:#fff">📊 Centralizator total — II.6. ${luna} ${an}</div>
+        <div class="sectiune-body" style="background:#fff">
+          <div class="stats-grid">
+            <div class="stat-box"><div class="s-label">Experți implicați</div><div class="s-val" contenteditable="true" data-field="ii6_tot_exp" spellcheck="false">${sv_('ii6_tot_exp', nExpTotal)}</div></div>
+            <div class="stat-box"><div class="s-label">Total ore desfășurate</div><div class="s-val" contenteditable="true" data-field="ii6_tot_ore" spellcheck="false">${sv_('ii6_tot_ore', oreTotal)}</div></div>
+            <div class="stat-box"><div class="s-label">Total elevi beneficiari</div><div class="s-val" contenteditable="true" data-field="ii6_tot_elevi" spellcheck="false">${sv_('ii6_tot_elevi', nrElevi)}</div></div>
+            <div class="stat-box"><div class="s-label">Perioada</div><div class="s-val" style="font-size:10pt" contenteditable="true" data-field="ii6_tot_per" spellcheck="false">${sv_('ii6_tot_per', perTotal)}</div></div>
+          </div>
+          <p class="e-para" contenteditable="true" data-field="ii6_text_total" spellcheck="false">${sv_('ii6_text_total',
+            `Per total, în cadrul subactivității II.5. Activități extracurriculare și/sau extrașcolare, inclusiv în parteneriate cu ONG, în luna ${luna} ${an}, au fost implicați ${nExpTotal} experți, au fost desfășurate ${oreTotal} ore de activități în cadrul Clubului de lectură și literație, iar numărul total al elevilor beneficiari a fost de ${nrElevi}.`)}</p>
+        </div>
+      </div>
+
+      <!-- EXPERT INDIVIDUAL -->
+      <div class="sectiune s-experti">
+        <div class="sectiune-header" style="background:#1d4ed8;color:#fff">👤 Situație individuală pe experți</div>
+        <div class="sectiune-body" style="background:#fff">
+          <div class="expert-grid">
+            <div class="expert-card" style="border-top:3px solid #1d4ed8">
+              <div class="expert-card-name">${EXPERT_LIT}</div>
+              <div class="expert-card-disc">Clubul de lectură și literație</div>
+              <div class="expert-card-rows">
+                <div class="expert-card-row"><span class="ec-label">Ore efectuate:</span><span class="ec-val" contenteditable="true" data-field="ii6_exp_ore" spellcheck="false">${sv_('ii6_exp_ore', oreTotal)}</span></div>
+                <div class="expert-card-row"><span class="ec-label">Total elevi:</span><span class="ec-val" contenteditable="true" data-field="ii6_exp_elevi" spellcheck="false">${sv_('ii6_exp_elevi', nrElevi)}</span></div>
+                <div class="expert-card-row"><span class="ec-label">Perioada:</span><span class="ec-val" contenteditable="true" data-field="ii6_exp_per" spellcheck="false">${sv_('ii6_exp_per', perTotal)}</span></div>
+                <div class="expert-card-row"><span class="ec-label">Clase/Grupe:</span><span class="ec-val" contenteditable="true" data-field="ii6_exp_clase" spellcheck="false">${sv_('ii6_exp_clase', clase||'—')}</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CONCLUZII -->
+      <div class="sectiune s-concluzie">
+        <div class="sectiune-header" style="background:#1d4ed8;color:#fff">✅ Concluzii</div>
+        <div class="sectiune-body" style="background:#fff">
+          <p class="e-para" contenteditable="true" data-field="ii6_justif" spellcheck="false">${sv_('ii6_justif',
+            `Prezentul raport centralizator a fost întocmit pe baza documentelor justificative aferente activităților desfășurate, respectiv: planificarea lunară a activităților, orarul activităților, fișele de activitate, listele de prezență, listele de distribuție a pachetului alimentar, rapoartele de activitate, fișele individuale de pontaj, pontajul lunar și statele de plată.`)}</p>
+          <p class="e-para" contenteditable="true" data-field="ii6_concluzie" spellcheck="false" style="margin-top:8px">${sv_('ii6_concluzie',
+            `În concluzie, activitățile desfășurate în luna ${luna} ${an} în cadrul Clubului de lectură și literație s-au realizat conform rapoartelor transmise de experții implicați și au contribuit la atingerea obiectivelor urmărite prin proiect, prin stimularea interesului pentru lectură, dezvoltarea competențelor de literație și sprijinirea directă a elevilor beneficiari în procesul educațional.`)}</p>
+        </div>
+      </div>
+
+      <!-- SEMNĂTURI -->
+      <div class="semnaturi">
+        <div class="col"><strong>Întocmit,</strong>Manager proiect,<br>prof. dr. Ciprian MIHAI</div>
+        <div class="col"><strong>Avizat,</strong>Director,<br>prof. Cătălin Ionuț BAZILUC</div>
+      </div>
+    </div>`;
+  }
+
+  // ── PLACEHOLDER ──
+  function buildPlaceholder(sectionId, month) {
+    return `
+      <div class="a4-page">
+        <img src="antet_pnras.jpeg" class="antet-img" onerror="this.style.display='none'">
+        <div class="doc-title" style="margin-top:50mm">${sections[sectionId]}</div>
+        <div class="doc-luna"><strong>${month.name} ${month.year}</strong></div>
+        <div style="text-align:center;color:#9ca3af;font-family:'DM Sans',sans-serif;font-size:13px;margin-top:20px">Raport în curs de configurare</div>
+
+      </div>`;
+  }
+
+  // ── PRINT ──
+  function printRaport() {
+    window.print();
+  }
+
+  // ── CLOSE ──
+  function closeOverlay() {
+    document.getElementById('overlay').classList.remove('open');
+    document.body.style.overflow = '';
+    if (activeBtn) { activeBtn.classList.remove('active'); activeBtn = null; }
+    clearTimeout(saveTimer);
+    currentKey = null;
+  }
+
+  document.getElementById('overlay').addEventListener('click', e => {
+    if (e.target === document.getElementById('overlay')) closeOverlay();
+  });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeOverlay(); });
+</script>
+</body>
+</html>
