@@ -238,6 +238,136 @@
         .notite-ta { width: 100%; min-height: 80px; font-family: 'Inter', sans-serif; font-size: 13px; color: #333; border: 1px solid #fcd34d; border-radius: 6px; padding: 8px 10px; resize: vertical; background: #fff; transition: border-color 0.2s; line-height: 1.5; box-sizing: border-box; }
         .notite-ta:focus { outline: none; border-color: #f59e0b; }
         .notite-ta::placeholder { color: #d1d5db; font-style: italic; }
+
+        /* ===== GRAFIC ACTIVITATI PANEL ===== */
+        /* ===== GRAFIC ACTIVITATI PANEL ===== */
+        #grafic-panel {
+            display: none;
+            position: fixed;
+            bottom: 0; left: 0; right: 0;
+            height: auto;
+            max-height: 45vh;
+            background: #fff;
+            border-top: 3px solid #1e1b4b;
+            box-shadow: 0 -4px 20px rgba(30,27,75,0.18);
+            z-index: 500;
+            flex-direction: column;
+            font-family: 'Inter', sans-serif;
+        }
+        #grafic-panel.visible { display: flex; }
+
+        /* Buton tab deasupra panelului - mereu vizibil */
+        #grafic-tab-btn {
+            position: fixed;
+            bottom: 0; right: 24px;
+            background: #4f46e5; color: white;
+            border: none; border-radius: 10px 10px 0 0;
+            padding: 8px 22px; font-size: 12px; font-weight: 800;
+            cursor: pointer; font-family: 'Inter', sans-serif;
+            z-index: 499;
+            letter-spacing: 0.6px;
+            display: none;
+            box-shadow: 0 -3px 12px rgba(79,70,229,0.4);
+            transition: background 0.2s;
+        }
+        #grafic-tab-btn:hover { background: #4338ca; }
+        #grafic-tab-btn.visible { display: block; }
+
+        #grafic-header {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 4px 14px;
+            background: #1e1b4b; color: white; flex-shrink: 0;
+        }
+        #grafic-header-title {
+            font-size: 10px; font-weight: 800; letter-spacing: 0.8px; text-transform: uppercase;
+        }
+        #grafic-toggle-btn {
+            background: rgba(255,255,255,0.15); color: white; border: 1px solid rgba(255,255,255,0.35);
+            border-radius: 4px; padding: 2px 10px; font-size: 10px; font-weight: 700;
+            cursor: pointer; font-family: 'Inter', sans-serif;
+        }
+        #grafic-toggle-btn:hover { background: rgba(255,255,255,0.28); }
+
+        /* Tabel activitati */
+        #grafic-table-wrap {
+            overflow: hidden; flex: 1; display: flex; flex-direction: column;
+            padding-bottom: 8px; background: #fff;
+        }
+        #grafic-table {
+            display: grid;
+            grid-template-columns: 40% repeat(26, calc(60% / 26));
+            flex: 1;
+        }
+
+        /* Bara ani colorata deasupra lunilor */
+        .gt-year-bar {
+            font-size: 10px; font-weight: 900;
+            display: flex; align-items: center; justify-content: center;
+            border-right: 3px solid rgba(0,0,0,0.15);
+            letter-spacing: 0.5px;
+        }
+        .gt-year-bar.y2024 { background: #1d4ed8; color: white; }
+        .gt-year-bar.y2025 { background: #0f766e; color: white; }
+        .gt-year-bar.y2026 { background: #7c3aed; color: white; }
+
+        /* Header luni */
+        .gt-month-header {
+            font-size: 7.5px; font-weight: 800; color: #fff;
+            border-right: 1px solid rgba(255,255,255,0.25);
+            border-bottom: 2px solid rgba(0,0,0,0.1);
+            display: flex; align-items: center; justify-content: center;
+            padding: 2px 0; text-align: center; line-height: 1;
+        }
+        .gt-month-header.y2024 { background: #2563eb; }
+        .gt-month-header.y2025 { background: #0d9488; }
+        .gt-month-header.y2026 { background: #8b5cf6; }
+
+        /* Label activitate */
+        .gt-act-label {
+            font-size: 11px; font-weight: 700; color: #1e1b4b;
+            border-bottom: 1px solid #c7d2fe;
+            border-right: 3px solid #6366f1;
+            display: flex; align-items: center; gap: 5px;
+            padding: 2px 6px;
+            white-space: normal;
+            line-height: 1.3;
+            cursor: default;
+        }
+        .gt-act-label .gt-code-inline {
+            font-size: 8px; font-weight: 900; flex-shrink: 0;
+            padding: 1px 4px; border-radius: 3px; color: white;
+            align-self: flex-start; margin-top: 1px;
+        }
+        .gt-act-label .gt-name { white-space: normal; word-break: break-word; }
+        .gt-act-label.cat1 { background: #dbeafe; }
+        .gt-act-label.cat1 .gt-code-inline { background: #1d4ed8; }
+        .gt-act-label.cat2 { background: #fed7aa; }
+        .gt-act-label.cat2 .gt-code-inline { background: #c2410c; }
+        .gt-act-label.cat3 { background: #bbf7d0; }
+        .gt-act-label.cat3 .gt-code-inline { background: #15803d; }
+        .gt-act-label.cat4 { background: #e9d5ff; }
+        .gt-act-label.cat4 .gt-code-inline { background: #7c3aed; }
+
+        /* Celule calendar */
+        .gt-cell {
+            border-bottom: 1px solid #c7d2fe;
+            border-right: 1px solid #e0e7ff;
+            background: #f8faff;
+            cursor: default;
+        }
+        .gt-cell.active { background: #6366f1; }
+        .gt-cell.y2024.active { background: #2563eb; }
+        .gt-cell.y2025.active { background: #0d9488; }
+        .gt-cell.y2026.active { background: #8b5cf6; }
+
+        /* Celula goala din coltul stanga sus (header ani / label) */
+        .gt-corner {
+            background: #1e1b4b;
+            border-right: 3px solid #6366f1;
+            border-bottom: 2px solid rgba(0,0,0,0.1);
+        }
+
+        body.grafic-open #folder-wrapper { height: calc(100vh - 110px - var(--grafic-h, 360px)); }
         .notite-status { font-size: 11px; color: #aaa; text-align: right; min-height: 16px; margin-top: 4px; }
         .notite-status.salvat { color: #0d9488; }
         .notite-status.eroare { color: #dc2626; }
@@ -612,6 +742,9 @@ async function r2DeleteFile(publicUrl, bucketKey) {
     }
     let navigationStack = [];
     let currentView = { type: 'root' };
+    const RAPORT_TEHNIC_ID = '00000000-0000-0000-0000-000000000003';
+    // Expunem pentru scriptul de grafic
+    window._auditNavStack = () => navigationStack;
     restaureazaState();
     let uploadTargetCardId = null;
     let uploadTargetParentId = null;
@@ -756,6 +889,8 @@ async function r2DeleteFile(publicUrl, bucketKey) {
         } else if (currentView.type === 'istoric') {
             await afiseazaIstoric(currentView.cardId);
         }
+        // Aratam/ascundem graficul de activitati in functie de view
+        if (typeof showOrHideGraficForView === 'function') showOrHideGraficForView();
     }
 
     async function recalculeazaToatePaginile() {
@@ -2131,6 +2266,7 @@ async function r2DeleteFile(publicUrl, bucketKey) {
                     '<button class="btn-action btn-file" onclick="adaugaFisier(\'' + cardId + '\', ' + parentArg + ')">&#128196; Fișier</button>' +
                     '<button class="btn-action btn-history" onclick="veziIstoricCard(\'' + cardId + '\')">&#128337; Istoric</button>' +
                     '<button class="btn-action" style="background:#059669;" onclick="descarcaDosarCurent(\'' + cardId + '\', ' + parentArg + ', \'' + titluFolderCurent.replace(/'/g, "\\'") + '\')">&#128230; Descarcă dosar</button>' +
+                    (cardId === RAPORT_TEHNIC_ID || navigationStack.some(i => i.id === RAPORT_TEHNIC_ID || i.cardId === RAPORT_TEHNIC_ID) ? '<button id="btn-grafic-activitati" class="btn-action" style="background:#4f46e5;margin-left:auto;" onclick="toggleGraficPanel(); setTimeout(actualizezBtnGrafic,50);">&#128200; ' + (window.graficPanelOpen ? 'Ascunde grafic activități' : 'Vezi grafic activități') + '</button>' : '') +
                 '</div>';
 
         if (itemsFiltrate.length === 0) {
@@ -2148,6 +2284,10 @@ async function r2DeleteFile(publicUrl, bucketKey) {
         const containerNormal = document.getElementById('container-normal');
         wrapper.style.display = 'flex';
         containerNormal.style.display = 'none';
+        // Ajustam inaltimea in functie de panelul graficului
+        const graficVisible = window.graficPanelOpen &&
+            navigationStack.some(item => item.id === RAPORT_TEHNIC_ID || item.cardId === RAPORT_TEHNIC_ID);
+        wrapper.style.height = graficVisible ? 'calc(100vh - 110px - 340px)' : 'calc(100vh - 110px)';
         wrapper.innerHTML = leftCol + rightCol;
         initDragSort();
         const ta = document.getElementById('notite-ta');
@@ -2906,5 +3046,204 @@ async function r2DeleteFile(publicUrl, bucketKey) {
 </script>
 
     <div id="toast" class="toast"></div>
+<!-- ===== GRAFIC ACTIVITATI PANEL ===== -->
+<button id="grafic-tab-btn" onclick="toggleGraficPanel()">📊 Grafic Activități ▲</button>
+<div id="grafic-panel">
+    <div id="grafic-header">
+        <span id="grafic-header-title">📊 Grafic Activități PNRAS</span>
+        <button id="grafic-toggle-btn" onclick="toggleGraficPanel()">▼ Ascunde</button>
+    </div>
+    <div id="grafic-table-wrap">
+        <div id="grafic-table">
+            <!-- Randat dinamic din JS -->
+        </div>
+    </div>
+</div></div>
+
+<script>
+// ===== GRAFIC ACTIVITATI — compact, read-only =====
+
+const gTimeline = [
+    {year:"2024",id:"L1",name:"Mai"},{year:"2024",id:"L2",name:"Iun"},{year:"2024",id:"L3",name:"Iul"},{year:"2024",id:"L4",name:"Aug"},{year:"2024",id:"L5",name:"Sep"},{year:"2024",id:"L6",name:"Oct"},{year:"2024",id:"L7",name:"Noi"},{year:"2024",id:"L8",name:"Dec"},
+    {year:"2025",id:"L9",name:"Ian"},{year:"2025",id:"L10",name:"Feb"},{year:"2025",id:"L11",name:"Mar"},{year:"2025",id:"L12",name:"Apr"},{year:"2025",id:"L13",name:"Mai"},{year:"2025",id:"L14",name:"Iun"},{year:"2025",id:"L15",name:"Iul"},{year:"2025",id:"L16",name:"Aug"},{year:"2025",id:"L17",name:"Sep"},{year:"2025",id:"L18",name:"Oct"},{year:"2025",id:"L19",name:"Noi"},{year:"2025",id:"L20",name:"Dec"},
+    {year:"2026",id:"L21",name:"Ian"},{year:"2026",id:"L22",name:"Feb"},{year:"2026",id:"L23",name:"Mar"},{year:"2026",id:"L24",name:"Apr"},{year:"2026",id:"L25",name:"Mai"},{year:"2026",id:"L26",name:"Iun"}
+];
+
+const gActs = [
+    {code:"I.1.", cat:1, name:"Aplicarea chestionarului SASAT, de evaluare a succesului școlar, în rândul elevilor de gimnaziu"},
+    {code:"I.2.", cat:1, name:"Aplicarea Fișei de observare și a Fișei de evaluare MATE"},
+    {code:"I.3.", cat:1, name:"Completarea și validarea Observatorului Școlii"},
+    {code:"I.4.", cat:1, name:"Introducerea datelor în SIIIR, actualizarea periodică a datelor în SIIIR"},
+    {code:"II.1.", cat:2, name:"Activități de prevenire și combatere a violenței și bullying-ului"},
+    {code:"II.2.", cat:2, name:"Activități de formare a profesorilor online/fizic"},
+    {code:"II.3.", cat:2, name:"Servicii de masă caldă/rece pentru elevi"},
+    {code:"II.4.", cat:2, name:"Activități remediale și sprijin pedagogic"},
+    {code:"II.5.", cat:2, name:"Activități extracurriculare în parteneriat ONG"},
+    {code:"II.6.", cat:2, name:"Club de lectură - dezvoltarea literației"},
+    {code:"II.7.", cat:2, name:"Subvenții, ajutoare și premii beneficiari"},
+    {code:"III.1.", cat:3, name:"Amenajări minore și achiziție bunuri"},
+    {code:"III.2.", cat:3, name:"Realizarea materialelor de promovare"},
+    {code:"IV.1.", cat:4, name:"Achiziție echipamente hardware"},
+    {code:"IV.2.", cat:4, name:"Achiziție licențe software și resurse digitale"},
+    {code:"IV.3.", cat:4, name:"Cursuri training utilizare hardware/software"}
+];
+
+// schedule[code] = array de L-id, docs[code][key] = array documente
+const gData = {};
+gActs.forEach(a => { gData[a.code] = { schedule: [], docs: {} }; });
+
+window.graficPanelOpen = false;
+let graficPanelOpen = false;
+let graficDataLoaded = false;
+
+function getGBlockKey(code, mid) {
+    const separateActs = ["II.3.","II.4.","II.5.","II.6."];
+    if (separateActs.includes(code)) return mid;
+    const sched = gData[code].schedule;
+    if (!sched.includes(mid)) return mid;
+    const sorted = [...sched].sort((x,y) => parseInt(x.slice(1)) - parseInt(y.slice(1)));
+    let curr = parseInt(mid.slice(1));
+    while (sorted.includes("L"+(curr-1))) curr--;
+    return "L"+curr;
+}
+
+function isFinished(code, mid) {
+    const key = getGBlockKey(code, mid);
+    const docs = gData[code].docs[key] || [];
+    return docs.length > 0 && docs.every(d => d.done);
+}
+
+async function gInit() {
+    if (graficDataLoaded) return;
+    const { data } = await db.from('grafic_activitati').select('activity_code, schedule, documents');
+    if (data) data.forEach(r => {
+        if (gData[r.activity_code]) {
+            gData[r.activity_code].schedule = r.schedule || [];
+            const raw = r.documents || {};
+            const clean = { ...raw };
+            delete clean._justificari;
+            gData[r.activity_code].docs = clean;
+        }
+    });
+    graficDataLoaded = true;
+    gRenderTable();
+}
+
+function gRenderTable() {
+    const wrap = document.getElementById('grafic-table');
+    if (!wrap) return;
+
+    // Randuri: 1 bara ani + 1 header luni + N activitati
+    const totalRows = 2 + gActs.length;
+    wrap.style.gridTemplateRows = `repeat(${totalRows}, 1fr)`;
+
+    // Grupam lunile pe ani
+    const years = ['2024','2025','2026'];
+    const yearCounts = {};
+    years.forEach(y => { yearCounts[y] = gTimeline.filter(t => t.year === y).length; });
+    const yCls = {'2024':'y2024','2025':'y2025','2026':'y2026'};
+
+    let html = '';
+
+    // --- ROW 0: BARA ANI ---
+    html += '<div class="gt-corner"></div>';
+    years.forEach(y => {
+        html += `<div class="gt-year-bar ${yCls[y]}" style="grid-column:span ${yearCounts[y]}">${y}</div>`;
+    });
+
+    // --- ROW 1: HEADER LUNI ---
+    html += '<div class="gt-act-label" style="font-size:9px;font-weight:900;color:#1e1b4b;background:#c7d2fe;border-bottom:2px solid #6366f1;">Activitate</div>';
+    gTimeline.forEach(m => {
+        html += `<div class="gt-month-header ${yCls[m.year]}">${m.name}</div>`;
+    });
+
+    // --- RANDURI ACTIVITATI ---
+    const catClass = {1:'cat1', 2:'cat2', 3:'cat3', 4:'cat4'};
+
+    gActs.forEach(act => {
+        const cc = catClass[act.cat];
+        const tooltip = `${act.code} — ${act.name}`;
+        html += `<div class="gt-act-label ${cc}" title="${tooltip}">
+            <span class="gt-code-inline">${act.code}</span>
+            <span class="gt-name">${act.name}</span>
+        </div>`;
+        gTimeline.forEach(m => {
+            const inSched = gData[act.code].schedule.includes(m.id);
+            let cls = `gt-cell ${yCls[m.year]}`;
+            if (inSched) cls += ' active';
+            html += `<div class="${cls}" title="${act.code} — ${act.name} (${m.name} ${m.year})"></div>`;
+        });
+    });
+
+    wrap.innerHTML = html;
+
+    requestAnimationFrame(() => {
+        const panel = document.getElementById('grafic-panel');
+        const h = panel ? panel.offsetHeight : 360;
+        document.documentElement.style.setProperty('--grafic-h', h + 'px');
+        const fw = document.getElementById('folder-wrapper');
+        if (fw && fw.style.display !== 'none' && window.graficPanelOpen) {
+            fw.style.height = `calc(100vh - 110px - ${h}px)`;
+        }
+    });
+}
+
+function showGraficPanel() {
+    const panel = document.getElementById('grafic-panel');
+    const tab = document.getElementById('grafic-tab-btn');
+    panel.classList.add('visible');
+    if (tab) tab.classList.remove('visible');
+    document.body.classList.add('grafic-open');
+    graficPanelOpen = true; window.graficPanelOpen = true;
+    actualizezBtnGrafic();
+    gInit().then(() => {
+        requestAnimationFrame(() => {
+            const panel = document.getElementById('grafic-panel');
+            const h = panel ? panel.offsetHeight : 360;
+            document.documentElement.style.setProperty('--grafic-h', h + 'px');
+            const fw = document.getElementById('folder-wrapper');
+            if (fw && fw.style.display !== 'none') fw.style.height = `calc(100vh - 110px - ${h}px)`;
+        });
+    });
+}
+
+function hideGraficPanel() {
+    const panel = document.getElementById('grafic-panel');
+    const tab = document.getElementById('grafic-tab-btn');
+    panel.classList.remove('visible');
+    if (tab) tab.classList.add('visible');
+    document.body.classList.remove('grafic-open');
+    graficPanelOpen = false; window.graficPanelOpen = false;
+    actualizezBtnGrafic();
+    const fw = document.getElementById('folder-wrapper');
+    if (fw && fw.style.display !== 'none') fw.style.height = 'calc(100vh - 110px)';
+}
+
+function toggleGraficPanel() {
+    if (graficPanelOpen) hideGraficPanel(); else showGraficPanel();
+}
+
+function actualizezBtnGrafic() {
+    const btn = document.getElementById('btn-grafic-activitati');
+    if (!btn) return;
+    btn.innerHTML = '&#128200; ' + (window.graficPanelOpen ? 'Ascunde grafic activități' : 'Vezi grafic activități');
+}
+
+function showOrHideGraficForView() {
+    const stack = window._auditNavStack ? window._auditNavStack() : [];
+    const isInRaportTehnic = stack.some(item => item.id === RAPORT_TEHNIC_ID || item.cardId === RAPORT_TEHNIC_ID);
+    if (isInRaportTehnic) {
+        // Aratam doar tabul - panelul ramane colapsat pana utilizatorul il deschide
+        if (!graficPanelOpen) {
+            const tab = document.getElementById('grafic-tab-btn');
+            if (tab) tab.classList.add('visible');
+        }
+    } else {
+        hideGraficPanel();
+        const tab = document.getElementById('grafic-tab-btn');
+        if (tab) tab.classList.remove('visible');
+    }
+}
+</script>
 </body>
 </html>
