@@ -452,6 +452,15 @@
   let saveTimer = null;
   let currentKey = null;
 
+  // ── TEST CONEXIUNE SUPABASE la pornire ──
+  (async () => {
+    try {
+      const { error } = await sb.from('rapoarte_salvate').select('id').limit(1);
+      if (error) console.error('Supabase conectare eșuată:', error);
+      else console.log('✅ Supabase conectat OK');
+    } catch(e) { console.error('Supabase eroare:', e); }
+  })();
+
   // ── BUILD MONTH BUTTONS ──
   ['I4','II4','II5','II6'].forEach(id => {
     const grid = document.getElementById('months-' + id);
@@ -509,10 +518,12 @@
     const page = document.querySelector('.a4-page');
     if (!page) return;
 
-    // Colectăm toate câmpurile editabile
+    // Salvăm innerHTML pentru câmpurile I4 (conțin HTML cu liste/formatare)
+    // și innerText pentru câmpurile simple (span-uri editabile)
     const fields = {};
     page.querySelectorAll('[data-field]').forEach(el => {
-      fields[el.dataset.field] = el.innerText.trim();
+      const isRichBox = el.tagName === 'DIV' && el.classList.contains('e-para');
+      fields[el.dataset.field] = isRichBox ? el.innerHTML : el.innerText.trim();
     });
 
     try {
@@ -525,11 +536,12 @@
         updated_at: new Date().toISOString()
       }, { onConflict: 'sectiune,luna,an' });
 
-      if (error) throw error;
+      if (error) { console.error('Supabase error:', error); throw error; }
       setStatus('saved', '✅ Salvat');
       setTimeout(() => setStatus(''), 2500);
     } catch(e) {
-      setStatus('error', '❌ Eroare salvare');
+      console.error('Save failed:', e);
+      setStatus('error', '❌ Eroare salvare: ' + (e.message || e));
     }
   }
 
@@ -595,8 +607,8 @@
   // Conținuturi implicite per lună (cheie = "Luna AAAA")
   const I4_DEFAULTS = {
     'Ianuarie 2025': {
-      titlu:    'RAPORT',
-      preambul: 'Întocmit pentru activitatea desfășurată de către Responsabilul modulului MATE din SIIIR, desemnat prin Decizia nr. 2/24.05.2024, de numire a Comisiei de implementare a proiectului „Fii unul dintre C.R.A.I.! (Creativitate, Reziliență, Adaptabilitate, Incluziune)".',
+      titlu:    'RAPORT DE ACTIVITATE',
+      preambul: 'Raport întocmit pentru activitatea desfășurată de către Responsabilul modulului MATE din SIIIR, doamna Hasmațuchi Otilia, desemnată prin Decizia nr. 2/24.05.2024, de numire a Comisiei de implementare a proiectului „Fii unul dintre C.R.A.I.! (Creativitate, Reziliență, Adaptabilitate, Incluziune)".',
       scop: [
         'În luna Ianuarie 2025, în cadrul activității I.4. Introducerea datelor în SIIIR, actualizarea periodică a datelor în SIIIR, au fost desfășurate activități specifice de verificare, actualizare, corelare, monitorizare și gestionare a datelor necesare sprijinirii aplicării chestionarului SASAT, de evaluare a succesului școlar, în rândul elevilor de gimnaziu.',
         'Activitatea a avut ca scop asigurarea unei evidențe corecte și actualizate a datelor relevante pentru desfășurarea în bune condiții a procesului de aplicare a chestionarului, susținerea monitorizării succesului școlar, precum și corelarea informațiilor obținute cu evidențele școlare și cu datele existente în modulul MATE din SIIIR.',
@@ -725,29 +737,56 @@
       ],
     };
 
-    // O singură casetă editabilă per secțiune
-    const box = (field, html) =>
-      `<div class="e-para" contenteditable="true" data-field="${field}" spellcheck="false" style="min-height:3em">${sv_(field, html)}</div>`;
+    // Migrare: preia textul editat de utilizator din cheile vechi și îl pune în cheile noi
+    const migrateOldFields = () => {
+      if (sv['i4_scop'] === undefined) {
+        const parts = [];
+        for (let i = 1; i <= 5; i++) { if (sv[`i4_scop${i}`] !== undefined) parts.push(sv[`i4_scop${i}`]); }
+        if (parts.length) sv['i4_scop'] = parts.join('\n\n');
+      }
+      if (sv['i4_act'] === undefined) {
+        const intro = sv['i4_act_intro'];
+        const items = [];
+        for (let i = 1; i <= 20; i++) { if (sv[`i4_a${i}`] !== undefined) items.push(sv[`i4_a${i}`]); }
+        if (intro !== undefined || items.length)
+          sv['i4_act'] = (intro !== undefined ? intro + '\n' : '') + items.map(t => '\u2022 ' + t).join('\n');
+      }
+      if (sv['i4_rez'] === undefined) {
+        const intro = sv['i4_rez_intro'];
+        const items = [];
+        for (let i = 1; i <= 10; i++) { if (sv[`i4_r${i}`] !== undefined) items.push(sv[`i4_r${i}`]); }
+        if (intro !== undefined || items.length)
+          sv['i4_rez'] = (intro !== undefined ? intro + '\n' : '') + items.map(t => '\u2022 ' + t).join('\n');
+      }
+      if (sv['i4_conc'] === undefined) {
+        const parts = [];
+        for (let i = 1; i <= 5; i++) { if (sv[`i4_conc${i}`] !== undefined) parts.push(sv[`i4_conc${i}`]); }
+        if (parts.length) sv['i4_conc'] = parts.join('\n\n');
+      }
+    };
+    migrateOldFields();
 
-    // Helper: construiește HTML curat cu <p> intro + <p> per bullet
-    const listHtml = (intro, items) =>
-      `<p style="margin:0 0 2px 0;text-indent:1.2cm">${intro}</p>` +
-      items.map(i => `<p style="margin:0;padding-left:1.2cm;text-indent:-0.5em">• ${i}</p>`).join('');
+    const svRich = (field, defaultText) => {
+      if (sv[field] === undefined) return defaultText;
+      const val = sv[field];
+      // Dacă e HTML (salvare veche cu <p>), convertim în text simplu
+      if (/<[a-z][\s\S]*>/i.test(val)) {
+        const tmp = document.createElement('div');
+        tmp.innerHTML = val;
+        tmp.querySelectorAll('p, li').forEach(el => el.insertAdjacentText('afterend', '\n'));
+        return tmp.innerText.replace(/\n{3,}/g, '\n\n').trim();
+      }
+      return val;
+    };
 
-    // Helper: paragrafe multiple
-    const parasHtml = (arr) => arr.map(t => `<p style="margin:0 0 6px 0;text-align:justify;text-indent:1.2cm">${t}</p>`).join('');
+    const box = (field, defaultText) =>
+      `<div class="e-para" contenteditable="true" data-field="${field}" spellcheck="false" style="min-height:3em;white-space:pre-wrap">${svRich(field, defaultText)}</div>`;
 
-    // Scop — paragrafe
-    const scopHtml = parasHtml(def.scop);
-
-    // Activități — intro + lista
-    const actHtml = listHtml(def.act_intro, def.activitati);
-
-    // Rezultate — intro + lista
-    const rezHtml = listHtml(def.rez_intro, def.rezultate);
-
-    // Concluzii — paragrafe
-    const concHtml = parasHtml(def.concluzii);
+    // Text simplu pentru fiecare secțiune — exact ca preambulul
+    const scopText  = def.scop.join('\n\n');
+    const actText   = def.act_intro + '\n' + def.activitati.map(a => '• ' + a).join('\n');
+    const rezText   = def.rez_intro + '\n' + def.rezultate.map(r => '• ' + r).join('\n');
+    const concText  = def.concluzii.join('\n\n');
 
     return `
     <div class="a4-page">
@@ -755,7 +794,7 @@
 
       <div class="nr-inreg-row">Nr. <span contenteditable="true" data-field="i4_nr" spellcheck="false" style="min-width:2em;max-width:3em;display:inline-block;border-bottom:1px dashed #d1d5db;outline:none;padding:0 2px" oninput="if(this.innerText.length>3)this.innerText=this.innerText.slice(0,3)">${sv_('i4_nr', '')}</span>&nbsp;/&nbsp;${e('i4_data', sv_('i4_data', ''))}</div>
 
-      <div class="doc-title">${sv_('i4_titlu', def.titlu)}</div>
+      <div class="doc-title">${def.titlu}</div>
       <div class="doc-sub">privind activitatea desfășurată în cadrul activității</div>
       <div class="doc-sub">I.4. Introducerea datelor în SIIIR, actualizarea periodică a datelor în SIIIR</div>
       <div class="doc-luna"><strong>Luna raportată: ${luna.toLowerCase()} ${an}</strong></div>
@@ -765,25 +804,25 @@
       <!-- SCOP -->
       <div class="sectiune">
         <div class="sectiune-header" style="background:#b45309;color:#fff">🎯 Scopul activității</div>
-        <div class="sectiune-body" style="background:#fff">${box('i4_scop', scopHtml)}</div>
+        <div class="sectiune-body" style="background:#fff">${box('i4_scop', scopText)}</div>
       </div>
 
       <!-- ACTIVITĂȚI DESFĂȘURATE -->
       <div class="sectiune">
         <div class="sectiune-header" style="background:#b45309;color:#fff">📋 Activități desfășurate</div>
-        <div class="sectiune-body" style="background:#fff">${box('i4_act', actHtml)}</div>
+        <div class="sectiune-body" style="background:#fff">${box('i4_act', actText)}</div>
       </div>
 
       <!-- REZULTATE -->
       <div class="sectiune">
         <div class="sectiune-header" style="background:#b45309;color:#fff">✅ Rezultate obținute</div>
-        <div class="sectiune-body" style="background:#fff">${box('i4_rez', rezHtml)}</div>
+        <div class="sectiune-body" style="background:#fff">${box('i4_rez', rezText)}</div>
       </div>
 
       <!-- CONCLUZII -->
       <div class="sectiune">
         <div class="sectiune-header" style="background:#b45309;color:#fff">📌 Concluzii</div>
-        <div class="sectiune-body" style="background:#fff">${box('i4_conc', concHtml)}</div>
+        <div class="sectiune-body" style="background:#fff">${box('i4_conc', concText)}</div>
       </div>
 
       <!-- SEMNĂTURI 3 coloane -->
@@ -1432,6 +1471,26 @@
     e.preventDefault();
     insertTab(e.shiftKey);
   });
+
+  // ── RESET ──
+  async function resetRaport() {
+    if (!confirm('Ștergi toate modificările pentru această lună și reîncarci textul implicit?')) return;
+    if (!activeBtn) return;
+    const parts = currentKey.split('_');
+    const sectionId = parts[0];
+    const luna = parts[1];
+    const year = parts[2];
+    try {
+      await sb.from('rapoarte_salvate').delete()
+        .eq('sectiune', sectionId).eq('luna', luna).eq('an', parseInt(year));
+      setStatus('saved', '✅ Resetat');
+      // Reîncarcă raportul
+      const month = months.find(m => m.name === luna && m.year === year);
+      if (month) await openReport(sectionId, month, activeBtn);
+    } catch(e) {
+      setStatus('error', '❌ Eroare reset: ' + e.message);
+    }
+  }
 
   // ── PRINT ──
   function printRaport() {
