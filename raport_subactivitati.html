@@ -52,6 +52,8 @@
     .month-btn { background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.08); border-radius: 8px; padding: 7px 4px; cursor: pointer; color: rgba(255,255,255,.6); font-family: 'DM Sans',sans-serif; font-size: 11px; text-align: center; line-height: 1.3; transition: background .2s, border-color .2s, color .2s; }
     .month-btn:hover { background: rgba(201,168,76,.12); border-color: rgba(201,168,76,.35); color: var(--gold-light); }
     .month-btn.active { background: rgba(201,168,76,.2); border-color: var(--gold); color: var(--gold-light); }
+    #months-I4 .month-btn:hover  { background: rgba(180,83,9,.15); border-color: rgba(180,83,9,.5); color: #fbbf24; }
+    #months-I4 .month-btn.active { background: rgba(180,83,9,.25); border-color: #b45309; color: #fbbf24; }
     .month-btn .mn { display: block; font-weight: 500; }
     .month-btn .my { display: block; font-size: 10px; opacity: .6; }
     footer { text-align: center; margin-top: 3rem; font-size: 12px; color: rgba(255,255,255,.2); letter-spacing: .05em; }
@@ -64,22 +66,57 @@
       position: sticky; top: 0; z-index: 10;
       background: rgba(10,20,45,.97);
       border-bottom: 1px solid rgba(201,168,76,.2);
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 10px 24px; gap: 12px;
+      display: flex; flex-direction: column;
       backdrop-filter: blur(8px);
+    }
+    .topbar-row1 {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 8px 16px; gap: 12px;
     }
     .overlay-label { font-size: 13px; color: rgba(255,255,255,.5); letter-spacing: .04em; flex: 1; }
     .save-status { font-size: 12px; font-weight: 500; min-width: 100px; text-align: center; }
     .save-status.saving { color: #fbbf24; }
     .save-status.saved  { color: #10b981; }
     .save-status.error  { color: #ef4444; }
-
     .topbar-actions { display: flex; gap: 8px; }
     .tb-btn { border-radius: 8px; font-family: 'DM Sans',sans-serif; font-size: 12px; padding: 6px 14px; cursor: pointer; transition: background .2s; border: 1px solid rgba(255,255,255,.15); white-space: nowrap; }
     .tb-btn.close { background: rgba(255,255,255,.07); color: rgba(255,255,255,.75); }
     .tb-btn.print { background: rgba(201,168,76,.15); color: var(--gold-light); border-color: rgba(201,168,76,.3); }
     .tb-btn.close:hover { background: rgba(255,255,255,.14); }
     .tb-btn.print:hover { background: rgba(201,168,76,.28); }
+
+    /* ── EDITOR TOOLBAR ── */
+    .editor-toolbar {
+      display: flex; align-items: center; flex-wrap: wrap; gap: 2px;
+      padding: 5px 16px 7px;
+      border-top: 1px solid rgba(255,255,255,.06);
+      background: rgba(15,25,55,.95);
+    }
+    .tb-sep { width: 1px; height: 22px; background: rgba(255,255,255,.15); margin: 0 4px; flex-shrink: 0; }
+    .tb-group { display: flex; align-items: center; gap: 2px; }
+    .et-btn {
+      display: flex; align-items: center; justify-content: center;
+      width: 28px; height: 26px; border-radius: 5px; border: none;
+      background: transparent; color: rgba(255,255,255,.75);
+      cursor: pointer; font-size: 13px; font-family: 'DM Sans', sans-serif;
+      transition: background .15s, color .15s; flex-shrink: 0;
+    }
+    .et-btn:hover   { background: rgba(255,255,255,.12); color: #fff; }
+    .et-btn.active  { background: rgba(201,168,76,.25); color: var(--gold-light); }
+    .et-btn.wide    { width: auto; padding: 0 8px; font-size: 12px; }
+    .et-select {
+      background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.12);
+      color: rgba(255,255,255,.8); border-radius: 5px; font-size: 12px;
+      font-family: 'DM Sans', sans-serif; padding: 2px 4px; height: 26px;
+      cursor: pointer; outline: none;
+    }
+    .et-select:focus { border-color: rgba(201,168,76,.4); }
+    .et-color {
+      width: 28px; height: 26px; border-radius: 5px; border: 1px solid rgba(255,255,255,.15);
+      padding: 2px; cursor: pointer; background: rgba(255,255,255,.07);
+    }
+    /* Color indicator strip under B/I/U */
+    .et-btn[data-cmd="foreColor"] { position: relative; }
 
     .overlay-body { flex: 1; overflow-y: auto; padding: 2rem 1rem 5rem; display: flex; flex-direction: column; align-items: center; }
 
@@ -103,6 +140,8 @@
       font-size: 11pt;
       line-height: 1.6;
       position: relative;
+      display: flex;
+      flex-direction: column;
     }
     .a4-page + .a4-page { margin-top: 14px; }
 
@@ -136,6 +175,8 @@
     .sectiune-body {
       padding: 10px 14px;
       font-size: 11pt; line-height: 1.7;
+      box-sizing: border-box;
+      width: 100%;
     }
 
     /* Culori secțiuni */
@@ -162,18 +203,21 @@
     .s-experti  { border: none; }
     .s-experti  .sectiune-header { background:#1d4ed8;color:#fff; }
     .s-experti  .sectiune-body   { background: #fff; padding: 10px 14px; }
-
-    /* Paragrafe editabile */
     .e-para {
       text-align: justify;
-      text-indent: 1.2cm;
       outline: none;
       border-radius: 4px;
       transition: background .15s;
       min-height: 1.4em;
+      display: block;
+      width: 100%;
+      box-sizing: border-box;
     }
     .e-para:focus { background: rgba(59,130,246,.05); text-decoration: none; }
     .e-para:hover:not(:focus) { background: rgba(0,0,0,.025); }
+    /* Prevent double bullets inside editable boxes */
+    .e-para ul, .e-para ol { margin: 0; padding-left: 1.2em; }
+    .e-para li { margin: 0; padding: 0; }
 
     /* Bullet list editabila */
     .e-list { list-style: none; margin: 0; padding: 0; }
@@ -215,10 +259,13 @@
     .ec-val:focus { background: rgba(59,130,246,.05); border-bottom-color: #93c5fd; }
 
     /* Semnături */
-    .semnaturi { display: flex; justify-content: space-between; margin-top: 28px; font-size: 10.5pt; break-inside: avoid; page-break-inside: avoid; break-before: avoid; page-break-before: avoid; }
+    .semnaturi { display: flex; justify-content: space-between; margin-top: auto; padding-top: 28px; font-size: 10.5pt; break-inside: avoid; page-break-inside: avoid; break-before: avoid; page-break-before: avoid; }
     .semnaturi .col { text-align: center; line-height: 1.7; }
     .semnaturi .col strong { display: block; }
-
+    /* Semnături 3 coloane (I.4.) */
+    .semnaturi3 { display: flex; justify-content: space-between; margin-top: auto; padding-top: 28px; font-size: 10.5pt; break-inside: avoid; page-break-inside: avoid; break-before: avoid; page-break-before: avoid; gap: 10px; }
+    .semnaturi3 .col { text-align: center; line-height: 1.7; flex: 1; }
+    .semnaturi3 .col strong { display: block; }
     /* Footer pagina */
     .page-footer-line {
       margin-top: 18px;
@@ -257,6 +304,10 @@
 
   <nav class="nav-grid" aria-label="Subactivități">
     <div>
+      <div class="nav-header"><span class="btn-code" style="color:#f59e0b">I.4.</span><span class="btn-title">Introducerea datelor în SIIIR</span></div>
+      <div class="months-grid" id="months-I4"></div>
+    </div>
+    <div>
       <div class="nav-header"><span class="btn-code">II.4.</span><span class="btn-title">Activități remediale</span></div>
       <div class="months-grid" id="months-II4"></div>
     </div>
@@ -276,11 +327,92 @@
 <!-- OVERLAY -->
 <div class="overlay" id="overlay">
   <div class="overlay-topbar">
-    <span class="overlay-label" id="overlay-label"></span>
-    <span class="save-status" id="save-status"></span>
-    <div class="topbar-actions">
-      <button class="tb-btn print" onclick="printRaport()">🖨️ Printează</button>
-      <button class="tb-btn close" onclick="closeOverlay()">✕ Închide</button>
+    <!-- Row 1: label + actions -->
+    <div class="topbar-row1">
+      <span class="overlay-label" id="overlay-label"></span>
+      <span class="save-status" id="save-status"></span>
+      <div class="topbar-actions">
+        <button class="tb-btn print" onclick="printRaport()">🖨️ Printează</button>
+        <button class="tb-btn close" onclick="closeOverlay()">✕ Închide</button>
+      </div>
+    </div>
+    <!-- Row 2: editor toolbar -->
+    <div class="editor-toolbar" id="editor-toolbar" style="display:none" onmousedown="event.preventDefault()">
+      <!-- Undo / Redo -->
+      <div class="tb-group">
+        <button class="et-btn" title="Anulează (Ctrl+Z)" onclick="cmd('undo')">↩</button>
+        <button class="et-btn" title="Refă (Ctrl+Y)" onclick="cmd('redo')">↪</button>
+      </div>
+      <div class="tb-sep"></div>
+      <!-- Font family -->
+      <div class="tb-group">
+        <select class="et-select" title="Font" onchange="cmd('fontName', this.value)" id="tb-font" style="width:110px">
+          <option value="Times New Roman">Times New Roman</option>
+          <option value="Arial">Arial</option>
+          <option value="Calibri">Calibri</option>
+          <option value="Georgia">Georgia</option>
+          <option value="Verdana">Verdana</option>
+          <option value="Courier New">Courier New</option>
+        </select>
+      </div>
+      <!-- Font size -->
+      <div class="tb-group">
+        <select class="et-select" title="Dimensiune" onchange="cmd('fontSize', this.value)" id="tb-size" style="width:54px">
+          <option value="1">8</option>
+          <option value="2">10</option>
+          <option value="3" selected>11</option>
+          <option value="4">12</option>
+          <option value="5">14</option>
+          <option value="6">18</option>
+          <option value="7">24</option>
+        </select>
+      </div>
+      <div class="tb-sep"></div>
+      <!-- Bold / Italic / Underline / Strikethrough -->
+      <div class="tb-group">
+        <button class="et-btn" id="tb-bold"   title="Bold (Ctrl+B)" onclick="cmd('bold')"          style="font-weight:700">B</button>
+        <button class="et-btn" id="tb-italic" title="Italic (Ctrl+I)" onclick="cmd('italic')"       style="font-style:italic">I</button>
+        <button class="et-btn" id="tb-under"  title="Subliniat (Ctrl+U)" onclick="cmd('underline')" style="text-decoration:underline">U</button>
+        <button class="et-btn" id="tb-strike" title="Tăiat" onclick="cmd('strikeThrough')"          style="text-decoration:line-through">S</button>
+      </div>
+      <div class="tb-sep"></div>
+      <!-- Text color / Highlight -->
+      <div class="tb-group">
+        <input class="et-color" type="color" value="#000000" title="Culoare text" id="tb-fcolor"
+               onchange="cmd('foreColor', this.value)">
+        <input class="et-color" type="color" value="#ffff00" title="Evidențiere" id="tb-hcolor"
+               onchange="cmd('hiliteColor', this.value)">
+      </div>
+      <div class="tb-sep"></div>
+      <!-- Alignment -->
+      <div class="tb-group">
+        <button class="et-btn" title="Aliniere stânga"  onclick="cmd('justifyLeft')"   >&#8676;</button>
+        <button class="et-btn" title="Centrare"         onclick="cmd('justifyCenter')" >&#8677;</button>
+        <button class="et-btn" title="Aliniere dreapta" onclick="cmd('justifyRight')"  >&#8678;</button>
+        <button class="et-btn" title="Justify"          onclick="cmd('justifyFull')"   >&#8644;</button>
+      </div>
+      <div class="tb-sep"></div>
+      <!-- Lists -->
+      <div class="tb-group">
+        <button class="et-btn" title="Listă cu buline"   onclick="cmd('insertUnorderedList')">☰</button>
+        <button class="et-btn" title="Listă numerotată"  onclick="cmd('insertOrderedList')">≡</button>
+      </div>
+      <!-- Indent -->
+      <div class="tb-group">
+        <button class="et-btn" title="Indentare (Tab)"    onmousedown="event.preventDefault()" onclick="insertTab(false)">⇥</button>
+        <button class="et-btn" title="Dezindentare (Shift+Tab)" onmousedown="event.preventDefault()" onclick="insertTab(true)">⇤</button>
+      </div>
+      <div class="tb-sep"></div>
+      <!-- Superscript / Subscript -->
+      <div class="tb-group">
+        <button class="et-btn" title="Superscript" onclick="cmd('superscript')">x²</button>
+        <button class="et-btn" title="Subscript"   onclick="cmd('subscript')">x₂</button>
+      </div>
+      <div class="tb-sep"></div>
+      <!-- Remove formatting -->
+      <div class="tb-group">
+        <button class="et-btn wide" title="Elimină formatarea" onclick="cmd('removeFormat')">✕ Format</button>
+      </div>
     </div>
   </div>
   <div class="overlay-body" id="overlay-body">
@@ -310,6 +442,7 @@
   ];
 
   const sections = {
+    'I4': 'I.4. Introducerea datelor în SIIIR',
     'II4':'II.4. Activități remediale',
     'II5':'II.5. Activități extracurriculare',
     'II6':'II.6. Clubul de lectură și literație'
@@ -320,7 +453,7 @@
   let currentKey = null;
 
   // ── BUILD MONTH BUTTONS ──
-  ['II4','II5','II6'].forEach(id => {
+  ['I4','II4','II5','II6'].forEach(id => {
     const grid = document.getElementById('months-' + id);
     months.forEach(m => {
       const btn = document.createElement('button');
@@ -348,7 +481,8 @@
 
     try {
       let html = '';
-      if (sectionId === 'II4')      html = await buildII4(month);
+      if (sectionId === 'I4')       html = await buildI4(month);
+      else if (sectionId === 'II4') html = await buildII4(month);
       else if (sectionId === 'II5') html = await buildII5(month);
       else if (sectionId === 'II6') html = await buildII6(month);
       else html = buildPlaceholder(sectionId, month);
@@ -455,6 +589,220 @@
   // ── E (editable span helper) ──
   function e(fieldName, value, cls='') {
     return `<span contenteditable="true" data-field="${fieldName}" class="${cls}" spellcheck="false">${value}</span>`;
+  }
+
+  // ── RAPORT I.4 — INTRODUCEREA DATELOR ÎN SIIIR ──
+  // Conținuturi implicite per lună (cheie = "Luna AAAA")
+  const I4_DEFAULTS = {
+    'Ianuarie 2025': {
+      titlu:    'RAPORT',
+      preambul: 'Întocmit pentru activitatea desfășurată de către Responsabilul modulului MATE din SIIIR, desemnat prin Decizia nr. 2/24.05.2024, de numire a Comisiei de implementare a proiectului „Fii unul dintre C.R.A.I.! (Creativitate, Reziliență, Adaptabilitate, Incluziune)".',
+      scop: [
+        'În luna Ianuarie 2025, în cadrul activității I.4. Introducerea datelor în SIIIR, actualizarea periodică a datelor în SIIIR, au fost desfășurate activități specifice de verificare, actualizare, corelare, monitorizare și gestionare a datelor necesare sprijinirii aplicării chestionarului SASAT, de evaluare a succesului școlar, în rândul elevilor de gimnaziu.',
+        'Activitatea a avut ca scop asigurarea unei evidențe corecte și actualizate a datelor relevante pentru desfășurarea în bune condiții a procesului de aplicare a chestionarului, susținerea monitorizării succesului școlar, precum și corelarea informațiilor obținute cu evidențele școlare și cu datele existente în modulul MATE din SIIIR.',
+      ],
+      act_intro: 'În perioada raportată au fost realizate următoarele activități:',
+      activitati: [
+        'verificarea și actualizarea listelor de elevi din grupul-țintă vizat de aplicarea chestionarului SASAT',
+        'pregătirea evidențelor necesare pentru desfășurarea activității',
+        'corelarea datelor elevilor cu evidențele școlare existente la nivelul unității de învățământ',
+        'sprijinirea organizării activității de aplicare a chestionarului SASAT',
+        'monitorizarea stadiului de desfășurare a activității și a ritmului de completare a chestionarelor',
+        'urmărirea participării elevilor la activitatea de aplicare a instrumentului',
+        'centralizarea situațiilor rezultate în urma aplicării chestionarului',
+        'verificarea coerenței, completitudinii și relevanței datelor colectate',
+        'actualizarea evidențelor interne în raport cu informațiile rezultate din aplicarea chestionarului',
+        'pregătirea datelor necesare pentru analiza internă și valorificarea ulterioară a rezultatelor',
+        'transmiterea informațiilor relevante către persoanele implicate în implementarea activităților proiectului',
+        'organizarea și arhivarea documentelor-suport aferente activității',
+        'corelarea informațiilor rezultate cu datele existente în SIIIR și în celelalte evidențe utilizate la nivelul unității',
+        'consultarea catalogului electronic Skoolvers, în vederea verificării și corelării informațiilor relevante privind situația școlară a elevilor',
+        'verificarea concordanței dintre datele existente în evidențele școlare, informațiile utilizate în activitatea de aplicare a chestionarului și datele urmărite în modulul MATE din SIIIR',
+        'sprijinirea procesului de ordonare, structurare și valorificare a informațiilor relevante pentru monitorizarea educațională',
+      ],
+      rez_intro: 'În urma activităților desfășurate în luna Ianuarie 2025 au fost obținute următoarele rezultate:',
+      rezultate: [
+        'actualizarea și verificarea evidențelor necesare aplicării chestionarului SASAT',
+        'asigurarea concordanței dintre datele elevilor existenți în evidențele interne și informațiile utilizate în procesul de aplicare a chestionarului',
+        'susținerea organizării și monitorizării activității de evaluare a succesului școlar în rândul elevilor de gimnaziu',
+        'centralizarea și structurarea informațiilor rezultate din aplicarea chestionarului',
+        'sprijinirea procesului intern de analiză a datelor relevante pentru monitorizarea elevilor',
+        'consolidarea bazei de date utilizate pentru activitățile ulterioare de monitorizare și intervenție educațională',
+        'sprijinirea identificării situațiilor care necesită monitorizare educațională ulterioară',
+      ],
+      concluzii: [
+        'Activitatea desfășurată în luna Ianuarie 2025, în cadrul componentei I.4. Introducerea datelor în SIIIR, actualizarea periodică a datelor în SIIIR, a contribuit la asigurarea unei evidențe corecte, complete și actualizate a datelor relevante pentru aplicarea chestionarului SASAT, la sprijinirea monitorizării succesului școlar al elevilor de gimnaziu, precum și la consolidarea procesului de identificare și urmărire a elevilor aflați în risc educațional.',
+        'Prin activitățile de verificare, actualizare, corelare și centralizare a informațiilor, a fost susținută buna desfășurare a activității prevăzute în graficul proiectului, fiind asigurată coerența dintre datele existente în evidențele școlare, informațiile utilizate în cadrul aplicării chestionarului și datele relevante pentru monitorizarea educațională în modulul MATE din SIIIR.',
+      ],
+    },
+    'Februarie 2025': {
+      titlu:    'RAPORT DE ACTIVITATE',
+      preambul: 'Raport întocmit pentru activitatea desfășurată de către Responsabilul modulului MATE din SIIIR, doamna Hasmațuchi Otilia, desemnată prin Decizia nr. 2/24.05.2024, de numire a Comisiei de implementare a proiectului.',
+      scop: [
+        'În luna Februarie 2025, în cadrul activității I.4. Introducerea datelor în SIIIR, actualizarea periodică a datelor în SIIIR, au fost desfășurate activități specifice de verificare, actualizare, corelare, monitorizare și gestionare a datelor necesare susținerii subactivităților derulate în cadrul proiectului, respectiv:\n\nI.1. Aplicarea chestionarului SASAT, de evaluare a succesului școlar, în rândul elevilor de gimnaziu, activitate finalizată în luna februarie 2025;\nI.3. Completarea și validarea Observatorului Școlii, activitate inițiată în luna februarie 2025 și continuată în luna martie 2025.',
+        'Scopul activității a fost asigurarea unei evidențe corecte, complete și actualizate a datelor relevante în modulul MATE din SIIIR, sprijinirea procesului de finalizare a aplicării chestionarului SASAT și valorificarea informațiilor obținute, precum și pregătirea, structurarea și corelarea datelor necesare inițierii completării Observatorului Școlii.',
+        'Totodată, activitatea a urmărit susținerea monitorizării succesului școlar, identificarea și urmărirea elevilor aflați în risc educațional, precum și asigurarea concordanței dintre datele existente în SIIIR, evidențele școlare interne, documentele-suport și informațiile relevante consultate în catalogul electronic Skoolvers.',
+      ],
+      act_intro: 'În perioada raportată au fost realizate următoarele activități:',
+      activitati: [
+        'verificarea și actualizarea evidențelor necesare finalizării subactivității I.1. Aplicarea chestionarului SASAT, de evaluare a succesului școlar, în rândul elevilor de gimnaziu',
+        'centralizarea informațiilor rezultate în urma aplicării chestionarului SASAT la nivelul elevilor de gimnaziu',
+        'verificarea coerenței, completitudinii și relevanței datelor colectate',
+        'corelarea informațiilor rezultate din aplicarea chestionarului cu evidențele școlare existente la nivelul unității de învățământ',
+        'actualizarea evidențelor interne în funcție de datele rezultate din activitatea SASAT',
+        'pregătirea datelor necesare pentru analiza internă și valorificarea rezultatelor obținute',
+        'sprijinirea întocmirii documentelor aferente finalizării activității SASAT, respectiv raportul de activitate și procesul-verbal',
+        'organizarea și arhivarea documentelor-suport aferente subactivității finalizate',
+        'consultarea catalogului electronic Skoolvers, în vederea verificării și corelării informațiilor relevante privind situația școlară a elevilor',
+        'verificarea concordanței dintre datele existente în SIIIR, documentele școlare și evidențele interne ale unității',
+        'inițierea subactivității I.3. Completarea și validarea Observatorului Școlii',
+        'identificarea și pregătirea datelor relevante necesare completării Observatorului Școlii',
+        'preluarea informațiilor utile din documentele-suport și din evidențele existente la nivelul unității',
+        'corelarea datelor rezultate din activitatea SASAT cu informațiile necesare completării Observatorului Școlii',
+        'structurarea și organizarea informațiilor necesare etapei inițiale de completare a Observatorului Școlii',
+        'pregătirea bazei de date pentru continuarea activității în luna martie 2025',
+        'transmiterea informațiilor relevante către persoanele implicate în implementarea activităților proiectului',
+        'susținerea procesului de monitorizare educațională prin actualizarea și ordonarea informațiilor relevante pentru elevii vizați',
+        'menținerea unei evidențe clare și actualizate a documentelor și datelor utilizate în cadrul activităților desfășurate',
+      ],
+      rez_intro: 'În urma activităților desfășurate în luna Februarie 2025 au fost obținute următoarele rezultate:',
+      rezultate: [
+        'finalizarea subactivității I.1. Aplicarea chestionarului SASAT, de evaluare a succesului școlar, în rândul elevilor de gimnaziu',
+        'centralizarea, verificarea și structurarea datelor rezultate din aplicarea chestionarului SASAT',
+        'asigurarea unei baze informaționale coerente pentru analiza internă a rezultatelor și pentru monitorizarea educațională ulterioară',
+        'sprijinirea întocmirii și finalizării documentelor aferente activității SASAT, respectiv raportul de activitate și procesul-verbal',
+        'actualizarea evidențelor interne și corelarea acestora cu datele relevante pentru activitățile de monitorizare',
+        'inițierea subactivității I.3. Completarea și validarea Observatorului Școlii',
+        'pregătirea informațiilor și a documentelor necesare continuării activității în etapa următoare',
+        'consolidarea bazei de date necesare monitorizării elevilor aflați în risc educațional',
+        'asigurarea concordanței dintre datele existente în SIIIR, evidențele școlare și informațiile utilizate în cadrul activităților proiectului',
+      ],
+      concluzii: [
+        'Activitatea desfășurată în luna Februarie 2025, în cadrul componentei I.4. Introducerea datelor în SIIIR, actualizarea periodică a datelor în SIIIR, a contribuit la finalizarea în condiții corespunzătoare a subactivității privind aplicarea chestionarului SASAT, precum și la inițierea organizată și fundamentată a subactivității de completare și validare a Observatorului Școlii.',
+        'Prin activitățile de verificare, actualizare, corelare, centralizare și pregătire a datelor, a fost asigurată continuitatea procesului de monitorizare educațională, coerența informațiilor utilizate în cadrul proiectului și susținerea etapelor ulterioare de analiză și intervenție, în acord cu obiectivele urmărite la nivelul unității de învățământ.',
+        'A fost astfel consolidată baza informațională necesară monitorizării succesului școlar și identificării elevilor aflați în risc educațional, fiind sprijinită totodată buna desfășurare a activităților prevăzute în graficul de implementare al proiectului.',
+      ],
+    },
+  };
+
+  async function buildI4(month) {
+    const luna = month.name, an = parseInt(month.year);
+    const cheie = `${luna} ${an}`;
+
+    const { data: saved } = await sb.from('rapoarte_salvate')
+      .select('continut_json')
+      .eq('sectiune','I4').eq('luna',luna).eq('an',an)
+      .maybeSingle();
+
+    const sv  = saved?.continut_json || {};
+    const sv_ = (field, fallback) => sv[field] !== undefined ? sv[field] : fallback;
+
+    // Conținuturi implicite pentru luna curentă (sau generic dacă luna nu e definită)
+    const def = I4_DEFAULTS[cheie] || {
+      titlu:    'RAPORT DE ACTIVITATE',
+      preambul: `Raport întocmit pentru activitatea desfășurată de către Responsabilul modulului MATE din SIIIR, doamna Hasmațuchi Otilia, desemnată prin Decizia nr. 2/24.05.2024, de numire a Comisiei de implementare a proiectului.`,
+      scop: [
+        `În luna ${luna} ${an}, în cadrul activității I.4. Introducerea datelor în SIIIR, actualizarea periodică a datelor în SIIIR, au fost desfășurate activități specifice de verificare, actualizare, corelare, monitorizare și gestionare a datelor necesare susținerii subactivităților derulate în cadrul proiectului.`,
+        `Scopul activității a fost asigurarea unei evidențe corecte, complete și actualizate a datelor relevante în modulul MATE din SIIIR, precum și corelarea informațiilor cu evidențele școlare interne și datele existente în sistemele informatice utilizate.`,
+      ],
+      act_intro: 'În perioada raportată au fost realizate următoarele activități:',
+      activitati: [
+        'verificarea și actualizarea evidențelor relevante pentru subactivitățile desfășurate',
+        'corelarea datelor existente în SIIIR cu documentele și evidențele interne ale unității',
+        'consultarea catalogului electronic Skoolvers pentru verificarea situației școlare a elevilor',
+        'transmiterea informațiilor relevante către persoanele implicate în implementarea proiectului',
+        'organizarea și arhivarea documentelor-suport aferente activităților desfășurate',
+      ],
+      rez_intro: `În urma activităților desfășurate în luna ${luna} ${an} au fost obținute următoarele rezultate:`,
+      rezultate: [
+        'actualizarea și verificarea evidențelor din SIIIR în acord cu documentele justificative ale proiectului',
+        'asigurarea concordanței dintre datele existente în SIIIR și evidențele școlare interne',
+        'consolidarea bazei de date necesare monitorizării elevilor și activităților proiectului',
+      ],
+      concluzii: [
+        `Activitatea desfășurată în luna ${luna} ${an}, în cadrul componentei I.4. Introducerea datelor în SIIIR, actualizarea periodică a datelor în SIIIR, a contribuit la menținerea unei evidențe corecte, complete și actualizate a datelor relevante pentru activitățile proiectului PNRAS.`,
+        `Prin activitățile de verificare, actualizare, corelare și centralizare a informațiilor, a fost susținută buna desfășurare a activităților prevăzute în graficul de implementare al proiectului.`,
+      ],
+    };
+
+    // O singură casetă editabilă per secțiune
+    const box = (field, html) =>
+      `<div class="e-para" contenteditable="true" data-field="${field}" spellcheck="false" style="min-height:3em">${sv_(field, html)}</div>`;
+
+    // Helper: construiește HTML curat cu <p> intro + <p> per bullet
+    const listHtml = (intro, items) =>
+      `<p style="margin:0 0 2px 0;text-indent:1.2cm">${intro}</p>` +
+      items.map(i => `<p style="margin:0;padding-left:1.2cm;text-indent:-0.5em">• ${i}</p>`).join('');
+
+    // Helper: paragrafe multiple
+    const parasHtml = (arr) => arr.map(t => `<p style="margin:0 0 6px 0;text-align:justify;text-indent:1.2cm">${t}</p>`).join('');
+
+    // Scop — paragrafe
+    const scopHtml = parasHtml(def.scop);
+
+    // Activități — intro + lista
+    const actHtml = listHtml(def.act_intro, def.activitati);
+
+    // Rezultate — intro + lista
+    const rezHtml = listHtml(def.rez_intro, def.rezultate);
+
+    // Concluzii — paragrafe
+    const concHtml = parasHtml(def.concluzii);
+
+    return `
+    <div class="a4-page">
+      <img src="antet_pnras.jpeg" class="antet-img" onerror="this.style.display='none'">
+
+      <div class="nr-inreg-row">Nr. <span contenteditable="true" data-field="i4_nr" spellcheck="false" style="min-width:2em;max-width:3em;display:inline-block;border-bottom:1px dashed #d1d5db;outline:none;padding:0 2px" oninput="if(this.innerText.length>3)this.innerText=this.innerText.slice(0,3)">${sv_('i4_nr', '')}</span>&nbsp;/&nbsp;${e('i4_data', sv_('i4_data', ''))}</div>
+
+      <div class="doc-title">${sv_('i4_titlu', def.titlu)}</div>
+      <div class="doc-sub">privind activitatea desfășurată în cadrul activității</div>
+      <div class="doc-sub">I.4. Introducerea datelor în SIIIR, actualizarea periodică a datelor în SIIIR</div>
+      <div class="doc-luna"><strong>Luna raportată: ${luna.toLowerCase()} ${an}</strong></div>
+
+      <div style="padding:0 14px;box-sizing:border-box;width:100%">${box('i4_preambul', `<p style="margin:0;text-align:justify">${def.preambul}</p>`)}</div>
+
+      <!-- SCOP -->
+      <div class="sectiune">
+        <div class="sectiune-header" style="background:#b45309;color:#fff">🎯 Scopul activității</div>
+        <div class="sectiune-body" style="background:#fff">${box('i4_scop', scopHtml)}</div>
+      </div>
+
+      <!-- ACTIVITĂȚI DESFĂȘURATE -->
+      <div class="sectiune">
+        <div class="sectiune-header" style="background:#b45309;color:#fff">📋 Activități desfășurate</div>
+        <div class="sectiune-body" style="background:#fff">${box('i4_act', actHtml)}</div>
+      </div>
+
+      <!-- REZULTATE -->
+      <div class="sectiune">
+        <div class="sectiune-header" style="background:#b45309;color:#fff">✅ Rezultate obținute</div>
+        <div class="sectiune-body" style="background:#fff">${box('i4_rez', rezHtml)}</div>
+      </div>
+
+      <!-- CONCLUZII -->
+      <div class="sectiune">
+        <div class="sectiune-header" style="background:#b45309;color:#fff">📌 Concluzii</div>
+        <div class="sectiune-body" style="background:#fff">${box('i4_conc', concHtml)}</div>
+      </div>
+
+      <!-- SEMNĂTURI 3 coloane -->
+      <div class="semnaturi3">
+        <div class="col">
+          <strong>Întocmit,</strong>
+          <span contenteditable="true" data-field="i4_semn_intocmit" spellcheck="false" style="outline:none;border-bottom:1px dashed #d1d5db;display:block">${sv_('i4_semn_intocmit','Hasmațuchi Otilia')}</span>
+          <span contenteditable="true" data-field="i4_semn_functie" spellcheck="false" style="outline:none;border-bottom:1px dashed #d1d5db;display:block">${sv_('i4_semn_functie','Responsabil modul MATE din SIIIR')}</span>
+        </div>
+        <div class="col">
+          <strong>Avizat,</strong>
+          Manager proiect,<br>prof. dr. Ciprian MIHAI
+        </div>
+        <div class="col">
+          <strong>Aprobat,</strong>
+          Director,<br>prof. Cătălin Ionuț BAZILUC
+        </div>
+      </div>
+    </div>`;
   }
 
   // ── BUILD II.4 ──
@@ -997,6 +1345,93 @@
 
       </div>`;
   }
+
+  const TAB_SIZE = 20; // px per nivel indent
+
+  function insertTab(shiftKey) {
+    const sel = window.getSelection();
+    if (!sel || !sel.rangeCount) return;
+    const range = sel.getRangeAt(0);
+
+    // Găsim paragraful curent (cel mai apropiat <p> sau block)
+    let node = range.startContainer;
+    if (node.nodeType === Node.TEXT_NODE) node = node.parentElement;
+    const block = node.closest('p, div[contenteditable]');
+
+    // Dacă e un paragraf bullet (conține • ca prim caracter vizibil)
+    if (block && block.tagName === 'P' && block.textContent.trimStart().startsWith('•')) {
+      const current = parseInt(block.style.paddingLeft) || 0;
+      if (shiftKey) {
+        block.style.paddingLeft = Math.max(0, current - TAB_SIZE) + 'px';
+      } else {
+        block.style.paddingLeft = (current + TAB_SIZE) + 'px';
+      }
+      block.dispatchEvent(new Event('input', { bubbles: true }));
+      return;
+    }
+
+    // Altfel: inserează em-space la cursor
+    if (shiftKey) {
+      const off = range.startOffset;
+      const textNode = range.startContainer;
+      if (textNode.nodeType === Node.TEXT_NODE) {
+        const text = textNode.textContent;
+        if (off >= 1 && text[off-1] === '\u2003') {
+          textNode.textContent = text.slice(0, off-1) + text.slice(off);
+          range.setStart(textNode, off-1); range.setEnd(textNode, off-1);
+          sel.removeAllRanges(); sel.addRange(range);
+        } else if (off >= 4 && text.slice(off-4, off) === '\u00a0\u00a0\u00a0\u00a0') {
+          textNode.textContent = text.slice(0, off-4) + text.slice(off);
+          range.setStart(textNode, off-4); range.setEnd(textNode, off-4);
+          sel.removeAllRanges(); sel.addRange(range);
+        }
+      }
+    } else {
+      range.deleteContents();
+      const sp = document.createTextNode('\u2003\u2003');
+      range.insertNode(sp);
+      range.setStartAfter(sp); range.setEndAfter(sp);
+      sel.removeAllRanges(); sel.addRange(range);
+      sp.parentElement?.dispatchEvent(new Event('input', { bubbles: true }));
+    }
+  }
+
+  // ── EDITOR TOOLBAR ──
+  function cmd(command, value) {
+    document.execCommand(command, false, value || null);
+    updateToolbarState();
+  }
+
+  function updateToolbarState() {
+    const cmds = ['bold','italic','underline','strikeThrough'];
+    const ids  = ['tb-bold','tb-italic','tb-under','tb-strike'];
+    cmds.forEach((c, i) => {
+      const btn = document.getElementById(ids[i]);
+      if (btn) btn.classList.toggle('active', document.queryCommandState(c));
+    });
+  }
+
+  // Show/hide toolbar only when a contenteditable inside a4-page is focused
+  document.addEventListener('focusin', e => {
+    const editable = e.target.closest('[contenteditable="true"]');
+    const inPage   = e.target.closest('.a4-page');
+    const toolbar  = document.getElementById('editor-toolbar');
+    if (toolbar) toolbar.style.display = (editable && inPage) ? 'flex' : 'none';
+    if (editable && inPage) updateToolbarState();
+  });
+  document.addEventListener('keyup',        updateToolbarState);
+  document.addEventListener('mouseup',      updateToolbarState);
+  document.addEventListener('selectionchange', updateToolbarState);
+
+  // ── TAB KEY — insert spaces at cursor like Word ──
+  document.addEventListener('keydown', e => {
+    if (e.key !== 'Tab') return;
+    const editable = e.target.closest('[contenteditable="true"]');
+    const inPage   = e.target.closest('.a4-page');
+    if (!editable || !inPage) return;
+    e.preventDefault();
+    insertTab(e.shiftKey);
+  });
 
   // ── PRINT ──
   function printRaport() {
