@@ -690,7 +690,9 @@ async function incarcaDocumente(){
       } // end if(!eProcons)
     } else {
       const { data: de } = await supabaseClient.from("documente_contract").select("tip_document").eq("contract_id", contractId);
-      const tu = [...new Set((de||[]).map(d=>d.tip_document).filter(t=>t&&t!=="DOSAR ACHIZIȚIE PDF"))]
+      const UUID_R = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+      const EXCL_R = /^EXCL_[0-9a-f]{8}-/i;
+      const tu = [...new Set((de||[]).map(d=>d.tip_document).filter(t=>t&&t!=="DOSAR ACHIZIȚIE PDF"&&!UUID_R.test(t)&&!EXCL_R.test(t)))]
         .sort((a,b)=>a.localeCompare(b,undefined,{numeric:true,sensitivity:'base'}));
       listaAscunse = [];
       listaDocumente.splice(0, listaDocumente.length, ...(tu.length?tu:getListaDefault()));
@@ -702,9 +704,15 @@ async function incarcaDocumente(){
   if(error){ console.log("EROARE LOAD:", error); return; }
 
   // Facturile din buget_achizitii (furnizor=UUID, tip=13. Factura) → le remapăm la "13. Factură"
+  // Documentele cu tip_document = UUID (EXCL_... sau format UUID) → le remapăm la "Alte documente"
+  const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  const EXCL_REGEX = /^EXCL_[0-9a-f]{8}-/i;
   const data = (docs||[]).map(d => {
     if(d.furnizor&&d.furnizor.length===36&&d.tip_document==="13. Factura") {
       return {...d, tip_document:"13. Factură"};
+    }
+    if(d.tip_document && (UUID_REGEX.test(d.tip_document) || EXCL_REGEX.test(d.tip_document))) {
+      return {...d, tip_document:"19. Alte documente"};
     }
     return d;
   });
