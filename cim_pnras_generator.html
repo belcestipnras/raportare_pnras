@@ -1,0 +1,782 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Generator CIM PNRAS</title>
+<style>
+/* ===== RESET ===== */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+* { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+
+/* ===== APP SHELL ===== */
+body { font-family: Calibri, sans-serif; font-size: 12pt; background: #c8cdd4; }
+.app { display: flex; height: 100vh; overflow: hidden; }
+
+/* ===== SIDEBAR ===== */
+.sidebar {
+  width: 270px; min-width: 270px;
+  background: linear-gradient(180deg, #0f2744 0%, #1a3a5c 100%);
+  display: flex; flex-direction: column; overflow: hidden;
+  box-shadow: 3px 0 12px rgba(0,0,0,0.3);
+}
+.sidebar-header {
+  padding: 18px 16px 14px;
+  background: rgba(0,0,0,0.25);
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+.sidebar-header h2 {
+  font-size: 12pt; font-weight: 700; color: #8ecfea; margin-bottom: 3px;
+  letter-spacing: 0.3px;
+}
+.sidebar-header p { font-size: 8.5pt; color: #7a9ab5; }
+.sidebar-list { flex: 1; overflow-y: auto; padding: 8px 6px; }
+.sidebar-list::-webkit-scrollbar { width: 4px; }
+.sidebar-list::-webkit-scrollbar-track { background: transparent; }
+.sidebar-list::-webkit-scrollbar-thumb { background: #2e5a80; border-radius: 4px; }
+.expert-btn {
+  display: block; width: 100%; text-align: left;
+  padding: 9px 12px; background: transparent;
+  border: 1px solid transparent; border-radius: 5px;
+  color: #b0c8df; font-family: Calibri, sans-serif; font-size: 9.5pt;
+  cursor: pointer; margin-bottom: 3px; transition: all 0.15s;
+  line-height: 1.3;
+}
+.expert-btn:hover { background: rgba(255,255,255,0.07); border-color: rgba(255,255,255,0.15); color: #ddeeff; }
+.expert-btn.active { background: #1e5a94; border-color: #5ba3d0; color: #fff; font-weight: 700; }
+.expert-btn small { display: block; font-size: 7.5pt; margin-top: 2px; color: #5a8aaa; }
+.expert-btn.active small { color: #9dc8e8; }
+
+/* ===== MAIN PANEL ===== */
+.main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+.toolbar {
+  background: #f0f2f5; border-bottom: 1px solid #c0c5cc;
+  padding: 9px 16px; display: flex; align-items: center; gap: 10px;
+  flex-shrink: 0; box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+}
+.toolbar h3 { font-size: 10.5pt; color: #334; flex: 1; font-weight: 400; }
+.btn-print {
+  background: #1e5a94; color: #fff; border: none;
+  padding: 7px 18px; font-family: Calibri, sans-serif;
+  font-size: 10pt; font-weight: 700; border-radius: 4px;
+  cursor: pointer; letter-spacing: 0.2px; transition: background 0.15s;
+}
+.btn-print:hover { background: #0f3d6e; }
+.btn-print:disabled { background: #9aabb8; cursor: not-allowed; }
+
+.doc-area { flex: 1; overflow-y: auto; background: #c8cdd4; padding: 24px 28px; }
+.doc-area::-webkit-scrollbar { width: 8px; }
+.doc-area::-webkit-scrollbar-track { background: #b8bdc4; }
+.doc-area::-webkit-scrollbar-thumb { background: #8a96a4; border-radius: 4px; }
+
+.placeholder {
+  display: flex; flex-direction: column; align-items: center;
+  justify-content: center; height: 100%; color: #667;
+  font-size: 12pt; gap: 10px;
+}
+.placeholder-icon { font-size: 40pt; opacity: 0.3; }
+
+/* ===== DOCUMENT (A4) ===== */
+.document {
+  width: 210mm;
+  background: #fff;
+  margin: 0 auto 28px;
+  padding: 0 0 15mm 0;
+  box-shadow: 0 3px 16px rgba(0,0,0,0.22);
+  font-family: Calibri, sans-serif;
+  font-size: 12pt;
+  color: #000;
+  line-height: 1.45;
+  overflow: hidden;
+}
+.doc-content { padding: 0 20mm 0 15mm; }
+
+/* ===== ANTET ===== */
+.antet-img {
+  display: block;
+  width: 100%;
+  height: auto;
+  margin-bottom: 8px;
+}
+.antet-school-box {
+  border: 2px solid #1f4e79;
+  margin-top: 0;
+  margin-bottom: 12px;
+  padding: 8px 14px;
+  text-align: center;
+  line-height: 1.55;
+}
+.antet-school-box .s1 { font-size: 11pt; font-weight: 700; color: #1f4e79; }
+.antet-school-box .s2 { font-size: 10.5pt; font-weight: 700; color: #1f4e79; }
+.antet-school-box .s3 { font-size: 10pt; color: #c00000; font-weight: 700; }
+.antet-info-row { font-size: 10pt; line-height: 1.6; }
+.antet-info-row .lbl { color: #1f4e79; font-weight: 700; }
+.antet-info-row .val { color: #c00000; font-weight: 700; }
+
+/* ===== TITLU CONTRACT ===== */
+.cim-title {
+  text-align: center;
+  margin: 16px 0 6px;
+  line-height: 1.5;
+}
+.cim-title .t1 { font-size: 13pt; font-weight: 700; }
+.cim-title .t2 { font-size: 12pt; font-weight: 400; }
+
+/* ===== SECTIUNI ===== */
+.section {
+  margin-top: 14pt;
+  margin-bottom: 0;
+}
+.section-heading {
+  font-size: 11.5pt;
+  font-weight: 700;
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #1f4e79;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+  color: #fff;
+  padding: 4px 10px 4px 8px;
+  border-radius: 3px;
+  letter-spacing: 0.2px;
+  page-break-after: avoid;
+  break-after: avoid;
+}
+/* Primul element dupa titlul sectiunii ramane cu el */
+.section-heading + .nlist,
+.section-heading + .alist,
+.section-heading + p,
+.section-heading + .ni,
+.section-heading + .ai {
+  page-break-before: avoid;
+  break-before: avoid;
+}
+.section-heading .ltr {
+  min-width: 22px;
+  font-size: 12pt;
+  font-weight: 800;
+  color: #a8d4f0;
+  flex-shrink: 0;
+}
+.section-heading .title { color: #fff; font-weight: 700; }
+
+/* ===== PARAGRAF SIMPLU (text justify + alineat) ===== */
+p.par {
+  text-align: justify;
+  text-indent: 1.2cm;
+  margin-bottom: 5px;
+  hyphens: auto;
+}
+p.par-no-indent {
+  text-align: justify;
+  margin-bottom: 5px;
+  hyphens: auto;
+}
+
+/* ===== LISTA NUMEROTATA (1)(2)... ===== */
+.nlist { margin: 3px 0; }
+.ni {
+  display: flex; gap: 0; margin-bottom: 4px;
+  text-align: justify; hyphens: auto;
+}
+.ni .n { min-width: 32px; font-weight: 700; flex-shrink: 0; color: #000; }
+.ni .c { flex: 1; text-align: justify; hyphens: auto; }
+
+/* ===== LISTA LITERA a. b. c. ===== */
+.alist { margin: 2px 0 2px 32px; }
+.ai {
+  display: flex; gap: 2px; margin-bottom: 3px;
+  text-align: justify; hyphens: auto;
+}
+.ai .l { min-width: 20px; font-style: italic; flex-shrink: 0; }
+.ai .c { flex: 1; text-align: justify; hyphens: auto; }
+
+/* ===== BULLET LIST ===== */
+.blist { margin: 2px 0 2px 48px; list-style: disc; }
+.blist li { margin-bottom: 2px; text-align: justify; hyphens: auto; }
+
+/* ===== SUBHEADING in lista ===== */
+.sub-heading {
+  font-weight: 700; margin: 6px 0 3px;
+  text-align: left;
+}
+
+/* ===== SEMNATURA ===== */
+.signatures {
+  margin-top: 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  page-break-inside: avoid;
+  break-inside: avoid;
+  page-break-before: auto;
+}
+.sig-block {
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+.sig-block p { margin-bottom: 1px; }
+.sig-block .role { font-weight: 700; }
+.sig-right { text-align: right; }
+
+/* ===== FISA POSTULUI ===== */
+.fisa-header {
+  text-align: center;
+  margin: 14px 0 10px;
+  line-height: 1.6;
+}
+.fisa-header p { font-weight: 700; font-size: 12pt; }
+.fisa-header .sub { font-weight: 400; font-size: 11pt; }
+
+/* ===== PRINT ===== */
+@media print {
+  body { background: #fff; }
+  .app { display: block; height: auto; }
+  .sidebar, .toolbar { display: none !important; }
+  .doc-area { overflow: visible; background: none; padding: 0; }
+
+  /* @page fara margini laterale - antetul ocupa toata latimea */
+  @page {
+    margin: 15mm 20mm 15mm 15mm;
+    size: A4;
+  }
+
+  /* Documentul ocupa toata pagina */
+  .document {
+    box-shadow: none;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    page-break-after: always;
+  }
+  .document:last-child { page-break-after: avoid; }
+
+  /* Antetul - aceleasi margini ca documentul */
+  .antet-img-wrap {
+    display: block;
+    width: 100%;
+    margin: 0;
+  }
+  .antet-img {
+    width: 100%;
+    display: block;
+    margin-bottom: 8px;
+  }
+
+  /* @page margin:15mm gestioneaza toate marginile - doc-content fara padding extra */
+  .doc-content {
+    padding: 0;
+  }
+
+  /* Forteaza culorile la print */
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+  .section-heading {
+    background: #1f4e79 !important;
+    color: #fff !important;
+  }
+  .section-heading .ltr { color: #a8d4f0 !important; }
+  .section-heading .title { color: #fff !important; }
+
+  .placeholder { display: none; }
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-header">
+      <h2>⚙ Generator CIM PNRAS</h2>
+      <p>Selectează expertul pentru a genera contractul</p>
+    </div>
+    <div class="sidebar-list" id="expertList"></div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main">
+    <div class="toolbar">
+      <h3 id="toolbarTitle">← Selectează un expert din listă pentru a genera contractul</h3>
+      <button class="btn-print" id="printBtn" disabled onclick="window.print()">🖨 Tipărește / Salvează PDF</button>
+    </div>
+    <div class="doc-area" id="docArea">
+      <div class="placeholder">
+        <div class="placeholder-icon">📄</div>
+        <div>Selectează un expert din lista din stânga</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const ANTET = "https://aexjrbdgajurxzngfkpx.supabase.co/storage/v1/object/public/arhiva_pnras/Antet%20PNRAS%202024-01.jpg";
+
+const EXPERTI = [
+  { nume:"Marele Daniela", cnp:"2850913226701", ci_seria:"MZ", ci_nr:"538865", domiciliu:"Str. Cerna, nr. 15, Bl. 011, Sc. E, Municipiul Iași", disciplina:"Educație plastică", rol:"Expert activități extracurriculare", tip_activitate:"II.5. Activități extracurriculare și/sau extrașcolare", activitate_pnras:"Clubul de pictură", tarif:"121,37", nr_contract:"53", data_contract:"31.10.2024", tip:"extracurricular" },
+  { nume:"Albu Ștefan", cnp:"1770118221141", ci_seria:"IZ", ci_nr:"078101", domiciliu:"Str. Toma Cozma, nr. 85, bloc 572, scara C, Municipiul Iași", disciplina:"Educație fizică și sport", rol:"Expert activități extracurriculare", tip_activitate:"II.5. Activități extracurriculare și/sau extrașcolare", activitate_pnras:"Clubul de activități sportive și outdoor", tarif:"143,75", nr_contract:"47", data_contract:"31.10.2024", tip:"extracurricular" },
+  { nume:"Angheluș Raluca", cnp:"2820221222085", ci_seria:"IZ", ci_nr:"311172", domiciliu:"Str. Prof. I. Simionescu, nr. 31, Bl. S5, Sc. Tr.1, Municipiul Iași", disciplina:"Limba și literatura română", rol:"Expert activități remediale", tip_activitate:"II.4. Activități remediale și diverse activități pedagogice și de sprijin", activitate_pnras:"Activități remediale la limba și literatura română", tarif:"133,75", nr_contract:"49", data_contract:"31.10.2024", tip:"remedial" },
+  { nume:"Aparascăi Vasile", cnp:"1770501221174", ci_seria:"MZ", ci_nr:"960168", domiciliu:"Str. Bdul Alexandru cel Bun, nr. 25, bloc A4, Sc. A, Municipiul Iași", disciplina:"Limba și literatura română", rol:"Expert activități de lectură și literație", tip_activitate:"II.6. Activități pentru dezvoltarea literației - Clubul de lectură", activitate_pnras:"Clubul de lectură și literație", tarif:"137,43", nr_contract:"48", data_contract:"31.10.2024", tip:"literatie" },
+  { nume:"Arotăriței Dănuț", cnp:"1960330080081", ci_seria:"IZ", ci_nr:"052431", domiciliu:"Sat Vorovești, Miroslava, str. Păstorilor, nr. 1C", disciplina:"Matematică", rol:"Expert activități remediale", tip_activitate:"II.4. Activități remediale și diverse activități pedagogice și de sprijin", activitate_pnras:"Activități remediale la matematică", tarif:"112,80", nr_contract:"50", data_contract:"31.10.2024", tip:"remedial" },
+  { nume:"Baziluc Ana Maria", cnp:"2790624220042", ci_seria:"MZ", ci_nr:"683429", domiciliu:"Sat Belcești, nr. 1554, Comuna Belcești", disciplina:"Limba și literatura română", rol:"Expert activități remediale", tip_activitate:"II.4. Activități remediale și diverse activități pedagogice și de sprijin", activitate_pnras:"Activități remediale la limba și literatura română", tarif:"143,75", nr_contract:"51", data_contract:"31.10.2024", tip:"remedial" },
+  { nume:"Boldan Ovidiu", cnp:"1860218226871", ci_seria:"MZ", ci_nr:"573210", domiciliu:"Sat Belcești, Comuna Belcești", disciplina:"Matematică", rol:"Expert activități remediale", tip_activitate:"II.4. Activități remediale și diverse activități pedagogice și de sprijin", activitate_pnras:"Activități remediale la matematică", tarif:"113,55", nr_contract:"67", data_contract:"31.10.2024", tip:"remedial" },
+  { nume:"Ghemeș Valeria Anca", cnp:"2840501226206", ci_seria:"IZ", ci_nr:"275554", domiciliu:"Sat Munteni, Comuna Belcești", disciplina:"Limba și literatura română", rol:"Expert activități remediale", tip_activitate:"II.4. Activități remediale și diverse activități pedagogice și de sprijin", activitate_pnras:"Activități remediale la limba și literatura română", tarif:"123,75", nr_contract:"63", data_contract:"31.10.2024", tip:"remedial" },
+  { nume:"Iftene Ana-Maria", cnp:"2930207270846", ci_seria:"IZ", ci_nr:"252359", domiciliu:"Str. Canta, nr. 7, Bl. 455, Sc. B, Municipiul Iași", disciplina:"Matematică", rol:"Expert activități remediale", tip_activitate:"II.4. Activități remediale și diverse activități pedagogice și de sprijin", activitate_pnras:"Activități remediale la matematică", tarif:"113,55", nr_contract:"52", data_contract:"31.10.2024", tip:"remedial" },
+  { nume:"Nohai Claudiu Vili", cnp:"1680117270661", ci_seria:"IZ", ci_nr:"168287", domiciliu:"Str. Păcurari, nr. 30, bl. 555, Sc. A, Municipiul Iași", disciplina:"Fizică", rol:"Expert activități extracurriculare", tip_activitate:"II.5. Activități extracurriculare și/sau extrașcolare", activitate_pnras:"Clubul de Științe", tarif:"153,77", nr_contract:"57", data_contract:"31.10.2024", tip:"extracurricular" },
+  { nume:"Nohai Iuliana", cnp:"2680601270619", ci_seria:"MZ", ci_nr:"403130", domiciliu:"Str. Păcurari, nr. 30, bl. 555, Sc. A, Municipiul Iași", disciplina:"Fizică", rol:"Expert activități extracurriculare", tip_activitate:"II.5. Activități extracurriculare și/sau extrașcolare", activitate_pnras:"Clubul de Științe", tarif:"153,77", nr_contract:"57", data_contract:"31.10.2024", tip:"extracurricular" },
+  { nume:"Popa Gabriela Dorica", cnp:"2991013070019", ci_seria:"MZ", ci_nr:"953524", domiciliu:"Sat Belcești, Comuna Belcești", disciplina:"Dansuri populare", rol:"Expert activități extracurriculare", tip_activitate:"II.5. Activități extracurriculare și/sau extrașcolare", activitate_pnras:"Clubul de dansuri", tarif:"103,98", nr_contract:"58", data_contract:"31.10.2024", tip:"extracurricular" },
+  { nume:"Popovici-Ciocan Estera Iuliana", cnp:"2760501221178", ci_seria:"IZ", ci_nr:"220810", domiciliu:"Sat Valea Ursului, Comuna Miroslava", disciplina:"Matematică", rol:"Expert activități remediale", tip_activitate:"II.4. Activități remediale și diverse activități pedagogice și de sprijin", activitate_pnras:"Activități remediale la matematică", tarif:"143,75", nr_contract:"59", data_contract:"31.10.2024", tip:"remedial" },
+  { nume:"Tanasă Liliana", cnp:"2670726221198", ci_seria:"MZ", ci_nr:"715754", domiciliu:"Aleea Tudor Neculai, nr. 105, bl. 995, Sc. B, Municipiul Iași", disciplina:"Educație muzicală", rol:"Expert activități extracurriculare", tip_activitate:"II.5. Activități extracurriculare și/sau extrașcolare", activitate_pnras:"Clubul de muzică", tarif:"113,57", nr_contract:"60", data_contract:"31.10.2024", tip:"extracurricular" }
+];
+
+// Build sidebar
+const list = document.getElementById('expertList');
+EXPERTI.forEach((e, i) => {
+  const btn = document.createElement('button');
+  btn.className = 'expert-btn';
+  btn.innerHTML = `${e.nume}<small>${e.activitate_pnras}</small>`;
+  btn.onclick = () => {
+    document.querySelectorAll('.expert-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    generate(e);
+  };
+  list.appendChild(btn);
+});
+
+function gen(tag, cls, inner) {
+  return `<${tag} class="${cls}">${inner}</${tag}>`;
+}
+function ni(num, content, bold) {
+  const n = bold ? `<strong>(${num})</strong>` : `(${num})`;
+  return `<div class="ni"><span class="n">${n}</span><span class="c">${content}</span></div>`;
+}
+function ai(ltr, content) {
+  return `<div class="ai"><span class="l"><em>${ltr}.</em></span><span class="c">${content}</span></div>`;
+}
+function sec(letter, title) {
+  return `<div class="section-heading"><span class="ltr">${letter}.</span><span class="title">${title}</span></div>`;
+}
+
+function antet() {
+  return `<div class="antet-img-wrap"><img src="${ANTET}" class="antet-img" alt="Antet PNRAS"></div>`;
+}
+
+function getGen(nume) {
+  const p = nume.trim().split(' ').pop().toLowerCase();
+  return ['a','ea','ia','na','la','ra','ta','ca'].some(s => p.endsWith(s)) ? 'F' : 'M';
+}
+
+function generate(e) {
+  const g = getGen(e.nume);
+  const dlDoamna = g === 'F' ? 'Doamna' : 'Domnul';
+  const domicA = g === 'F' ? 'domiciliată' : 'domiciliat';
+  const pos = g === 'F' ? 'posesoare' : 'posesor';
+
+  const cim = `
+<div class="document">
+  ${antet()}
+
+  <div class="doc-content">
+  <div class="cim-title">
+    <p class="t1">CONTRACT INDIVIDUAL DE MUNCĂ,</p>
+    <p class="t2">încheiat și înregistrat sub nr. <strong>${e.nr_contract}/${e.data_contract}</strong>,</p>
+    <p class="t2">în registrul general de evidență a salariaților</p>
+  </div>
+
+  <div class="section">
+    ${sec('A', 'Părțile contractului')}
+    <p class="par"><strong>Angajator,</strong> unitatea de învățământ <strong>"Liceul Tehnologic Victor Mihăilescu Craiu" Belcești,</strong> cu sediul în <strong>sat Belcești, Str. Principală, nr. 1,</strong> cod fiscal <strong>17130374,</strong> telefon <strong>0232.724.028,</strong> reprezentată legal prin <strong>prof. Cătălin Ionuț BAZILUC,</strong> în calitate de reprezentant legal în proiectul "FII UNUL DINTRE C.R.A.I.! (Creativitate, Reziliență, Adaptabilitate, Incluziune)", cod proiect F-PNRAS-2-2023-0447</p>
+    <p class="par"><strong>și</strong></p>
+    <p class="par">${dlDoamna} <strong>${e.nume},</strong> ${domicA} în <strong>${e.domiciliu},</strong> ${pos} a actului de identitate C.I., seria <strong>${e.ci_seria},</strong> nr. <strong>${e.ci_nr},</strong> cod numeric personal <strong>${e.cnp}.</strong></p>
+    <p class="par-no-indent">Am încheiat prezentul contract individual de muncă în următoarele condiții asupra cărora am convenit:</p>
+  </div>
+
+  <div class="section">
+    ${sec('B', 'Obiectul contractului')}
+    <div class="nlist">
+      ${ni(1,'Prezentul contract individual de muncă are ca obiect prestarea de activități didactice, educaționale, de sprijin, remediale, extracurriculare, extrașcolare și/sau de literație, după caz, în cadrul proiectului „FII UNUL DINTRE C.R.A.I.! (Creativitate, Reziliență, Adaptabilitate, Incluziune)", cod F-PNRAS-2-2023-0447, finanțat prin Programul Național pentru Reducerea Abandonului Școlar - PNRAS 2.',true)}
+      ${ni(2,'Activitatea prestată de salariat este corelată cu cererea de finanțare, bugetul aprobat, graficul de activități, planificările lunare, documentele justificative și indicatorii proiectului.',true)}
+      ${ni(3,'Salariatul îndeplinește în cadrul proiectului rolul de <strong>'+e.rol+',</strong> pentru activitatea <strong>'+e.tip_activitate+',</strong> subactivitate <strong>'+e.activitate_pnras+'.</strong>',true)}
+      ${ni(4,'Prezentul contract se completează cu fișa postului, anexă la contract.',true)}
+    </div>
+  </div>
+
+  <div class="section">
+    ${sec('C', 'Durata contractului')}
+    <div class="nlist">
+      ${ni(1,'Contractul se încheie pe durată determinată, pentru perioada <strong>01.11.2024 – 30.06.2026,</strong> fără a depăși perioada de eligibilitate și implementare a activităților proiectului.',true)}
+      ${ni(2,'Începerea activității se face la data de <strong>01.11.2024.</strong>',true)}
+      ${ni(3,'Contractul încetează de drept la expirarea termenului pentru care a fost încheiat, cu respectarea dispozițiilor Codului muncii, putând fi prelungit dacă și perioada de implementare a proiectului este prelungită.',true)}
+    </div>
+  </div>
+
+  <div class="section">
+    ${sec('D', 'Locul de muncă')}
+    <div class="nlist">
+      ${ni(1,'Activitatea se desfășoară, de regulă, la sediul Liceului Tehnologic „Victor Mihăilescu Craiu" Belcești, Str. Principală, nr. 1, comuna Belcești, Județul Iași.',true)}
+      ${ni(2,'Pentru activitățile extracurriculare și/sau extrașcolare, activitatea se poate desfășura și în alte spații/locații aprobate prin documentele proiectului, cu respectarea normelor de securitate și a condițiilor de eligibilitate.',true)}
+    </div>
+  </div>
+
+  <div class="section">
+    ${sec('E', 'Felul muncii')}
+    <div class="nlist">
+      ${ni(1,'Funcția: Profesor',true)}
+      ${ni(2,'Cod COR: 233002',true)}
+      ${ni(3,'Disciplina: <strong>'+e.disciplina+'</strong>',true)}
+      ${ni(4,'Nivel: gimnaziu',true)}
+      ${ni(5,'Rol în proiect: <strong>'+e.rol+'</strong>',true)}
+      ${ni(6,'Denumirea funcției din prezentul contract este funcția/ocupația corespunzătoare încadrării în muncă. Denumirea de „expert" reprezintă rolul îndeplinit în cadrul proiectului și nu înlocuiește funcția înscrisă în contract.',true)}
+    </div>
+  </div>
+
+  <div class="section">
+    ${sec('F', 'Atribuțiile postului')}
+    <div class="nlist">
+      ${ni(1,'Atribuțiile postului sunt prevăzute în Fișa postului - Anexa nr. 1 la prezentul contract.',true)}
+      ${ni(2,'Atribuțiile concrete se vor realiza numai în limita activităților aprobate în proiect, a planificărilor lunare, a orarului activităților și a numărului de ore validat pentru fiecare lună.',true)}
+      ${ni(3,'Pentru fiecare lună de activitate, salariatul are obligația de a întocmi și depune documentele justificative solicitate în proiect, inclusiv pontajul individual și raportul de activitate.',true)}
+      ${ni(4,'Evaluarea activității se realizează prin raportare la criteriile prevăzute în fișa postului, la documentele justificative, la gradul de realizare a activităților planificate și la respectarea procedurilor de proiect.',true)}
+    </div>
+    <div class="alist">
+      ${ai('a','realizarea activităților conform planificării aprobate;')}
+      ${ai('b','respectarea numărului de ore și a orarului lunar aprobat;')}
+      ${ai('c','corectitudinea, completitudinea și coerența documentelor justificative;')}
+      ${ai('d','corelarea dintre pontaj, liste de prezență, fișe de activitate, rapoarte și activitatea efectiv desfășurată;')}
+      ${ai('e','contribuția la atingerea indicatorilor proiectului și la participarea elevilor;')}
+      ${ai('f','respectarea regulilor de protecție a datelor, de etică profesională și de integritate.')}
+    </div>
+  </div>
+
+  <div class="section">
+    ${sec('G', 'Condiții de muncă')}
+    <div class="nlist">
+      ${ni(1,'Activitatea se desfășoară în condiții normale de muncă, cu respectarea legislației aplicabile, a regulamentului intern, a normelor de securitate și sănătate în muncă și a instrucțiunilor interne ale angajatorului.',true)}
+      ${ni(2,'Salariatul declară că a luat cunoștință de regulile interne aplicabile activității desfășurate în unitatea de învățământ și în proiect.',true)}
+    </div>
+  </div>
+
+  <div class="section">
+    ${sec('H', 'Durata muncii și repartizarea acesteia')}
+    <div class="nlist">
+      ${ni(1,'Activitatea se desfășoară cu timp parțial, în afara obligațiilor de bază ale salariatului, acolo unde este cazul, conform planificărilor lunare aprobate în cadrul proiectului.',true)}
+    </div>
+    <div class="alist">
+      ${ai('a','<strong>Număr maxim ore total contract: 250;</strong>')}
+      ${ai('b','<strong>Număr maxim ore/lună: 30;</strong>')}
+      ${ai('c','<strong>Repartizarea programului:</strong> conform planificării lunare, orarului activităților și graficului aprobat în proiect;')}
+      ${ai('d','<strong>Evidența timpului de muncă:</strong> pontaj individual lunar, liste de prezență, fișe de activitate și raport de activitate.')}
+    </div>
+    <div class="nlist">
+      ${ni(2,'Programul de lucru nu este fix. Acesta se stabilește lunar în funcție de disponibilitatea elevilor, orarul școlar, planificarea activităților, nevoile grupelor/claselor și cerințele proiectului.',true)}
+      ${ni(3,'Plata se face numai pentru orele efectiv desfășurate, documentate și validate, fără depășirea numărului maxim de ore prevăzut în contract și în documentele proiectului.',true)}
+    </div>
+  </div>
+
+  <div class="section">
+    ${sec('I', 'Concediul')}
+    <div class="nlist">
+      ${ni(1,'Dreptul la concediu de odihnă și alte concedii se acordă potrivit legislației muncii, în raport cu durata contractului, timpul efectiv lucrat și prevederile aplicabile personalului didactic/contractual, după caz.',true)}
+      ${ni(2,'Planificarea concediului nu trebuie să afecteze desfășurarea activităților proiectului și respectarea graficului asumat, cu excepția situațiilor prevăzute de lege.',true)}
+    </div>
+  </div>
+
+  <div class="section">
+    ${sec('J', 'Salariul')}
+    <div class="nlist">
+      ${ni(1,'Drepturile salariale sunt calculate în funcție de numărul de ore efectiv prestate, confirmate prin documentele justificative și validate de persoanele responsabile din proiect.',true)}
+    </div>
+    <div class="alist">
+      ${ai('a','<strong>Tarif brut/oră: '+e.tarif+' lei</strong>')}
+      ${ai('b','<strong>Tarif brut/lună:</strong> lunar, în funcție de orele efectiv desfășurate, documentate și validate;')}
+      ${ai('c','<strong>Sursa de finanțare:</strong> bugetul proiectului PNRAS 2, conform bugetului aprobat;')}
+      ${ai('d','<strong>Documente minime pentru plată:</strong> pontaj individual, raport de activitate, liste de prezență, fișe de activitate și alte documente solicitate;')}
+      ${ai('e','<strong>Sporuri/alte drepturi:</strong> nu se acordă, dacă nu sunt prevăzute expres în documentele proiectului și în legislația aplicabilă.')}
+    </div>
+    <div class="nlist">
+      ${ni(2,'Neîndeplinirea activității, lipsa documentelor justificative sau necorelarea documentelor pot conduce la nevalidarea orelor respective la plată, fără a afecta drepturile salariale aferente activităților legal prestate și confirmate.',true)}
+    </div>
+  </div>
+
+  <div class="section">
+    ${sec('K', 'Drepturi și obligații ale părților')}
+    <div class="nlist">
+      ${ni(1,'<strong>Drepturile salariatului</strong>',true)}
+    </div>
+    <div class="alist">
+      ${ai('a','dreptul la salarizare pentru activitatea prestată și validată;')}
+      ${ai('b','dreptul la condiții adecvate de desfășurare a activității;')}
+      ${ai('c','dreptul de a beneficia de informațiile și resursele necesare implementării activităților;')}
+      ${ai('d','dreptul la respectarea demnității profesionale, a protecției datelor și a legislației muncii.')}
+    </div>
+    <div class="nlist">
+      ${ni(2,'<strong>Obligațiile salariatului</strong>',true)}
+    </div>
+    <div class="alist">
+      ${ai('a','să desfășoare activitățile asumate cu profesionalism, punctualitate și responsabilitate;')}
+      ${ai('b','să respecte planificările, orarul, numărul de ore, metodologia și procedurile proiectului;')}
+      ${ai('c','să întocmească documente reale, complete, lizibile, datate și semnate;')}
+      ${ai('d','să asigure corelarea dintre activitatea desfășurată și documentele justificative;')}
+      ${ai('e','să respecte normele de protecție a datelor cu caracter personal ale elevilor și părinților;')}
+      ${ai('f','să comunice managerului de proiect orice situație care poate afecta implementarea activităților;')}
+      ${ai('g','să participe la verificări, monitorizări, audit și controale, punând la dispoziție documentele solicitate.')}
+    </div>
+    <div class="nlist">
+      ${ni(3,'<strong>Drepturile angajatorului</strong>',true)}
+    </div>
+    <div class="alist">
+      ${ai('a','să stabilească organizarea activităților în cadrul proiectului;')}
+      ${ai('b','să verifice modul de realizare a activităților și documentele justificative;')}
+      ${ai('c','să solicite completări, clarificări sau refacerea documentelor neconforme;')}
+      ${ai('d','să valideze numai orele efectiv desfășurate și justificabile.')}
+    </div>
+    <div class="nlist">
+      ${ni(4,'<strong>Obligațiile angajatorului</strong>',true)}
+    </div>
+    <div class="alist">
+      ${ai('a','să informeze salariatul cu privire la cerințele proiectului și documentele necesare;')}
+      ${ai('b','să asigure cadrul organizatoric pentru desfășurarea activităților;')}
+      ${ai('c','să verifice și să aprobe documentele de activitate conform procedurilor;')}
+      ${ai('d','să efectueze plata drepturilor salariale cuvenite pentru activitatea prestată și validată.')}
+    </div>
+  </div>
+
+  <div class="section">
+    ${sec('L', 'Răspunderea disciplinară și patrimonială')}
+    <div class="nlist">
+      ${ni(1,'Nerespectarea obligațiilor asumate prin prezentul contract, fișa postului, regulamentul intern, procedurile proiectului sau legislația aplicabilă atrage răspunderea disciplinară, patrimonială, contravențională sau penală, după caz, conform legii.',true)}
+      ${ni(2,'Salariatul răspunde pentru realitatea, corectitudinea și concordanța documentelor pe care le întocmește și le semnează în cadrul proiectului.',true)}
+    </div>
+  </div>
+
+  <div class="section">
+    ${sec('M', 'Clauze speciale PNRAS')}
+    <div class="nlist">
+      ${ni(1,'Activitatea se desfășoară strict în cadrul proiectului PNRAS 2, cod F-PNRAS-2-2023-0447, și trebuie să fie corelată cu obiectivele, activitățile, indicatorii și bugetul aprobat.',true)}
+      ${ni(2,'Salariatul nu poate raporta aceleași ore sau aceleași activități în două surse de finanțare diferite.',true)}
+      ${ni(3,'Orele se consideră eligibile la plată numai dacă sunt susținute prin documente justificative conforme, datate, semnate și corelate între ele.',true)}
+      ${ni(4,'Pentru activitățile cu elevii, documentele trebuie să permită identificarea grupei/clasei, datei, intervalului orar, temei, participanților și persoanei care a desfășurat activitatea.',true)}
+      ${ni(5,'Pentru pachetele alimentare distribuite în legătură cu activitățile, se întocmesc liste de distribuție sau documente echivalente, după caz.',true)}
+      ${ni(6,'Salariatul are obligația de a păstra și transmite documentele în forma și termenul solicitate de managerul de proiect.',true)}
+    </div>
+  </div>
+
+  <div style="page-break-inside:avoid; break-inside:avoid;">
+  <div class="section">
+    ${sec('N', 'Dispoziții finale')}
+    <div class="nlist">
+      ${ni(1,'Prezentul contract se completează cu fișa postului, decizia/actul intern de numire în proiect, planificările lunare, rapoartele de activitate, pontajele și celelalte documente ale proiectului.',true)}
+      ${ni(2,'Orice modificare a prezentului contract se face prin act adițional, în condițiile legii.',true)}
+      ${ni(3,'Prezentul contract a fost încheiat în două exemplare originale, câte unul pentru fiecare parte.',true)}
+    </div>
+  </div>
+
+  <div class="signatures">
+    <div class="sig-block">
+      <p class="role">Angajator,</p>
+      <p>Liceul Tehnologic "Victor Mihăilescu Craiu" Belcești</p>
+      <br>
+      <p class="role">Director,</p>
+      <p>Prof. Cătălin Ionuț BAZILUC</p>
+    </div>
+    <div class="sig-block sig-right">
+      <p class="role">Salariat,</p>
+      <p>Prof. ${e.nume}</p>
+    </div>
+  </div>
+  </div>
+  </div>
+</div>`;
+
+  // FISA POSTULUI
+  const fisa = `
+<div class="document" style="page-break-before: always;">
+  ${antet()}
+
+  <div class="doc-content">
+  <div class="fisa-header">
+    <p>Anexa nr. 1 la Contractul individual de muncă nr. ${e.nr_contract}/${e.data_contract}</p>
+    <br>
+    <p>FIȘA POSTULUI</p>
+    <p class="sub">${e.tip_activitate}</p>
+    <p class="sub">${e.activitate_pnras}</p>
+  </div>
+
+  <div class="section">
+    ${sec('A', 'Date de identificare a postului')}
+    <div class="nlist">
+      ${ni(1,'<strong>Unitatea:</strong> Liceul Tehnologic "Victor Mihăilescu Craiu" Belcești',true)}
+      ${ni(2,'<strong>Proiect:</strong> „FII UNUL DINTRE C.R.A.I.! (Creativitate, Reziliență, Adaptabilitate, Incluziune)"',true)}
+      ${ni(3,'<strong>Cod proiect:</strong> F-PNRAS-2-2023-0447',true)}
+      ${ni(4,'<strong>Titular post:</strong> '+e.nume,true)}
+      ${ni(5,'<strong>Funcția contractuală:</strong> Profesor',true)}
+      ${ni(6,'<strong>Cod COR:</strong> 233002',true)}
+      ${ni(7,'<strong>Rol în proiect:</strong> '+e.rol,true)}
+      ${ni(8,'<strong>Activitate PNRAS:</strong> '+e.activitate_pnras,true)}
+    </div>
+  </div>
+
+  <div class="section">
+    ${sec('B', 'Scopul postului')}
+    <p class="par">Asigurarea implementării activităților educaționale prevăzute în proiectul PNRAS, prin desfășurarea de activități remediale, extracurriculare, extrașcolare, de literație și/sau de sprijin, după caz, în vederea reducerii riscului de abandon școlar, creșterii participării elevilor la educație, dezvoltării competențelor acestora și îmbunătățirii rezultatelor școlare.</p>
+  </div>
+
+  <div class="section">
+    ${sec('C', 'Obiective operaționale ale postului')}
+    <div class="nlist">
+      ${ni(1,'organizarea și desfășurarea activităților conform graficului, planificărilor și obiectivelor proiectului;',true)}
+      ${ni(2,'sprijinirea elevilor beneficiari pentru recuperarea/consolidarea achizițiilor școlare sau dezvoltarea competențelor non-formale;',true)}
+      ${ni(3,'creșterea frecvenței și participării active a elevilor la activitățile proiectului;',true)}
+      ${ni(4,'asigurarea documentării complete și verificabile a activităților;',true)}
+      ${ni(5,'contribuția la realizarea indicatorilor proiectului și la menținerea eligibilității cheltuielilor.',true)}
+    </div>
+  </div>
+
+  <div class="section">
+    ${sec('D', 'Atribuții generale')}
+    <div class="nlist">
+      ${ni(1,'participă la implementarea activităților PNRAS pentru care a fost desemnat;',true)}
+      ${ni(2,'respectă planificările lunare, orarul activităților și numărul de ore aprobat;',true)}
+      ${ni(3,'pregătește conținuturile, resursele și materialele necesare desfășurării activităților;',true)}
+      ${ni(4,'coordonează grupele/clasele de elevi stabilite în proiect;',true)}
+      ${ni(5,'completează documentele justificative aferente fiecărei activități desfășurate;',true)}
+      ${ni(6,'transmite documentele către managerul de proiect în termenele stabilite;',true)}
+      ${ni(7,'colaborează cu echipa de proiect, diriginții, personalul didactic și conducerea unității;',true)}
+      ${ni(8,'respectă principiile nediscriminării, incluziunii, protecției elevilor și confidențialității datelor.',true)}
+    </div>
+  </div>
+
+  <div class="section">
+    ${sec('E', 'Atribuții specifice postului')}
+    ${getAtributii(e)}
+  </div>
+
+  <div class="section">
+    ${sec('F', 'Documente justificative obligatorii')}
+    <div class="nlist">
+      ${ni(1,'Pentru fiecare lună/activitate, salariatul întocmește, după caz, următoarele documente:',true)}
+    </div>
+    <div class="alist">
+      ${ai('a','planificarea activităților pe grupă/clasă/club;')}
+      ${ai('b','orarul lunar al activităților;')}
+      ${ai('c','liste de prezență ale elevilor, semnate conform procedurii aplicabile;')}
+      ${ai('d','fișe de activitate / procese-verbale / jurnale de activitate, după caz;')}
+      ${ai('e','fișe de progres, instrumente de evaluare, fișe de lucru sau materiale didactice, după caz;')}
+      ${ai('f','liste de distribuție pentru pachet alimentar, dacă activitatea presupune acordarea acestuia;')}
+      ${ai('g','pontaj individual lunar, completat conform orelor efectiv desfășurate;')}
+      ${ai('h','raport lunar de activitate, corelat cu pontajul și documentele justificative;')}
+      ${ai('i','dovezi foto/materiale/produse ale activității, unde este cazul, cu respectarea GDPR;')}
+      ${ai('j','alte documente solicitate de managerul de proiect, responsabilul financiar, conducerea unității sau autoritățile de verificare.')}
+    </div>
+  </div>
+
+  <div class="section">
+    ${sec('G', 'Relații ierarhice și funcționale')}
+    <div class="nlist">
+      ${ni(1,'se subordonează directorului unității, prof. Cătălin Ionuț BAZILUC, pentru aspectele de angajator;',true)}
+      ${ni(2,'colaborează cu managerul de proiect, prof. dr. Ciprian MIHAI, pentru implementarea activităților;',true)}
+      ${ni(3,'colaborează cu responsabilul financiar, ec. Viorica MORĂRAȘU, pentru documentele necesare plății și justificării cheltuielilor;',true)}
+      ${ni(4,'colaborează cu profesorii diriginți, cadrele didactice, personalul auxiliar și membrii echipei de proiect, după caz.',true)}
+    </div>
+  </div>
+
+  <div class="section">
+    ${sec('H', 'Indicatori și criterii de evaluare')}
+    <div class="nlist">
+      ${ni(1,'numărul de ore realizate și validate;',true)}
+      ${ni(2,'numărul de elevi participanți și frecvența acestora;',true)}
+      ${ni(3,'îndeplinirea activităților planificate;',true)}
+      ${ni(4,'calitatea documentelor justificative;',true)}
+      ${ni(5,'corelarea documentelor cu activitatea reală;',true)}
+      ${ni(6,'contribuția la progresul elevilor și la obiectivele proiectului;',true)}
+      ${ni(7,'respectarea termenelor de raportare și a cerințelor de audit.',true)}
+    </div>
+  </div>
+
+  <div style="page-break-inside:avoid; break-inside:avoid;">
+  <div class="section">
+    ${sec('I', 'Responsabilități privind protecția datelor și siguranța elevilor')}
+    <div class="nlist">
+      ${ni(1,'respectă confidențialitatea datelor cu caracter personal ale elevilor, părinților și personalului școlii;',true)}
+      ${ni(2,'nu publică imagini, liste nominale sau date personale fără temei și fără respectarea procedurilor interne;',true)}
+      ${ni(3,'asigură supravegherea elevilor pe durata activităților desfășurate;',true)}
+      ${ni(4,'sesizează conducerea unității cu privire la orice incident, risc sau situație care poate afecta siguranța elevilor.',true)}
+    </div>
+  </div>
+
+  <div class="signatures">
+    <div class="sig-block">
+      <p class="role">Angajator,</p>
+      <p>Liceul Tehnologic "Victor Mihăilescu Craiu" Belcești</p>
+      <br>
+      <p class="role">Director,</p>
+      <p>Prof. Cătălin Ionuț BAZILUC</p>
+    </div>
+    <div class="sig-block sig-right">
+      <p class="role">Salariat,</p>
+      <p>Prof. ${e.nume}</p>
+    </div>
+  </div>
+  </div>
+  </div>
+</div>`;
+
+  document.getElementById('docArea').innerHTML = cim + fisa;
+  document.getElementById('toolbarTitle').textContent = `CIM + Fișa postului — Prof. ${e.nume} — Nr. ${e.nr_contract}/${e.data_contract}`;
+  document.getElementById('printBtn').disabled = false;
+}
+
+function getAtributii(e) {
+  if (e.tip === 'remedial') {
+    return `
+    <div class="nlist">
+      ${ni(1,'<strong>Pentru activitatea II.4. Activități remediale și diverse activități pedagogice și de sprijin</strong>',true)}
+    </div>
+    <div class="alist">
+      ${ai('a','desfășoară activități remediale/de sprijin la disciplina <strong>'+e.disciplina+'</strong>, cu elevii din grupul-țintă al proiectului;')}
+      ${ai('b','identifică principalele dificultăți de învățare ale elevilor și adaptează activitatea la nivelul grupei;')}
+      ${ai('c','realizează activități de recuperare, consolidare și aprofundare a competențelor de bază;')}
+      ${ai('d','utilizează metode active, diferențiate, formative și incluzive, adaptate nevoilor elevilor aflați în risc educațional;')}
+      ${ai('e','monitorizează progresul elevilor prin observații, exerciții, fișe de lucru, evaluări formative și feedback individual;')}
+      ${ai('f','urmărește îmbunătățirea participării, a motivației și a rezultatelor școlare ale elevilor beneficiari;')}
+      ${ai('g','corelează activitățile remediale cu nevoile identificate la nivelul clasei/grupei și cu documentele proiectului.')}
+    </div>`;
+  }
+  if (e.tip === 'extracurricular') {
+    return `
+    <div class="nlist">
+      ${ni(1,'<strong>Pentru activitatea II.5. Activități extracurriculare și/sau extrașcolare</strong>',true)}
+    </div>
+    <div class="alist">
+      ${ai('a','organizează și desfășoară activități la cluburile tematice;')}
+      ${ai('b','proiectează activități atractive, aplicative, non-formale, orientate spre participarea activă a elevilor;')}
+      ${ai('c','urmărește dezvoltarea competențelor sociale, culturale, civice, artistice, sportive, de literație sau de comunicare, după specificul activității;')}
+      ${ai('d','asigură evidența participanților, a produselor activității și a rezultatelor obținute;')}
+      ${ai('e','realizează materiale, produse, portofolii sau dovezi ale activităților, acolo unde specificul activității permite;')}
+      ${ai('f','contribuie la creșterea atractivității școlii și la reducerea riscului de absenteism/abandon prin implicarea elevilor în activități relevante.')}
+    </div>`;
+  }
+  if (e.tip === 'literatie') {
+    return `
+    <div class="nlist">
+      ${ni(1,'<strong>Pentru activitatea II.6. Activități pentru dezvoltarea literației - Clubul de lectură</strong>',true)}
+    </div>
+    <div class="alist">
+      ${ai('a','organizează și desfășoară activități în cadrul Clubului de lectură, cu elevii din grupul-țintă al proiectului;')}
+      ${ai('b','selectează și utilizează texte literare și nonliterare adecvate vârstei, nivelului de înțelegere și intereselor elevilor;')}
+      ${ai('c','dezvoltă competențele de literație ale elevilor prin activități de: lectură ghidată și independentă, înțelegere și interpretare a textului, identificare a ideilor principale și secundare, formulare de opinii și argumente; stimulează exprimarea orală și scrisă a elevilor și dezvoltarea gândirii critice; adaptează activitățile la nivelul de literație al elevilor și la nevoile identificate în cadrul grupului;')}
+      ${ai('d','monitorizează progresul elevilor în ceea ce privește competențele de citire, înțelegere și exprimare, utilizând observații, fișe de lucru și evaluări formative;')}
+      ${ai('e','urmărește creșterea interesului pentru lectură și îmbunătățirea participării elevilor la activitățile educaționale;')}
+      ${ai('f','corelează activitățile desfășurate cu obiectivele proiectului PNRAS și cu indicatorii specifici de literație;')}
+      ${ai('g','contribuie la crearea unui mediu educațional stimulativ, care încurajează lectura și participarea activă a elevilor.')}
+    </div>`;
+  }
+  return '';
+}
+</script>
+</body>
+</html>
