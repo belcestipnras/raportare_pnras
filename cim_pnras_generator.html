@@ -283,7 +283,62 @@ p.par-no-indent {
   .section-heading .title { color: #fff !important; }
 
   .placeholder { display: none; }
+  [contenteditable], [contenteditable] * { outline: none !important; }
 }
+
+/* ===== BUTON EDITARE DATE ===== */
+.btn-edit {
+  background: #e8f0f7; color: #1e5a94;
+  border: 1px solid #aac8e0;
+  padding: 7px 14px; font-family: Calibri, sans-serif;
+  font-size: 10pt; font-weight: 700; border-radius: 4px;
+  cursor: pointer; transition: all 0.15s; margin-right: 6px;
+}
+.btn-edit:hover { background: #d0e4f4; border-color: #1e5a94; }
+
+/* ===== MODAL ===== */
+.modal-overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(0,0,0,0.5); z-index: 1000;
+  align-items: center; justify-content: center;
+}
+.modal-overlay.open { display: flex; }
+.modal {
+  background: #fff; border-radius: 8px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.35);
+  width: 560px; max-width: 95vw; max-height: 90vh;
+  display: flex; flex-direction: column; overflow: hidden;
+}
+.modal-header {
+  background: linear-gradient(90deg, #0f2744, #1a3a5c);
+  color: #fff; padding: 13px 18px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.modal-header h3 { font-size: 11pt; margin: 0; color: #8ecfea; font-family: Calibri, sans-serif; }
+.modal-close { background: none; border: none; color: #aac; font-size: 16pt; cursor: pointer; padding: 0 4px; line-height: 1; }
+.modal-close:hover { color: #fff; }
+.modal-body { padding: 16px 18px; overflow-y: auto; flex: 1; }
+.modal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 14px; }
+.modal-field { display: flex; flex-direction: column; gap: 3px; }
+.modal-field.full { grid-column: 1 / -1; }
+.modal-field label { font-size: 8pt; color: #556; font-weight: 700; text-transform: uppercase; letter-spacing: 0.3px; font-family: Calibri, sans-serif; }
+.modal-field input, .modal-field select {
+  border: 1px solid #c0c8d4; border-radius: 4px;
+  padding: 6px 9px; font-family: Calibri, sans-serif; font-size: 10pt; color: #223;
+}
+.modal-field input:focus, .modal-field select:focus { outline: none; border-color: #1e5a94; box-shadow: 0 0 0 2px #ddeeff; }
+.modal-footer { padding: 12px 18px; border-top: 1px solid #e0e4ea; display: flex; gap: 10px; justify-content: flex-end; }
+.btn-save { background: #1e5a94; color: #fff; border: none; padding: 8px 20px; border-radius: 4px; font-family: Calibri, sans-serif; font-size: 10pt; font-weight: 700; cursor: pointer; }
+.btn-save:hover { background: #0f3d6e; }
+.btn-cancel { background: #e8eaed; color: #334; border: 1px solid #c0c5cc; padding: 8px 16px; border-radius: 4px; font-family: Calibri, sans-serif; font-size: 10pt; cursor: pointer; }
+.btn-cancel:hover { background: #d4d8de; }
+@media print { .modal-overlay { display: none !important; } }
+
+/* hint discret ca elementul e editabil */
+[contenteditable="true"]:hover { background: rgba(30,90,148,0.04); outline: 1px dashed #b0cce8 !important; outline-offset: 1px; border-radius: 1px; cursor: text; }
+[contenteditable="true"]:focus { background: rgba(30,90,148,0.07); outline: 1px solid #5ba3d0 !important; }
+/* span interior din p.par - fara outline propriu */
+span[data-edit]:hover, span[data-edit]:focus { background: none; outline: none !important; }
 </style>
 </head>
 <body>
@@ -302,13 +357,50 @@ p.par-no-indent {
   <div class="main">
     <div class="toolbar">
       <h3 id="toolbarTitle">← Selectează un expert din listă pentru a genera contractul</h3>
-      <button class="btn-print" id="printBtn" disabled onclick="window.print()">🖨 Tipărește / Salvează PDF</button>
+      <button class="btn-edit" id="editBtn" style="display:none" onclick="openEditModal()">&#9998; Editează datele</button><button class="btn-print" id="printBtn" disabled onclick="window.print()">🖨 Tipărește / Salvează PDF</button>
     </div>
     <div class="doc-area" id="docArea">
       <div class="placeholder">
         <div class="placeholder-icon">📄</div>
         <div>Selectează un expert din lista din stânga</div>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL EDITARE DATE PROFESOR -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>&#9998; Editează datele profesorului</h3>
+      <button class="modal-close" onclick="closeEditModal()">&#10005;</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-grid">
+        <div class="modal-field full"><label>Nume complet</label><input type="text" id="f_nume" placeholder="ex: Popescu Ion"></div>
+        <div class="modal-field"><label>CNP</label><input type="text" id="f_cnp"></div>
+        <div class="modal-field"><label>CI Seria</label><input type="text" id="f_ci_seria"></div>
+        <div class="modal-field"><label>CI Nr.</label><input type="text" id="f_ci_nr"></div>
+        <div class="modal-field full"><label>Domiciliu</label><input type="text" id="f_domiciliu"></div>
+        <div class="modal-field full"><label>Disciplina</label><input type="text" id="f_disciplina"></div>
+        <div class="modal-field full"><label>Rol în proiect</label><input type="text" id="f_rol"></div>
+        <div class="modal-field full"><label>Activitate PNRAS (subactivitate)</label><input type="text" id="f_activitate_pnras"></div>
+        <div class="modal-field full"><label>Tip activitate (text complet)</label><input type="text" id="f_tip_activitate"></div>
+        <div class="modal-field"><label>Tarif brut/oră (lei)</label><input type="text" id="f_tarif"></div>
+        <div class="modal-field"><label>Nr. contract</label><input type="text" id="f_nr_contract"></div>
+        <div class="modal-field"><label>Data contract</label><input type="text" id="f_data_contract"></div>
+        <div class="modal-field full"><label>Tip atribuții</label>
+          <select id="f_tip">
+            <option value="remedial">Remedial (II.4)</option>
+            <option value="extracurricular">Extracurricular (II.5)</option>
+            <option value="literatie">Literație / Clubul de lectură (II.6)</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeEditModal()">Anulează</button>
+      <button class="btn-save" onclick="saveEditModal()">Salvează și regenerează</button>
     </div>
   </div>
 </div>
@@ -727,8 +819,104 @@ function generate(e) {
 
   document.getElementById('docArea').innerHTML = cim + fisa;
   document.getElementById('toolbarTitle').textContent = `CIM + Fișa postului — Prof. ${e.nume} — Nr. ${e.nr_contract}/${e.data_contract}`;
+  _currentExpert = e;
   document.getElementById('printBtn').disabled = false;
+  document.getElementById('editBtn').style.display = '';
+  makeDocEditable();
 }
+
+function makeDocEditable() {
+  const area = document.getElementById('docArea');
+
+  // p.par are text-indent CSS - wrappam continutul intr-un span interior
+  // ca indent-ul sa ramana intact vizual si la print
+  area.querySelectorAll('p.par').forEach(p => {
+    if (!p.querySelector('span[data-edit]')) {
+      const span = document.createElement('span');
+      span.setAttribute('data-edit', '1');
+      span.contentEditable = 'true';
+      span.spellcheck = false;
+      span.style.cssText = 'display:inline;outline:none;';
+      while (p.firstChild) span.appendChild(p.firstChild);
+      p.appendChild(span);
+    }
+  });
+
+  // Toate celelalte elemente de text
+  const sel = [
+    'p.par-no-indent',
+    '.ni .c',
+    '.ai .c',
+    '.section-heading .title',
+    '.cim-title p',
+    '.fisa-header p',
+    '.sig-block p',
+    '.antet-info-row .val',
+    '.antet-school-box .s1',
+    '.antet-school-box .s2',
+    '.antet-school-box .s3',
+  ].join(',');
+
+  area.querySelectorAll(sel).forEach(el => {
+    el.contentEditable = 'true';
+    el.spellcheck = false;
+  });
+}
+
+/* ===== MODAL EDITARE DATE ===== */
+let _currentExpert = null;
+
+function openEditModal() {
+  if (!_currentExpert) return;
+  const e = _currentExpert;
+  document.getElementById('f_nume').value = e.nume || '';
+  document.getElementById('f_cnp').value = e.cnp || '';
+  document.getElementById('f_ci_seria').value = e.ci_seria || '';
+  document.getElementById('f_ci_nr').value = e.ci_nr || '';
+  document.getElementById('f_domiciliu').value = e.domiciliu || '';
+  document.getElementById('f_disciplina').value = e.disciplina || '';
+  document.getElementById('f_rol').value = e.rol || '';
+  document.getElementById('f_activitate_pnras').value = e.activitate_pnras || '';
+  document.getElementById('f_tip_activitate').value = e.tip_activitate || '';
+  document.getElementById('f_tarif').value = e.tarif || '';
+  document.getElementById('f_nr_contract').value = e.nr_contract || '';
+  document.getElementById('f_data_contract').value = e.data_contract || '';
+  document.getElementById('f_tip').value = e.tip || 'remedial';
+  document.getElementById('modalOverlay').classList.add('open');
+}
+
+function closeEditModal() {
+  document.getElementById('modalOverlay').classList.remove('open');
+}
+
+function saveEditModal() {
+  if (!_currentExpert) return;
+  _currentExpert.nume = document.getElementById('f_nume').value.trim();
+  _currentExpert.cnp = document.getElementById('f_cnp').value.trim();
+  _currentExpert.ci_seria = document.getElementById('f_ci_seria').value.trim();
+  _currentExpert.ci_nr = document.getElementById('f_ci_nr').value.trim();
+  _currentExpert.domiciliu = document.getElementById('f_domiciliu').value.trim();
+  _currentExpert.disciplina = document.getElementById('f_disciplina').value.trim();
+  _currentExpert.rol = document.getElementById('f_rol').value.trim();
+  _currentExpert.activitate_pnras = document.getElementById('f_activitate_pnras').value.trim();
+  _currentExpert.tip_activitate = document.getElementById('f_tip_activitate').value.trim();
+  _currentExpert.tarif = document.getElementById('f_tarif').value.trim();
+  _currentExpert.nr_contract = document.getElementById('f_nr_contract').value.trim();
+  _currentExpert.data_contract = document.getElementById('f_data_contract').value.trim();
+  _currentExpert.tip = document.getElementById('f_tip').value;
+  closeEditModal();
+  generate(_currentExpert);
+  // Re-update sidebar label
+  document.querySelectorAll('.expert-btn').forEach(btn => {
+    if (btn.classList.contains('active')) {
+      btn.innerHTML = `${_currentExpert.nume}<small>${_currentExpert.activitate_pnras}</small>`;
+    }
+  });
+}
+
+document.getElementById('modalOverlay').addEventListener('click', function(ev) {
+  if (ev.target === this) closeEditModal();
+});
 
 function getAtributii(e) {
   if (e.tip === 'remedial') {
