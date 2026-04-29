@@ -915,6 +915,7 @@ async function genereazaDosarFactura(){
     const{data:exclFresh}=await db.from('documente_contract').select('furnizor')
       .eq('contract_id',contractId).eq('tip_document',`EXCL_${_facturaActiva.id}`);
     const excluseFresh=new Set((exclFresh||[]).map(d=>d.furnizor));
+    alert(`exclFresh count: ${(exclFresh||[]).length}\nfacturaActiva.id: ${_facturaActiva.id}\nexcluseFresh IDs:\n${[...excluseFresh].join('\n')}`);
 
     const{data:allDocsFresh}=await db.from('documente_contract').select('*').eq('contract_id',contractId);
     const autoDocsFresh={};
