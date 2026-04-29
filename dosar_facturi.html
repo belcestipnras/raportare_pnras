@@ -924,13 +924,6 @@ async function genereazaDosarFactura(){
       ).sort((a,b)=>(a.tip_document||'').localeCompare(b.tip_document||'',undefined,{numeric:true}));
     });
     const contractDocsFresh=(allDocsFresh||[]).filter(d=>d.tip_document==='9. Contract');
-    const s3docs=(autoDocsFresh['S3']||[]);
-    let s3msg=`autoDocsFresh[S3] count: ${s3docs.length}\n\n`;
-    s3docs.forEach(d=>{
-      const excl=excluseFresh.has(d.id);
-      s3msg+=`${excl?'❌ EXCLUS':'✅ INCLUS'} | id: ${d.id}\n  nume: ${d.nume_fisier}\n\n`;
-    });
-    alert(s3msg);
 
     let nrSec=0;
     const totalEstimat=SECTIUNI.length;
@@ -974,7 +967,7 @@ async function genereazaDosarFactura(){
 
     upd(92,'Se urcă în storage...');
     const numeFact=(_facturaActiva.nume_fisier||'Factura').replace(/\.[^.]+$/,'').replace(/^\d+\.\s*/,'');
-    const fnR2=`Dosar_${numeFact.replace(/\./g,'_')}.pdf`;  // R2 safe (fara puncte)
+    const fnR2=`Dosar_${numeFact.replace(/\./g,'_')}_${Date.now()}.pdf`;  // R2 safe (fara puncte, unic)
     const fn=`Dosar_${numeFact}.pdf`;  // Numele frumos pentru download
     let dosarUrl;
     try{
