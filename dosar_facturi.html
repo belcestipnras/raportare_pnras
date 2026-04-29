@@ -911,6 +911,20 @@ async function genereazaDosarFactura(){
     const{data:dd}=await db.from('documente_contract').select('*').eq('contract_id',contractId).like('tip_document',`FACT_${_facturaActiva.id}_%`);
     const byTipGen={};(dd||[]).forEach(d=>{if(!byTipGen[d.tip_document])byTipGen[d.tip_document]=[];byTipGen[d.tip_document].push(d);});
 
+    // FRESH: reîncarcă excluderile și autoDocs direct din DB
+    const{data:exclFresh}=await db.from('documente_contract').select('furnizor')
+      .eq('contract_id',contractId).eq('tip_document',`EXCL_${_facturaActiva.id}`);
+    const excluseFresh=new Set((exclFresh||[]).map(d=>d.furnizor));
+
+    const{data:allDocsFresh}=await db.from('documente_contract').select('*').eq('contract_id',contractId);
+    const autoDocsFresh={};
+    SECTIUNI.filter(s=>s.autoPrefix).forEach(s=>{
+      autoDocsFresh[s.id]=(allDocsFresh||[]).filter(d=>
+        s.autoPrefix.some(p=>d.tip_document&&d.tip_document.startsWith(p))
+      ).sort((a,b)=>(a.tip_document||'').localeCompare(b.tip_document||'',undefined,{numeric:true}));
+    });
+    const contractDocsFresh=(allDocsFresh||[]).filter(d=>d.tip_document==='9. Contract');
+
     let nrSec=0;
     const totalEstimat=SECTIUNI.length;
 
@@ -923,11 +937,11 @@ async function genereazaDosarFactura(){
       let docsSecManual=[];
 
       if(s.id==='S1'){
-        docsSecAuto=_contractDocs.filter(d=>!d.exclude_print&&d.link_drive);
+        docsSecAuto=contractDocsFresh.filter(d=>!d.exclude_print&&d.link_drive);
       } else if(s.id==='S2'){
         if(_facturaActiva&&_facturaActiva.link_drive&&!_facturaActiva.exclude_print)docsSecAuto=[_facturaActiva];
       } else if(s.autoPrefix){
-        docsSecAuto=(_autoDocs[s.id]||[]).filter(d=>!_excluseFactura.has(d.id)&&d.link_drive);
+        docsSecAuto=(autoDocsFresh[s.id]||[]).filter(d=>!excluseFresh.has(d.id)&&d.link_drive);
         docsSecManual=Object.keys(byTipGen).filter(k=>k.startsWith(`FACT_${_facturaActiva.id}_${s.id}`)).flatMap(k=>byTipGen[k]||[]).filter(d=>!d.exclude_print&&d.link_drive);
       } else {
         docsSecManual=Object.keys(byTipGen).filter(k=>k.startsWith(`FACT_${_facturaActiva.id}_${s.id}`)).flatMap(k=>byTipGen[k]||[]).filter(d=>!d.exclude_print&&d.link_drive);
