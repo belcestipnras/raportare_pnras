@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PNRAS | Acord de Confidențialitate</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Roboto+Mono:wght@500&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <style>
+        :root {
+            --sidebar-width: 320px;
+            --primary: #0056b3;
+            --active-green: #28a745;
+            --bg-viewer: #525659;
+            --border: #ddd;
+        }
+
+        * { box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; margin: 0; padding: 0; background-color: white; display: flex; height: 100vh; overflow: hidden; }
+
+        /* --- SIDEBAR --- */
+        .sidebar { width: var(--sidebar-width); background: white; border-right: 1px solid var(--border); height: 100vh; display: flex; flex-direction: column; flex-shrink: 0; z-index: 10; }
+        .sidebar-header { padding: 15px; background: #f8f9fa; border-bottom: 1px solid var(--border); }
+        .year-tabs { display: flex; width: 100%; border-bottom: 1px solid var(--border); background: #e9ecef; }
+        .tab-btn { flex: 1; padding: 12px; border: none; background: transparent; font-weight: 700; color: #666; cursor: pointer; border-bottom: 3px solid transparent; }
+        .tab-btn.active { background: white; color: var(--primary); border-bottom: 3px solid var(--primary); }
+
+        .docs-container { padding: 15px; flex-grow: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
+        .year-content { display: none; flex-direction: column; gap: 8px; }
+        .year-content.active { display: flex; }
+
+        /* Config row - nr start + data */
+        .config-section { border: 1px solid #dde; border-radius: 6px; padding: 10px; background: #f8f9fa; margin-bottom: 4px; }
+        .config-label { font-size: 0.72rem; font-weight: 700; color: #555; text-transform: uppercase; margin-bottom: 6px; }
+        .config-row { display: flex; gap: 5px; }
+        .cfg-input { width: 100%; padding: 6px 8px; border: 1px solid #ccc; border-radius: 4px; font-size: 12px; font-family: 'Roboto Mono', monospace; }
+        .cfg-input:focus { outline: 1px solid var(--primary); background: #fffde7; }
+
+        .diriginte-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 10px; border: 1px solid #eee; border-radius: 6px; background: white; cursor: pointer; transition: 0.15s; gap: 8px; }
+        .diriginte-row:hover { background: #f0f7ff; border-color: var(--primary); }
+        .diriginte-row.active { background: #e3f0ff; border-color: var(--primary); }
+        .dir-index { font-family: 'Roboto Mono', monospace; font-size: 0.7rem; color: #888; flex-shrink: 0; min-width: 20px; }
+        .dir-name { font-size: 0.82rem; font-weight: 700; color: #333; flex-grow: 1; }
+        .dir-clasa { font-size: 0.75rem; color: #666; font-family: 'Roboto Mono', monospace; background: #f0f0f0; padding: 2px 6px; border-radius: 3px; flex-shrink: 0; }
+        .gender-toggle { display: flex; gap: 2px; flex-shrink: 0; }
+        .gender-toggle button { border: 1px solid #ccc; background: white; border-radius: 3px; padding: 2px 6px; font-size: 0.7rem; cursor: pointer; color: #666; line-height: 1.4; }
+        .gender-toggle button.active-m { background: #cce5ff; border-color: #0056b3; color: #0056b3; font-weight: 700; }
+        .gender-toggle button.active-f { background: #f8d7da; border-color: #c0392b; color: #c0392b; font-weight: 700; }
+        .btn-print-all { background: #dc3545; color: white; border: none; padding: 8px 20px; border-radius: 20px; font-weight: 700; cursor: pointer; }
+
+        /* --- VIEWER --- */
+        .main-content { flex-grow: 1; height: 100vh; overflow-y: auto; background-color: var(--bg-viewer); display: flex; flex-direction: column; align-items: center; padding: 20px 0; }
+        .doc-toolbar { position: sticky; top: 10px; z-index: 500; background: rgba(40,40,40,0.95); color: white; padding: 10px 30px; border-radius: 30px; display: flex; align-items: center; gap: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.5); margin-bottom: 20px; }
+        .btn-print-action { background: var(--active-green); color: white; border: none; padding: 8px 20px; border-radius: 20px; font-weight: 700; cursor: pointer; }
+        .btn-back { background: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.2); padding: 8px 16px; border-radius: 20px; font-weight: 600; cursor: pointer; font-size: 13px; text-decoration: none; }
+
+        /* --- A4 PAGE --- */
+        .a4-page {
+            background: white; width: 210mm; min-height: 297mm; flex-shrink: 0;
+            padding: 1.5cm; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            box-sizing: border-box; position: relative; display: block;
+            font-family: 'Times New Roman', Times, serif; color: black;
+            line-height: 1.4; margin-bottom: 30px;
+        }
+
+        [contenteditable="true"]:focus { background-color: #fffde7; outline: 1px solid var(--primary); }
+        .saving-visual { position: absolute; top: 10px; right: 20px; font-size: 9pt; font-weight: bold; color: #28a745; font-family: sans-serif; display: none; }
+
+        .header-img { width: 100%; height: auto; display: block; margin-bottom: 10px; }
+        .reg-number { font-size: 11pt; margin-bottom: 20px; }
+
+        .doc-title { text-align: center; font-weight: bold; font-size: 13pt; margin: 0 0 5px 0; text-transform: uppercase; }
+        .doc-subtitle { text-align: center; font-size: 10.5pt; font-style: italic; margin: 0 0 25px 0; line-height: 1.4; }
+
+        .body-text { font-size: 11pt; text-align: justify; text-indent: 40px; margin-bottom: 15px; line-height: 1.5; }
+
+        .checkbox-list { list-style: none; padding: 0; margin: 0 0 20px 0; }
+        .checkbox-list li { display: flex; align-items: flex-start; gap: 10px; font-size: 11pt; text-align: justify; margin-bottom: 10px; line-height: 1.5; }
+        .checkbox-list li .cb { flex-shrink: 0; width: 14px; height: 14px; border: 1.5px solid #000; display: inline-flex; align-items: center; justify-content: center; margin-top: 3px; font-size: 11pt; }
+
+        .footer-doc { margin-top: 30px; display: flex; justify-content: space-between; font-size: 11pt; }
+
+        @media print {
+            @page { size: A4; margin: 0; }
+            html, body { height: auto; overflow: visible; background: white !important; }
+            .sidebar, .doc-toolbar { display: none !important; }
+            .main-content { position: static; display: block; width: 100%; height: auto; padding: 0 !important; background: white !important; }
+            .a4-page { margin: 0 !important; border: none !important; box-shadow: none !important; width: 210mm !important; min-height: 297mm !important; page-break-after: always !important; padding: 1.5cm !important; }
+            .saving-visual { display: none !important; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="sidebar">
+    <div class="sidebar-header">
+        <div style="font-weight:800; color:#333; font-size:1rem;">🔏 Acord Confidențialitate</div>
+        <div style="font-size:0.8rem; color:#666; margin-top:4px;" id="status-text">Conectare Supabase...</div>
+        <button onclick="window.location.href='mate.html'" style="margin-top:10px; width:100%; padding:7px; border:1px solid #ccc; border-radius:5px; background:#f8f9fa; cursor:pointer; font-size:12px; font-weight:700;">← Înapoi la MATE</button>
+    </div>
+    <div class="year-tabs">
+        <button class="tab-btn active" onclick="switchTab('2025', this)">2025</button>
+        <button class="tab-btn" onclick="switchTab('2026', this)">2026</button>
+    </div>
+    <div class="docs-container" id="side-docs"></div>
+</div>
+
+<div class="main-content" id="print-area">
+    <div style="margin-top:200px; text-align:center; color:#ccc;">
+        <h3>Selectează un diriginte din lista din stânga.</h3>
+    </div>
+</div>
+
+<script>
+    const { createClient } = supabase;
+    const dbClient = createClient(
+        'https://aexjrbdgajurxzngfkpx.supabase.co',
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFleGpyYmRnYWp1cnh6bmdma3B4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgxMzE3NTYsImV4cCI6MjA4MzcwNzc1Nn0.VUx0QOKgjX4m23HOF2rBpE9vWA3T18KtjLc0w_iXhqA'
+    );
+
+    const TITLU_PROIECT = 'FII UNUL DINTRE C.R.A.I.! (Creativitate, Reziliență, Adaptabilitate, Incluziune)';
+
+    let dirigintiCache = { '2025': [], '2026': [] };
+    let activeYear = '2025';
+    // genCache[slugNume] = 'm' | 'f'  (shared across years since same person)
+    let genCache = {};
+
+    window.addEventListener('DOMContentLoaded', async () => {
+        await loadDiriginti();
+        await fetchConfigs();
+        await fetchGenData();
+        document.getElementById('status-text').textContent = '● Conectat';
+    });
+
+    async function loadDiriginti() {
+        for (const an of ['2025', '2026']) {
+            const { data, error } = await dbClient
+                .from('mate_pnras')
+                .select('diriginte, clasa, anul')
+                .eq('anul', parseInt(an))
+                .not('diriginte', 'is', null)
+                .neq('diriginte', '')
+                .neq('diriginte', '---');
+
+            if (error) { console.error(error); continue; }
+
+            const map = {};
+            (data || []).forEach(row => {
+                const dir = row.diriginte.trim();
+                if (!map[dir]) map[dir] = new Set();
+                map[dir].add(row.clasa);
+            });
+
+            dirigintiCache[an] = Object.entries(map)
+                .map(([nume, clase]) => ({ nume, clase: [...clase].sort() }))
+                .sort((a, b) => a.nume.localeCompare(b.nume));
+        }
+        renderSidebar();
+    }
+
+    function renderSidebar() {
+        const container = document.getElementById('side-docs');
+        container.innerHTML = ['2025', '2026'].map(an => {
+            const configHtml = `
+                <div class="config-section">
+                    <div class="config-label">Nr. înregistrare</div>
+                    <div class="config-row">
+                        <input type="text" id="cfg_nr_${an}" class="cfg-input" placeholder="Nr. Start" onchange="saveConfig('${an}'); refreshNrInreg('${an}')">
+                        <input type="text" id="cfg_dt_${an}" class="cfg-input" placeholder="Data (zz.ll.aaaa)" onchange="saveConfig('${an}'); refreshNrInreg('${an}')">
+                    </div>
+                </div>
+            `;
+            const rows = dirigintiCache[an].map((d, idx) => {
+                const slug = slugify(d.nume);
+                const gen = genCache[slug] || '';
+                return `
+                <div class="diriginte-row" id="row-${an}-${slug}"
+                     onclick="loadDocument('${an}', '${escapeAttr(d.nume)}', '${d.clase[0]}', ${idx}, this)">
+                    <span class="dir-index">${idx + 1}</span>
+                    <span class="dir-name">${d.nume}</span>
+                    <div class="gender-toggle" onclick="event.stopPropagation()">
+                        <button id="gm-${slug}" class="${gen === 'm' ? 'active-m' : ''}" onclick="setGen('${slug}', 'm', '${an}', '${escapeAttr(d.nume)}', ${idx})">M</button>
+                        <button id="gf-${slug}" class="${gen === 'f' ? 'active-f' : ''}" onclick="setGen('${slug}', 'f', '${an}', '${escapeAttr(d.nume)}', ${idx})">F</button>
+                    </div>
+                    <span class="dir-clasa">${d.clase.join(', ')}</span>
+                </div>`;
+            }).join('');
+            return `<div id="view-${an}" class="year-content ${an === '2025' ? 'active' : ''}">
+                ${configHtml}
+                ${rows || '<p style="color:#999;font-size:12px;">Nu există diriginți.</p>'}
+            </div>`;
+        }).join('');
+    }
+
+    async function fetchConfigs() {
+        const { data } = await dbClient
+            .from('registru_numere')
+            .select('id_document, nr_inreg')
+            .like('id_document', 'ACORD_CONF_CFG_%');
+        if (data) {
+            data.forEach(row => {
+                // id_document format: ACORD_CONF_CFG_2025
+                const parts = row.id_document.split('_');
+                const an = parts[parts.length - 1]; // last part is year
+                const [nrPart, dtPart] = (row.nr_inreg || '').split('|');
+                const nrEl = document.getElementById(`cfg_nr_${an}`);
+                const dtEl = document.getElementById(`cfg_dt_${an}`);
+                if (nrEl) nrEl.value = nrPart || '';
+                if (dtEl) dtEl.value = dtPart || '';
+            });
+        }
+    }
+
+    async function saveConfig(an) {
+        const nr = document.getElementById(`cfg_nr_${an}`)?.value || '';
+        const dt = document.getElementById(`cfg_dt_${an}`)?.value || '';
+        await dbClient.from('registru_numere').upsert(
+            { id_document: `ACORD_CONF_CFG_${an}`, nr_inreg: `${nr}|${dt}`, anul: parseInt(an), tip_document: 'acord_conf_config' },
+            { onConflict: 'id_document' }
+        );
+    }
+
+    async function fetchGenData() {
+        const { data } = await dbClient
+            .from('registru_numere')
+            .select('id_document, nr_inreg')
+            .like('id_document', 'ACORD_CONF_GEN_%');
+        if (data) {
+            data.forEach(row => {
+                // id_document: ACORD_CONF_GEN_slugname
+                const slug = row.id_document.replace('ACORD_CONF_GEN_', '');
+                genCache[slug] = row.nr_inreg; // 'm' or 'f'
+            });
+        }
+        // Re-render sidebar with updated gender info
+        renderSidebar();
+    }
+
+    async function setGen(slug, gen, an, numeDir, idx) {
+        genCache[slug] = gen;
+        // Update button styles
+        const mBtn = document.getElementById(`gm-${slug}`);
+        const fBtn = document.getElementById(`gf-${slug}`);
+        if (mBtn) { mBtn.className = gen === 'm' ? 'active-m' : ''; }
+        if (fBtn) { fBtn.className = gen === 'f' ? 'active-f' : ''; }
+        // Save to Supabase
+        await dbClient.from('registru_numere').upsert(
+            { id_document: `ACORD_CONF_GEN_${slug}`, nr_inreg: gen, tip_document: 'acord_conf_gen' },
+            { onConflict: 'id_document' }
+        );
+        // If this diriginte is currently open, refresh document
+        const activeRow = document.getElementById(`row-${an}-${slug}`);
+        if (activeRow && activeRow.classList.contains('active')) {
+            loadDocument(an, numeDir, dirigintiCache[an].find(d => slugify(d.nume) === slug)?.clase[0] || '', idx, activeRow);
+        }
+    }
+
+    // Refresh numărul afișat în documentul vizibil curent când se schimbă config-ul
+    function refreshNrInreg(an) {
+        const activeRow = document.querySelector(`.diriginte-row.active[id^="row-${an}-"]`);
+        if (activeRow) activeRow.click();
+    }
+
+    function switchTab(year, btn) {
+        activeYear = year;
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        document.querySelectorAll('.year-content').forEach(c => c.classList.remove('active'));
+        document.getElementById(`view-${year}`).classList.add('active');
+    }
+
+    async function loadDocument(an, numeDir, clasa, idx, btn) {
+        document.querySelectorAll('.diriginte-row').forEach(r => r.classList.remove('active'));
+        if (btn) btn.classList.add('active');
+
+        const entry = dirigintiCache[an].find(d => d.nume === numeDir);
+        const clase = entry ? entry.clase : [clasa];
+        const slug = slugify(numeDir);
+        const gen = genCache[slug] || 'm'; // default masculin dacă nu e setat
+
+        const anScolarLabel = an === '2025' ? '2024 - 2025' : '2025 - 2026';
+
+        const nrStart = document.getElementById(`cfg_nr_${an}`)?.value || '___';
+        const dtStart = document.getElementById(`cfg_dt_${an}`)?.value || '__.__.____';
+        const nrAuto = `Nr. ${nrStart}/${idx + 1}/${dtStart}`;
+
+        const idDoc = `ACORD_CONF_${an}_${slug}`;
+
+        const html = `
+        <div class="doc-toolbar">
+            <a href="mate.html" class="btn-back">← MATE</a>
+            <div><strong>Acord Confidențialitate – ${numeDir}</strong></div>
+            <button class="btn-print-action" onclick="window.print()">🖨️ Printează</button>
+            <button class="btn-print-all" onclick="printAll('${an}')">🖨️ Printează tot</button>
+        </div>
+        ${generateA4(an, numeDir, clase, anScolarLabel, idDoc, nrAuto, gen)}
+        `;
+
+        document.getElementById('print-area').innerHTML = html;
+    }
+
+    async function printAll(an) {
+        const nrStart = document.getElementById(`cfg_nr_${an}`)?.value || '___';
+        const dtStart = document.getElementById(`cfg_dt_${an}`)?.value || '__.__.____';
+        const anScolarLabel = an === '2025' ? '2024 - 2025' : '2025 - 2026';
+
+        let html = `<div class="doc-toolbar">
+            <a href="mate.html" class="btn-back">← MATE</a>
+            <div><strong>Toate acordurile – ${an}</strong></div>
+            <button class="btn-print-action" onclick="window.print()">🖨️ Printează tot</button>
+        </div>`;
+
+        dirigintiCache[an].forEach((d, idx) => {
+            const slug = slugify(d.nume);
+            const gen = genCache[slug] || 'm';
+            const nrAuto = `Nr. ${nrStart}/${idx + 1}/${dtStart}`;
+            const idDoc = `ACORD_CONF_${an}_${slug}`;
+            html += generateA4(an, d.nume, d.clase, anScolarLabel, idDoc, nrAuto, gen);
+        });
+
+        document.getElementById('print-area').innerHTML = html;
+    }
+
+    function generateA4(an, numeDir, clase, anScolarLabel, idDoc, nrAuto, gen) {
+        const formatClasa = (c) => {
+            const romani = { '5':'V','6':'VI','7':'VII','8':'VIII','9':'IX','10':'X','11':'XI','12':'XII' };
+            const m = c.match(/^(\d+)([A-Z])$/);
+            if (!m) return c;
+            return `a ${romani[m[1]] || m[1]}-a ${m[2]}`;
+        };
+        const clasaFormatata = clase.map(formatClasa).join(', ');
+        const dataAuto = extractDataFromNr(nrAuto);
+        const subSemnat = (gen === 'f') ? 'Subsemnata' : 'Subsemnatul';
+
+        return `
+        <div class="a4-page">
+            <div class="saving-visual" id="sv-${idDoc}">Salvat ✓</div>
+            <img src="antet_pnras.jpeg" alt="ANTET" class="header-img">
+
+            <div class="reg-number" id="reg-${idDoc}">${nrAuto}</div>
+
+            <h1 class="doc-title">ACORD DE CONFIDENȚIALITATE</h1>
+            <p class="doc-subtitle">pentru responsabilii de caz, din proiectul PNRAS 2<br>„${TITLU_PROIECT}"</p>
+
+            <p class="body-text">
+                ${subSemnat} <strong>${numeDir}</strong>, profesor diriginte la clasa <strong>${clasaFormatata}</strong>,
+                de la Liceul Tehnologic „Victor Mihăilescu Craiu" Belcești, în anul școlar <strong>${anScolarLabel}</strong>,
+                în calitate de responsabil de caz pentru prevenire confirm că:
+            </p>
+
+            <ul class="checkbox-list">
+                <li>
+                    <span class="cb">&#10003;</span>
+                    <span>voi păstra confidențialitatea informațiilor cu caracter personal despre copil și despre familia acestuia,
+                    la care am acces în procesul de evaluare, în ședințele în cadrul cărora se discută detalii din viața personală
+                    a acestora și în intervenția directă;</span>
+                </li>
+                <li>
+                    <span class="cb">&#10003;</span>
+                    <span>mă voi asigura că documentația pe care o întocmesc sau pe care o primesc în contextul evaluării și
+                    al intervenției să fie păstrată în condiții de acces limitat pentru alte persoane care nu sunt implicate
+                    în acest caz.</span>
+                </li>
+            </ul>
+
+            <p class="body-text">
+                În același timp, în cazul în care consider că este necesară împărtășirea informației confidențiale mă voi asigura că:
+            </p>
+
+            <ul class="checkbox-list">
+                <li>
+                    <span class="cb">&#10003;</span>
+                    <span>specialistul sau instituția căreia îi transmit informația sunt relevanți pentru problema și situația cazului;</span>
+                </li>
+                <li>
+                    <span class="cb">&#10003;</span>
+                    <span>în funcție de vârstă și de capacitatea sa de înțelegere, copilul precum și reprezentantul legal al acestuia
+                    permit discutarea cazului lor sau transmiterea informației specialiștilor relevanți cazului;</span>
+                </li>
+                <li>
+                    <span class="cb">&#10003;</span>
+                    <span>voi transmite informațiile confidențiale fără acordul copilului și al reprezentantului legal al acestuia,
+                    doar în cazul în care voi considera că situația afectează sănătatea și dezvoltarea copilului.</span>
+                </li>
+            </ul>
+
+            <div class="footer-doc">
+                <div>Data: ${dataAuto}</div>
+                <div style="text-align:center; width:280px;">
+                    Semnătură,<br><strong>${numeDir}</strong>
+                </div>
+            </div>
+        </div>`;
+    }
+
+    function extractDataFromNr(nr) {
+        if (!nr) return '__.__.____';
+        const match = nr.match(/(\d{2}\.\d{2}\.\d{4})/);
+        return match ? match[1] : '__.__.____';
+    }
+
+    function slugify(str) {
+        return str.toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, '');
+    }
+
+    function escapeAttr(str) {
+        return str.replace(/'/g, "\\'");
+    }
+</script>
+</body>
+</html>
