@@ -117,7 +117,7 @@
             '2025': ['5A', '5B', '6A', '6B', '6C', '7A', '7B', '8A', '8B', '8C'],
             '2026': ['5A', '5B', '5C', '6A', '6B', '7A', '7B', '7C', '8A', '8B']
         };
-        const tipuriDoc = ['GDPR', 'Consimțământ', 'Adeverințe'];
+        const tipuriDoc = ['GDPR', 'Consimțământ', 'Adeverințe', 'Adeverințe absolvire'];
         const TITLU_PROIECT = "FII UNUL DINTRE C.R.A.I.! (Creativitate, Reziliență, Adaptabilitate, Incluziune)";
 
         window.addEventListener('DOMContentLoaded', async () => {
@@ -188,6 +188,14 @@
             return `${c.substring(5, 7)}.${c.substring(3, 5)}.${century}${c.substring(1, 3)}`;
         }
 
+        function formatClasa(clasa) {
+            const romani = { '5': 'V', '6': 'VI', '7': 'VII', '8': 'VIII', '9': 'IX', '10': 'X', '11': 'XI', '12': 'XII' };
+            const match = clasa.match(/^(\d+)([A-Z])$/);
+            if (!match) return clasa;
+            const nr = romani[match[1]] || match[1];
+            return `a ${nr}-a ${match[2]}`;
+        }
+
         function switchTab(year, btn) {
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
@@ -232,6 +240,31 @@
                 title = "Adeverință de apartenență la grupul țintă PNRAS";
                 content = `<p style="text-indent: 40px; margin: 40px 0; font-size: 12pt; text-align: justify;" contenteditable="true" onblur="localSave('${sid}','${docType}','c1',this.innerHTML)">Prin prezenta se adeverește că elevul(a) <strong>${eNume}</strong> este elev la Liceul Tehnologic ”Victor Mihăilescu Craiu” Belcești, în clasa <strong>${clasa}</strong>, și face parte din grupul-țintă al proiectului „${TITLU_PROIECT}”, cod F-PNRAS-2-2023-0447. Adeverința se eliberează pentru a-i servi la dosarul personal din cadrul proiectului.</p>`;
                 footer = `<div>Data: ${dtVal}</div><div style="text-align:center; width:280px;">Secretar,<br><strong>Hasmațuchi Otilia</strong><br><br>.......................................</div>`;
+            } else if (docType === "Adeverințe absolvire") {
+                const dataNastere = extractDateFromCNP(elev.cnp) || '............';
+                const firstDigit = elev.cnp ? elev.cnp.toString()[0] : '5';
+                const isFeminin = firstDigit === '6';
+                const genElev = isFeminin ? 'eleva' : 'elevul';
+                const genNascut = isFeminin ? 'născută' : 'născut';
+                const genInscris = isFeminin ? 'înscrisă' : 'înscris';
+                const clasaFormatata = formatClasa(clasa);
+                return `
+                <div class="a4-page">
+                    <div class="saving-visual" id="status-${sid}"></div>
+                    <img src="antet_pnras.jpeg" alt="ANTET" class="header-img">
+                    <div class="reg-number" contenteditable="true" onblur="localSave('${sid}','${docType}','reg_nr',this.innerText)">${regNumber}</div>
+                    <h1 class="doc-main-title" contenteditable="true" style="font-size:16pt; margin: 20px 0 25px 0;">Adeverință</h1>
+                    <p style="text-indent: 40px; margin: 20px 0; font-size: 11pt; line-height: 1.8; text-align: justify;" contenteditable="true" onblur="localSave('${sid}','${docType}','c1',this.innerHTML)">Prin prezenta se adeverește că ${genElev} <strong>${eNume}</strong>, ${genNascut} la data de <strong>${dataNastere}</strong>, CNP <strong>${elev.cnp}</strong>, a fost ${genInscris} la Liceul Tehnologic „Victor Mihăilescu Craiu" Belcești, în clasa <strong>${clasaFormatata}</strong>, în anul școlar <strong>${anScolarLabel}</strong>.</p>
+                    <p style="text-indent: 40px; margin: 20px 0; font-size: 11pt; line-height: 1.8; text-align: justify;" contenteditable="true" onblur="localSave('${sid}','${docType}','c2',this.innerHTML)">${isFeminin ? 'Eleva' : 'Elevul'} a frecventat cursurile învățământului gimnazial și a absolvit clasa <strong>${clasaFormatata}</strong>, conform evidențelor școlare existente la nivelul unității de învățământ.</p>
+                    <p style="text-indent: 40px; margin: 20px 0; font-size: 11pt; line-height: 1.8; text-align: justify;" contenteditable="true" onblur="localSave('${sid}','${docType}','c3',this.innerHTML)">Prezenta adeverință se eliberează pentru utilizarea în cadrul proiectului PNRAS „${TITLU_PROIECT}".</p>
+                    <div style="margin-top: 50px; font-size: 11pt;">
+                        <div>Data: ${dtVal}</div>
+                        <div style="display:flex; justify-content: space-between; margin-top: 30px; padding: 0 20px;">
+                            <div style="text-align:center;">Director,<br>prof. Cătălin Ionuț <strong>BAZILUC</strong><br><br>.......................................</div>
+                            <div style="text-align:center;">Secretar,<br>Otilia <strong>HASMAȚUCHI</strong><br><br>.......................................</div>
+                        </div>
+                    </div>
+                </div>`;
             } else {
                 title = "Declarație de consimțământ privind acordul pentru prelucrarea datelor cu caracter personal și folosirea imaginii";
                 content = `
@@ -283,6 +316,10 @@
                     </table>
                     <div class="footer-signatures"><div>Data: ${dtVal}</div><div style="text-align:center; width:280px;">Secretar,<br><strong>Hasmațuchi Otilia</strong><br><br>.......................................</div></div>
                 </div>`;
+                // Adaugă adeverințele individuale după tabelul colectiv
+                if(students) students.forEach((elev, index) => {
+                    htmlTabel += generateA4Page(elev, index, nrVal, dtVal, elev.clasa, docType);
+                });
                 document.getElementById('print-area').innerHTML = htmlTabel;
             } else {
                 let fullHtml = `<div class="doc-toolbar"><div><strong>BATCH ${year} - ${docType}</strong></div><button class="btn-print-action" onclick="window.print()">PRINTEAZĂ TOT</button></div>`;
