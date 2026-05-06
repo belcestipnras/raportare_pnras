@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Statistici PNRAS</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;700&family=DM+Mono:wght@500&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0b0f1a;
+            --surface: #111827;
+            --surface2: #1a2235;
+            --border: rgba(255,255,255,0.07);
+            --text: #e8eaf0;
+            --muted: #64748b;
+            --accent: #3ecf8e;
+            --accent2: #6366f1;
+            --accent3: #f59e0b;
+            --accent4: #ef4444;
+            --accent5: #06b6d4;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        /* TOP BAR */
+        .topbar {
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            padding: 16px 30px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .topbar-left { display: flex; align-items: center; gap: 16px; }
+        .btn-back {
+            text-decoration: none;
+            color: var(--muted);
+            font-size: 0.85rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 7px 14px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+        .btn-back:hover { color: var(--text); border-color: rgba(255,255,255,0.2); }
+        .topbar-title {
+            font-family: 'Syne', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 800;
+            color: var(--text);
+            letter-spacing: -0.02em;
+        }
+        .topbar-title span { color: var(--accent); }
+        .status-dot {
+            width: 8px; height: 8px;
+            background: var(--accent);
+            border-radius: 50%;
+            box-shadow: 0 0 8px var(--accent);
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+
+        /* FILTERS */
+        .filters-bar {
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            padding: 16px 30px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+        .filter-group { display: flex; align-items: center; gap: 10px; }
+        .filter-label { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: var(--muted); letter-spacing: 0.08em; }
+        
+        select, .month-select {
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 8px 14px;
+            border-radius: 8px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 500;
+            outline: none;
+            cursor: pointer;
+            transition: border-color 0.2s;
+        }
+        select:hover, select:focus { border-color: var(--accent); }
+
+        .btn-load {
+            background: var(--accent);
+            color: #000;
+            border: none;
+            padding: 9px 22px;
+            border-radius: 8px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 7px;
+        }
+        .btn-load:hover { background: #34d87e; transform: translateY(-1px); }
+        .btn-load:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+        /* MAIN CONTENT */
+        .main {
+            max-width: 1300px;
+            margin: 0 auto;
+            padding: 30px;
+        }
+
+        /* LOADING */
+        .loading-overlay {
+            display: none;
+            text-align: center;
+            padding: 80px 20px;
+            color: var(--muted);
+        }
+        .loading-overlay.visible { display: block; }
+        .spinner {
+            width: 40px; height: 40px;
+            border: 3px solid var(--border);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto 16px;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* EMPTY STATE */
+        .empty-state {
+            text-align: center;
+            padding: 80px 20px;
+            color: var(--muted);
+        }
+        .empty-icon { font-size: 3rem; margin-bottom: 16px; opacity: 0.4; }
+
+        /* PERIOD LABEL */
+        .period-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(62,207,142,0.1);
+            border: 1px solid rgba(62,207,142,0.2);
+            color: var(--accent);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            margin-bottom: 28px;
+            font-family: 'DM Mono', monospace;
+        }
+
+        /* SECTION */
+        .section { margin-bottom: 40px; }
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 18px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border);
+        }
+        .section-icon {
+            width: 36px; height: 36px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+        }
+        .section-title {
+            font-family: 'Syne', sans-serif;
+            font-size: 1rem;
+            font-weight: 800;
+            letter-spacing: -0.01em;
+        }
+        .section-count {
+            margin-left: auto;
+            font-family: 'DM Mono', monospace;
+            font-size: 0.8rem;
+            color: var(--muted);
+        }
+
+        /* CARDS GRID */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 14px;
+        }
+        .cards-grid.wide { grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); }
+
+        .stat-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 20px;
+            transition: all 0.25s;
+            position: relative;
+            overflow: hidden;
+        }
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 3px;
+            border-radius: 14px 14px 0 0;
+        }
+        .stat-card.green::before { background: var(--accent); }
+        .stat-card.indigo::before { background: var(--accent2); }
+        .stat-card.amber::before { background: var(--accent3); }
+        .stat-card.red::before { background: var(--accent4); }
+        .stat-card.cyan::before { background: var(--accent5); }
+
+        .stat-card:hover {
+            border-color: rgba(255,255,255,0.15);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+        }
+        .stat-number {
+            font-family: 'Syne', sans-serif;
+            font-size: 2.4rem;
+            font-weight: 800;
+            line-height: 1;
+            margin-bottom: 6px;
+        }
+        .stat-card.green .stat-number { color: var(--accent); }
+        .stat-card.indigo .stat-number { color: var(--accent2); }
+        .stat-card.amber .stat-number { color: var(--accent3); }
+        .stat-card.red .stat-number { color: var(--accent4); }
+        .stat-card.cyan .stat-number { color: var(--accent5); }
+
+        .stat-label {
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: var(--muted);
+            line-height: 1.4;
+        }
+
+        /* TABLE */
+        .data-table-wrap {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            overflow: hidden;
+        }
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .data-table th {
+            background: var(--surface2);
+            padding: 11px 16px;
+            text-align: left;
+            font-size: 0.72rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.07em;
+            color: var(--muted);
+            border-bottom: 1px solid var(--border);
+        }
+        .data-table td {
+            padding: 11px 16px;
+            font-size: 0.88rem;
+            border-bottom: 1px solid var(--border);
+            font-weight: 500;
+        }
+        .data-table tr:last-child td { border-bottom: none; }
+        .data-table tr:hover td { background: rgba(255,255,255,0.02); }
+        .data-table .num {
+            font-family: 'DM Mono', monospace;
+            font-size: 1rem;
+            font-weight: 700;
+        }
+        .data-table tfoot td {
+            background: var(--surface2);
+            font-weight: 700;
+            border-top: 1px solid var(--border);
+            color: var(--accent);
+        }
+
+        /* BADGE */
+        .badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.72rem;
+            font-weight: 700;
+            font-family: 'DM Mono', monospace;
+        }
+        .badge-green { background: rgba(62,207,142,0.12); color: var(--accent); }
+        .badge-indigo { background: rgba(99,102,241,0.12); color: var(--accent2); }
+        .badge-amber { background: rgba(245,158,11,0.12); color: var(--accent3); }
+
+        /* TWO COLUMNS */
+        .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        @media (max-width: 900px) { .two-col { grid-template-columns: 1fr; } }
+
+        /* SUBSECTION */
+        .subsection { margin-bottom: 20px; }
+        .subsection-title {
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--muted);
+            margin-bottom: 10px;
+        }
+
+        /* MONTHS LEGEND */
+        .luna-map {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+<nav class="topbar">
+    <div class="topbar-left">
+        <a href="index.html" class="btn-back">⬅ Înapoi</a>
+        <div class="topbar-title">Statistici <span>PNRAS</span></div>
+    </div>
+    <div style="display:flex; align-items:center; gap:8px;">
+        <div class="status-dot"></div>
+        <span style="font-size:0.8rem; color:var(--muted); font-weight:500;">Live data</span>
+    </div>
+</nav>
+
+<div class="filters-bar">
+    <div class="filter-group">
+        <span class="filter-label">De la</span>
+        <select id="luna-start">
+            <option value="1">Ianuarie</option>
+            <option value="2">Februarie</option>
+            <option value="3">Martie</option>
+            <option value="4">Aprilie</option>
+            <option value="5">Mai</option>
+            <option value="6">Iunie</option>
+            <option value="7">Iulie</option>
+            <option value="8">August</option>
+            <option value="9">Septembrie</option>
+            <option value="10">Octombrie</option>
+            <option value="11">Noiembrie</option>
+            <option value="12">Decembrie</option>
+        </select>
+        <select id="an-start">
+            <option value="2025">2025</option>
+            <option value="2026">2026</option>
+        </select>
+    </div>
+
+    <div class="filter-group">
+        <span class="filter-label">Până la</span>
+        <select id="luna-end">
+            <option value="1">Ianuarie</option>
+            <option value="2">Februarie</option>
+            <option value="3">Martie</option>
+            <option value="4">Aprilie</option>
+            <option value="5" selected>Mai</option>
+            <option value="6">Iunie</option>
+            <option value="7">Iulie</option>
+            <option value="8">August</option>
+            <option value="9">Septembrie</option>
+            <option value="10">Octombrie</option>
+            <option value="11">Noiembrie</option>
+            <option value="12">Decembrie</option>
+        </select>
+        <select id="an-end">
+            <option value="2025">2025</option>
+            <option value="2026" selected>2026</option>
+        </select>
+    </div>
+
+    <button class="btn-load" id="btn-load" onclick="incarcaStatistici()">
+        <span>▶</span> Generează Statistici
+    </button>
+</div>
+
+<div class="main">
+    <div class="empty-state" id="empty-state">
+        <div class="empty-icon">📊</div>
+        <div style="font-size:1.1rem; font-weight:700; margin-bottom:8px;">Selectați perioada</div>
+        <div style="font-size:0.9rem;">Alegeți intervalul și apăsați „Generează Statistici"</div>
+    </div>
+
+    <div class="loading-overlay" id="loading">
+        <div class="spinner"></div>
+        <div style="font-size:0.9rem; font-weight:600;">Se încarcă datele din Supabase...</div>
+    </div>
+
+    <div id="results" style="display:none;"></div>
+</div>
+
+<script>
+const SUPA_URL = 'https://aexjrbdgajurxzngfkpx.supabase.co';
+const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFleGpyYmRnYWp1cnh6bmdma3B4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgxMzE3NTYsImV4cCI6MjA4MzcwNzc1Nn0.VUx0QOKgjX4m23HOF2rBpE9vWA3T18KtjLc0w_iXhqA';
+const db = supabase.createClient(SUPA_URL, SUPA_KEY);
+
+const LUNI_RO = ['','Ianuarie','Februarie','Martie','Aprilie','Mai','Iunie','Iulie','August','Septembrie','Octombrie','Noiembrie','Decembrie'];
+const LUNI_NUM = {'Ianuarie':1,'Februarie':2,'Martie':3,'Aprilie':4,'Mai':5,'Iunie':6,'Iulie':7,'August':8,'Septembrie':9,'Octombrie':10,'Noiembrie':11,'Decembrie':12};
+
+function luniInInterval(lunaStart, anStart, lunaEnd, anEnd) {
+    const luni = [];
+    let l = parseInt(lunaStart), a = parseInt(anStart);
+    const le = parseInt(lunaEnd), ae = parseInt(anEnd);
+    while (a < ae || (a === ae && l <= le)) {
+        luni.push({ luna: LUNI_RO[l], an: a, lunaNum: l });
+        l++;
+        if (l > 12) { l = 1; a++; }
+    }
+    return luni;
+}
+
+async function supaFetch(table, filters = {}) {
+    let q = db.from(table).select('*');
+    for (const [k, v] of Object.entries(filters)) {
+        if (Array.isArray(v)) q = q.in(k, v);
+        else q = q.eq(k, v);
+    }
+    const { data, error } = await q;
+    if (error) { console.error(table, error); return []; }
+    return data || [];
+}
+
+async function incarcaStatistici() {
+    const lunaStart = parseInt(document.getElementById('luna-start').value);
+    const anStart = parseInt(document.getElementById('an-start').value);
+    const lunaEnd = parseInt(document.getElementById('luna-end').value);
+    const anEnd = parseInt(document.getElementById('an-end').value);
+
+    if (anStart > anEnd || (anStart === anEnd && lunaStart > lunaEnd)) {
+        alert('Perioada selectată nu este validă!');
+        return;
+    }
+
+    document.getElementById('empty-state').style.display = 'none';
+    document.getElementById('results').style.display = 'none';
+    document.getElementById('loading').classList.add('visible');
+    document.getElementById('btn-load').disabled = true;
+
+    const interval = luniInInterval(lunaStart, anStart, lunaEnd, anEnd);
+    const luniNume = interval.map(x => x.luna);
+    const aniUnici = [...new Set(interval.map(x => String(x.an)))];
+
+    try {
+        // Fetch all data in parallel
+        const [matePnras, dosareSalvate, pontajDetaliat, planificariDoc, masaCalda] = await Promise.all([
+            supaFetch('mate_pnras'),
+            supaFetch('dosare_salvate'),
+            supaFetch('pontaj_detaliat'),
+            supaFetch('planificari_documente'),
+            supaFetch('masa_calda_documente')
+        ]);
+
+        // Filter by period
+        const dosareFiltrate = dosareSalvate.filter(d => {
+            const luna = d.luna || '';
+            const an = String(d.an || '');
+            return aniUnici.includes(an) && luniNume.includes(luna);
+        });
+
+        const pontajFiltrat = pontajDetaliat.filter(d => {
+            const luna = d.luna || '';
+            const an = String(d.an || '');
+            return aniUnici.includes(an) && luniNume.includes(luna);
+        });
+
+        const planificariF = planificariDoc.filter(d => {
+            const luna = d.luna || '';
+            const an = String(d.an || '');
+            return aniUnici.includes(an) && luniNume.includes(luna);
+        });
+
+        const masaFiltrata = masaCalda.filter(d => {
+            // Try to filter by luna/an if columns exist
+            const luna = d.luna || '';
+            const an = String(d.an || d.year || '');
+            if (luna && an) return aniUnici.includes(an) && luniNume.includes(luna);
+            // fallback: include all
+            return true;
+        });
+
+        // --- MATE stats ---
+        const eleviCuDosar = matePnras.filter(e => e.nr_dosar && e.nr_dosar !== '' && e.nr_dosar !== '---');
+        const eleviCuFisaObs = matePnras.filter(e =>
+            e.fo_frecventa || e.fo_rezultate || e.fo_repetent_1 || e.fo_repetent_m || e.fo_sanctionat
+        );
+        const eleviCuEvaluare = matePnras.filter(e => e.nr_inregistrare && e.nr_inregistrare !== '');
+        const eleviTotali = matePnras.length;
+
+        // --- Pontaj stats ---
+        const totalOre = pontajFiltrat.reduce((s, r) => s + (parseInt(r.nr_ore) || 0), 0);
+
+        // Group by expert
+        const orePerExpert = {};
+        pontajFiltrat.forEach(r => {
+            const exp = r.expert || 'Necunoscut';
+            orePerExpert[exp] = (orePerExpert[exp] || 0) + (parseInt(r.nr_ore) || 0);
+        });
+
+        // Group by clasa
+        const orePerClasa = {};
+        pontajFiltrat.forEach(r => {
+            const cl = r.clase_grupe || 'Necunoscut';
+            orePerClasa[cl] = (orePerClasa[cl] || 0) + (parseInt(r.nr_ore) || 0);
+        });
+
+        // --- Planificari stats ---
+        const prefixCount = {};
+        planificariF.forEach(p => {
+            const prefix = (p.tip_document || '').split('_')[0];
+            if (!prefixCount[prefix]) prefixCount[prefix] = { total: 0, experti: {} };
+            prefixCount[prefix].total++;
+            // Extract expert from tip_document
+            const parts = (p.tip_document || '').split('_');
+            const expert = p.expert || (parts.length > 1 ? parts[1] : 'N/A');
+            prefixCount[prefix].experti[expert] = (prefixCount[prefix].experti[expert] || 0) + 1;
+        });
+
+        // Plan_ = planificari
+        const planificari = planificariF.filter(p => (p.tip_document||'').startsWith('PLAN_'));
+        const dateAct = planificariF.filter(p => (p.tip_document||'').startsWith('DATA_'));
+        const rapoarte = planificariF.filter(p => (p.tip_document||'').startsWith('RAPORT_'));
+        const pontajDoc = planificariF.filter(p => (p.tip_document||'').startsWith('PONT'));
+        const orareDoc = planificariF.filter(p => (p.tip_document||'').startsWith('ORAR') || (p.tip_document||'').startsWith('INFO_ORAR'));
+
+        // Group planificari by expert
+        function grupeazaPerExpert(arr) {
+            const g = {};
+            arr.forEach(p => {
+                const exp = p.expert || extractExpertDinTip(p.tip_document);
+                g[exp] = (g[exp] || 0) + 1;
+            });
+            return g;
+        }
+
+        function extractExpertDinTip(tip) {
+            if (!tip) return 'N/A';
+            const parts = tip.split('_');
+            if (parts.length > 1) return parts[1];
+            return 'N/A';
+        }
+
+        // --- Dosare salvate per expert ---
+        const dosarePerExpert = {};
+        dosareFiltrate.forEach(d => {
+            const exp = d.expert || 'N/A';
+            dosarePerExpert[exp] = (dosarePerExpert[exp] || 0) + 1;
+        });
+
+        // Elevi unici din pontaj
+        // (pontaj_detaliat doesn't have elev column directly, but we can count activitati unique per clasa)
+        const eleviUnici = new Set(matePnras.map(e => e.cnp).filter(Boolean));
+
+        renderResults({
+            interval, lunaStart, anStart, lunaEnd, anEnd,
+            eleviTotali, eleviCuDosar, eleviCuFisaObs, eleviCuEvaluare,
+            totalOre, orePerExpert, orePerClasa,
+            planificari, dateAct, rapoarte, pontajDoc, orareDoc,
+            dosareFiltrate, dosarePerExpert,
+            masaFiltrata,
+            grupeazaPerExpert, eleviUnici,
+            pontajFiltrat
+        });
+
+    } catch(e) {
+        console.error(e);
+        alert('Eroare la încărcarea datelor: ' + e.message);
+    } finally {
+        document.getElementById('loading').classList.remove('visible');
+        document.getElementById('btn-load').disabled = false;
+    }
+}
+
+function tabel(coloane, randuri, total = null) {
+    const header = coloane.map(c => `<th>${c}</th>`).join('');
+    const rows = randuri.map(r => `<tr>${r.map((c,i) => `<td${i>0?' class="num"':''}>${c}</td>`).join('')}</tr>`).join('');
+    const foot = total ? `<tfoot><tr><td><strong>TOTAL</strong></td>${total.map(t=>`<td class="num">${t}</td>`).join('')}</tr></tfoot>` : '';
+    return `<div class="data-table-wrap"><table class="data-table"><thead><tr>${header}</tr></thead><tbody>${rows}</tbody>${foot}</table></div>`;
+}
+
+function renderResults(d) {
+    const {
+        interval, lunaStart, anStart, lunaEnd, anEnd,
+        eleviTotali, eleviCuDosar, eleviCuFisaObs, eleviCuEvaluare,
+        totalOre, orePerExpert, orePerClasa,
+        planificari, dateAct, rapoarte, pontajDoc, orareDoc,
+        dosareFiltrate, dosarePerExpert,
+        masaFiltrata,
+        grupeazaPerExpert,
+        pontajFiltrat
+    } = d;
+
+    const perioadaText = `${LUNI_RO[lunaStart]} ${anStart} → ${LUNI_RO[lunaEnd]} ${anEnd}`;
+
+    let html = `<div class="period-label">📅 Perioadă: ${perioadaText} (${interval.length} luni)</div>`;
+
+    // ============================
+    // 1. MATE
+    // ============================
+    html += `
+    <div class="section">
+        <div class="section-header">
+            <div class="section-icon" style="background:rgba(62,207,142,0.12);">🎓</div>
+            <div class="section-title">MATE — Monitorizare Elevi</div>
+            <div class="section-count">${eleviTotali} elevi în baza de date</div>
+        </div>
+        <div class="cards-grid">
+            <div class="stat-card green">
+                <div class="stat-number">${eleviTotali}</div>
+                <div class="stat-label">Elevi înregistrați în baza de date</div>
+            </div>
+            <div class="stat-card green">
+                <div class="stat-number">${eleviCuDosar.length}</div>
+                <div class="stat-label">Dosare de caz create</div>
+            </div>
+            <div class="stat-card amber">
+                <div class="stat-number">${eleviCuFisaObs.length}</div>
+                <div class="stat-label">Fișe de observație completate</div>
+            </div>
+            <div class="stat-card indigo">
+                <div class="stat-number">${eleviCuEvaluare.length}</div>
+                <div class="stat-label">Fișe de evaluare MATE</div>
+            </div>
+        </div>
+    </div>`;
+
+    // ============================
+    // 2. DOSARE LUNARE
+    // ============================
+    const dosareRanduri = Object.entries(dosarePerExpert).sort((a,b) => b[1]-a[1]).map(([exp,nr]) => [exp, nr]);
+    html += `
+    <div class="section">
+        <div class="section-header">
+            <div class="section-icon" style="background:rgba(99,102,241,0.12);">📁</div>
+            <div class="section-title">Dosare Lunare</div>
+            <div class="section-count">${dosareFiltrate.length} dosare în perioadă</div>
+        </div>
+        <div class="two-col">
+            <div>
+                <div class="cards-grid" style="grid-template-columns:1fr 1fr;">
+                    <div class="stat-card indigo">
+                        <div class="stat-number">${dosareFiltrate.length}</div>
+                        <div class="stat-label">Dosare lunare în perioadă</div>
+                    </div>
+                    <div class="stat-card indigo">
+                        <div class="stat-number">${Object.keys(dosarePerExpert).length}</div>
+                        <div class="stat-label">Experți cu dosare</div>
+                    </div>
+                </div>
+            </div>
+            <div>
+                ${dosareRanduri.length > 0 ? tabel(['Expert','Nr. Dosare'], dosareRanduri, [dosareFiltrate.length]) : '<div style="color:var(--muted); font-size:0.85rem; padding:20px;">Nicio înregistrare în perioadă</div>'}
+            </div>
+        </div>
+    </div>`;
+
+    // ============================
+    // 3. ORE ACTIVITĂȚI (PONTAJ)
+    // ============================
+    const oreExpRanduri = Object.entries(orePerExpert).sort((a,b) => b[1]-a[1]).map(([exp,ore]) => [exp, ore]);
+    const oreClasaRanduri = Object.entries(d.orePerClasa).sort((a,b) => b[1]-a[1]).map(([cl,ore]) => [cl, ore]);
+
+    html += `
+    <div class="section">
+        <div class="section-header">
+            <div class="section-icon" style="background:rgba(245,158,11,0.12);">⏱️</div>
+            <div class="section-title">Ore Activități Remediale</div>
+            <div class="section-count">${pontajFiltrat.length} înregistrări</div>
+        </div>
+        <div class="cards-grid" style="margin-bottom:20px;">
+            <div class="stat-card amber">
+                <div class="stat-number">${totalOre}</div>
+                <div class="stat-label">Total ore activități în perioadă</div>
+            </div>
+            <div class="stat-card amber">
+                <div class="stat-number">${Object.keys(orePerExpert).length}</div>
+                <div class="stat-label">Experți activi</div>
+            </div>
+            <div class="stat-card amber">
+                <div class="stat-number">${Object.keys(d.orePerClasa).length}</div>
+                <div class="stat-label">Clase/Grupe implicate</div>
+            </div>
+        </div>
+        <div class="two-col">
+            <div class="subsection">
+                <div class="subsection-title">Ore per expert</div>
+                ${oreExpRanduri.length > 0 ? tabel(['Expert','Ore'], oreExpRanduri, [totalOre]) : '<div style="color:var(--muted); font-size:0.85rem; padding:10px;">Nicio înregistrare</div>'}
+            </div>
+            <div class="subsection">
+                <div class="subsection-title">Ore per clasă/grupă</div>
+                ${oreClasaRanduri.length > 0 ? tabel(['Clasă/Grupă','Ore'], oreClasaRanduri, [totalOre]) : '<div style="color:var(--muted); font-size:0.85rem; padding:10px;">Nicio înregistrare</div>'}
+            </div>
+        </div>
+    </div>`;
+
+    // ============================
+    // 4. DOCUMENTE (Planificari)
+    // ============================
+    function tabelExpert(arr, label) {
+        const g = grupeazaPerExpert(arr);
+        const randuri = Object.entries(g).sort((a,b)=>b[1]-a[1]).map(([exp,nr]) => [exp, nr]);
+        if (randuri.length === 0) return `<div style="color:var(--muted);font-size:0.8rem;padding:10px;">Nicio înregistrare</div>`;
+        return tabel(['Expert', label], randuri, [arr.length]);
+    }
+
+    html += `
+    <div class="section">
+        <div class="section-header">
+            <div class="section-icon" style="background:rgba(6,182,212,0.12);">📋</div>
+            <div class="section-title">Documente per Expert</div>
+            <div class="section-count">${planificari.length + dateAct.length + rapoarte.length + pontajDoc.length + orareDoc.length} documente total</div>
+        </div>
+        <div class="cards-grid" style="margin-bottom:24px;">
+            <div class="stat-card cyan">
+                <div class="stat-number">${planificari.length}</div>
+                <div class="stat-label">Planificări lunare</div>
+            </div>
+            <div class="stat-card cyan">
+                <div class="stat-number">${dateAct.length}</div>
+                <div class="stat-label">Fișe de activitate (DATE)</div>
+            </div>
+            <div class="stat-card cyan">
+                <div class="stat-number">${rapoarte.length}</div>
+                <div class="stat-label">Rapoarte de activitate</div>
+            </div>
+            <div class="stat-card cyan">
+                <div class="stat-number">${pontajDoc.length}</div>
+                <div class="stat-label">Fișe de pontaj</div>
+            </div>
+            <div class="stat-card cyan">
+                <div class="stat-number">${orareDoc.length}</div>
+                <div class="stat-label">Orare activități</div>
+            </div>
+        </div>
+        <div style="display:grid; grid-template-columns: repeat(auto-fill, minmax(280px,1fr)); gap:20px;">
+            <div class="subsection">
+                <div class="subsection-title">📌 Planificări per expert</div>
+                ${tabelExpert(planificari, 'Nr.')}
+            </div>
+            <div class="subsection">
+                <div class="subsection-title">📝 Fișe activitate per expert</div>
+                ${tabelExpert(dateAct, 'Nr.')}
+            </div>
+            <div class="subsection">
+                <div class="subsection-title">📊 Rapoarte per expert</div>
+                ${tabelExpert(rapoarte, 'Nr.')}
+            </div>
+            <div class="subsection">
+                <div class="subsection-title">🕐 Pontaj per expert</div>
+                ${tabelExpert(pontajDoc, 'Nr.')}
+            </div>
+            <div class="subsection">
+                <div class="subsection-title">📅 Orare per expert</div>
+                ${tabelExpert(orareDoc, 'Nr.')}
+            </div>
+        </div>
+    </div>`;
+
+    // ============================
+    // 5. MASĂ CALDĂ
+    // ============================
+    html += `
+    <div class="section">
+        <div class="section-header">
+            <div class="section-icon" style="background:rgba(239,68,68,0.12);">🍱</div>
+            <div class="section-title">Masă Caldă</div>
+        </div>
+        <div class="cards-grid">
+            <div class="stat-card red">
+                <div class="stat-number">${masaFiltrata.length}</div>
+                <div class="stat-label">Documente masă caldă înregistrate</div>
+            </div>
+        </div>
+    </div>`;
+
+    document.getElementById('results').innerHTML = html;
+    document.getElementById('results').style.display = 'block';
+}
+</script>
+</body>
+</html>
