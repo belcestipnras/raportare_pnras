@@ -48,7 +48,9 @@
         .nume-td { text-align: left; font-weight: 600; color: #222; }
         .val-da { color: #d93025; font-weight: 700; }
         
-        .input-decizie { width: 90%; padding: 4px; font-family: 'Inter', sans-serif; font-size: 0.75rem; text-align: center; border: 1px dashed #aaa; background: transparent; color: #333; border-radius: 4px; }
+        .input-decizie { width: 95%; padding: 4px; font-family: 'Inter', sans-serif; font-size: 0.75rem; text-align: center; border: 1px dashed #aaa; background: transparent; color: #333; border-radius: 4px; word-break: break-word; overflow-wrap: break-word; }
+        table { table-layout: fixed; }
+        td, th { word-wrap: break-word; overflow-wrap: break-word; }
         .input-decizie:focus { outline: none; border-color: var(--pnras-blue); background: #f0f7ff; font-weight: 600; }
 
         .signatures { display: flex; justify-content: space-between; margin-top: 40px; padding: 0 30px; font-size: 0.95rem; }
@@ -56,11 +58,60 @@
 
         #save-status { font-size: 0.8rem; color: #28a745; font-weight: normal; margin-left: 10px; opacity: 0; transition: opacity 0.5s; }
 
+        /* === MOD EDITARE === */
+        .btn-orange { background-color: #e67e22; }
+        .btn-red { background-color: #dc3545; }
+        .edit-mode-active .btn-edit-toggle { background-color: #dc3545; }
+
+        .delete-btn {
+            display: none;
+            background: #dc3545; color: white; border: none;
+            border-radius: 4px; cursor: pointer; font-size: 0.7rem;
+            padding: 2px 6px; font-weight: 700; line-height: 1.4;
+        }
+        body.edit-mode .delete-btn { display: inline-block; }
+        body.edit-mode tr.class-row { cursor: default; }
+
+        /* Modal adaugare */
+        .modal-overlay {
+            display: none; position: fixed; inset: 0;
+            background: rgba(0,0,0,0.5); z-index: 1000;
+            justify-content: center; align-items: center;
+        }
+        .modal-overlay.open { display: flex; }
+        .modal-box {
+            background: white; border-radius: 12px; padding: 28px 32px;
+            width: 480px; max-width: 95vw; box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        .modal-box h2 { color: var(--pnras-blue); margin: 0 0 20px 0; font-size: 1.1rem; }
+        .modal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+        .modal-field { display: flex; flex-direction: column; gap: 4px; }
+        .modal-field.full { grid-column: 1 / -1; }
+        .modal-field label { font-size: 0.75rem; font-weight: 600; color: #555; }
+        .modal-field input, .modal-field select {
+            padding: 7px 10px; border: 1px solid #d1d9e0; border-radius: 6px;
+            font-family: 'Inter', sans-serif; font-size: 0.85rem; outline: none;
+        }
+        .modal-field input:focus, .modal-field select:focus { border-color: var(--pnras-blue); }
+        .modal-actions { display: flex; gap: 10px; justify-content: flex-end; }
+        .modal-actions button { padding: 8px 18px; border-radius: 6px; font-weight: 600; font-family: 'Inter', sans-serif; cursor: pointer; font-size: 0.85rem; }
+        .btn-cancel-modal { background: white; border: 1px solid #ccc; color: #555; }
+        .btn-save-modal { background: #28a745; color: white; border: none; }
+
+        /* Notificare toast */
+        #toast {
+            position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
+            background: #333; color: white; padding: 10px 24px; border-radius: 8px;
+            font-size: 0.85rem; font-weight: 600; opacity: 0; pointer-events: none;
+            transition: opacity 0.3s; z-index: 2000;
+        }
+        #toast.show { opacity: 1; }
+
         @media print {
             * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
             @page { size: portrait; margin: 1.5cm; } 
             body { margin: 0; padding: 0; background: white; }
-            #selection-ui, .controls-a4, .back-btn { display: none !important; }
+            #selection-ui, .controls-a4, .back-btn, .delete-btn, #toast, .modal-overlay { display: none !important; }
             .a4-page { box-shadow: none !important; width: 100% !important; min-height: auto !important; padding: 0 !important; }
             .table-wrapper { box-shadow: none !important; border-radius: 8px !important; }
             th { background-color: #f8f9fa !important; color: #333 !important; }
@@ -69,6 +120,12 @@
             .keep-together { break-inside: avoid; }
             .input-decizie, .nr-input { border: none !important; background: transparent !important; font-weight: 600; }
             #save-status { display: none !important; }
+            /* Fix taiere text la print */
+            table { font-size: 0.65rem !important; width: 100% !important; table-layout: fixed !important; }
+            th, td { word-wrap: break-word !important; overflow-wrap: break-word !important; white-space: normal !important; padding: 4px 3px !important; }
+            .input-decizie { width: 100% !important; font-size: 0.65rem !important; padding: 0 !important; }
+            .a4-page { padding: 0.8cm !important; }
+            .table-wrapper { overflow: visible !important; }
         }
     </style>
 </head>
@@ -102,6 +159,9 @@
         <div class="controls-a4">
             <button class="back-btn" style="position: static;" onclick="closeA4()">← Închide Tabelul</button>
             <button class="action-btn btn-green" onclick="fetchNrInregistrare()">📥 Preia Nr. Înregistrare</button>
+            <button class="action-btn btn-orange btn-edit-toggle" id="btn-edit-toggle" onclick="toggleEditMode()">✏️ Editează</button>
+            <button class="action-btn btn-green" id="btn-adauga" onclick="deschideModal()" style="display:none;">➕ Adaugă Elev</button>
+            <button class="action-btn btn-green" id="btn-refresh" onclick="reincarcaRegistru()" style="display:none;">🔄 Reîncarcă din Supabase</button>
             <button class="action-btn" onclick="window.print()">🖨️ Printare Registru</button>
         </div>
 
@@ -123,6 +183,186 @@
             </div>
         </div>
     </div>
+
+    <!-- Modal Adaugare Elev -->
+    <div class="modal-overlay" id="modal-adauga">
+        <div class="modal-box">
+            <h2>➕ Adaugă Elev în Registru</h2>
+            <div class="modal-grid">
+                <div class="modal-field full">
+                    <label>Nume și Prenume *</label>
+                    <input type="text" id="m-nume" placeholder="Ex: Popescu Ion">
+                </div>
+                <div class="modal-field">
+                    <label>Clasa *</label>
+                    <input type="text" id="m-clasa" placeholder="Ex: 5A">
+                </div>
+                <div class="modal-field">
+                    <label>Diriginte</label>
+                    <input type="text" id="m-diriginte" placeholder="Ex: prof. Ionescu">
+                </div>
+                <div class="modal-field">
+                    <label>Nr. Dosar</label>
+                    <input type="text" id="m-nr-dosar" placeholder="Ex: D-001">
+                </div>
+                <div class="modal-field">
+                    <label>Frecvență redusă</label>
+                    <select id="m-fo-frecventa"><option value="NU">NU</option><option value="DA">DA</option></select>
+                </div>
+                <div class="modal-field">
+                    <label>Rezultate slabe</label>
+                    <select id="m-fo-rezultate"><option value="NU">NU</option><option value="DA">DA</option></select>
+                </div>
+                <div class="modal-field">
+                    <label>Repetent 1x</label>
+                    <select id="m-fo-repetent-1"><option value="NU">NU</option><option value="DA">DA</option></select>
+                </div>
+                <div class="modal-field">
+                    <label>Repetent +2x</label>
+                    <select id="m-fo-repetent-m"><option value="NU">NU</option><option value="DA">DA</option></select>
+                </div>
+                <div class="modal-field full">
+                    <label>Sancționat</label>
+                    <select id="m-fo-sanctionat"><option value="NU">NU</option><option value="DA">DA</option></select>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button class="btn-cancel-modal" onclick="inchideModal()">Anulează</button>
+                <button class="btn-save-modal" onclick="salveazaElevNou()">💾 Salvează în Supabase</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast"></div>
+
+    <script>
+        let editModeActive = false;
+
+        function toggleEditMode() {
+            editModeActive = !editModeActive;
+            const btn = document.getElementById('btn-edit-toggle');
+            const btnAdauga = document.getElementById('btn-adauga');
+            const btnRefresh = document.getElementById('btn-refresh');
+
+            if (editModeActive) {
+                document.body.classList.add('edit-mode');
+                btn.textContent = '✖ Ieși din Editare';
+                btn.style.backgroundColor = '#dc3545';
+                btnAdauga.style.display = 'inline-block';
+                btnRefresh.style.display = 'inline-block';
+            } else {
+                document.body.classList.remove('edit-mode');
+                btn.textContent = '✏️ Editează';
+                btn.style.backgroundColor = '#e67e22';
+                btnAdauga.style.display = 'none';
+                btnRefresh.style.display = 'none';
+            }
+        }
+
+        function reincarcaRegistru() {
+            if (currentYearGlobal && currentTipGlobal) {
+                loadRegistru(currentYearGlobal, currentTipGlobal);
+                afiseazaToast('🔄 Date reîncărcate din Supabase!');
+            }
+        }
+
+        function deschideModal() {
+            document.getElementById('modal-adauga').classList.add('open');
+            // Reset fields
+            ['m-nume','m-clasa','m-diriginte','m-nr-dosar'].forEach(id => document.getElementById(id).value = '');
+            ['m-fo-frecventa','m-fo-rezultate','m-fo-repetent-1','m-fo-repetent-m','m-fo-sanctionat'].forEach(id => document.getElementById(id).value = 'NU');
+        }
+
+        function inchideModal() {
+            document.getElementById('modal-adauga').classList.remove('open');
+        }
+
+        async function salveazaElevNou() {
+            const nume = document.getElementById('m-nume').value.trim();
+            const clasa = document.getElementById('m-clasa').value.trim().toUpperCase();
+            if (!nume || !clasa) { afiseazaToast('⚠️ Numele și clasa sunt obligatorii!'); return; }
+            if (!supabaseClient) { afiseazaToast('⚠️ Supabase nu este conectat!'); return; }
+
+            const elevNou = {
+                nume_elev: nume,
+                clasa: clasa,
+                diriginte: document.getElementById('m-diriginte').value.trim() || null,
+                nr_dosar: document.getElementById('m-nr-dosar').value.trim() || null,
+                anul: String(currentYearGlobal),
+                fo_frecventa: document.getElementById('m-fo-frecventa').value,
+                fo_rezultate: document.getElementById('m-fo-rezultate').value,
+                fo_repetent_1: document.getElementById('m-fo-repetent-1').value,
+                fo_repetent_m: document.getElementById('m-fo-repetent-m').value,
+                fo_sanctionat: document.getElementById('m-fo-sanctionat').value,
+            };
+
+            try {
+                const { error } = await supabaseClient.from('mate_pnras').insert([elevNou]);
+                if (error) { afiseazaToast('❌ Eroare la salvare: ' + error.message); return; }
+                inchideModal();
+                afiseazaToast('✅ Elev adăugat cu succes!');
+                loadRegistru(currentYearGlobal, currentTipGlobal);
+            } catch(err) {
+                afiseazaToast('❌ Eroare: ' + err.message);
+            }
+        }
+
+        async function salveazaDecizie(input, elevId) {
+            if (!supabaseClient) { afiseazaToast('⚠️ Supabase nu este conectat!'); return; }
+            const valoare = input.value.trim();
+            try {
+                const { error } = await supabaseClient
+                    .from('mate_pnras')
+                    .update({ decizie_aprobare: valoare || null })
+                    .eq('id', elevId);
+                if (error) { afiseazaToast('❌ Eroare la salvare decizie: ' + error.message); }
+                else { afiseazaToast('✅ Decizie salvată!'); }
+            } catch(err) {
+                afiseazaToast('❌ Eroare: ' + err.message);
+            }
+        }
+
+        async function salveazaDosar(input, elevId) {
+            if (!supabaseClient) { afiseazaToast('\u26a0\ufe0f Supabase nu este conectat!'); return; }
+            const valoare = input.value.trim();
+            try {
+                const { error } = await supabaseClient
+                    .from('mate_pnras')
+                    .update({ nr_dosar: valoare || null })
+                    .eq('id', elevId);
+                if (error) { afiseazaToast('\u274c Eroare la salvare dosar: ' + error.message); }
+                else { afiseazaToast('\u2705 Nr. dosar salvat!'); }
+            } catch(err) {
+                afiseazaToast('\u274c Eroare: ' + err.message);
+            }
+        }
+
+        async function stergeElev(elevId, numeElev) {
+            if (!confirm(`Ești sigur că vrei să ștergi elevul:\n"${numeElev}"?\n\nAceastă acțiune este ireversibilă!`)) return;
+            if (!supabaseClient) { afiseazaToast('⚠️ Supabase nu este conectat!'); return; }
+
+            try {
+                const { error } = await supabaseClient.from('mate_pnras').delete().eq('id', elevId);
+                if (error) { afiseazaToast('❌ Eroare la ștergere: ' + error.message); return; }
+                afiseazaToast('🗑️ Elev șters cu succes!');
+                loadRegistru(currentYearGlobal, currentTipGlobal);
+            } catch(err) {
+                afiseazaToast('❌ Eroare: ' + err.message);
+            }
+        }
+
+        function afiseazaToast(mesaj) {
+            const toast = document.getElementById('toast');
+            toast.textContent = mesaj;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+
+        // Inchide modal la click in afara
+        document.getElementById('modal-adauga').addEventListener('click', function(e) {
+            if (e.target === this) inchideModal();
+        });
+    </script>
 
     <script>
         let currentYearGlobal = null;
@@ -302,26 +542,27 @@
                 headerHtml = `
                     <thead>
                         <tr>
-                            <th width="5%">Nr.</th>
-                            <th width="35%">Nume și Prenume Elev</th>
-                            <th width="15%">Dosar de caz<br>(Număr)</th>
-                            <th width="20%">Decizie aprobare<br>(Nr. / Dată)</th>
-                            <th width="25%">Responsabil caz<br>(Diriginte)</th>
+                            <th width="4%">Nr.</th>
+                            <th width="28%">Nume și Prenume Elev</th>
+                            <th width="22%">Dosar de caz<br>(Număr)</th>
+                            <th width="22%">Decizie aprobare<br>(Nr. / Dată)</th>
+                            <th width="24%">Responsabil caz<br>(Diriginte)</th>
                         </tr>
                     </thead>
                 `;
             } else {
-                numarColoane = 7;
+                numarColoane = 8;
                 headerHtml = `
                     <thead>
                         <tr>
                             <th width="4%">Nr.</th>
-                            <th width="30%">Nume și Prenume Elev</th>
-                            <th width="13%">Frecvență<br>redusă</th>
-                            <th width="13%">Rezultate<br>slabe</th>
-                            <th width="13%">Repetent<br>1x</th>
-                            <th width="13%">Repetent<br>+2x</th>
-                            <th width="14%">Sancționat</th>
+                            <th width="26%">Nume și Prenume Elev</th>
+                            <th width="11%">Frecvență<br>redusă</th>
+                            <th width="11%">Rezultate<br>slabe</th>
+                            <th width="11%">Repetent<br>1x</th>
+                            <th width="11%">Repetent<br>+2x</th>
+                            <th width="11%">Sancționat</th>
+                            <th width="15%">Concluzie<br><small style="font-weight:400;font-size:0.65rem;">Elevul este:<br>1 risc abandon/PTS<br>0 fără risc</small></th>
                         </tr>
                     </thead>
                 `;
@@ -341,11 +582,16 @@
                 }
 
                 let elevi = eleviInitial;
-                if (tipRegistru === 'evaluare' || tipRegistru === 'dosare') {
+                if (tipRegistru === 'evaluare') {
                     elevi = eleviInitial.filter(elev => 
                         elev.nr_dosar && 
                         elev.nr_dosar.trim() !== '' && 
                         elev.nr_dosar.trim() !== '-'
+                    );
+                } else if (tipRegistru === 'dosare') {
+                    elevi = eleviInitial.filter(elev =>
+                        ['fo_frecventa','fo_rezultate','fo_repetent_1','fo_repetent_m','fo_sanctionat']
+                            .some(camp => (elev[camp] || '').toUpperCase().trim() === 'DA')
                     );
                 }
 
@@ -361,6 +607,10 @@
                 let currentClasa = '';
                 let nrCrtGlobal = 1;
 
+                // Statistici pentru registrul de observatie
+                let statTotal = { risc: 0, faraRisc: 0 };
+                let statPeClase = {}; // { 'clasa': { risc, faraRisc } }
+
                 elevi.forEach((elev, index) => {
                     
                     if (index === pragGrupare) {
@@ -373,7 +623,7 @@
                         bodyHtml += `<tr class="class-row"><td colspan="${numarColoane}">Clasa ${formatNumeClasa(currentClasa)} - Diriginte: ${diriginte}</td></tr>`;
                     }
 
-                    bodyHtml += `<tr><td>${nrCrtGlobal}.</td><td class="nume-td">${elev.nume_elev}</td>`;
+                    bodyHtml += `<tr><td>${nrCrtGlobal}.</td><td class="nume-td">${elev.nume_elev}<br><button class="delete-btn" onclick="stergeElev(${elev.id}, '${elev.nume_elev.replace(/'/g, "\\'")}')">🗑 Șterge</button></td>`;
 
                     if (tipRegistru === 'evaluare') {
                         bodyHtml += `
@@ -384,23 +634,87 @@
                         `;
                     } else if (tipRegistru === 'dosare') {
                         bodyHtml += `
-                            <td style="font-weight: 600; color: var(--pnras-blue);">${elev.nr_dosar || ''}</td>
-                            <td><input type="text" class="input-decizie clasa-${elev.clasa}" oninput="sincronizeazaDecizie(this, '${elev.clasa}')" placeholder="Ex: 56/12.10.2025"></td>
+                            <td><input type="text" class="input-decizie" value="${elev.nr_dosar || ''}" onblur="salveazaDosar(this, ${elev.id})" placeholder="Ex: D-001" style="color:var(--pnras-blue); font-weight:600;"></td>
+                            <td><input type="text" class="input-decizie clasa-${elev.clasa}" value="${elev.decizie_aprobare || ''}" oninput="sincronizeazaDecizie(this, '${elev.clasa}')" onblur="salveazaDecizie(this, ${elev.id})" placeholder="Ex: 56/12.10.2025"></td>
                             <td>${elev.diriginte || ''}</td>
                         `;
                     } else {
+                        const areRisc = ['fo_frecventa','fo_rezultate','fo_repetent_1','fo_repetent_m','fo_sanctionat']
+                            .some(camp => (elev[camp] || '').toUpperCase().trim() === 'DA');
+                        const concluzie = areRisc ? '1' : '0';
+                        const concluzieStyle = areRisc 
+                            ? 'font-weight:700; color:#d93025;' 
+                            : 'font-weight:700; color:#28a745;';
                         bodyHtml += `
                             ${formatDaNu(elev.fo_frecventa)}
                             ${formatDaNu(elev.fo_rezultate)}
                             ${formatDaNu(elev.fo_repetent_1)}
                             ${formatDaNu(elev.fo_repetent_m)}
                             ${formatDaNu(elev.fo_sanctionat)}
+                            <td style="${concluzieStyle}">${concluzie}</td>
                         `;
+                        // Acumulam statistici
+                        if (!statPeClase[elev.clasa]) statPeClase[elev.clasa] = { risc: 0, faraRisc: 0 };
+                        if (areRisc) { statTotal.risc++; statPeClase[elev.clasa].risc++; }
+                        else         { statTotal.faraRisc++; statPeClase[elev.clasa].faraRisc++; }
                     }
 
                     bodyHtml += `</tr>`;
                     nrCrtGlobal++;
                 });
+
+                // Bloc statistici (doar pentru observatie)
+                if (tipRegistru === 'observatie') {
+                    const totalGeneral = statTotal.risc + statTotal.faraRisc;
+                    let randuriClase = '';
+                    Object.keys(statPeClase).sort().forEach(clasa => {
+                        const s = statPeClase[clasa];
+                        const totalClasa = s.risc + s.faraRisc;
+                        randuriClase += `
+                            <tr>
+                                <td style="text-align:left; padding:5px 12px; border-bottom:1px solid #d1d9e0; border-right:1px solid #d1d9e0;">${formatNumeClasa(clasa)}</td>
+                                <td style="color:#d93025; font-weight:700; border-bottom:1px solid #d1d9e0; border-right:1px solid #d1d9e0;">${s.risc}</td>
+                                <td style="color:#d93025; font-size:0.7rem; border-bottom:1px solid #d1d9e0; border-right:1px solid #d1d9e0;">${totalClasa > 0 ? Math.round(s.risc/totalClasa*100) : 0}%</td>
+                                <td style="color:#28a745; font-weight:700; border-bottom:1px solid #d1d9e0; border-right:1px solid #d1d9e0;">${s.faraRisc}</td>
+                                <td style="color:#28a745; font-size:0.7rem; border-bottom:1px solid #d1d9e0; border-right:1px solid #d1d9e0;">${totalClasa > 0 ? Math.round(s.faraRisc/totalClasa*100) : 0}%</td>
+                                <td style="font-weight:700; border-bottom:1px solid #d1d9e0;">${totalClasa}</td>
+                            </tr>`;
+                    });
+
+                    bodyHtml += `
+                        <tr class="keep-together" style="border:none;">
+                            <td colspan="${numarColoane}" style="border:none; padding: 24px 0 10px 0;">
+                                <div style="border:1px solid #d1d9e0; border-radius:10px; overflow:hidden;">
+                                    <div style="background:#0056b3; color:white; padding:8px 14px; font-weight:700; font-size:0.82rem; letter-spacing:0.3px;">
+                                        📊 STATISTICĂ — ELEVI CU RISC DE ABANDON / PTS
+                                    </div>
+                                    <table style="width:100%; border-collapse:collapse; font-size:0.78rem; text-align:center;">
+                                        <thead>
+                                            <tr style="background:#f8f9fa;">
+                                                <th style="text-align:left; padding:6px 12px; border-bottom:1px solid #d1d9e0; border-right:1px solid #d1d9e0; width:34%;">Clasă</th>
+                                                <th style="padding:6px 4px; border-bottom:1px solid #d1d9e0; border-right:1px solid #d1d9e0; color:#d93025; width:14%;">Cu risc (1)</th>
+                                                <th style="padding:6px 4px; border-bottom:1px solid #d1d9e0; border-right:1px solid #d1d9e0; width:10%;">%</th>
+                                                <th style="padding:6px 4px; border-bottom:1px solid #d1d9e0; border-right:1px solid #d1d9e0; color:#28a745; width:14%;">Fără risc (0)</th>
+                                                <th style="padding:6px 4px; border-bottom:1px solid #d1d9e0; border-right:1px solid #d1d9e0; width:10%;">%</th>
+                                                <th style="padding:6px 4px; border-bottom:1px solid #d1d9e0; width:14%;">Total</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            ${randuriClase}
+                                            <tr style="background:#f0f7ff;">
+                                                <td style="text-align:left; padding:7px 12px; font-weight:700; color:#0056b3; border-top:2px solid #0056b3; border-right:1px solid #d1d9e0;">TOTAL GENERAL</td>
+                                                <td style="color:#d93025; font-weight:700; border-top:2px solid #0056b3; border-right:1px solid #d1d9e0;">${statTotal.risc}</td>
+                                                <td style="color:#d93025; font-size:0.7rem; border-top:2px solid #0056b3; border-right:1px solid #d1d9e0;">${totalGeneral > 0 ? Math.round(statTotal.risc/totalGeneral*100) : 0}%</td>
+                                                <td style="color:#28a745; font-weight:700; border-top:2px solid #0056b3; border-right:1px solid #d1d9e0;">${statTotal.faraRisc}</td>
+                                                <td style="color:#28a745; font-size:0.7rem; border-top:2px solid #0056b3; border-right:1px solid #d1d9e0;">${totalGeneral > 0 ? Math.round(statTotal.faraRisc/totalGeneral*100) : 0}%</td>
+                                                <td style="font-weight:700; border-top:2px solid #0056b3;">${totalGeneral}</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </td>
+                        </tr>`;
+                }
 
                 bodyHtml += `
                     <tr style="border: none;">

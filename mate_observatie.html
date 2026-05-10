@@ -54,6 +54,7 @@
         .doc-title-sub { font-family: 'Montserrat'; font-weight: 700; font-size: 0.85rem; color: #1e293b; background: #fef3c7; display: inline-block; padding: 5px 15px; border-radius: 4px; margin-top: 5px; }
 
         .info-card { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 15px 20px; margin-bottom: 15px; display: grid; grid-template-columns: 2fr 1fr 2fr 1fr; gap: 15px; border-top: 4px solid var(--primary); }
+        .info-card-cnp { background: #f8fafc; border: 1px solid #e2e8f0; border-top: none; border-radius: 0 0 12px 12px; padding: 0 20px 15px 20px; margin-top: -15px; margin-bottom: 15px; }
         .info-label { font-size: 0.6rem; text-transform: uppercase; color: #64748b; font-weight: 800; }
         .info-value { font-weight: 700; font-size: 0.95rem; color: #000; border-bottom: 1px solid #cbd5e1; display: block; }
 
@@ -226,6 +227,9 @@
                         <div class="info-item"><span class="info-label">Clasă</span><span class="info-value">${s.clasa}</span></div>
                         <div class="info-item"><span class="info-label">Diriginte</span><span class="info-value">Prof. ${s.diriginte || ''}</span></div>
                         <div class="info-item"><span class="info-label">An Școlar</span><span class="info-value">${currentYear-1}-${currentYear}</span></div>
+                    </div>
+                    <div class="info-card-cnp">
+                        <div class="info-item"><span class="info-label">CNP</span><span class="info-value">${s.cnp || '—'}</span></div>
                     </div>
 
                     <table class="mate-table">
