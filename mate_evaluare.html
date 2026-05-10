@@ -96,6 +96,27 @@
             align-items: center;
             gap: 5px;
         }
+        
+        /* Select DA/NU editabil */
+        .select-danu {
+            font-family: 'Inter', sans-serif;
+            font-size: 9pt;
+            font-weight: 800;
+            border: none;
+            border-bottom: 1.5px solid #94a3b8;
+            background: transparent;
+            outline: none;
+            cursor: pointer;
+            color: var(--text-main);
+            padding: 1px 2px;
+            min-width: 60px;
+        }
+        .select-danu:focus { border-bottom-color: var(--primary); }
+        .select-danu option { font-weight: 700; }
+        @media print {
+            .select-danu { border-bottom: none !important; appearance: none; -webkit-appearance: none; }
+        }
+
         .signature-line {
             margin-top: 30px;
             width: 200px;
@@ -151,14 +172,17 @@ async function incarcaDatele() {
     const { data, error } = await _db
         .from('mate_pnras')
         .select('*')
-        .eq('anul', parseInt(anSelectat))
-        .not('nr_dosar', 'is', null)
-        .neq('nr_dosar', '')
-        .neq('nr_dosar', '---');
+        .eq('anul', parseInt(anSelectat));
 
     if (error) { console.error(error); return; }
 
-    dateleCurente = data || [];
+    // Filtru: cel puțin un DA în fo_* SAU are nr_dosar completat
+    dateleCurente = (data || []).filter(elev => {
+        const areDA = ['fo_frecventa','fo_rezultate','fo_repetent_1','fo_repetent_m','fo_sanctionat']
+            .some(camp => (elev[camp] || '').toString().toUpperCase().trim() === 'DA');
+        const areDosar = elev.nr_dosar && elev.nr_dosar.trim() !== '' && elev.nr_dosar.trim() !== '---';
+        return areDA || areDosar;
+    });
     renderTabs();
     
     if (dateleCurente.length > 0) {
@@ -303,59 +327,107 @@ const mesajeRisc = {
 
                 <div class="sectiune-header">Informații despre elev - Partea a II-a</div>
                 <div class="info-grid">
-                    <div class="info-row"><div class="info-label">1. Elevul/eleva locuieşte în aceeaşi localitate cu unitatea şcolară:</div><div class="info-value">${e.p1 || '---'}</div></div>
-                    <div class="info-row"><div class="info-label">2. Adresa exactă:</div><div class="info-value">${e.fo_adresa || '---'}</div></div>
+                    <div class="info-row"><div class="info-label">1. Elevul/eleva locuieşte în aceeaşi localitate cu unitatea şcolară:</div><div class="info-value"><select class="select-danu" onchange="updateCampEvaluare(${e.id}, 'p1', this.value, this)"><option value="NU" ${(e.p1||'NU').toUpperCase()==='NU'?'selected':''}>NU</option><option value="DA" ${(e.p1||'NU').toUpperCase()==='DA'?'selected':''}>DA</option></select></div></div>
+                    <div class="info-row"><div class="info-label">2. Adresa exactă:</div><div class="info-value"><input type="text" class="input-nr-inreg" style="width:100%;font-size:9pt;" value="${e.fo_adresa || ''}" placeholder="Introduceți adresa..." onblur="updateCampEvaluare(${e.id}, 'fo_adresa', this.value, this)"></div></div>
                     <div class="info-row">
                         <div class="info-label">3. În gospodărie cu elevul/eleva locuiesc:</div>
                         <div class="info-value">
-                            Număr total persoane: ${e.p3_t || '0'}<br>
-                            din care adulţi (18+ ani): ${e.p3_a || '0'}<br>
-                            şi copii (0-17 ani): ${e.p3_c || '0'}
+                            Număr total persoane: <select class="select-danu" onchange="updateCampEvaluare(${e.id}, 'p3_t', this.value, this)"><option value="0" ${(e.p3_t||'0')=='0'?'selected':''} >0</option><option value="1" ${(e.p3_t||'0')=='1'?'selected':''}>1</option><option value="2" ${(e.p3_t||'0')=='2'?'selected':''}>2</option><option value="3" ${(e.p3_t||'0')=='3'?'selected':''}>3</option><option value="4" ${(e.p3_t||'0')=='4'?'selected':''}>4</option><option value="5" ${(e.p3_t||'0')=='5'?'selected':''}>5</option><option value="6" ${(e.p3_t||'0')=='6'?'selected':''}>6</option><option value="7" ${(e.p3_t||'0')=='7'?'selected':''}>7</option><option value="8" ${(e.p3_t||'0')=='8'?'selected':''}>8</option><option value="9" ${(e.p3_t||'0')=='9'?'selected':''}>9</option><option value="10" ${(e.p3_t||'0')=='10'?'selected':''}>10</option><option value="11" ${(e.p3_t||'0')=='11'?'selected':''}>11</option><option value="12" ${(e.p3_t||'0')=='12'?'selected':''}>12</option><option value="13" ${(e.p3_t||'0')=='13'?'selected':''}>13</option><option value="14" ${(e.p3_t||'0')=='14'?'selected':''}>14</option><option value="15" ${(e.p3_t||'0')=='15'?'selected':''}>15</option></select><br>
+                            din care adulţi (18+ ani): <select class="select-danu" onchange="updateCampEvaluare(${e.id}, 'p3_a', this.value, this)"><option value="0" ${(e.p3_a||'0')=='0'?'selected':''} >0</option><option value="1" ${(e.p3_a||'0')=='1'?'selected':''}>1</option><option value="2" ${(e.p3_a||'0')=='2'?'selected':''}>2</option><option value="3" ${(e.p3_a||'0')=='3'?'selected':''}>3</option><option value="4" ${(e.p3_a||'0')=='4'?'selected':''}>4</option><option value="5" ${(e.p3_a||'0')=='5'?'selected':''}>5</option><option value="6" ${(e.p3_a||'0')=='6'?'selected':''}>6</option><option value="7" ${(e.p3_a||'0')=='7'?'selected':''}>7</option><option value="8" ${(e.p3_a||'0')=='8'?'selected':''}>8</option><option value="9" ${(e.p3_a||'0')=='9'?'selected':''}>9</option><option value="10" ${(e.p3_a||'0')=='10'?'selected':''}>10</option><option value="11" ${(e.p3_a||'0')=='11'?'selected':''}>11</option><option value="12" ${(e.p3_a||'0')=='12'?'selected':''}>12</option><option value="13" ${(e.p3_a||'0')=='13'?'selected':''}>13</option><option value="14" ${(e.p3_a||'0')=='14'?'selected':''}>14</option><option value="15" ${(e.p3_a||'0')=='15'?'selected':''}>15</option></select><br>
+                            şi copii (0-17 ani): <select class="select-danu" onchange="updateCampEvaluare(${e.id}, 'p3_c', this.value, this)"><option value="0" ${(e.p3_c||'0')=='0'?'selected':''} >0</option><option value="1" ${(e.p3_c||'0')=='1'?'selected':''}>1</option><option value="2" ${(e.p3_c||'0')=='2'?'selected':''}>2</option><option value="3" ${(e.p3_c||'0')=='3'?'selected':''}>3</option><option value="4" ${(e.p3_c||'0')=='4'?'selected':''}>4</option><option value="5" ${(e.p3_c||'0')=='5'?'selected':''}>5</option><option value="6" ${(e.p3_c||'0')=='6'?'selected':''}>6</option><option value="7" ${(e.p3_c||'0')=='7'?'selected':''}>7</option><option value="8" ${(e.p3_c||'0')=='8'?'selected':''}>8</option><option value="9" ${(e.p3_c||'0')=='9'?'selected':''}>9</option><option value="10" ${(e.p3_c||'0')=='10'?'selected':''}>10</option><option value="11" ${(e.p3_c||'0')=='11'?'selected':''}>11</option><option value="12" ${(e.p3_c||'0')=='12'?'selected':''}>12</option><option value="13" ${(e.p3_c||'0')=='13'?'selected':''}>13</option><option value="14" ${(e.p3_c||'0')=='14'?'selected':''}>14</option><option value="15" ${(e.p3_c||'0')=='15'?'selected':''}>15</option></select>
                         </div>
                     </div>
-                    <div class="info-row"><div class="info-label">4. Mama este în gospodărie?</div><div class="info-value">${e.p4 || '---'}</div></div>
-                    <div class="info-row"><div class="info-label">5. Ultimul nivel de educaţie absolvit de mamă:</div><div class="info-value">${e.p5 || '---'}</div></div>
-                    <div class="info-row"><div class="info-label">6. Tatăl este în gospodărie?</div><div class="info-value">${e.p6 || '---'}</div></div>
-                    <div class="info-row"><div class="info-label">7. Ultimul nivel de educaţie absolvit de tată:</div><div class="info-value">${e.p7 || '---'}</div></div>
+                    <div class="info-row"><div class="info-label">4. Mama este în gospodărie?</div><div class="info-value"><select class="select-danu" onchange="updateCampEvaluare(${e.id}, 'p4', this.value, this)"><option value="NU" ${(e.p4||'NU').toUpperCase()==='NU'?'selected':''}>NU</option><option value="DA" ${(e.p4||'NU').toUpperCase()==='DA'?'selected':''}>DA</option></select></div></div>
+                    <div class="info-row"><div class="info-label">5. Ultimul nivel de educaţie absolvit de mamă:</div><div class="info-value"><select class="select-danu" style="min-width:120px;" onchange="updateCampEvaluare(${e.id}, 'p5', this.value, this)"><option value="---" ${(e.p5||'---')==='---'?'selected':''}>---</option><option value="Fără școală" ${(e.p5||'---')==='Fără școală'?'selected':''}>Fără școală</option><option value="Primar" ${(e.p5||'---')==='Primar'?'selected':''}>Primar</option><option value="Gimnazial" ${(e.p5||'---')==='Gimnazial'?'selected':''}>Gimnazial</option><option value="Profesional" ${(e.p5||'---')==='Profesional'?'selected':''}>Profesional</option><option value="Liceal" ${(e.p5||'---')==='Liceal'?'selected':''}>Liceal</option><option value="Superior" ${(e.p5||'---')==='Superior'?'selected':''}>Superior</option></select></div></div>
+                    <div class="info-row"><div class="info-label">6. Tatăl este în gospodărie?</div><div class="info-value"><select class="select-danu" onchange="updateCampEvaluare(${e.id}, 'p6', this.value, this)"><option value="NU" ${(e.p6||'NU').toUpperCase()==='NU'?'selected':''}>NU</option><option value="DA" ${(e.p6||'NU').toUpperCase()==='DA'?'selected':''}>DA</option></select></div></div>
+                    <div class="info-row"><div class="info-label">7. Ultimul nivel de educaţie absolvit de tată:</div><div class="info-value"><select class="select-danu" style="min-width:120px;" onchange="updateCampEvaluare(${e.id}, 'p7', this.value, this)"><option value="---" ${(e.p7||'---')==='---'?'selected':''}>---</option><option value="Fără școală" ${(e.p7||'---')==='Fără școală'?'selected':''}>Fără școală</option><option value="Primar" ${(e.p7||'---')==='Primar'?'selected':''}>Primar</option><option value="Gimnazial" ${(e.p7||'---')==='Gimnazial'?'selected':''}>Gimnazial</option><option value="Profesional" ${(e.p7||'---')==='Profesional'?'selected':''}>Profesional</option><option value="Liceal" ${(e.p7||'---')==='Liceal'?'selected':''}>Liceal</option><option value="Superior" ${(e.p7||'---')==='Superior'?'selected':''}>Superior</option></select></div></div>
                 </div>
 
                 <div class="subsec-title">(A) Cauze/ factori de risc în relaţie cu sprijinul familial</div>
                 <div class="info-grid">
-                    <div class="info-row"><div class="info-label">8. Familia nu îşi permite costurile şcolare (haine, încălţăminte, materiale şcolare, naveta etc.) pentru că este săracă sau are venituri foarte mici?</div><div class="info-value">${e.p8 || '---'}</div></div>
-                    <div class="info-row"><div class="info-label">9. Părinte minor, familie monoparentală, familie reorganizată (părintele în grija căruia se află s-a recăsătorit), familie cu mai mult de 3 copii, unul sau ambii părinţi nu sunt acasaă, fiind plecaţi la muncă în afara localităţii sau în străinătate, unul sau mai mulţi copii separaţi de familie sau reintegraţi în familie (după ce au fost în regim de protecţie specială)?</div><div class="info-value">${e.p9 || '---'}</div></div>
-                    <div class="info-row"><div class="info-label">10. Părinţii, părintele unic sau îngrijitorul copilului din gospodărie nu acordă importanţă sau au o atitudine negativă faţă de educaţia copiilor/şcoală?</div><div class="info-value">${e.p10 || '---'}</div></div>
-                    <div class="info-row"><div class="info-label">11. Elevul are unul sau mai mulţi fraţi sau surori (de 6-17 ani) care nu au fost niciodată la şcoală, au abandonat sau au părăsit timpuriu şcoala?</div><div class="info-value">${e.p11 || '---'}</div></div>
-                    <div class="info-row"><div class="info-label">12. Copilul nu are condiţii minimale de studiu acasă?</div><div class="info-value">${e.p12 || '---'}</div></div>
+                    <div class="info-row"><div class="info-label">8. Familia nu îşi permite costurile şcolare (haine, încălţăminte, materiale şcolare, naveta etc.) pentru că este săracă sau are venituri foarte mici?</div><div class="info-value"><select class="select-danu" onchange="updateCampEvaluare(${e.id}, 'p8', this.value, this)" data-id="${e.id}" data-camp="p8">
+                                <option value="NU" ${(e.p8||'NU').toUpperCase()==='NU' ? 'selected' : ''}>NU</option>
+                                <option value="DA" ${(e.p8||'').toUpperCase()==='DA' ? 'selected' : ''}>DA</option>
+                            </select></div></div>
+                    <div class="info-row"><div class="info-label">9. Părinte minor, familie monoparentală, familie reorganizată (părintele în grija căruia se află s-a recăsătorit), familie cu mai mult de 3 copii, unul sau ambii părinţi nu sunt acasaă, fiind plecaţi la muncă în afara localităţii sau în străinătate, unul sau mai mulţi copii separaţi de familie sau reintegraţi în familie (după ce au fost în regim de protecţie specială)?</div><div class="info-value"><select class="select-danu" onchange="updateCampEvaluare(${e.id}, 'p9', this.value, this)" data-id="${e.id}" data-camp="p9">
+                                <option value="NU" ${(e.p9||'NU').toUpperCase()==='NU' ? 'selected' : ''}>NU</option>
+                                <option value="DA" ${(e.p9||'').toUpperCase()==='DA' ? 'selected' : ''}>DA</option>
+                            </select></div></div>
+                    <div class="info-row"><div class="info-label">10. Părinţii, părintele unic sau îngrijitorul copilului din gospodărie nu acordă importanţă sau au o atitudine negativă faţă de educaţia copiilor/şcoală?</div><div class="info-value"><select class="select-danu" onchange="updateCampEvaluare(${e.id}, 'p10', this.value, this)" data-id="${e.id}" data-camp="p10">
+                                <option value="NU" ${(e.p10||'NU').toUpperCase()==='NU' ? 'selected' : ''}>NU</option>
+                                <option value="DA" ${(e.p10||'').toUpperCase()==='DA' ? 'selected' : ''}>DA</option>
+                            </select></div></div>
+                    <div class="info-row"><div class="info-label">11. Elevul are unul sau mai mulţi fraţi sau surori (de 6-17 ani) care nu au fost niciodată la şcoală, au abandonat sau au părăsit timpuriu şcoala?</div><div class="info-value"><select class="select-danu" onchange="updateCampEvaluare(${e.id}, 'p11', this.value, this)" data-id="${e.id}" data-camp="p11">
+                                <option value="NU" ${(e.p11||'NU').toUpperCase()==='NU' ? 'selected' : ''}>NU</option>
+                                <option value="DA" ${(e.p11||'').toUpperCase()==='DA' ? 'selected' : ''}>DA</option>
+                            </select></div></div>
+                    <div class="info-row"><div class="info-label">12. Copilul nu are condiţii minimale de studiu acasă?</div><div class="info-value"><select class="select-danu" onchange="updateCampEvaluare(${e.id}, 'p12', this.value, this)" data-id="${e.id}" data-camp="p12">
+                                <option value="NU" ${(e.p12||'NU').toUpperCase()==='NU' ? 'selected' : ''}>NU</option>
+                                <option value="DA" ${(e.p12||'').toUpperCase()==='DA' ? 'selected' : ''}>DA</option>
+                            </select></div></div>
                 </div>
 
                 <div class="subsec-title">(B) Factori de risc legaţi de situaţia copilului</div>
                 <div class="info-grid">
-                    <div class="info-row"><div class="info-label">13. Elevul/eleva are dizabilităţi (cu certificat de handicap) sau CES (cu certificat de orientare şcolară)?</div><div class="info-value">${e.p13 || '---'}</div></div>
-                    <div class="info-row"><div class="info-label">14. Elevul are dificultăţi de învăţare, fără certificat de dizabilitate/ orientare şcolară (de ex. învaţă greu legătura între litere şi sunete; nu poate citi sau fac greşeli serioase de citire sau pronunţie; este încet în învăţarea noilor deprinderi; are dificultăţi în planificarea şi organizarea timpului şi/sau în învăţarea alfabetului, etc.)?</div><div class="info-value">${e.p14 || '---'}</div></div>
-                    <div class="info-row"><div class="info-label">15. În ultimul an, elevul/eleva a fost plecat(ă) din ţară sau din localitate o dată sau de mai multe ori pentru o perioadă mai mare de 3 luni, în afara vacanţei de vară?</div><div class="info-value">${e.p15 || '---'}</div></div>
-                    <div class="info-row"><div class="info-label">16. Elevul/eleva stă în gazdă sau la internat?</div><div class="info-value">${e.p16 || '---'}</div></div>
-                    <div class="info-row"><div class="info-label">17. Elevul/eleva este căsătorit(ă), are copil sau eleva e însărcinată?</div><div class="info-value">${e.p17 || '---'}</div></div>
-                    <div class="info-row"><div class="info-label">18. Lipsa interesului sau aspiraţiilor legate de educaţie ale elevului/elevei?</div><div class="info-value">${e.p18 || '---'}</div></div>
+                    <div class="info-row"><div class="info-label">13. Elevul/eleva are dizabilităţi (cu certificat de handicap) sau CES (cu certificat de orientare şcolară)?</div><div class="info-value"><select class="select-danu" onchange="updateCampEvaluare(${e.id}, 'p13', this.value, this)" data-id="${e.id}" data-camp="p13">
+                                <option value="NU" ${(e.p13||'NU').toUpperCase()==='NU' ? 'selected' : ''}>NU</option>
+                                <option value="DA" ${(e.p13||'').toUpperCase()==='DA' ? 'selected' : ''}>DA</option>
+                            </select></div></div>
+                    <div class="info-row"><div class="info-label">14. Elevul are dificultăţi de învăţare, fără certificat de dizabilitate/ orientare şcolară (de ex. învaţă greu legătura între litere şi sunete; nu poate citi sau fac greşeli serioase de citire sau pronunţie; este încet în învăţarea noilor deprinderi; are dificultăţi în planificarea şi organizarea timpului şi/sau în învăţarea alfabetului, etc.)?</div><div class="info-value"><select class="select-danu" onchange="updateCampEvaluare(${e.id}, 'p14', this.value, this)" data-id="${e.id}" data-camp="p14">
+                                <option value="NU" ${(e.p14||'NU').toUpperCase()==='NU' ? 'selected' : ''}>NU</option>
+                                <option value="DA" ${(e.p14||'').toUpperCase()==='DA' ? 'selected' : ''}>DA</option>
+                            </select></div></div>
+                    <div class="info-row"><div class="info-label">15. În ultimul an, elevul/eleva a fost plecat(ă) din ţară sau din localitate o dată sau de mai multe ori pentru o perioadă mai mare de 3 luni, în afara vacanţei de vară?</div><div class="info-value"><select class="select-danu" onchange="updateCampEvaluare(${e.id}, 'p15', this.value, this)" data-id="${e.id}" data-camp="p15">
+                                <option value="NU" ${(e.p15||'NU').toUpperCase()==='NU' ? 'selected' : ''}>NU</option>
+                                <option value="DA" ${(e.p15||'').toUpperCase()==='DA' ? 'selected' : ''}>DA</option>
+                            </select></div></div>
+                    <div class="info-row"><div class="info-label">16. Elevul/eleva stă în gazdă sau la internat?</div><div class="info-value"><select class="select-danu" onchange="updateCampEvaluare(${e.id}, 'p16', this.value, this)" data-id="${e.id}" data-camp="p16">
+                                <option value="NU" ${(e.p16||'NU').toUpperCase()==='NU' ? 'selected' : ''}>NU</option>
+                                <option value="DA" ${(e.p16||'').toUpperCase()==='DA' ? 'selected' : ''}>DA</option>
+                            </select></div></div>
+                    <div class="info-row"><div class="info-label">17. Elevul/eleva este căsătorit(ă), are copil sau eleva e însărcinată?</div><div class="info-value"><select class="select-danu" onchange="updateCampEvaluare(${e.id}, 'p17', this.value, this)" data-id="${e.id}" data-camp="p17">
+                                <option value="NU" ${(e.p17||'NU').toUpperCase()==='NU' ? 'selected' : ''}>NU</option>
+                                <option value="DA" ${(e.p17||'').toUpperCase()==='DA' ? 'selected' : ''}>DA</option>
+                            </select></div></div>
+                    <div class="info-row"><div class="info-label">18. Lipsa interesului sau aspiraţiilor legate de educaţie ale elevului/elevei?</div><div class="info-value"><select class="select-danu" onchange="updateCampEvaluare(${e.id}, 'p18', this.value, this)" data-id="${e.id}" data-camp="p18">
+                                <option value="NU" ${(e.p18||'NU').toUpperCase()==='NU' ? 'selected' : ''}>NU</option>
+                                <option value="DA" ${(e.p18||'').toUpperCase()==='DA' ? 'selected' : ''}>DA</option>
+                            </select></div></div>
                 </div>
 
                 <div class="subsec-title">(C) Cauze/ factori de risc în relaţie cu şcoala</div>
                 <div class="info-grid">
-                    <div class="info-row"><div class="info-label">19. Discriminare sau izolare la şcoală a elevului/elevei?</div><div class="info-value">${e.p19 || '---'}</div></div>
-                    <div class="info-row"><div class="info-label">20. Violenţă la şcoală (elevul a fost implicat in conflicte create de el/ea sau alţi elevi?</div><div class="info-value">${e.p20 || '---'}</div></div>
-                    <div class="info-row"><div class="info-label">21. Alte cauze şcolare identificate:</div><div class="info-value">${e.p21 || '---'}</div></div>
+                    <div class="info-row"><div class="info-label">19. Discriminare sau izolare la şcoală a elevului/elevei?</div><div class="info-value"><select class="select-danu" onchange="updateCampEvaluare(${e.id}, 'p19', this.value, this)" data-id="${e.id}" data-camp="p19">
+                                <option value="NU" ${(e.p19||'NU').toUpperCase()==='NU' ? 'selected' : ''}>NU</option>
+                                <option value="DA" ${(e.p19||'').toUpperCase()==='DA' ? 'selected' : ''}>DA</option>
+                            </select></div></div>
+                    <div class="info-row"><div class="info-label">20. Violenţă la şcoală (elevul a fost implicat in conflicte create de el/ea sau alţi elevi?</div><div class="info-value"><select class="select-danu" onchange="updateCampEvaluare(${e.id}, 'p20', this.value, this)" data-id="${e.id}" data-camp="p20">
+                                <option value="NU" ${(e.p20||'NU').toUpperCase()==='NU' ? 'selected' : ''}>NU</option>
+                                <option value="DA" ${(e.p20||'').toUpperCase()==='DA' ? 'selected' : ''}>DA</option>
+                            </select></div></div>
+                    <div class="info-row"><div class="info-label">21. Alte cauze şcolare identificate:</div><div class="info-value"><select class="select-danu" onchange="updateCampEvaluare(${e.id}, 'p21', this.value, this)" data-id="${e.id}" data-camp="p21">
+                                <option value="NU" ${(e.p21||'NU').toUpperCase()==='NU' ? 'selected' : ''}>NU</option>
+                                <option value="DA" ${(e.p21||'').toUpperCase()==='DA' ? 'selected' : ''}>DA</option>
+                            </select></div></div>
                 </div>
 
                 <div class="subsec-title">(D) Cauze/ factori de risc în relaţie cu comunitatea</div>
                 <div class="info-grid">
-                    <div class="info-row"><div class="info-label">22. Elevul/eleva stă într-o zonă marginalizată sau într-comunitate aflată în evidenţa sistemului de protecţie specială a copilului?</div><div class="info-value">${e.p22 || '---'}</div></div>
-                    <div class="info-row"><div class="info-label">23. Elevul/eleva stă într-un sat/într-o zonă de unde naveta spre şi dinspre şcoală este dificilă sau imposibilă în anumite perioade?</div><div class="info-value">${e.p23 || '---'}</div></div>
+                    <div class="info-row"><div class="info-label">22. Elevul/eleva stă într-o zonă marginalizată sau într-comunitate aflată în evidenţa sistemului de protecţie specială a copilului?</div><div class="info-value"><select class="select-danu" onchange="updateCampEvaluare(${e.id}, 'p22', this.value, this)" data-id="${e.id}" data-camp="p22">
+                                <option value="NU" ${(e.p22||'NU').toUpperCase()==='NU' ? 'selected' : ''}>NU</option>
+                                <option value="DA" ${(e.p22||'').toUpperCase()==='DA' ? 'selected' : ''}>DA</option>
+                            </select></div></div>
+                    <div class="info-row"><div class="info-label">23. Elevul/eleva stă într-un sat/într-o zonă de unde naveta spre şi dinspre şcoală este dificilă sau imposibilă în anumite perioade?</div><div class="info-value"><select class="select-danu" onchange="updateCampEvaluare(${e.id}, 'p23', this.value, this)" data-id="${e.id}" data-camp="p23">
+                                <option value="NU" ${(e.p23||'NU').toUpperCase()==='NU' ? 'selected' : ''}>NU</option>
+                                <option value="DA" ${(e.p23||'').toUpperCase()==='DA' ? 'selected' : ''}>DA</option>
+                            </select></div></div>
                 </div>
 
-<div class="sectiune-header">Observații/Interpretare</div>
+<div class="sectiune-header" style="display:flex;justify-content:space-between;align-items:center;">Observații/Interpretare<button class="no-print" onclick="genereazaAI_individual(${e.id}, this)" style="background:#8b5cf6;color:white;border:none;border-radius:5px;padding:5px 12px;font-size:8pt;font-weight:700;cursor:pointer;font-family:inherit;">✨ Generează AI</button></div>
 <div id="obs-text-${e.id}" 
      contenteditable="true" 
      onblur="updateCamp(${e.id}, 'observatii_evaluare', this.innerText)"
-     style="...">
+     style="min-height:60px;border:1px dashed #94a3b8;padding:8px;border-radius:4px;font-size:9pt;line-height:1.5;">
     ${e.observatii_evaluare || textObservatii}
 </div>
 
@@ -485,6 +557,64 @@ async function completeazaToateObservatiileAI() {
 function schimbaAnul(val) { anSelectat = val; clasaActiva = ""; incarcaDatele(); }
 incarcaDatele();
 
+
+async function updateCampEvaluare(id, coloana, valoare, selectEl) {
+    // 1. Salvează în datele locale imediat
+    const elevLocal = dateleCurente.find(el => el.id === id);
+    if (elevLocal) elevLocal[coloana] = valoare;
+
+    // 2. Recalculează scorul de risc live pe fișa elevului
+    const fisa = selectEl.closest('.a4-page');
+    if (fisa && elevLocal) {
+        const isDA = (v) => (v || '').toString().toUpperCase() === 'DA';
+        const puncteA = ['p8','p9','p10','p11','p12'].filter(p => isDA(elevLocal[p])).length;
+        const puncteB = ['p13','p14','p15','p16','p17','p18'].filter(p => isDA(elevLocal[p])).length;
+        const puncteC = ['p19','p20','p21'].filter(p => isDA(elevLocal[p])).length;
+        const puncteD = ['p22','p23'].filter(p => isDA(elevLocal[p])).length;
+        const totalDA = puncteA + puncteB + puncteC + puncteD;
+        const procentRisc = Math.round((totalDA / 16) * 100);
+
+        // Actualizează scorurile afișate
+        const scoruri = fisa.querySelectorAll('.risk-score');
+        if (scoruri[0]) scoruri[0].textContent = puncteA + ' / 5';
+        if (scoruri[1]) scoruri[1].textContent = puncteB + ' / 6';
+        if (scoruri[2]) scoruri[2].textContent = puncteC + ' / 3';
+        if (scoruri[3]) scoruri[3].textContent = puncteD + ' / 2';
+
+        // Actualizează scorul total și bara
+        const scorTotal = fisa.querySelector('.risk-label:last-of-type') || 
+                          [...fisa.querySelectorAll('.risk-label')].find(el => el.textContent.includes('SCOR TOTAL'));
+        if (scorTotal) scorTotal.textContent = 'SCOR TOTAL DE RISC: ' + procentRisc + '%';
+
+        const bar = fisa.querySelector('.progress-bar');
+        if (bar) bar.style.width = procentRisc + '%';
+
+        // Actualizează badge-ul de status
+        const badge = fisa.querySelector('.status-badge');
+        if (badge) {
+            badge.classList.remove('risc-scazut','risc-mediu','risc-ridicat');
+            if (procentRisc > 25) { badge.classList.add('risc-ridicat'); badge.textContent = 'Risc Ridicat'; }
+            else if (procentRisc >= 10) { badge.classList.add('risc-mediu'); badge.textContent = 'Risc Mediu'; }
+            else { badge.classList.add('risc-scazut'); badge.textContent = 'Risc Scăzut'; }
+        }
+    }
+
+    // 3. Salvează în Supabase (silent, fără alert)
+    try {
+        const { error } = await _db
+            .from('mate_pnras')
+            .update({ [coloana]: valoare })
+            .eq('id', id);
+        if (error) throw error;
+        // Feedback vizual subtil pe select
+        selectEl.style.borderBottomColor = '#16a34a';
+        setTimeout(() => selectEl.style.borderBottomColor = '', 1500);
+    } catch(err) {
+        console.error('Eroare salvare ' + coloana + ':', err.message);
+        selectEl.style.borderBottomColor = '#dc2626';
+    }
+}
+
 async function updateCamp(id, coloana, valoare) {
     if (!id) {
         console.error("❌ Eroare: ID elev lipsă!");
@@ -532,6 +662,75 @@ async function updateCamp(id, coloana, valoare) {
         alert("Atenție: Datele NU s-au salvat! Eroare: " + err.message);
     }
 }
+
+async function genereazaAI_individual(elevId, btn) {
+    const elev = dateleCurente.find(el => el.id === elevId);
+    if (!elev) return;
+
+    const boxObservatii = document.getElementById('obs-text-' + elevId);
+    if (!boxObservatii) return;
+
+    const dictionarSemnificatii = {
+        p8: "dificultăți financiare și condiții de locuit precare",
+        p9: "proveniența dintr-o familie monoparentală sau cu părinți plecați la muncă",
+        p10: "lipsa de implicare sau atitudinea pasivă a părinților față de educație",
+        p11: "existența unor frați care au abandonat deja studiile",
+        p12: "lipsa unui spațiu de studiu și a resurselor materiale de bază",
+        p13: "prezența unor dizabilități sau cerințe educaționale speciale (CES)",
+        p14: "dificultăți de învățare nediagnosticate oficial",
+        p15: "istoric de absenteism cauzat de plecări prelungite din localitate",
+        p16: "izolarea cauzată de locuirea în gazdă sau la internat",
+        p17: "responsabilități familiale precoce (căsătorie sau îngrijirea propriilor copii)",
+        p18: "lipsa de motivație, aspirații scăzute și dezinteres față de școală",
+        p19: "sentimente de izolare socială sau discriminare în mediul școlar",
+        p20: "implicarea în conflicte sau acte de violență școlară",
+        p21: "alte probleme de natură școlară identificate",
+        p22: "locuirea într-o zonă marginalizată sau comunitate defavorizată",
+        p23: "naveta dificilă care afectează frecvența școlară"
+    };
+
+    const factoriIdentificati = Object.keys(dictionarSemnificatii)
+        .filter(p => (elev[p] || '').toString().toUpperCase() === 'DA')
+        .map(p => dictionarSemnificatii[p])
+        .join(', ');
+
+    const textOriginal = boxObservatii.innerHTML;
+    btn.disabled = true;
+    btn.textContent = '⏳ Se generează...';
+    boxObservatii.innerHTML = '<em style="color:#8b5cf6;">🤖 Se compune observația...</em>';
+
+    const promptCompus = factoriIdentificati
+        ? `Ești expert psihopedagog. Analizează următorii factori de risc identificați pentru elevul ${elev.nume_elev}: ${factoriIdentificati}.
+Creează un text logic și cursiv de 3-4 fraze care să descrie situația elevului.
+NU folosi expresii de tipul "Are DA la..." sau "Indicatorul p...".
+Folosește direct cuvintele extrase din descrieri pentru a construi o interpretare profesională.
+Textul trebuie să sune ca o observație oficială într-un dosar educațional.
+Nu folosi introduceri, scrie direct textul observației.`
+        : `Elevul ${elev.nume_elev} nu prezintă indicatori de risc majori în secțiunile p8-p23. Redactează o frază scurtă oficială în acest sens.`;
+
+    try {
+        const response = await fetch(`${supabaseUrl}/functions/v1/chatgpt-pnras`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${supabaseKey}`
+            },
+            body: JSON.stringify({ prompt: promptCompus })
+        });
+        const data = await response.json();
+        const textFinal = data.reply || (data.choices && data.choices[0].message.content) || 'Eroare la procesare.';
+        boxObservatii.innerHTML = textFinal;
+        await _db.from('mate_pnras').update({ observatii_evaluare: textFinal }).eq('id', elevId);
+    } catch(err) {
+        console.error(err);
+        boxObservatii.innerHTML = textOriginal;
+        alert('⚠️ Eroare la AI: ' + err.message);
+    } finally {
+        btn.disabled = false;
+        btn.textContent = '✨ Generează AI';
+    }
+}
+
 function navigheazaLaRaport() {
     if (!clasaActiva) {
         alert("Te rugăm să selectezi o clasă mai întâi.");
