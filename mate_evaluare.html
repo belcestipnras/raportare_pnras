@@ -514,16 +514,7 @@ async function completeazaToateObservatiileAI() {
             continue;
         }
 
-        const promptCompus = `
-            Ești expert psihopedagog. Analizează următorii factori de risc identificați pentru elevul ${elev.nume_elev}: ${factoriIdentificati}.
-            
-            Sarcina ta:
-            Creează un text logic și cursiv de 3-4 fraze care să descrie situația elevului. 
-            NU folosi expresii de tipul "Are DA la..." sau "Indicatorul p...". 
-            Folosește direct cuvintele extrase din descrieri pentru a construi o interpretare profesională. 
-            Textul trebuie să sune ca o observație oficială într-un dosar educațional.
-            Nu folosi introduceri, scrie direct textul observației.
-        `;
+        const promptCompus = construiestePrompt(elev);
 
         try {
             const response = await fetch(`${supabaseUrl}/functions/v1/chatgpt-pnras`, {
@@ -663,6 +654,122 @@ async function updateCamp(id, coloana, valoare) {
     }
 }
 
+
+        // Construiește prompt detaliat bazat pe datele reale ale elevului
+        function construiestePrompt(elev) {
+            const isDA = (v) => (v || '').toString().toUpperCase().trim() === 'DA';
+            const val = (v, fallback) => (v && String(v).trim() !== '' && String(v).trim() !== '---') ? String(v).trim() : (fallback || 'necunoscut');
+
+            // Scoruri
+            const puncteA = ['p8','p9','p10','p11','p12'].filter(p => isDA(elev[p])).length;
+            const puncteB = ['p13','p14','p15','p16','p17','p18'].filter(p => isDA(elev[p])).length;
+            const puncteC = ['p19','p20','p21'].filter(p => isDA(elev[p])).length;
+            const puncteD = ['p22','p23'].filter(p => isDA(elev[p])).length;
+            const totalDA = puncteA + puncteB + puncteC + puncteD;
+            const procentRisc = Math.round((totalDA / 16) * 100);
+            const nivelRisc = procentRisc > 25 ? 'ridicat' : procentRisc >= 10 ? 'mediu' : 'scăzut';
+
+            // Date elev
+            const numeElev = elev.nume_elev || '---';
+            const clasa = elev.clasa || '---';
+            const nrDosar = val(elev.nr_dosar, null);
+            const p1 = val(elev.p1, 'necunoscut');
+            const p3t = val(elev.p3_t, '0');
+            const p3a = val(elev.p3_a, '0');
+            const p3c = val(elev.p3_c, '0');
+            const p4 = val(elev.p4, 'necunoscut');
+            const p5 = val(elev.p5, 'necunoscut');
+            const p6 = val(elev.p6, 'necunoscut');
+            const p7 = val(elev.p7, 'necunoscut');
+
+            // Răspunsuri p8-p23
+            const raspunsuri = {
+                p8:  isDA(elev.p8)  ? 'DA' : 'NU',
+                p9:  isDA(elev.p9)  ? 'DA' : 'NU',
+                p10: isDA(elev.p10) ? 'DA' : 'NU',
+                p11: isDA(elev.p11) ? 'DA' : 'NU',
+                p12: isDA(elev.p12) ? 'DA' : 'NU',
+                p13: isDA(elev.p13) ? 'DA' : 'NU',
+                p14: isDA(elev.p14) ? 'DA' : 'NU',
+                p15: isDA(elev.p15) ? 'DA' : 'NU',
+                p16: isDA(elev.p16) ? 'DA' : 'NU',
+                p17: isDA(elev.p17) ? 'DA' : 'NU',
+                p18: isDA(elev.p18) ? 'DA' : 'NU',
+                p19: isDA(elev.p19) ? 'DA' : 'NU',
+                p20: isDA(elev.p20) ? 'DA' : 'NU',
+                p21: isDA(elev.p21) ? 'DA' : 'NU',
+                p22: isDA(elev.p22) ? 'DA' : 'NU',
+                p23: isDA(elev.p23) ? 'DA' : 'NU',
+            };
+
+            // Regula p9: formulare corectă bazată pe date
+            const ambiiFacut = isDA(elev.p4) && isDA(elev.p6);
+            const copiiMulti = parseInt(p3c) > 3;
+            const notaP9 = raspunsuri.p9 === 'DA'
+                ? (ambiiFacut && copiiMulti
+                    ? '→ Formulează: familie numeroasă (ambii părinți în gospodărie, ' + p3c + ' copii)'
+                    : (!isDA(elev.p4) || !isDA(elev.p6))
+                        ? '→ Formulează: familie monoparentală sau cu un părinte absent (verifică p4/p6)'
+                        : '→ Formulează: familie cu dificultăți structurale (verifică contextul p4/p6/p3c)')
+                : '';
+
+            return `Ești expert psihopedagog. Generează textul pentru câmpul Observații/Interpretare dintr-o Fișă de evaluare MATE.
+
+DATE BRUTE ALE ELEVULUI:
+Nume: ${numeElev}
+Clasa: ${clasa}${nrDosar ? '\nNr. dosar de caz: ' + nrDosar : ''}
+Locuiește în aceeași localitate cu școala (p1): ${p1}
+Gospodărie: ${p3t} persoane total, din care ${p3a} adulți și ${p3c} copii (p3)
+Mama în gospodărie (p4): ${p4} — nivel educație mamă (p5): ${p5}
+Tatăl în gospodărie (p6): ${p6} — nivel educație tată (p7): ${p7}
+
+RĂSPUNSURI p8-p23 (DA = factor de risc identificat, NU = absent):
+p8  — Familia nu poate susține costurile școlare: ${raspunsuri.p8}
+p9  — Familie monoparentală, reorganizată, cu părinți plecați sau mai mult de 3 copii: ${raspunsuri.p9} ${notaP9}
+p10 — Părinți cu implicare redusă sau atitudine negativă față de educație: ${raspunsuri.p10}
+p11 — Frați/surori care nu au frecventat sau au abandonat școala: ${raspunsuri.p11}
+p12 — Lipsă condiții minimale de studiu acasă: ${raspunsuri.p12}
+p13 — Dizabilități sau CES (cu certificat): ${raspunsuri.p13}
+p14 — Dificultăți de învățare fără certificat: ${raspunsuri.p14}
+p15 — Plecat din localitate/țară >3 luni în ultimul an: ${raspunsuri.p15}
+p16 — Stă în gazdă sau la internat: ${raspunsuri.p16}
+p17 — Căsătorit/ă sau cu copii proprii: ${raspunsuri.p17}
+p18 — Lipsă interes sau aspirații față de educație: ${raspunsuri.p18}
+p19 — Discriminare sau izolare la școală: ${raspunsuri.p19}
+p20 — Implicat în conflicte sau violență școlară: ${raspunsuri.p20}
+p21 — Alte cauze școlare identificate: ${raspunsuri.p21}
+p22 — Locuiește într-o zonă marginalizată: ${raspunsuri.p22}
+p23 — Navetă dificilă spre/dinspre școală: ${raspunsuri.p23}
+
+SCORURI PE CATEGORII:
+(A) Sprijin familial: ${puncteA}/5
+(B) Situația copilului: ${puncteB}/6
+(C) Factori școlari: ${puncteC}/3
+(D) Factori comunitari: ${puncteD}/2
+Scor total: ${procentRisc}% — nivel de risc ${nivelRisc.toUpperCase()}
+
+REGULI STRICTE — RESPECTĂ-LE INTEGRAL:
+1. Nu inventa informații care nu apar în datele de mai sus.
+2. Dacă p9 = DA și ambii părinți sunt în gospodărie și sunt mai mult de 3 copii → formulează "familie numeroasă", NU "familie monoparentală".
+3. Dacă p9 = DA și un părinte lipsește din gospodărie → formulează "familie monoparentală sau cu un părinte absent".
+4. Pentru p8 = DA → formulează "dificultăți în susținerea costurilor școlare", NU "condiții de locuit precare".
+5. Pentru p10 = DA → formulează "implicare redusă sau atitudine negativă față de educație a părinților", NU "neglijență parentală".
+6. Pentru p11 = DA → formulează "frați/surori cu probleme de participare școlară", fără detalii inventate.
+7. Pentru p12 = DA → formulează "lipsa condițiilor minimale de studiu acasă", fără descrieri inventate despre locuință.
+8. Dacă p9 include mai multe situații posibile → nu alege una singură dacă datele nu confirmă; descrie situația generală.
+9. Dacă A = 0/5 → scrie explicit că nu sunt consemnate riscuri în relație cu sprijinul familial.
+10. Dacă B = 0/6 → scrie explicit că nu sunt consemnate riscuri legate de situația copilului.
+11. Dacă C = 0/3 → scrie explicit că nu sunt consemnate riscuri școlare (discriminare, izolare, violență).
+12. Dacă D = 0/2 → scrie explicit că nu sunt consemnate riscuri comunitare sau dificultăți de navetă.
+13. Integrează natural scorurile în text (ex: "scorul de 5/5 la factorii de risc în relație cu sprijinul familial").
+14. Maximum 250 de cuvinte, 2-3 paragrafe, fără titluri, fără liste, fără "PARAGRAF", fără "Categoria A".
+15. Limbă română oficială, clară, fără expresii pompoase, potrivită pentru un dosar educațional.
+16. Textul TREBUIE să se încheie cu următoarea recomandare fixă, integrată natural în ultimul paragraf: "Se recomandă participarea la activitățile proiectului PNRAS, activități remediale la limba și literatura română, activități remediale la matematică, activități extracurriculare la cluburile tematice și activități de lectură și literație." Nu modifica această recomandare, include-o exact.
+
+EXEMPLU DE STIL (nu copia mecanic, folosește-l doar ca referință de ton și structură):
+"Elevul [Nume], înscris în clasa [X], este identificat cu risc [nivel], cu un scor total de [X]%. Datele consemnate indică un scor de [A]/5 la factorii de risc în relație cu sprijinul familial, fiind semnalate [descriere concretă]. În ceea ce privește situația copilului, scorul de [B]/6 reflectă [descriere]. La nivelul factorilor școlari și comunitari, scorurile de [C]/3 și [D]/2 arată că [descriere]. Se recomandă participarea la activitățile proiectului PNRAS, activități remediale la limba și literatura română, activități remediale la matematică, activități extracurriculare la cluburile tematice și activități de lectură și literație."`;
+        }
+
 async function genereazaAI_individual(elevId, btn) {
     const elev = dateleCurente.find(el => el.id === elevId);
     if (!elev) return;
@@ -699,14 +806,7 @@ async function genereazaAI_individual(elevId, btn) {
     btn.textContent = '⏳ Se generează...';
     boxObservatii.innerHTML = '<em style="color:#8b5cf6;">🤖 Se compune observația...</em>';
 
-    const promptCompus = factoriIdentificati
-        ? `Ești expert psihopedagog. Analizează următorii factori de risc identificați pentru elevul ${elev.nume_elev}: ${factoriIdentificati}.
-Creează un text logic și cursiv de 3-4 fraze care să descrie situația elevului.
-NU folosi expresii de tipul "Are DA la..." sau "Indicatorul p...".
-Folosește direct cuvintele extrase din descrieri pentru a construi o interpretare profesională.
-Textul trebuie să sune ca o observație oficială într-un dosar educațional.
-Nu folosi introduceri, scrie direct textul observației.`
-        : `Elevul ${elev.nume_elev} nu prezintă indicatori de risc majori în secțiunile p8-p23. Redactează o frază scurtă oficială în acest sens.`;
+    const promptCompus = construiestePrompt(elev);
 
     try {
         const response = await fetch(`${supabaseUrl}/functions/v1/chatgpt-pnras`, {
