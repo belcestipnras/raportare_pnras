@@ -58,11 +58,34 @@
         .sig-block { line-height: 1.5; }
         #save-status { font-size: 0.8rem; color: #28a745; font-weight: normal; margin-left: 10px; opacity: 0; transition: opacity 0.5s; }
 
+        /* === MOD EDITARE === */
+        .delete-btn { display:none; background:#dc3545; color:white; border:none; border-radius:4px; cursor:pointer; font-size:0.7rem; padding:2px 6px; font-weight:700; margin-top:3px; }
+        body.edit-mode .delete-btn { display:inline-block; }
+        .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:1000; justify-content:center; align-items:center; }
+        .modal-overlay.open { display:flex; }
+        .modal-box { background:white; border-radius:12px; padding:28px 32px; width:460px; max-width:95vw; box-shadow:0 20px 60px rgba(0,0,0,0.3); }
+        .modal-box h2 { color:var(--pnras-blue); margin:0 0 18px 0; font-size:1.05rem; }
+        .modal-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:18px; }
+        .modal-field { display:flex; flex-direction:column; gap:4px; }
+        .modal-field.full { grid-column:1/-1; }
+        .modal-field label { font-size:0.75rem; font-weight:600; color:#555; }
+        .modal-field input, .modal-field select { padding:7px 10px; border:1px solid #d1d9e0; border-radius:6px; font-family:'Inter',sans-serif; font-size:0.85rem; outline:none; }
+        .modal-field input:focus, .modal-field select:focus { border-color:var(--pnras-blue); }
+        .modal-actions { display:flex; gap:10px; justify-content:flex-end; }
+        .modal-actions button { padding:8px 18px; border-radius:6px; font-weight:600; font-family:'Inter',sans-serif; cursor:pointer; font-size:0.85rem; }
+        .btn-cancel-modal { background:white; border:1px solid #ccc; color:#555; }
+        .btn-save-modal { background:#28a745; color:white; border:none; }
+        #toast { position:fixed; bottom:30px; left:50%; transform:translateX(-50%); background:#333; color:white; padding:10px 24px; border-radius:8px; font-size:0.85rem; font-weight:600; opacity:0; pointer-events:none; transition:opacity 0.3s; z-index:2000; }
+        #toast.show { opacity:1; }
+        .input-status { width:90%; padding:3px 5px; font-family:'Inter',sans-serif; font-size:0.75rem; text-align:center; border:1px dashed #aaa; background:transparent; color:#333; border-radius:4px; }
+        .input-status:focus { outline:none; border-color:var(--pnras-blue); background:#f0f7ff; }
+        .btn-orange { background-color:#e67e22; }
+
         @media print {
             * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
             @page { size: portrait; margin: 1.5cm; } 
             body { margin: 0; padding: 0; background: white; }
-            #selection-ui, .controls-a4, .back-btn { display: none !important; }
+            #selection-ui, .controls-a4, .back-btn, .delete-btn, #toast, .modal-overlay { display: none !important; }
             .a4-page { box-shadow: none !important; width: 100% !important; min-height: auto !important; padding: 0 !important; }
             .table-wrapper { box-shadow: none !important; border-radius: 8px !important; }
             th { background-color: #f8f9fa !important; color: #333 !important; }
@@ -100,6 +123,9 @@
         <div class="controls-a4">
             <button class="back-btn" style="position: static;" onclick="closeA4()">← Închide Tabelul</button>
             <button class="action-btn btn-green" onclick="fetchNrInregistrare()">📥 Preia Nr. Înregistrare</button>
+            <button class="action-btn btn-orange" id="btn-edit-toggle" onclick="toggleEditMode()">✏️ Editează</button>
+            <button class="action-btn btn-green" id="btn-adauga" onclick="deschideModal()" style="display:none;">➕ Adaugă Elev</button>
+            <button class="action-btn btn-green" id="btn-refresh" onclick="reincarcaRegistru()" style="display:none;">🔄 Reîncarcă</button>
             <button class="action-btn" onclick="window.print()">🖨️ Printare Registru</button>
         </div>
 
@@ -138,7 +164,7 @@
             document.getElementById('selection-ui').style.display = 'none';
             document.getElementById('main-back').style.display = 'none';
             document.getElementById('a4-view').style.display = 'flex';
-            currentYearGlobal = parseInt(year);
+            currentYearGlobal = year; // păstrăm ca string pentru Supabase
             const prevYear = parseInt(year) - 1;
             document.getElementById('a4-an-scolar').innerText = `An școlar ${prevYear} - ${year}`;
             document.getElementById('a4-nr-input').value = "";
@@ -246,7 +272,7 @@
                 // Actualizăm TOATĂ CLASA direct în Supabase (1 singură comandă)
                 await supabaseClient.from('mate_pnras')
                     .update({ [coloanaDb]: valoareNoua })
-                    .eq('anul', currentYearGlobal)
+                    .eq('anul', String(currentYearGlobal))
                     .eq('clasa', clasaId);
             } else {
                 // Dacă nu e primul, salvăm DOAR pentru elevul curent
@@ -280,14 +306,26 @@
 
             try {
                 // Extragem toți elevii din an (ne interesează și ID-ul acum, pentru update)
-                const { data: elevi, error } = await supabaseClient
-                    .from('mate_pnras')
-                    .select('id, nume_elev, clasa, diriginte, fo_status, fisa_activa, data_creare_fisa, data_modificare_fisa')
-                    .eq('anul', anulText)
-                    .order('clasa', { ascending: true })
-                    .order('nume_elev', { ascending: true });
+                // Paginare: preluam toti elevii in blocuri de 1000
+                let elevi = [];
+                let from = 0;
+                const pageSize = 1000;
+                while (true) {
+                    const { data: batch, error: batchError } = await supabaseClient
+                        .from('mate_pnras')
+                        .select('id, nume_elev, clasa, diriginte, fo_status, fisa_activa, data_creare_fisa, data_modificare_fisa')
+                        .eq('anul', anulText)
+                        .order('clasa', { ascending: true })
+                        .order('nume_elev', { ascending: true })
+                        .range(from, from + pageSize - 1);
+                    if (batchError) { break; }
+                    if (!batch || batch.length === 0) break;
+                    elevi = elevi.concat(batch);
+                    if (batch.length < pageSize) break;
+                    from += pageSize;
+                }
 
-                if (error || !elevi || elevi.length === 0) {
+                if (!elevi || elevi.length === 0) {
                     tabelHtml.innerHTML = headerHtml + `<tbody><tr><td colspan="6">Nu s-au găsit elevi.</td></tr></tbody>`;
                     return;
                 }
@@ -323,8 +361,14 @@
                     // Construcție Rând
                     bodyHtml += `<tr>
                         <td>${nrCrtGlobal}.</td>
-                        <td class="nume-td">${elev.nume_elev}</td>
-                        <td style="font-size: 0.75rem;">${status}</td>
+                        <td class="nume-td">${elev.nume_elev}<br>
+                            <button class="delete-btn" onclick="stergeElev(${elev.id}, '${elev.nume_elev.replace(/'/g, "\\'")}')">🗑 Șterge</button>
+                        </td>
+                        <td>
+                            <input type="text" class="input-status" value="${status === '-' ? '' : status}"
+                                placeholder="Status studii..."
+                                onblur="salveazaStatus(this, ${elev.id})">
+                        </td>
                         <td>
                             <span class="toggle-btn ${activa.toLowerCase()}" onclick="toggleFisa(this, ${elev.id})">${activa}</span>
                         </td>
@@ -368,6 +412,136 @@
                 console.error("Eroare:", err);
             }
         }
+    </script>
+
+    <!-- Modal Adaugare Elev -->
+    <div class="modal-overlay" id="modal-adauga">
+        <div class="modal-box">
+            <h2>➕ Adaugă Elev în Observator</h2>
+            <div class="modal-grid">
+                <div class="modal-field full">
+                    <label>Nume și Prenume *</label>
+                    <input type="text" id="m-nume" placeholder="Ex: Popescu Ion">
+                </div>
+                <div class="modal-field">
+                    <label>Clasa *</label>
+                    <input type="text" id="m-clasa" placeholder="Ex: 5A">
+                </div>
+                <div class="modal-field">
+                    <label>Diriginte</label>
+                    <input type="text" id="m-diriginte" placeholder="Ex: prof. Ionescu">
+                </div>
+                <div class="modal-field full">
+                    <label>Status studii</label>
+                    <input type="text" id="m-status" placeholder="Ex: Înscris">
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button class="btn-cancel-modal" onclick="inchideModal()">Anulează</button>
+                <button class="btn-save-modal" onclick="salveazaElevNou()">💾 Salvează în Supabase</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast"></div>
+
+    <script>
+        let editModeActive = false;
+
+        function toggleEditMode() {
+            editModeActive = !editModeActive;
+            const btn = document.getElementById('btn-edit-toggle');
+            const btnAdauga = document.getElementById('btn-adauga');
+            const btnRefresh = document.getElementById('btn-refresh');
+            if (editModeActive) {
+                document.body.classList.add('edit-mode');
+                btn.textContent = '✖ Ieși din Editare';
+                btn.style.backgroundColor = '#dc3545';
+                btnAdauga.style.display = 'inline-block';
+                btnRefresh.style.display = 'inline-block';
+            } else {
+                document.body.classList.remove('edit-mode');
+                btn.textContent = '✏️ Editează';
+                btn.style.backgroundColor = '#e67e22';
+                btnAdauga.style.display = 'none';
+                btnRefresh.style.display = 'none';
+            }
+        }
+
+        function reincarcaRegistru() {
+            if (currentYearGlobal) {
+                loadRegistru(currentYearGlobal);
+                afiseazaToast('🔄 Date reîncărcate din Supabase!');
+            }
+        }
+
+        function deschideModal() {
+            document.getElementById('modal-adauga').classList.add('open');
+            ['m-nume','m-clasa','m-diriginte','m-status'].forEach(id => document.getElementById(id).value = '');
+        }
+
+        function inchideModal() {
+            document.getElementById('modal-adauga').classList.remove('open');
+        }
+
+        async function salveazaElevNou() {
+            const nume = document.getElementById('m-nume').value.trim();
+            const clasa = document.getElementById('m-clasa').value.trim().toUpperCase();
+            if (!nume || !clasa) { afiseazaToast('⚠️ Numele și clasa sunt obligatorii!'); return; }
+            if (!supabaseClient) { afiseazaToast('⚠️ Supabase nu este conectat!'); return; }
+
+            const elevNou = {
+                nume_elev: nume,
+                clasa: clasa,
+                diriginte: document.getElementById('m-diriginte').value.trim() || null,
+                fo_status: document.getElementById('m-status').value.trim() || null,
+                fisa_activa: 'DA',
+                anul: String(currentYearGlobal),
+            };
+
+            try {
+                const { error } = await supabaseClient.from('mate_pnras').insert([elevNou]);
+                if (error) { afiseazaToast('❌ Eroare: ' + error.message); return; }
+                inchideModal();
+                afiseazaToast('✅ Elev adăugat cu succes!');
+                loadRegistru(String(currentYearGlobal));
+            } catch(err) { afiseazaToast('❌ Eroare: ' + err.message); }
+        }
+
+        async function stergeElev(elevId, numeElev) {
+            if (!confirm(`Ești sigur că vrei să ștergi elevul:\n"${numeElev}"?\n\nAceastă acțiune este ireversibilă!`)) return;
+            if (!supabaseClient) { afiseazaToast('⚠️ Supabase nu este conectat!'); return; }
+            try {
+                const { error } = await supabaseClient.from('mate_pnras').delete().eq('id', elevId);
+                if (error) { afiseazaToast('❌ Eroare: ' + error.message); return; }
+                afiseazaToast('🗑️ Elev șters!');
+                loadRegistru(String(currentYearGlobal));
+            } catch(err) { afiseazaToast('❌ Eroare: ' + err.message); }
+        }
+
+        async function salveazaStatus(input, elevId) {
+            if (!supabaseClient) return;
+            try {
+                const { error } = await supabaseClient.from('mate_pnras')
+                    .update({ fo_status: input.value.trim() || null })
+                    .eq('id', elevId);
+                if (!error) {
+                    input.style.borderColor = '#28a745';
+                    setTimeout(() => input.style.borderColor = '', 1500);
+                }
+            } catch(err) { console.error(err); }
+        }
+
+        function afiseazaToast(mesaj) {
+            const toast = document.getElementById('toast');
+            toast.textContent = mesaj;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+
+        document.getElementById('modal-adauga').addEventListener('click', function(e) {
+            if (e.target === this) inchideModal();
+        });
     </script>
 </body>
 </html>
