@@ -365,9 +365,10 @@
                             <button class="delete-btn" onclick="stergeElev(${elev.id}, '${elev.nume_elev.replace(/'/g, "\\'")}')">🗑 Șterge</button>
                         </td>
                         <td>
-                            <input type="text" class="input-status" value="${status === '-' ? '' : status}"
+                            <input type="text" class="input-status input-status-${elev.clasa} ${isFirstInClass ? 'is-first' : ''}" 
+                                value="${status === '-' ? '' : status}"
                                 placeholder="Status studii..."
-                                onblur="salveazaStatus(this, ${elev.id})">
+                                onblur="syncStatus(this, '${elev.clasa}', ${isFirstInClass}, ${elev.id})">
                         </td>
                         <td>
                             <span class="toggle-btn ${activa.toLowerCase()}" onclick="toggleFisa(this, ${elev.id})">${activa}</span>
@@ -517,6 +518,28 @@
                 afiseazaToast('🗑️ Elev șters!');
                 loadRegistru(String(currentYearGlobal));
             } catch(err) { afiseazaToast('❌ Eroare: ' + err.message); }
+        }
+
+        // 3. Modificare Status Studii (cu Sincronizare Clasă pentru Primul Elev)
+        async function syncStatus(element, clasaId, isFirstInClass, idElev) {
+            const valoareNoua = element.value;
+
+            if (isFirstInClass) {
+                // Sincronizează vizual toți colegii de clasă
+                document.querySelectorAll(`.input-status-${clasaId}`).forEach(input => {
+                    input.value = valoareNoua;
+                });
+                // Salvează toată clasa în Supabase
+                await supabaseClient.from('mate_pnras')
+                    .update({ fo_status: valoareNoua || null })
+                    .eq('anul', String(currentYearGlobal))
+                    .eq('clasa', clasaId);
+            } else {
+                // Salvează doar elevul curent
+                await supabaseClient.from('mate_pnras')
+                    .update({ fo_status: valoareNoua || null })
+                    .eq('id', idElev);
+            }
         }
 
         async function salveazaStatus(input, elevId) {
