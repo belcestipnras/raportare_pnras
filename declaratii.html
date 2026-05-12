@@ -79,7 +79,7 @@
         .table-adeverinta th, .table-adeverinta td { border: 1px solid black; padding: 6px; text-align: left; }
         .table-adeverinta th { background-color: #f2f2f2; text-align: center; }
 
-        .footer-signatures { margin-top: 30px; display: flex; justify-content: space-between; align-items: flex-start; font-size: 11pt; }
+        .footer-signatures { margin-top: 30px; font-size: 11pt; }
 
         @media print {
             @page { size: A4; margin: 0; }
@@ -239,7 +239,7 @@
             } else if (docType === "Adeverințe") {
                 title = "Adeverință de apartenență la grupul țintă PNRAS";
                 content = `<p style="text-indent: 40px; margin: 40px 0; font-size: 12pt; text-align: justify;" contenteditable="true" onblur="localSave('${sid}','${docType}','c1',this.innerHTML)">Prin prezenta se adeverește că elevul(a) <strong>${eNume}</strong> este elev la Liceul Tehnologic ”Victor Mihăilescu Craiu” Belcești, în clasa <strong>${clasa}</strong>, și face parte din grupul-țintă al proiectului „${TITLU_PROIECT}”, cod F-PNRAS-2-2023-0447. Adeverința se eliberează pentru a-i servi la dosarul personal din cadrul proiectului.</p>`;
-                footer = `<div>Data: ${dtVal}</div><div style="text-align:center; width:280px;">Secretar,<br><strong>Hasmațuchi Otilia</strong><br><br>.......................................</div>`;
+                footer = `<div>Data: ${dtVal}</div><div style="display:flex; justify-content:space-between; margin-top:15px;"><div style="text-align:center;">Director,<br>prof. Cătălin Ionuț <strong>BAZILUC</strong><br><br>.......................................</div><div style="text-align:center;">Secretar,<br>Otilia <strong>HASMAȚUCHI</strong><br><br>.......................................</div></div>`;
             } else if (docType === "Adeverințe absolvire") {
                 const dataNastere = extractDateFromCNP(elev.cnp) || '............';
                 const firstDigit = elev.cnp ? elev.cnp.toString()[0] : '5';
@@ -314,7 +314,7 @@
                         <thead><tr><th>Nr. Crt.</th><th>Nume și Prenume Elev</th><th>Clasa</th></tr></thead>
                         <tbody>${students.map((elev, i) => `<tr><td style="text-align:center;">${i + 1}</td><td>${elev.nume_elev}</td><td style="text-align:center;">${elev.clasa}</td></tr>`).join('')}</tbody>
                     </table>
-                    <div class="footer-signatures"><div>Data: ${dtVal}</div><div style="text-align:center; width:280px;">Secretar,<br><strong>Hasmațuchi Otilia</strong><br><br>.......................................</div></div>
+                    <div style="margin-top:30px; font-size:11pt;"><div>Data: ${dtVal}</div><div style="display:flex; justify-content:space-between; margin-top:15px;"><div style="text-align:center;">Director,<br>prof. Cătălin Ionuț <strong>BAZILUC</strong><br><br>.......................................</div><div style="text-align:center;">Secretar,<br>Otilia <strong>HASMAȚUCHI</strong><br><br>.......................................</div></div></div>
                 </div>`;
                 // Adaugă adeverințele individuale după tabelul colectiv
                 if(students) students.forEach((elev, index) => {
