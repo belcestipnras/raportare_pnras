@@ -232,7 +232,8 @@
         "Nohai Iuliana": ["StG1", "StG1A"], 
         "Nohai Vili": ["StG2", "StG1B"], 
         "Aparascăi Vasile": ["5A", "5B", "6A", "6B", "6C", "7A", "7B", "8A", "8B", "8C", "AV5A", "AV5B", "5C", "AV6A", "AV6B", "AV7A", "AV7B", "7C", "AV8A1", "AV8A2", "AV8B1", "AV8B2"], 
-        "Iftene Ana Maria": ["IA5AB1", "IA5AB2", "IA6A", "IA7B", "5C"] 
+        "Iftene Ana Maria": ["IA5AB1", "IA5AB2", "IA6A", "IA7B", "5C"],
+        "Proiect": ["PROIECT"]
     };
 
     const ratii = { 
@@ -245,7 +246,8 @@
         "5C": 14, "7C": 8, "AD8B1": 7, "AD8B2": 6, "AD8B3": 8, 
         "PE8A1": 10, "PE8A2": 10, "PE6B1": 8, "PE6B2": 12, "PE7A": 12, 
         "IA5AB1": 11, "IA5AB2": 12, "IA6A": 13, "IA7B": 10,
-        "8A2026": 26, "8B2026": 24 
+        "8A2026": 26, "8B2026": 24,
+        "PROIECT": 0 
     };
 
     // Setările inițiale pornesc de la Ianuarie 2026 conform selectului
@@ -259,17 +261,25 @@
 
         const b = document.getElementById('b-row'); b.innerHTML = "";
         Object.keys(experti).forEach(name => {
+            const isProiect = (name === "Proiect");
             const dataExp = p?.filter(x => x.expert === name) || [];
-            const sumE = dataExp.reduce((a,b)=>a+b.nr_ore, 0);
+            const sumE = isProiect
+                ? dataExp.reduce((a,x)=>a+(x.nr_elevi_proiect||0), 0)
+                : dataExp.reduce((a,b)=>a+b.nr_ore, 0);
             const valP = s?.find(x => x.expert === name)?.valoare_p || 0;
             const tr = document.createElement('tr');
-            tr.innerHTML = `<td class="col-expert">${name}</td><td class="col-p" style="color:${valP!==sumE&&valP!==0?'var(--error)':'white'}" contenteditable="true" onblur="saveP('${name}',this.innerText)">${valP}</td><td class="col-e">${sumE}</td>`;
+            const expertStyle = isProiect ? ' style="color:#a78bfa; font-style:italic;"' : '';
+            tr.innerHTML = `<td class="col-expert"${expertStyle}>${name}</td><td class="col-p" style="color:${valP!==sumE&&valP!==0?'var(--error)':'white'}" contenteditable="true" onblur="saveP('${name}',this.innerText)">${valP}</td><td class="col-e">${sumE}</td>`;
             for(let i=1; i<=31; i++) {
-                // Generăm data corect pentru luna și anul curent pentru a marca duminicile
                 const date = new Date(`${state.luna} ${i}, ${state.an}`);
                 const isSun = date.getDay() === 0;
                 const d = dataExp.find(x => x.zi === i);
-                tr.innerHTML += `<td class="col-zi cell ${isSun?'sun':''} ${d?'filled':''}" onclick="openO('${name}',${i})">${d?`<span class="h-big">${d.nr_ore}</span><span class="c-small">${d.clase_grupe}</span><div class="tooltip-clase">${d.clase_grupe.split(',').map(c => c.trim() + ' (' + (ratii[c.trim()]||0) + ' elevi)').join('<br>')}</div>`:''}</td>`;
+                if (isProiect) {
+                    const nrEl = d ? (d.nr_elevi_proiect || 0) : 0;
+                    tr.innerHTML += `<td class="col-zi cell ${isSun?'sun':''} ${d?'filled':''}" style="${d?'background:#7c3aed !important;':''}" onclick="openO('${name}',${i})">${d?`<span class="h-big" style="color:#fff;">${nrEl}</span><span class="c-small" style="color:#ddd8fe;">elevi</span>`:''}` + `</td>`;
+                } else {
+                    tr.innerHTML += `<td class="col-zi cell ${isSun?'sun':''} ${d?'filled':''}" onclick="openO('${name}',${i})">${d?`<span class="h-big">${d.nr_ore}</span><span class="c-small">${d.clase_grupe}</span><div class="tooltip-clase">${d.clase_grupe.split(',').map(c => c.trim() + ' (' + (ratii[c.trim()]||0) + ' elevi)').join('<br>')}</div>`:''}</td>`;
+                }
             }
             b.appendChild(tr);
         });
@@ -285,8 +295,17 @@
 
         for(let i=1; i<=31; i++) {
             const claseZi = new Set();
-            pontaj?.filter(p => p.zi === i && !p.fara_masa).forEach(p => p.clase_grupe.split(',').forEach(c => claseZi.add(c.trim())));
+            const ziActivi = pontaj?.filter(p => p.zi === i && !p.fara_masa && p.expert !== "Proiect") || [];
+            ziActivi.forEach(p => p.clase_grupe.split(',').forEach(c => claseZi.add(c.trim())));
             let mZi = 0; claseZi.forEach(c => mZi += (ratii[c] || 0));
+            // Adaugă porții pentru profesori (1 per expert activ), începând cu 2026
+            if (parseInt(state.an) >= 2026) {
+                const profiUnici = new Set(ziActivi.map(p => p.expert));
+                mZi += profiUnici.size;
+            }
+            // Adaugă elevi din Proiect
+            const proiectZi = pontaj?.find(p => p.zi === i && p.expert === "Proiect");
+            if (proiectZi) mZi += (proiectZi.nr_elevi_proiect || 0);
             state.tMasa += mZi;
             rowT.innerHTML += `<td class="col-zi">${mZi || ""}</td>`;
 
@@ -317,7 +336,11 @@
         refresh(); 
     }
 
-    function openO(e,z) { state.exp=e; state.zi=z; document.getElementById('pop-ore').style.display='flex'; }
+    function openO(e,z) { 
+        state.exp=e; state.zi=z; 
+        if (e === "Proiect") { openProiect(); return; }
+        document.getElementById('pop-ore').style.display='flex'; 
+    }
     function pickH(n) { state.ore=n; document.getElementById('pop-ore').style.display='none'; openC(); }
     
 async function openC() {
@@ -348,7 +371,7 @@ async function openC() {
         cls.push(document.getElementById(`sl-${i}`).value);
     }
     
-    // LINIA NOUĂ: Elimină duplicatele (dacă ai 5A, 5A rămâne doar un 5A)
+    // Elimină duplicatele
     let claseUnice = [...new Set(cls)];
     
     const fm = document.getElementById('fm-check').checked;
@@ -359,15 +382,40 @@ async function openC() {
         luna: state.luna, 
         an: state.an, 
         nr_ore: state.ore, 
-        clase_grupe: claseUnice.join(','), // Salvăm lista curată
+        clase_grupe: claseUnice.join(','),
         fara_masa: fm 
     }, { onConflict: 'expert,zi,luna,an' });
     
     closeModals(); 
     refresh();
 }
+
+    async function saveProiect() {
+        const nrEl = parseInt(document.getElementById('proiect-nr-elevi').value) || 0;
+        const ore = parseInt(document.getElementById('proiect-ore').value) || 1;
+        await supabaseClient.from('pontaj_detaliat').upsert({
+            expert: "Proiect",
+            zi: state.zi,
+            luna: state.luna,
+            an: state.an,
+            nr_ore: ore,
+            clase_grupe: "PROIECT",
+            fara_masa: false,
+            nr_elevi_proiect: nrEl
+        }, { onConflict: 'expert,zi,luna,an' });
+        document.getElementById('pop-proiect').style.display='none';
+        refresh();
+    }
+
+    async function openProiect() {
+        const { data: existent } = await supabaseClient.from('pontaj_detaliat')
+            .select('*').match({ expert: "Proiect", zi: state.zi, luna: state.luna, an: state.an }).maybeSingle();
+        document.getElementById('proiect-nr-elevi').value = existent ? (existent.nr_elevi_proiect || 0) : '';
+        document.getElementById('proiect-ore').value = existent ? existent.nr_ore : 1;
+        document.getElementById('pop-proiect').style.display='flex';
+    }
     async function deleteData() { if(confirm("Ștergi?")) { await supabaseClient.from('pontaj_detaliat').delete().match({ expert:state.exp, zi:state.zi, luna:state.luna, an:state.an }); closeModals(); refresh(); } }
-    function closeModals() { document.getElementById('pop-ore').style.display='none'; document.getElementById('pop-clase').style.display='none'; }
+    function closeModals() { document.getElementById('pop-ore').style.display='none'; document.getElementById('pop-clase').style.display='none'; document.getElementById('pop-proiect').style.display='none'; }
     
     function changePerioada(v) { 
         const parts = v.split('-');
@@ -426,6 +474,26 @@ async function resetarePontajLuna() {
     }
 }	
 </script>
+
+<div id="pop-proiect" class="modal">
+    <div class="modal-box">
+        <h3 style="color:#a78bfa;">🎯 Proiect — Activitate Independentă</h3>
+        <div style="margin-bottom:10px;">
+            <label style="font-size:11px; color:#8b949e; display:block; margin-bottom:4px;">NR. ELEVI PARTICIPANȚI</label>
+            <input type="number" id="proiect-nr-elevi" min="0" style="width:100%; background:#000; color:#a78bfa; border:2px solid #7c3aed; padding:10px; border-radius:6px; font-size:22px; font-weight:800; text-align:center; outline:none;">
+        </div>
+        <div style="margin-bottom:15px;">
+            <label style="font-size:11px; color:#8b949e; display:block; margin-bottom:4px;">NR. ORE</label>
+            <input type="number" id="proiect-ore" min="1" max="8" value="1" style="width:100%; background:#000; color:#fff; border:1px solid var(--border); padding:8px; border-radius:6px; font-size:16px; font-weight:700; text-align:center; outline:none;">
+        </div>
+        <div style="display:flex; gap:10px;">
+            <button class="btn" style="background:#7c3aed; color:#fff; flex:2;" onclick="saveProiect()">SALVEAZĂ CLOUD</button>
+            <button class="btn" style="background:var(--error); color:#fff; flex:1;" onclick="deleteData()">ȘTERGE</button>
+        </div>
+        <button onclick="closeModals()" style="width:100%; margin-top:10px; background:none; border:none; color:#777; cursor:pointer;">Închide</button>
+    </div>
+</div>
+
 </body>
 
 </html>
