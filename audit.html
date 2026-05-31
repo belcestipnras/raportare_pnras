@@ -556,6 +556,52 @@
             border-radius: 50%; animation: spin 0.7s linear infinite;
         }
 
+        /* ===== DIALOG MUTARE ===== */
+        .move-dialog-overlay {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.55);
+            z-index: 3000; display: flex; align-items: center; justify-content: center;
+        }
+        .move-dialog-box {
+            background: #fff; border-radius: 14px; padding: 0;
+            width: 480px; max-width: 96vw; max-height: 80vh;
+            box-shadow: 0 16px 56px rgba(0,0,0,0.3);
+            display: flex; flex-direction: column; overflow: hidden;
+        }
+        .move-dialog-header {
+            padding: 18px 22px 14px; border-bottom: 1px solid #e8ecf1;
+            font-size: 16px; font-weight: 700; color: #1a1a2e;
+            display: flex; align-items: center; gap: 10px;
+        }
+        .move-dialog-body {
+            flex: 1; overflow-y: auto; padding: 12px 16px;
+            min-height: 200px;
+        }
+        .move-tree-item {
+            display: flex; align-items: center; gap: 8px;
+            padding: 7px 10px; border-radius: 8px; cursor: pointer;
+            font-size: 13px; font-weight: 500; color: #333;
+            transition: background 0.15s; user-select: none;
+        }
+        .move-tree-item:hover { background: #f0f4ff; }
+        .move-tree-item.selected { background: #dbeafe; color: #1e40af; font-weight: 700; }
+        .move-tree-item.current-location { opacity: 0.4; cursor: not-allowed; }
+        .move-tree-item.current-location:hover { background: transparent; }
+        .move-tree-toggle {
+            width: 18px; flex-shrink: 0; text-align: center;
+            font-size: 10px; color: #aaa; cursor: pointer;
+        }
+        .move-tree-children { padding-left: 22px; }
+        .move-dialog-footer {
+            padding: 12px 20px; border-top: 1px solid #e8ecf1;
+            display: flex; justify-content: flex-end; gap: 10px;
+            background: #f8fafc;
+        }
+        .move-path-bar {
+            padding: 8px 16px; background: #f0f4ff;
+            font-size: 11px; color: #1e40af; font-weight: 600;
+            border-bottom: 1px solid #dbeafe; min-height: 32px;
+        }
+
         /* ===== NR. CRT. BADGE ===== */
         .nr-crt {
             min-width: 32px; height: 32px;
@@ -2393,6 +2439,7 @@ async function r2DeleteFile(publicUrl, bucketKey) {
             '<div class="file-actions">' +
             '<button class="btn-small" style="background:#059669;" onclick="event.stopPropagation(); descarcaFolder(\'' + item.id + '\', \'' + item.card_id + '\', \'' + titluSafe + '\')">&#128230;</button>' +
             '<button class="btn-small btn-rename" onclick="event.stopPropagation(); redenumesteFolderul(\'' + item.id + '\', \'' + titluSafe + '\')">&#9998;</button>' +
+            '<button class="btn-small btn-move" title="Mută în alt folder" onclick="event.stopPropagation(); deschideMutare(\'' + item.id + '\', \'' + item.card_id + '\', \'' + (item.parent_id || 'null') + '\', \'folder\', \'' + titluSafe + '\')">&#128260;</button>' +
             '<button class="btn-small btn-del" onclick="event.stopPropagation(); stergeItem(\'' + item.id + '\')">&#10005;</button>' +
             '</div></div>';
     }
@@ -2458,6 +2505,7 @@ async function r2DeleteFile(publicUrl, bucketKey) {
             '<button class="btn-small btn-rename" onclick="event.stopPropagation(); redenumesteFisierul(\'' + item.id + '\', \'' + titluSafe + '\')" title="Editează titlul">&#9998;</button>' +
             (item.fisier_url ? '<button class="btn-small btn-open" onclick="event.stopPropagation(); window.open(\'' + item.fisier_url + '\', \'_blank\')" title="Deschide">Deschide</button>' : '') +
             (item.fisier_url ? '<button class="btn-small" style="background:#059669;" onclick="event.stopPropagation(); descarcaFisier(\'' + item.fisier_url + '\', \'' + fisierNumeSafe + '\')" title="Descarcă">💾</button>' : '') +
+            '<button class="btn-small btn-move" title="Mută în alt folder" onclick="event.stopPropagation(); deschideMutare(\'' + item.id + '\', \'' + item.card_id + '\', \'' + (item.parent_id || 'null') + '\', \'fisier\', \'' + titluSafe + '\')">&#128260;</button>' +
             '<button class="btn-small btn-del" onclick="event.stopPropagation(); stergeItem(\'' + item.id + '\')">&#10005;</button>' +
             '</div></div>';
     }
@@ -3087,6 +3135,225 @@ const gActs = [
     {code:"IV.2.", cat:4, name:"Achiziție licențe software și resurse digitale"},
     {code:"IV.3.", cat:4, name:"Cursuri training utilizare hardware/software"}
 ];
+
+// ===================== MUTARE FOLDER / FIȘIER =====================
+let _mutareState = { itemId: null, cardId: null, currentParentId: null, tipItem: null, titluItem: '', selectedDestId: 'ROOT', selectedDestLabel: 'Audit (rădăcină)' };
+
+async function deschideMutare(itemId, cardId, currentParentId, tipItem, titluItem) {
+    _mutareState = { itemId, cardId, currentParentId: currentParentId === 'null' ? null : currentParentId, tipItem, titluItem, selectedDestId: 'ROOT', selectedDestLabel: 'Audit (rădăcină)' };
+
+    // Construim arborele de foldere disponibile
+    const { data: toateFolderele } = await db.from('audit_continut')
+        .select('id, titlu, card_id, parent_id')
+        .eq('tip', 'folder').eq('sters', false);
+
+    const { data: carduriDb } = await db.from('audit_carduri').select('id, titlu, icon').eq('sters', false);
+
+    // Eliminăm overlay existent
+    const existent = document.getElementById('move-dialog-overlay');
+    if (existent) existent.remove();
+
+    const overlay = document.createElement('div');
+    overlay.id = 'move-dialog-overlay';
+    overlay.className = 'move-dialog-overlay';
+    overlay.innerHTML = `
+        <div class="move-dialog-box">
+            <div class="move-dialog-header">&#128260; Mută „${titluItem.replace(/"/g,'&quot;')}"</div>
+            <div class="move-path-bar" id="move-path-bar">📍 Destinație: <b>Audit (rădăcină)</b></div>
+            <div class="move-dialog-body" id="move-tree-body"><div style="text-align:center;padding:30px;color:#aaa;">Se încarcă...</div></div>
+            <div class="move-dialog-footer">
+                <button class="dialog-btn dialog-btn-cancel" onclick="inchideMutare()">Anulează</button>
+                <button class="dialog-btn dialog-btn-primary" id="move-confirm-btn" onclick="confirmaMutare()">&#128260; Mută aici</button>
+            </div>
+        </div>`;
+    document.body.appendChild(overlay);
+
+    // Randăm arborele
+    _renderMutareTree(toateFolderele || [], carduriDb || []);
+}
+
+function _renderMutareTree(toateFolderele, carduriDb) {
+    const { itemId, cardId, currentParentId } = _mutareState;
+    const body = document.getElementById('move-tree-body');
+    if (!body) return;
+
+    // Grupăm folderele pe parent
+    function foldereCopii(pid, cid) {
+        return toateFolderele.filter(f =>
+            f.card_id === cid &&
+            (pid === null ? !f.parent_id : f.parent_id === pid) &&
+            f.id !== itemId  // nu afișăm itemul care se mută
+        );
+    }
+
+    function esteDestinatiaCurenta(destId) {
+        if (destId === 'ROOT') return !currentParentId;
+        return destId === currentParentId;
+    }
+
+    function renderNod(destId, label, icon, pid, cid, nivel) {
+        const copii = destId === 'ROOT' ? [] : foldereCopii(destId, cid);
+        const esteParinte = esteDestinatiaCurenta(destId);
+        const isSelected = _mutareState.selectedDestId === destId;
+        const clsExtra = esteParinte ? ' current-location' : (isSelected ? ' selected' : '');
+        const indent = nivel * 18;
+
+        let html = `<div class="move-tree-item${clsExtra}" style="padding-left:${10 + indent}px;"
+            data-dest-id="${destId}" data-dest-label="${label.replace(/"/g,'&quot;')}" data-dest-pid="${pid||''}" data-dest-cid="${cid||''}"
+            onclick="_selectDestinatie(this, '${destId}', '${label.replace(/'/g,"\\'")}', '${pid||''}', '${cid||''}')">
+            <span style="font-size:16px;">${icon}</span>
+            <span style="flex:1;">${label}</span>
+            ${esteParinte ? '<span style="font-size:10px;color:#9ca3af;font-style:italic;">locație curentă</span>' : ''}
+        </div>`;
+
+        if (copii.length > 0) {
+            html += `<div class="move-tree-children" id="mtc-${destId}">`;
+            copii.forEach(c => {
+                html += renderNod(c.id, c.titlu, '📁', c.id, cid, nivel + 1);
+            });
+            html += '</div>';
+        }
+        return html;
+    }
+
+    // Carduri fixe relevante (doar cele care sunt foldere generice)
+    const CARDURI_FIXE_FOLDER = [
+        { id: '00000000-0000-0000-0000-000000000002', titlu: 'RAPORT FINANCIAR', icon: '💰' },
+        { id: '00000000-0000-0000-0000-000000000003', titlu: 'RAPORT TEHNIC', icon: '📋' },
+    ];
+
+    let html = '';
+
+    // Rădăcina cardului curent — folderele de la nivelul 0 ale cardului curent
+    const foldereLvl0 = foldereCopii(null, cardId);
+
+    // Opțiunea "rădăcina cardului curent"
+    const esteRad = !currentParentId;
+    const isSelRad = _mutareState.selectedDestId === 'CARD_ROOT';
+    html += `<div class="move-tree-item${esteRad ? ' current-location' : (isSelRad ? ' selected' : '')}"
+        style="padding-left:10px; font-weight:700; color:#1a56db;"
+        data-dest-id="CARD_ROOT" data-dest-label="(rădăcina folderului curent)"
+        onclick="_selectDestinatie(this, 'CARD_ROOT', '(rădăcina folderului curent)', '', '${cardId}')">
+        <span style="font-size:16px;">🏠</span>
+        <span>Rădăcina folderului curent</span>
+        ${esteRad ? '<span style="font-size:10px;color:#9ca3af;font-style:italic;">locație curentă</span>' : ''}
+    </div>`;
+
+    // Folderele din cardul curent
+    if (foldereLvl0.length > 0) {
+        html += '<div class="move-tree-children">';
+        foldereLvl0.forEach(f => {
+            html += renderNod(f.id, f.titlu, '📁', f.id, cardId, 1);
+        });
+        html += '</div>';
+    }
+
+    // Separator
+    html += '<div style="border-top:1px solid #e8ecf1;margin:10px 0 6px;"></div>';
+    html += '<div style="font-size:11px;color:#aaa;font-weight:600;padding:4px 10px 2px;text-transform:uppercase;letter-spacing:0.5px;">Alte carduri</div>';
+
+    // Carduri fixe
+    CARDURI_FIXE_FOLDER.filter(c => c.id !== cardId).forEach(c => {
+        const subFoldere = toateFolderele.filter(f => f.card_id === c.id && !f.parent_id && f.id !== itemId);
+        html += `<div class="move-tree-item" style="padding-left:10px;font-weight:600;"
+            data-dest-id="CARD_${c.id}" data-dest-label="${c.titlu} (rădăcină)" data-dest-pid="" data-dest-cid="${c.id}"
+            onclick="_selectDestinatie(this, 'CARD_${c.id}', '${c.titlu} (rădăcină)', '', '${c.id}')">
+            <span style="font-size:16px;">${c.icon}</span><span>${c.titlu}</span></div>`;
+        if (subFoldere.length > 0) {
+            html += '<div class="move-tree-children">';
+            subFoldere.forEach(f => { html += renderNod(f.id, f.titlu, '📁', f.id, c.id, 1); });
+            html += '</div>';
+        }
+    });
+
+    // Carduri personalizate din DB
+    (carduriDb || []).filter(c => c.id !== cardId).forEach(c => {
+        const subFoldere = toateFolderele.filter(f => f.card_id === c.id && !f.parent_id && f.id !== itemId);
+        html += `<div class="move-tree-item" style="padding-left:10px;font-weight:600;"
+            data-dest-id="CARD_${c.id}" data-dest-label="${(c.titlu||'').replace(/"/g,'&quot;')} (rădăcină)" data-dest-pid="" data-dest-cid="${c.id}"
+            onclick="_selectDestinatie(this, 'CARD_${c.id}', '${(c.titlu||'').replace(/'/g,"\\'")} (rădăcină)', '', '${c.id}')">
+            <span style="font-size:16px;">${c.icon||'📁'}</span><span>${c.titlu||'Card'}</span></div>`;
+        if (subFoldere.length > 0) {
+            html += '<div class="move-tree-children">';
+            subFoldere.forEach(f => { html += renderNod(f.id, f.titlu, '📁', f.id, c.id, 1); });
+            html += '</div>';
+        }
+    });
+
+    body.innerHTML = html;
+}
+
+function _selectDestinatie(el, destId, label, pid, cid) {
+    if (el.classList.contains('current-location')) return;
+    // Deselectăm tot
+    document.querySelectorAll('.move-tree-item.selected').forEach(e => e.classList.remove('selected'));
+    el.classList.add('selected');
+    _mutareState.selectedDestId = destId;
+    _mutareState.selectedDestLabel = label;
+    _mutareState.selectedDestCid = cid || _mutareState.cardId;
+    // Calculăm noul parent_id
+    if (destId === 'CARD_ROOT') {
+        _mutareState.newParentId = null;
+        _mutareState.newCardId = _mutareState.cardId;
+    } else if (destId.startsWith('CARD_')) {
+        _mutareState.newParentId = null;
+        _mutareState.newCardId = destId.replace('CARD_', '');
+    } else {
+        _mutareState.newParentId = destId;
+        _mutareState.newCardId = cid || _mutareState.cardId;
+    }
+    // Actualizăm bara de path
+    const bar = document.getElementById('move-path-bar');
+    if (bar) bar.innerHTML = '📍 Destinație: <b>' + label + '</b>';
+}
+
+function inchideMutare() {
+    const el = document.getElementById('move-dialog-overlay');
+    if (el) el.remove();
+}
+
+async function confirmaMutare() {
+    const { itemId, newParentId, newCardId, cardId, titluItem, tipItem } = _mutareState;
+    if (!itemId) return;
+    if (newCardId === cardId && newParentId === _mutareState.currentParentId) {
+        aratToast('⚠️ Deja se află în această locație', 'error');
+        return;
+    }
+
+    const btn = document.getElementById('move-confirm-btn');
+    if (btn) { btn.disabled = true; btn.innerHTML = '⏳ Se mută...'; }
+
+    try {
+        // Mutăm itemul principal
+        const updateData = { parent_id: newParentId || null, card_id: newCardId };
+        const { error } = await db.from('audit_continut').update(updateData).eq('id', itemId);
+        if (error) throw error;
+
+        // Dacă e folder, mutăm recursiv toți copiii în noul card (dacă s-a schimbat cardul)
+        if (tipItem === 'folder' && newCardId !== cardId) {
+            await _mutaRecursivCopii(itemId, cardId, newCardId);
+        }
+
+        inchideMutare();
+        aratToast('✓ „' + titluItem + '" a fost mutat cu succes!', 'success');
+        incarcaVizualizare();
+    } catch(e) {
+        aratToast('❌ Eroare la mutare: ' + (e.message || JSON.stringify(e)), 'error');
+        if (btn) { btn.disabled = false; btn.innerHTML = '&#128260; Mută aici'; }
+    }
+}
+
+async function _mutaRecursivCopii(parentId, vechiCardId, nouCardId) {
+    const { data: copii } = await db.from('audit_continut')
+        .select('id, tip').eq('parent_id', parentId).eq('card_id', vechiCardId).eq('sters', false);
+    if (!copii || copii.length === 0) return;
+    for (const c of copii) {
+        await db.from('audit_continut').update({ card_id: nouCardId }).eq('id', c.id);
+        if (c.tip === 'folder') {
+            await _mutaRecursivCopii(c.id, vechiCardId, nouCardId);
+        }
+    }
+}
 
 // schedule[code] = array de L-id, docs[code][key] = array documente
 const gData = {};
