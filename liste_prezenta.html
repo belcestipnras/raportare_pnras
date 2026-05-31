@@ -24,7 +24,8 @@
         table { width: 100%; border-collapse: collapse; margin-top: 5px; font-family: 'Roboto Mono', monospace; }
         th { background: #f8fafc; color: black; font-weight: 700; text-transform: uppercase; font-size: 11px; padding: 10px 5px; border: 1px solid black; text-align: center; }
         td { border: 1px solid black; padding: 8px 5px; font-size: 13px; color: black; text-align: center; vertical-align: middle; }
-        .signature-area { margin-top: 50px; text-align: center; width: 100%; font-size: 14px; }
+        .signature-area { margin-top: 50px; text-align: center; width: 100%; font-size: 14px; break-before: avoid; }
+        .signature-anchor { break-inside: avoid; }
         .no-print { margin-bottom: 20px; display: flex; gap: 8px; justify-content: center; position: sticky; top: 10px; z-index: 1000; }
         .main-btn { padding: 10px 16px; cursor: pointer; color: white; border: none; border-radius: 6px; font-weight: bold; font-size: 12px; display: flex; align-items: center; gap: 5px; transition: 0.2s; }
         .btn-back-bold { background: #000000 !important; color: #fff !important; border: 2px solid #fff !important; font-size: 14px !important; }
@@ -59,8 +60,13 @@
             <table>
                 <thead><tr><th width="5%">Nr.</th><th width="55%">Nume și prenume elev</th><th width="10%">P</th><th width="10%">A</th><th width="20%">Semnătura</th></tr></thead>
                 <tbody class="tabel-body"></tbody>
+                <tfoot class="signature-anchor">
+                    <tr class="last-row-anchor"></tr>
+                    <tr><td colspan="5" style="border:none; padding:0;">
+                        <div class="signature-area"><p style="margin-bottom: 50px;">Întocmit,</p><p>Expert: <span class="sig-expert" style="font-weight: bold; text-decoration: underline;"></span></p></div>
+                    </td></tr>
+                </tfoot>
             </table>
-            <div class="signature-area"><p style="margin-bottom: 50px;">Întocmit,</p><p>Expert: <span class="sig-expert" style="font-weight: bold; text-decoration: underline;"></span></p></div>
         </div>
     </template>
 <script>
@@ -126,6 +132,9 @@
                         tbody.appendChild(tr);
                     });
                 }
+                // Mut ultimul rând în tfoot pentru a preveni orfani la print
+                const lastRow = tbody.lastElementChild;
+                if (lastRow) clone.querySelector('.last-row-anchor').replaceWith(lastRow);
                 master.appendChild(clone);
             });
             document.getElementById('status-msg').style.display = 'none';
