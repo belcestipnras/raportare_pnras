@@ -20,7 +20,8 @@
         table { width: 100%; border-collapse: collapse; margin-top: 5px; font-family: 'Roboto Mono', monospace; }
         th { background: #f8fafc; color: black; font-weight: 700; text-transform: uppercase; font-size: 11px; padding: 10px 5px; border: 1px solid black; text-align: center; }
         td { border: 1px solid black; padding: 8px 5px; font-size: 13px; color: black; text-align: center; vertical-align: middle; }
-        .signature-area { margin-top: 50px; text-align: center; width: 100%; font-size: 14px; }
+        .signature-area { margin-top: 50px; text-align: center; width: 100%; font-size: 14px; break-before: avoid; }
+        .signature-anchor { break-inside: avoid; }
         .no-print { margin-bottom: 20px; display: flex; gap: 10px; justify-content: center; position: sticky; top: 10px; z-index: 1000; background: #f3f4f6eb; padding: 10px; border-radius: 10px; }
         .main-btn { padding: 12px 20px; cursor: pointer; color: white; border: none; border-radius: 8px; font-weight: bold; font-size: 13px; display: flex; align-items: center; gap: 8px; transition: 0.3s; }
         .btn-back-bold { background: #000; color: #fff; border: 2px solid #fff; font-size: 16px; padding: 12px 25px; }
@@ -71,7 +72,7 @@
                 <table>
                     <thead><tr><th width="5%">Nr.</th><th width="55%">Nume elev</th><th width="10%">Da</th><th width="10%">Nu</th><th width="20%">Semnătura</th></tr></thead>
                     <tbody class="tabel-body"></tbody>
-                    <tfoot>
+                    <tfoot class="signature-anchor">
                         <tr style="border-top: 2px solid black;">
                             <td style="font-weight:800;">P</td>
                             <td style="font-weight:800; text-align:left; padding-left:10px;">Prof. <span class="prof-nume"></span></td>
@@ -79,11 +80,13 @@
                             <td><input type="checkbox" class="a-check" onclick="toggleCheck(this, 'a')"></td>
                             <td></td>
                         </tr>
+                        <tr><td colspan="5" style="border:none; padding:0;">
+                            <div class="signature-area"><p style="margin-bottom: 50px;">Întocmit,</p><p>Expert: <span class="sig-expert" style="font-weight: bold; text-decoration: underline;"></span></p></div>
+                        </td></tr>
                     </tfoot>
                 </table>
             </div>
             <div class="msg-special" style="display: none;"></div>
-            <div class="signature-area"><p style="margin-bottom: 50px;">Întocmit,</p><p>Expert: <span class="sig-expert" style="font-weight: bold; text-decoration: underline;"></span></p></div>
         </div>
     </template>
 
