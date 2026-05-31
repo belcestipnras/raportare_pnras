@@ -48,17 +48,18 @@
     width: 420px; 
     background: var(--panel); 
     border-left: 1px solid var(--border-color); 
-    padding: 15px; /* Redus de la 24px */
+    padding: 15px;
     display: flex;
     flex-direction: column;
-    height: calc(100vh - 75px); /* Fixează înălțimea sub top-bar */
+    height: calc(100vh - 75px);
     box-sizing: border-box;
-    overflow: hidden; /* Împiedică scroll-ul pe întreg sidebar-ul */
+    overflow: hidden;
 }
 
 #sertar-content {
     flex: 1;
-    overflow-y: hidden; /* Eliminăm scroll-ul și de aici */
+    overflow-y: auto;
+    padding-right: 4px;
 }
         .doc-category { background: #f9fafb; border: 1px solid var(--border-color); border-radius: 10px; margin-bottom: 20px; padding: 16px; }
         .cat-title { font-weight: 700; color: var(--text-main); display: block; margin-bottom: 12px; font-size: 0.8rem; text-transform: uppercase; }
@@ -115,6 +116,11 @@
                 <div style="display:flex; align-items:center; gap:10px;">
                     <span style="font-size:0.7rem; font-weight:700; color:var(--text-muted);">PORNIRE NR:</span>
                     <input type="number" id="start-nr" value="1" style="width:60px; border:1px solid var(--border-color); border-radius:6px; padding:6px; font-weight:800;" readonly>
+                    <button onclick="alocaNumereAutomat()" id="btn-aloca"
+                        style="background:#2563eb;color:white;border:none;border-radius:8px;padding:7px 14px;font-size:0.75rem;font-weight:800;cursor:pointer;display:flex;align-items:center;gap:6px;"
+                        title="Ordonează cronologic toate rândurile lunii (după ziua completată)">
+                        &#9889; Alocă numere
+                    </button>
                 </div>
             </div>
             
@@ -156,6 +162,7 @@
     let currentAn = "", currentLuna = "", localRows = [];
     let dateExpertiClean = []; 
     let expertiUnici = [];
+    const _ziInputVal = {}; // persistă valorile inputurilor de zi între refresh-uri
 
     function init() {
         [2025, 2026].forEach(an => {
@@ -168,6 +175,7 @@
                 div.appendChild(b);
             });
         });
+        incarcaDocObligatorii();
     }
 
     async function schimbaLuna(luna, an) {
@@ -175,6 +183,8 @@
         document.getElementById(`btn-${an}-${luna}`).classList.add('active');
         currentAn = an; currentLuna = luna;
         document.getElementById('titlu-luna').innerText = `Registru Master PNRAS: ${luna} ${an}`;
+        // Resetăm valorile inputurilor la schimbarea lunii
+        Object.keys(_ziInputVal).forEach(k => delete _ziInputVal[k]);
         await refreshDate();
     }
 
@@ -488,9 +498,45 @@ function initDragDrop() {
                 const zFmt = z.toString().padStart(2,'0');
                 payload.push({
                     zi_inreg: zFmt, luna_inreg: currentLuna, an_inreg: currentAn,
-                    cuprins_act: `Aviz de însoțire a mărfii. Masă caldă ${zFmt}.${lunaNr}.${currentAn}`,
+                    cuprins_act: `Aviz de însoțire a mărfii. Masă rece ${zFmt}.${lunaNr}.${currentAn}`,
                     stare: 'activ', doc_id: `A_${Date.now()}_${i}`
                 });
+            });
+        } else if(tip === 'ORAR_GEN') {
+            payload.push({
+                zi_inreg: zi || '', luna_inreg: currentLuna, an_inreg: currentAn,
+                cuprins_act: `Orar general ${currentLuna.toLowerCase()} ${currentAn}`,
+                stare: 'activ', doc_id: `ORAR_GEN_${Date.now()}`
+            });
+        } else if(tip === 'Notă_CMD') {
+            payload.push({
+                zi_inreg: zi || '', luna_inreg: currentLuna, an_inreg: currentAn,
+                cuprins_act: `Notă de comandă masă rece, ${currentLuna.toLowerCase()} ${currentAn}`,
+                stare: 'activ', doc_id: `NOTA_CMD_${Date.now()}`
+            });
+        } else if(tip === 'RAP_MASA') {
+            payload.push({
+                zi_inreg: zi || '', luna_inreg: currentLuna, an_inreg: currentAn,
+                cuprins_act: `Raport activitate masă rece, ${currentLuna.toLowerCase()} ${currentAn}`,
+                stare: 'activ', doc_id: `RAP_MASA_${Date.now()}`
+            });
+        } else if(tip === 'PV_MASA') {
+            payload.push({
+                zi_inreg: zi || '', luna_inreg: currentLuna, an_inreg: currentAn,
+                cuprins_act: `Proces-verbal recepție masă rece, ${currentLuna.toLowerCase()} ${currentAn}`,
+                stare: 'activ', doc_id: `PV_MASA_${Date.now()}`
+            });
+        } else if(tip === 'PONT_GEN') {
+            payload.push({
+                zi_inreg: zi || '', luna_inreg: currentLuna, an_inreg: currentAn,
+                cuprins_act: `Pontaj colectiv ${currentLuna.toLowerCase()} ${currentAn}`,
+                stare: 'activ', doc_id: `PONT_GEN_${Date.now()}`
+            });
+        } else if(tip === 'STAT_PLATA') {
+            payload.push({
+                zi_inreg: zi || '', luna_inreg: currentLuna, an_inreg: currentAn,
+                cuprins_act: `Stat de plată ${currentLuna.toLowerCase()} ${currentAn}`,
+                stare: 'activ', doc_id: `STAT_${Date.now()}`
             });
         }
 
@@ -777,6 +823,129 @@ function initDragDrop() {
     }
 }
 
+    // ── Alocare automată numere cronologice ─────────────────────────────────
+    async function alocaNumereAutomat() {
+        if (!currentLuna || !currentAn) { alert("Selectați mai întâi o lună!"); return; }
+        const btn = document.getElementById('btn-aloca');
+        if (btn) { btn.disabled = true; btn.innerHTML = '⧗ Se alocă...'; }
+
+        // Toate rândurile active ale lunii (inclusiv blocate, pentru context)
+        const toateActive = localRows.filter(r => r.stare === 'activ');
+        const rows = toateActive.filter(r => !r.blocat);
+
+        if (rows.length === 0) {
+            alert("Nu există rânduri de numerotat în această lună.");
+            if (btn) { btn.disabled = false; btn.innerHTML = '&#9889; Alocă numere'; }
+            return;
+        }
+
+        // Sortare: zi completată ASC → rânduri fără zi la final, ordonate după id (ordinea inserării)
+        rows.sort((a, b) => {
+            const ziA = parseInt(a.zi_inreg);
+            const ziB = parseInt(b.zi_inreg);
+            const areZiA = !isNaN(ziA) && a.zi_inreg !== '' && a.zi_inreg != null;
+            const areZiB = !isNaN(ziB) && b.zi_inreg !== '' && b.zi_inreg != null;
+
+            if (areZiA && areZiB) {
+                if (ziA !== ziB) return ziA - ziB;
+                // Aceeași zi: ordinea inserării (id)
+                return a.id - b.id;
+            }
+            if (areZiA && !areZiB) return -1;  // cu zi înainte
+            if (!areZiA && areZiB) return 1;   // fără zi după
+            return a.id - b.id;                // ambele fără zi: ordinea inserării
+        });
+
+        // Scriem sort_order secvențial 0,1,2,... pe fiecare rând
+        // Folosim valori mari (1000+idx) ca să nu se suprapună cu sort_order-urile din drag&drop
+        const updates = rows.map((r, idx) => ({ id: r.id, sort_order: idx }));
+
+        // Update în Supabase batch
+        const BATCH = 10;
+        let erori = 0;
+        for (let i = 0; i < updates.length; i += BATCH) {
+            const rezultate = await Promise.all(updates.slice(i, i + BATCH).map(u =>
+                _SB.from('registru_master').update({ sort_order: u.sort_order }).eq('id', u.id)
+            ));
+            rezultate.forEach(r => { if (r.error) erori++; });
+        }
+
+        if (erori > 0) {
+            alert(`Atenție: ${erori} update-uri au eșuat. Verificați conexiunea.`);
+        }
+
+        await refreshDate();
+        if (btn) { btn.disabled = false; btn.innerHTML = '&#9889; Alocă numere'; }
+
+        const toast = document.createElement('div');
+        toast.textContent = erori === 0
+            ? `✓ ${rows.length} rânduri ordonate cronologic`
+            : `⚠ Parțial: ${rows.length - erori}/${rows.length} salvate`;
+        toast.style.cssText = `position:fixed;bottom:24px;right:24px;background:${erori===0?'#1e40af':'#b45309'};color:white;padding:10px 18px;border-radius:8px;font-size:0.8rem;font-weight:700;z-index:9999;box-shadow:0 4px 12px rgba(0,0,0,0.2);`;
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 3000);
+    }
+
+    // ── Documente obligatorii — persistenţă ──────────────────────────────────
+    const _DOC_OB_KEY = 'registru_doc_obligatorii_v1';
+    const _DOC_OB_DEFAULT = [
+        'Planificări','Orar general','Orare experți','Notă de comandă',
+        'Masă rece (avize)','Raport masă rece','PV masă rece',
+        'Rapoarte experți','Pontaje individuale','Pontaj general','Stat de plată'
+    ];
+    window._docObligatorii = _DOC_OB_DEFAULT.slice();
+
+    async function incarcaDocObligatorii() {
+        try {
+            const { data } = await _SB.from('setari_aplicatie')
+                .select('valoare').eq('cheie', _DOC_OB_KEY).maybeSingle();
+            if (data && data.valoare) {
+                const p = JSON.parse(data.valoare);
+                if (Array.isArray(p) && p.length > 0) { window._docObligatorii = p; return; }
+            }
+        } catch(e) {}
+        try {
+            const ls = localStorage.getItem(_DOC_OB_KEY);
+            if (ls) { const p = JSON.parse(ls); if (Array.isArray(p) && p.length > 0) window._docObligatorii = p; }
+        } catch(e) {}
+    }
+
+    async function salveazaDocObligatorii() {
+        const ta = document.getElementById('doc-ob-ta');
+        if (!ta) return;
+        const lista = ta.value.split('\n').map(s => s.trim()).filter(s => s.length > 0);
+        if (!lista.length) return;
+        window._docObligatorii = lista;
+        try { localStorage.setItem(_DOC_OB_KEY, JSON.stringify(lista)); } catch(e) {}
+        try { await _SB.from('setari_aplicatie').upsert({ cheie: _DOC_OB_KEY, valoare: JSON.stringify(lista) }, { onConflict: 'cheie' }); } catch(e) {}
+        const ol = document.getElementById('doc-ob-lista');
+        if (ol) ol.innerHTML = lista.map(d => `<li>${d}</li>`).join('');
+        anuleazaEditDocObligatorii();
+    }
+
+    function toggleEditDocObligatorii() {
+        const editor = document.getElementById('doc-ob-editor');
+        const listaEl = document.getElementById('doc-ob-lista');
+        const btn = document.getElementById('btn-edit-doc-ob');
+        const ta = document.getElementById('doc-ob-ta');
+        if (!editor) return;
+        if (editor.style.display === 'none') {
+            if (ta) ta.value = window._docObligatorii.join('\n');
+            editor.style.display = 'block'; listaEl.style.display = 'none';
+            btn.innerHTML = '▲ Închide';
+            setTimeout(() => { if (ta) ta.focus(); }, 50);
+        } else { anuleazaEditDocObligatorii(); }
+    }
+
+    function anuleazaEditDocObligatorii() {
+        const editor = document.getElementById('doc-ob-editor');
+        const listaEl = document.getElementById('doc-ob-lista');
+        const btn = document.getElementById('btn-edit-doc-ob');
+        if (editor) editor.style.display = 'none';
+        if (listaEl) listaEl.style.display = '';
+        if (btn) btn.innerHTML = '&#9998; Edit';
+    }
+
     async function updateRow(id, c, v) { await _SB.from('registru_master').update({ [c]: v }).eq('id', id); refreshDate(); }
     async function deleteRow(id) { await _SB.from('registru_master').update({ stare: 'sters' }).eq('id', id); refreshDate(); }
     async function restoreRow(id) { await _SB.from('registru_master').update({ stare: 'activ' }).eq('id', id); refreshDate(); }
@@ -827,50 +996,87 @@ async function proceseazaSchimbareData(id, ziNoua) {
 
     function genereazaSertar() {
     const container = document.getElementById('sertar-content');
-    
-    // Design ultra-compact pe o singură coloană
-    let h = `
-        <div style="background: #fff7ed; border: 1px solid #fed7aa; padding: 10px; border-radius: 8px; margin-bottom: 10px;">
-            <h4 style="margin: 0 0 5px 0; color: #9a3412; font-size: 0.7rem; font-weight: 900;">⚠️ DOCUMENTE OBLIGATORII:</h4>
-            <ol style="margin: 0; padding-left: 18px; font-size: 0.75rem; color: #4b5563; font-weight: 600; line-height: 1.3;">
-                <li>Planificări</li>
-                <li>Orar general</li>
-                <li>Orare experți</li>
-                <li>Notă comandă masă</li>
-                <li>Avize masă caldă</li>
-                <li>Raport activitate masă</li>
-                <li>PV recepție masă</li>
-                <li>Rapoarte experți</li>
-                <li>Pontaje individuale</li>
-                <li>Stat de plată</li>
-            </ol>
-        </div>
-    `;
+    const lunaNr = (luniText.indexOf(currentLuna)+1).toString().padStart(2,'0');
+    const zMasa = window.zileMasa || [];
+    const primaZiMasa = zMasa.length > 0 ? String(zMasa[0]).padStart(2,'0') : null;
+    const ultimaZiMasa = zMasa.length > 0 ? String(zMasa[zMasa.length-1]).padStart(2,'0') : null;
 
-    const list = [ 
-        {id:'PLAN', t:'Planificări', z:'01', count: dateExpertiClean.length}, 
-        {id:'ORAR', t:'Orare', z:'01', count: expertiUnici.length}, 
-        {id:'RAPORT', t:'Rapoarte', z:'28', count: expertiUnici.length},
-        {id:'PONT', t:'Pontaje', z:'28', count: expertiUnici.length}
-    ];
-    
-    list.forEach(c => {
-        h += `
-        <div class="doc-category" style="margin-bottom: 6px; padding: 8px;">
-            <span class="cat-title" style="margin-bottom: 5px; font-size: 0.7rem;">${c.t} <span class="cat-count">${c.count}</span></span>
-            <div style="display:flex; align-items:center; gap:8px; font-size: 0.75rem;">
-                Zi: <input type="text" id="zi-${c.id}" value="${c.count > 0 ? c.z : ''}" style="width:45px; border:1px solid #ddd; text-align:center; border-radius:4px; padding: 4px; font-weight:bold; background:white;">
-                <button class="btn-add-group" style="margin:0; padding: 5px 10px; font-size:0.7rem;" onclick="adaugaGrup('${c.id}', document.getElementById('zi-${c.id}').value)">Generare</button>
-            </div>
-        </div>`;
+    // Citim valorile curente din DOM înainte de re-randare și le păstrăm în _ziInputVal
+    container.querySelectorAll('input[id^="zi-"]').forEach(inp => {
+        _ziInputVal[inp.id] = inp.value;
     });
 
-    h += `
-    <div class="doc-category" style="margin-bottom: 6px; padding: 8px;">
-        <span class="cat-title" style="margin-bottom: 5px; font-size: 0.7rem;">Masă Caldă <span class="cat-count">${window.zileMasa ? window.zileMasa.length : 0}</span></span>
-        <button class="btn-add-group" style="background:#4f46e5; margin:0; padding: 8px; font-size:0.7rem;" onclick="adaugaGrup('AVIZ')">Generare toate Avizele</button>
-    </div>`;
-    
+    let h = `
+        <div style="background:#fff7ed;border:1px solid #fed7aa;padding:10px;border-radius:8px;margin-bottom:10px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+                <h4 style="margin:0;color:#9a3412;font-size:0.7rem;font-weight:900;">&#9888;&#65039; DOCUMENTE OBLIGATORII:</h4>
+                <button onclick="toggleEditDocObligatorii()" id="btn-edit-doc-ob"
+                    style="background:#fed7aa;border:1px solid #fb923c;border-radius:5px;padding:2px 8px;font-size:0.65rem;font-weight:800;color:#9a3412;cursor:pointer;">&#9998; Edit</button>
+            </div>
+            <ol id="doc-ob-lista" style="margin:0;padding-left:18px;font-size:0.75rem;color:#4b5563;font-weight:600;line-height:1.3;">
+                ${window._docObligatorii.map(d => `<li>${d}</li>`).join('')}
+            </ol>
+            <div id="doc-ob-editor" style="display:none;margin-top:8px;">
+                <textarea id="doc-ob-ta"
+                    style="width:100%;box-sizing:border-box;font-size:0.72rem;font-family:inherit;border:1px solid #fb923c;border-radius:6px;padding:7px;min-height:140px;resize:vertical;line-height:1.6;color:#374151;"
+                    placeholder="Un document pe linie...">${window._docObligatorii.join('\n')}</textarea>
+                <div style="display:flex;gap:6px;margin-top:5px;">
+                    <button onclick="salveazaDocObligatorii()"
+                        style="flex:1;background:#ea580c;color:white;border:none;border-radius:5px;padding:5px;font-size:0.7rem;font-weight:800;cursor:pointer;">&#128190; Salveaz&#259;</button>
+                    <button onclick="anuleazaEditDocObligatorii()"
+                        style="background:#e5e7eb;border:none;border-radius:5px;padding:5px 10px;font-size:0.7rem;font-weight:700;cursor:pointer;">&#10005;</button>
+                </div>
+            </div>
+        </div>`;
+
+    const tipuri = [
+        { id:'PLAN',       label:'Planificări',          areZi: true,  count: dateExpertiClean.length },
+        { id:'ORAR_GEN',   label:'Orar general',              areZi: true,  count: null },
+        { id:'ORAR',       label:'Orare experți',        areZi: true,  count: expertiUnici.length },
+        { id:'NOTA_CMD',   label:'Notă de comandă', areZi: true,  count: null },
+        { id:'AVIZ',       label:'Masă rece (avize)',    areZi: false, count: zMasa.length,
+          infoZile: primaZiMasa ? primaZiMasa+'.'+lunaNr+'–'+ultimaZiMasa+'.'+lunaNr : 'fără zile' },
+        { id:'RAP_MASA',   label:'Raport masă rece',     areZi: true,  count: null },
+        { id:'PV_MASA',    label:'PV masă rece',         areZi: true,  count: null },
+        { id:'RAPORT',     label:'Rapoarte experți',     areZi: true,  count: expertiUnici.length },
+        { id:'PONT',       label:'Pontaje individuale',       areZi: true,  count: expertiUnici.length },
+        { id:'PONT_GEN',   label:'Pontaj general',            areZi: true,  count: null },
+        { id:'STAT_PLATA', label:'Stat de plată',        areZi: true,  count: null },
+    ];
+
+    tipuri.forEach(tip => {
+        const badge = tip.count !== null ? `<span class="cat-count">${tip.count}</span>` : '';
+
+        if (!tip.areZi) {
+            // AVIZ — fără input de zi, zilele vin automat din setari_pontaj
+            const infoSpan = `<span style="background:#e0f2fe;color:#0369a1;border-radius:4px;padding:2px 7px;font-size:0.65rem;font-weight:700;">${tip.infoZile}</span>`;
+            h += `<div class="doc-category" style="margin-bottom:4px;padding:6px 9px;">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:5px;">
+                    <span style="font-size:0.7rem;font-weight:800;color:var(--text-main);">${tip.label} ${badge}</span>
+                    ${infoSpan}
+                </div>
+                <button class="btn-add-group" style="margin:0;padding:3px 8px;font-size:0.66rem;width:100%;"
+                    onclick="adaugaGrup('${tip.id}', '')">Generare</button>
+            </div>`;
+        } else {
+            // Cu input de zi — restaurăm valoarea salvată înainte de refresh
+            const valRestaurata = _ziInputVal['zi-' + tip.id] || '';
+            h += `<div class="doc-category" style="margin-bottom:4px;padding:6px 9px;">
+                <div style="display:flex;align-items:center;gap:4px;margin-bottom:4px;">
+                    <span style="font-size:0.7rem;font-weight:800;color:var(--text-main);flex:1;">${tip.label} ${badge}</span>
+                </div>
+                <div style="display:flex;align-items:center;gap:5px;font-size:0.7rem;">
+                    <span style="color:var(--text-muted);font-size:0.66rem;">Zi:</span>
+                    <input type="text" id="zi-${tip.id}" value="${valRestaurata}"
+                        style="width:36px;border:1px solid #ddd;text-align:center;border-radius:4px;padding:2px 4px;font-weight:800;background:white;font-size:0.7rem;"
+                        placeholder="—">
+                    <button class="btn-add-group" style="margin:0;padding:3px 8px;font-size:0.66rem;flex:1;"
+                        onclick="adaugaGrup('${tip.id}', document.getElementById('zi-${tip.id}').value)">Generare</button>
+                </div>
+            </div>`;
+        }
+    });
+
     container.innerHTML = h;
 }
 
