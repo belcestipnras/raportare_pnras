@@ -73,19 +73,13 @@
                 <table>
                     <thead><tr><th width="5%">Nr.</th><th width="55%">Nume elev</th><th width="10%">Da</th><th width="10%">Nu</th><th width="20%">Semnătura</th></tr></thead>
                     <tbody class="tabel-body"></tbody>
-                    <tfoot class="signature-anchor">
-                        <tr style="border-top: 2px solid black;">
-                            <td style="font-weight:800;">P</td>
-                            <td style="font-weight:800; text-align:left; padding-left:10px;">Prof. <span class="prof-nume"></span></td>
-                            <td><input type="checkbox" class="p-check" checked onclick="toggleCheck(this, 'p')"></td>
-                            <td><input type="checkbox" class="a-check" onclick="toggleCheck(this, 'a')"></td>
-                            <td></td>
-                        </tr>
-                        <tr><td colspan="5" style="border:none; padding:0;">
-                            <div class="signature-area"><p style="margin-bottom: 50px;">Întocmit,</p><p>Expert: <span class="sig-expert" style="font-weight: bold; text-decoration: underline;"></span></p></div>
-                        </td></tr>
-                    </tfoot>
                 </table>
+                <div class="footer-anchor" style="break-inside: avoid; page-break-inside: avoid;">
+                    <table style="width:100%; border-collapse:collapse; font-family:'Roboto Mono',monospace;">
+                        <tbody class="tabel-footer"></tbody>
+                    </table>
+                    <div class="signature-area"><p style="margin-bottom: 50px;">Întocmit,</p><p>Expert: <span class="sig-expert" style="font-weight: bold; text-decoration: underline;"></span></p></div>
+                </div>
             </div>
             <div class="msg-special" style="display: none;"></div>
         </div>
@@ -198,7 +192,6 @@
                 clone.querySelector('.out-disciplina').textContent = MAP_DISCIPLINE[globalConfig.expert] || "---";
                 clone.querySelector('.out-expert').textContent = globalConfig.expert;
                 clone.querySelector('.sig-expert').textContent = globalConfig.expert;
-                clone.querySelector('.prof-nume').textContent = globalConfig.expert;
                 clone.querySelector('.out-clasa').textContent = MAP_CLASE[globalConfig.clasa] || globalConfig.clasa;
                 clone.querySelector('.out-data').textContent = `${p.zi} ${globalConfig.luna} ${globalConfig.an}`.trim();
 
@@ -226,11 +219,10 @@
                         pageDiv.querySelector('.btn-lock-day').style.display = 'none';
                         pageDiv.querySelector('.btn-unlock-day').style.display = 'inline-block';
                         const tbody = pageDiv.querySelector('.tabel-body');
-                        if (elevi) elevi.forEach((e, i) => adaugaRandElev(tbody, e.nume_complet, i));
+                        if (elevi) elevi.forEach((e, i) => adaugaRandElev(pageDiv, e.nume_complet, i, i === elevi.length - 1, globalConfig.expert));
                     }
                 } else {
-                    const tbody = pageDiv.querySelector('.tabel-body');
-                    if (elevi) elevi.forEach((e, i) => adaugaRandElev(tbody, e.nume_complet, i));
+                    if (elevi) elevi.forEach((e, i) => adaugaRandElev(pageDiv, e.nume_complet, i, i === elevi.length - 1, globalConfig.expert));
                 }
                 master.appendChild(clone);
             } // Închide bucla FOR (zilele)
@@ -245,10 +237,19 @@
         }
     } // ACEASTA este ultima acoladă a funcției incarcaDate
 
-        function adaugaRandElev(tbody, nume, i) {
+    function adaugaRandElev(pageDiv, nume, i, isLast, profNume) {
         const tr = document.createElement('tr');
         tr.innerHTML = `<td class="nr-cell">${i+1}</td><td><input type="text" class="edit-name" value="${nume}"></td><td><input type="checkbox" class="p-check" checked onclick="toggleCheck(this, 'p')"></td><td><input type="checkbox" class="a-check" onclick="toggleCheck(this, 'a')"></td><td></td>`;
-        tbody.appendChild(tr);
+        if (isLast) {
+            const tfoot = pageDiv.querySelector('.tabel-footer');
+            tfoot.appendChild(tr);
+            // Adaugă rândul Prof. după ultimul elev
+            const trProf = document.createElement('tr');
+            trProf.innerHTML = `<td style="font-weight:800; border:1px solid black; padding:8px 5px; font-size:13px; text-align:center;">P</td><td style="font-weight:800; text-align:left; padding-left:10px; border:1px solid black; padding:8px 5px; font-size:13px;">Prof. ${profNume}</td><td style="border:1px solid black; padding:8px 5px; text-align:center;"><input type="checkbox" class="p-check" checked onclick="toggleCheck(this, 'p')"></td><td style="border:1px solid black; padding:8px 5px; text-align:center;"><input type="checkbox" class="a-check" onclick="toggleCheck(this, 'a')"></td><td style="border:1px solid black;"></td>`;
+            tfoot.appendChild(trProf);
+        } else {
+            pageDiv.querySelector('.tabel-body').appendChild(tr);
+        }
     }
 
     document.addEventListener('DOMContentLoaded', incarcaDate);
