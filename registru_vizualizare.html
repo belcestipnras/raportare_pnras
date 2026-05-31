@@ -76,6 +76,32 @@
         .drag-handle:active { cursor: grabbing; }
 
         /* PRINT */
+        /* ===== MODAL ȘTERGERE SELECTIVĂ ===== */
+        .del-modal-overlay {
+            position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:4000;
+            display:flex;align-items:center;justify-content:center;
+        }
+        .del-modal-box {
+            background:#fff;border-radius:14px;width:460px;max-width:95vw;max-height:80vh;
+            display:flex;flex-direction:column;box-shadow:0 16px 48px rgba(0,0,0,0.25);overflow:hidden;
+        }
+        .del-modal-header {
+            padding:16px 20px 12px;border-bottom:1px solid #e5e7eb;
+            font-size:15px;font-weight:800;color:#1f2937;display:flex;align-items:center;gap:8px;
+        }
+        .del-modal-body { flex:1;overflow-y:auto;padding:14px 20px; }
+        .del-modal-footer {
+            padding:12px 20px;border-top:1px solid #e5e7eb;background:#f9fafb;
+            display:flex;gap:8px;justify-content:flex-end;
+        }
+        .del-check-item {
+            display:flex;align-items:center;gap:10px;padding:7px 10px;border-radius:8px;
+            cursor:pointer;transition:background 0.15s;user-select:none;
+        }
+        .del-check-item:hover { background:#fef2f2; }
+        .del-check-item input[type=checkbox] { width:16px;height:16px;cursor:pointer;accent-color:#ef4444; }
+        .del-check-label { font-size:0.82rem;font-weight:600;color:#374151;flex:1; }
+        .del-check-count { font-size:0.7rem;font-weight:700;background:#fee2e2;color:#991b1b;padding:1px 7px;border-radius:10px; }
         @media print {
             @page { size: A4 landscape; margin: 10mm; }
             .top-bar, .sidebar, .trash-container, .col-del, button, .card-header, .table-toolbar { display: none !important; }
@@ -118,8 +144,18 @@
                     <input type="number" id="start-nr" value="1" style="width:60px; border:1px solid var(--border-color); border-radius:6px; padding:6px; font-weight:800;" readonly>
                     <button onclick="alocaNumereAutomat()" id="btn-aloca"
                         style="background:#2563eb;color:white;border:none;border-radius:8px;padding:7px 14px;font-size:0.75rem;font-weight:800;cursor:pointer;display:flex;align-items:center;gap:6px;"
-                        title="Ordonează cronologic toate rândurile lunii (după ziua completată)">
+                        title="Generează automat documentele obligatorii cu zi completată">
                         &#9889; Alocă numere
+                    </button>
+                    <button onclick="stergeAnumiteDoc()"
+                        style="background:#f59e0b;color:white;border:none;border-radius:8px;padding:7px 14px;font-size:0.75rem;font-weight:800;cursor:pointer;"
+                        title="Șterge anumite tipuri de documente din luna curentă">
+                        &#9986; Șterge documente
+                    </button>
+                    <button onclick="stergeTotLuna()"
+                        style="background:#ef4444;color:white;border:none;border-radius:8px;padding:7px 14px;font-size:0.75rem;font-weight:800;cursor:pointer;"
+                        title="Șterge toate documentele din luna curentă">
+                        &#128465; Șterge toată luna
                     </button>
                 </div>
             </div>
@@ -1255,6 +1291,140 @@ async function printLuna() {
     `);
     printWindow.document.close();
 }
+
+    // ===== ȘTERGERE TOATĂ LUNA =====
+    async function stergeTotLuna() {
+        if (!currentLuna || !currentAn) return;
+        const activ = localRows.filter(r => r.stare === 'activ');
+        if (activ.length === 0) { alert('Nu există documente active în această lună.'); return; }
+        const ok = confirm(`Ștergeți toate cele ${activ.length} documente din ${currentLuna} ${currentAn}?\nVor putea fi restaurate din Arhivă ștergeri.`);
+        if (!ok) return;
+        const BATCH = 20;
+        const ids = activ.map(r => r.id);
+        for (let i = 0; i < ids.length; i += BATCH) {
+            await _SB.from('registru_master')
+                .update({ stare: 'sters' })
+                .in('id', ids.slice(i, i + BATCH));
+        }
+        await refreshDate();
+        const t = document.createElement('div');
+        t.textContent = `🗑 ${ids.length} documente șterse din ${currentLuna} ${currentAn}`;
+        t.style.cssText = 'position:fixed;bottom:24px;right:24px;background:#ef4444;color:white;padding:10px 18px;border-radius:8px;font-size:0.8rem;font-weight:700;z-index:9999;box-shadow:0 4px 12px rgba(0,0,0,0.2);';
+        document.body.appendChild(t);
+        setTimeout(() => t.remove(), 3000);
+    }
+
+    // ===== ȘTERGERE ANUMITE DOCUMENTE =====
+    function stergeAnumiteDoc() {
+        if (!currentLuna || !currentAn) return;
+        const activ = localRows.filter(r => r.stare === 'activ');
+        if (activ.length === 0) { alert('Nu există documente active în această lună.'); return; }
+
+        // Grupăm după cuprins (primele ~50 caractere) pentru a afișa tipuri distincte
+        // Dar mai util: grupăm după doc_id prefix sau cuprins_act
+        // Construim lista unică de "cuprins" pentru selecție
+        const grupuri = {};
+        activ.forEach(r => {
+            const cheie = _getDocTip(r);
+            if (!grupuri[cheie]) grupuri[cheie] = [];
+            grupuri[cheie].push(r);
+        });
+
+        const sortedKeys = Object.keys(grupuri).sort();
+
+        let itemsHtml = sortedKeys.map(key => {
+            const cnt = grupuri[key].length;
+            return `<label class="del-check-item">
+                <input type="checkbox" class="del-cb" data-key="${key.replace(/"/g,'&quot;')}">
+                <span class="del-check-label">${key}</span>
+                <span class="del-check-count">${cnt}</span>
+            </label>`;
+        }).join('');
+
+        // Dacă sunt mai mult de 1 tip, adăugăm "Selectează tot"
+        const selectAll = sortedKeys.length > 1
+            ? `<div style="padding:4px 10px 10px;border-bottom:1px solid #f3f4f6;margin-bottom:6px;">
+                <label class="del-check-item" style="background:#f9fafb;">
+                    <input type="checkbox" id="del-cb-all" onchange="document.querySelectorAll('.del-cb').forEach(c=>c.checked=this.checked)">
+                    <span class="del-check-label" style="font-weight:800;color:#111;">Selectează tot</span>
+                    <span class="del-check-count" style="background:#fef3c7;color:#92400e;">${activ.length}</span>
+                </label>
+               </div>` : '';
+
+        const existing = document.getElementById('del-modal-overlay');
+        if (existing) existing.remove();
+
+        const overlay = document.createElement('div');
+        overlay.id = 'del-modal-overlay';
+        overlay.className = 'del-modal-overlay';
+        overlay.innerHTML = `
+            <div class="del-modal-box">
+                <div class="del-modal-header">&#9986; Șterge documente — ${currentLuna} ${currentAn}</div>
+                <div class="del-modal-body">
+                    <div style="font-size:0.72rem;color:#6b7280;margin-bottom:10px;">Bifează tipurile pe care vrei să le ștergi. Vor putea fi restaurate din Arhivă ștergeri.</div>
+                    ${selectAll}
+                    ${itemsHtml}
+                </div>
+                <div class="del-modal-footer">
+                    <button onclick="document.getElementById('del-modal-overlay').remove()"
+                        style="background:#e5e7eb;border:none;border-radius:8px;padding:8px 18px;font-size:0.8rem;font-weight:700;cursor:pointer;">Anulează</button>
+                    <button onclick="confirmaStergeSelectie()"
+                        style="background:#ef4444;color:white;border:none;border-radius:8px;padding:8px 18px;font-size:0.8rem;font-weight:800;cursor:pointer;">🗑 Șterge selectate</button>
+                </div>
+            </div>`;
+        document.body.appendChild(overlay);
+        overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
+    }
+
+    function _getDocTip(r) {
+        // Returnează o etichetă lizibilă pentru tipul documentului
+        const d = r.doc_id || '';
+        const c = r.cuprins_act || '';
+        if (d.startsWith('PLAN_'))     return 'Planificări';
+        if (d.startsWith('ORAR_GEN_')) return 'Orar general';
+        if (d.startsWith('ORAR_'))     return 'Orare experți';
+        if (d.startsWith('NOTA_CMD_')) return 'Notă de comandă';
+        if (d.startsWith('A_'))        return 'Avize masă rece';
+        if (d.startsWith('RAP_MASA_')) return 'Raport masă rece';
+        if (d.startsWith('PV_MASA_'))  return 'PV masă rece';
+        if (d.startsWith('RAP_'))      return 'Rapoarte experți';
+        if (d.startsWith('PONT_GEN_')) return 'Pontaj general';
+        if (d.startsWith('PONT_'))     return 'Pontaje individuale';
+        if (d.startsWith('STAT_'))     return 'Stat de plată';
+        if (d.startsWith('M_'))        return 'Rânduri manuale';
+        // Fallback: primele 50 caractere din cuprins
+        return c.length > 50 ? c.substring(0, 50) + '…' : (c || 'Altele');
+    }
+
+    async function confirmaStergeSelectie() {
+        const checked = Array.from(document.querySelectorAll('.del-cb:checked')).map(c => c.dataset.key);
+        if (checked.length === 0) { alert('Selectează cel puțin un tip de document.'); return; }
+
+        const activ = localRows.filter(r => r.stare === 'activ');
+        const deSters = activ.filter(r => checked.includes(_getDocTip(r)));
+
+        if (deSters.length === 0) return;
+
+        const btn = document.querySelector('#del-modal-overlay .del-modal-footer button:last-child');
+        if (btn) { btn.disabled = true; btn.innerHTML = '⏳ Se șterge...'; }
+
+        const BATCH = 20;
+        const ids = deSters.map(r => r.id);
+        for (let i = 0; i < ids.length; i += BATCH) {
+            await _SB.from('registru_master')
+                .update({ stare: 'sters' })
+                .in('id', ids.slice(i, i + BATCH));
+        }
+
+        document.getElementById('del-modal-overlay').remove();
+        await refreshDate();
+
+        const t = document.createElement('div');
+        t.textContent = `🗑 ${ids.length} documente șterse`;
+        t.style.cssText = 'position:fixed;bottom:24px;right:24px;background:#ef4444;color:white;padding:10px 18px;border-radius:8px;font-size:0.8rem;font-weight:700;z-index:9999;box-shadow:0 4px 12px rgba(0,0,0,0.2);';
+        document.body.appendChild(t);
+        setTimeout(() => t.remove(), 3000);
+    }
 
     init();
 </script>
