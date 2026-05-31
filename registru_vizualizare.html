@@ -827,63 +827,71 @@ function initDragDrop() {
     async function alocaNumereAutomat() {
         if (!currentLuna || !currentAn) { alert("Selectați mai întâi o lună!"); return; }
         const btn = document.getElementById('btn-aloca');
-        if (btn) { btn.disabled = true; btn.innerHTML = '⧗ Se alocă...'; }
+        if (btn) { btn.disabled = true; btn.innerHTML = '⧗ Se generează...'; }
 
-        // Toate rândurile active ale lunii (inclusiv blocate, pentru context)
-        const toateActive = localRows.filter(r => r.stare === 'activ');
-        const rows = toateActive.filter(r => !r.blocat);
+        const lunaNr = (luniText.indexOf(currentLuna)+1).toString().padStart(2,'0');
+        const tipuri = [
+            { id:'PLAN',       areZi: true },
+            { id:'ORAR_GEN',   areZi: true },
+            { id:'ORAR',       areZi: true },
+            { id:'NOTA_CMD',   areZi: true },
+            { id:'AVIZ',       areZi: false },  // zilele vin din zileMasa
+            { id:'RAP_MASA',   areZi: true },
+            { id:'PV_MASA',    areZi: true },
+            { id:'RAPORT',     areZi: true },
+            { id:'PONT',       areZi: true },
+            { id:'PONT_GEN',   areZi: true },
+            { id:'STAT_PLATA', areZi: true },
+        ];
 
-        if (rows.length === 0) {
-            alert("Nu există rânduri de numerotat în această lună.");
-            if (btn) { btn.disabled = false; btn.innerHTML = '&#9889; Alocă numere'; }
-            return;
-        }
+        let generate = 0;
+        let sarite = 0;
 
-        // Sortare: zi completată ASC → rânduri fără zi la final, ordonate după id (ordinea inserării)
-        rows.sort((a, b) => {
-            const ziA = parseInt(a.zi_inreg);
-            const ziB = parseInt(b.zi_inreg);
-            const areZiA = !isNaN(ziA) && a.zi_inreg !== '' && a.zi_inreg != null;
-            const areZiB = !isNaN(ziB) && b.zi_inreg !== '' && b.zi_inreg != null;
-
-            if (areZiA && areZiB) {
-                if (ziA !== ziB) return ziA - ziB;
-                // Aceeași zi: ordinea inserării (id)
-                return a.id - b.id;
+        for (const tip of tipuri) {
+            if (tip.areZi) {
+                // Citim ziua din _ziInputVal (salvat când userul a tastat)
+                const zi = (_ziInputVal['zi-' + tip.id] || '').trim();
+                if (!zi) { sarite++; continue; }  // nu are zi → sărim
             }
-            if (areZiA && !areZiB) return -1;  // cu zi înainte
-            if (!areZiA && areZiB) return 1;   // fără zi după
-            return a.id - b.id;                // ambele fără zi: ordinea inserării
-        });
+            // Avizele: dacă nu există zile de masă → sărim
+            if (!tip.areZi && (!window.zileMasa || window.zileMasa.length === 0)) { sarite++; continue; }
 
-        // Scriem sort_order secvențial 0,1,2,... pe fiecare rând
-        // Folosim valori mari (1000+idx) ca să nu se suprapună cu sort_order-urile din drag&drop
-        const updates = rows.map((r, idx) => ({ id: r.id, sort_order: idx }));
+            const zi = tip.areZi ? (_ziInputVal['zi-' + tip.id] || '').trim() : '';
 
-        // Update în Supabase batch
-        const BATCH = 10;
-        let erori = 0;
-        for (let i = 0; i < updates.length; i += BATCH) {
-            const rezultate = await Promise.all(updates.slice(i, i + BATCH).map(u =>
-                _SB.from('registru_master').update({ sort_order: u.sort_order }).eq('id', u.id)
-            ));
-            rezultate.forEach(r => { if (r.error) erori++; });
+            // Verificăm dacă există deja rânduri pentru acest tip în luna curentă
+            // ca să nu duplicăm
+            const existaDeja = localRows.filter(r => r.stare === 'activ').some(r => {
+                if (tip.id === 'PLAN')       return r.doc_id && r.doc_id.startsWith('PLAN_');
+                if (tip.id === 'ORAR_GEN')   return r.doc_id && r.doc_id.startsWith('ORAR_GEN_');
+                if (tip.id === 'ORAR')       return r.doc_id && r.doc_id.startsWith('ORAR_') && !r.doc_id.startsWith('ORAR_GEN_');
+                if (tip.id === 'NOTA_CMD')   return r.doc_id && r.doc_id.startsWith('NOTA_CMD_');
+                if (tip.id === 'AVIZ')       return r.doc_id && r.doc_id.startsWith('A_');
+                if (tip.id === 'RAP_MASA')   return r.doc_id && r.doc_id.startsWith('RAP_MASA_');
+                if (tip.id === 'PV_MASA')    return r.doc_id && r.doc_id.startsWith('PV_MASA_');
+                if (tip.id === 'RAPORT')     return r.doc_id && r.doc_id.startsWith('RAP_');
+                if (tip.id === 'PONT')       return r.doc_id && r.doc_id.startsWith('PONT_') && !r.doc_id.startsWith('PONT_GEN_');
+                if (tip.id === 'PONT_GEN')   return r.doc_id && r.doc_id.startsWith('PONT_GEN_');
+                if (tip.id === 'STAT_PLATA') return r.doc_id && r.doc_id.startsWith('STAT_');
+                return false;
+            });
+
+            if (existaDeja) { sarite++; continue; }
+
+            // Generăm rândurile apelând direct logica din adaugaGrup
+            await adaugaGrup(tip.id, zi);
+            generate++;
         }
 
-        if (erori > 0) {
-            alert(`Atenție: ${erori} update-uri au eșuat. Verificați conexiunea.`);
-        }
-
-        await refreshDate();
         if (btn) { btn.disabled = false; btn.innerHTML = '&#9889; Alocă numere'; }
 
+        const msg = generate > 0
+            ? `✓ ${generate} tipuri generate${sarite > 0 ? ` (${sarite} sărite: lipsă zi sau deja există)` : ''}`
+            : `ℹ Toate documentele există deja sau lipsesc zilele`;
         const toast = document.createElement('div');
-        toast.textContent = erori === 0
-            ? `✓ ${rows.length} rânduri ordonate cronologic`
-            : `⚠ Parțial: ${rows.length - erori}/${rows.length} salvate`;
-        toast.style.cssText = `position:fixed;bottom:24px;right:24px;background:${erori===0?'#1e40af':'#b45309'};color:white;padding:10px 18px;border-radius:8px;font-size:0.8rem;font-weight:700;z-index:9999;box-shadow:0 4px 12px rgba(0,0,0,0.2);`;
+        toast.textContent = msg;
+        toast.style.cssText = `position:fixed;bottom:24px;right:24px;background:${generate>0?'#1e40af':'#6b7280'};color:white;padding:10px 18px;border-radius:8px;font-size:0.8rem;font-weight:700;z-index:9999;box-shadow:0 4px 12px rgba(0,0,0,0.2);max-width:360px;`;
         document.body.appendChild(toast);
-        setTimeout(() => toast.remove(), 3000);
+        setTimeout(() => toast.remove(), 4000);
     }
 
     // ── Documente obligatorii — persistenţă ──────────────────────────────────
@@ -1001,10 +1009,7 @@ async function proceseazaSchimbareData(id, ziNoua) {
     const primaZiMasa = zMasa.length > 0 ? String(zMasa[0]).padStart(2,'0') : null;
     const ultimaZiMasa = zMasa.length > 0 ? String(zMasa[zMasa.length-1]).padStart(2,'0') : null;
 
-    // Citim valorile curente din DOM înainte de re-randare și le păstrăm în _ziInputVal
-    container.querySelectorAll('input[id^="zi-"]').forEach(inp => {
-        _ziInputVal[inp.id] = inp.value;
-    });
+    // Valorile inputurilor sunt salvate în _ziInputVal prin evenimente (vezi mai jos)
 
     let h = `
         <div style="background:#fff7ed;border:1px solid #fed7aa;padding:10px;border-radius:8px;margin-bottom:10px;">
@@ -1078,6 +1083,17 @@ async function proceseazaSchimbareData(id, ziNoua) {
     });
 
     container.innerHTML = h;
+
+    // Atașăm evenimente DUPĂ ce DOM-ul e creat
+    // La orice tastare, valoarea e salvată imediat în _ziInputVal
+    container.querySelectorAll('input[id^="zi-"]').forEach(inp => {
+        inp.addEventListener('input', function() {
+            _ziInputVal[this.id] = this.value;
+        });
+        inp.addEventListener('change', function() {
+            _ziInputVal[this.id] = this.value;
+        });
+    });
 }
 
 async function printLuna() {
