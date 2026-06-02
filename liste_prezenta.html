@@ -57,16 +57,20 @@
                 <div class="info-item"><span class="info-label">Data:</span><span class="out-data info-value"></span></div>
                 <div class="info-item"><span class="info-label">Clasa / Grupa:</span><span class="out-clasa info-value"></span></div>
             </div>
-            <table>
-                <thead><tr><th width="5%">Nr.</th><th width="55%">Nume și prenume elev</th><th width="10%">P</th><th width="10%">A</th><th width="20%">Semnătura</th></tr></thead>
-                <tbody class="tabel-body"></tbody>
-                <tfoot class="signature-anchor">
-                    <tr class="last-row-anchor"></tr>
-                    <tr><td colspan="5" style="border:none; padding:0;">
-                        <div class="signature-area"><p style="margin-bottom: 50px;">Întocmit,</p><p>Expert: <span class="sig-expert" style="font-weight: bold; text-decoration: underline;"></span></p></div>
-                    </td></tr>
-                </tfoot>
-            </table>
+            <div class="container-tabel">
+                <table style="table-layout:fixed;">
+                    <colgroup><col width="5%"><col width="55%"><col width="10%"><col width="10%"><col width="20%"></colgroup>
+                    <thead><tr><th width="5%">Nr.</th><th width="55%">Nume și prenume elev</th><th width="10%">P</th><th width="10%">A</th><th width="20%">Semnătura</th></tr></thead>
+                    <tbody class="tabel-body"></tbody>
+                </table>
+                <div class="footer-anchor" style="break-inside: avoid; page-break-inside: avoid;">
+                    <table style="width:100%; border-collapse:collapse; font-family:'Roboto Mono',monospace; table-layout:fixed; margin-top:-1px;">
+                        <colgroup><col width="5%"><col width="55%"><col width="10%"><col width="10%"><col width="20%"></colgroup>
+                        <tbody class="tabel-footer"></tbody>
+                    </table>
+                    <div class="signature-area"><p style="margin-bottom: 50px;">Întocmit,</p><p>Expert: <span class="sig-expert" style="font-weight: bold; text-decoration: underline;"></span></p></div>
+                </div>
+            </div>
         </div>
     </template>
 <script>
@@ -86,22 +90,43 @@
         if (type === 'a' && a.checked) p.checked = false;
     }
     function addRow() {
-        const bodies = document.querySelectorAll('.tabel-body');
-        bodies.forEach(tbody => {
+        document.querySelectorAll('.page').forEach(pageDiv => {
+            // Mută ultimul rând din footer înapoi în body (dacă există)
+            const tfoot = pageDiv.querySelector('.tabel-footer');
+            const tbody = pageDiv.querySelector('.tabel-body');
+            if (tfoot && tfoot.lastElementChild) {
+                tbody.appendChild(tfoot.lastElementChild);
+            }
+            // Adaugă noul rând în footer
+            const allRows = [...tbody.querySelectorAll('tr'), ...(tfoot ? tfoot.querySelectorAll('tr') : [])];
+            const nextNr = allRows.length + 1;
             const tr = document.createElement('tr');
-            tr.innerHTML = `<td class="nr-cell"></td><td><input type="text" class="edit-name" placeholder="Nume Prenume"></td><td><input type="checkbox" class="p-check" checked onclick="toggleCheck(this, 'p')"></td><td><input type="checkbox" class="a-check" onclick="toggleCheck(this, 'a')"></td><td></td>`;
-            tbody.appendChild(tr);
+            tr.innerHTML = `<td class="nr-cell">${nextNr}</td><td><input type="text" class="edit-name" placeholder="Nume Prenume"></td><td><input type="checkbox" class="p-check" checked onclick="toggleCheck(this, 'p')"></td><td><input type="checkbox" class="a-check" onclick="toggleCheck(this, 'a')"></td><td></td>`;
+            if (tfoot) tfoot.appendChild(tr);
         });
         reindexAll();
     }
     function removeLastRow() {
-        const bodies = document.querySelectorAll('.tabel-body');
-        bodies.forEach(tbody => { if (tbody.lastElementChild) tbody.removeChild(tbody.lastElementChild); });
+        document.querySelectorAll('.page').forEach(pageDiv => {
+            const tfoot = pageDiv.querySelector('.tabel-footer');
+            const tbody = pageDiv.querySelector('.tabel-body');
+            if (tfoot && tfoot.lastElementChild) {
+                tfoot.removeChild(tfoot.lastElementChild);
+                // Mută ultimul din body în footer
+                if (tbody && tbody.lastElementChild) {
+                    tfoot.appendChild(tbody.lastElementChild);
+                }
+            } else if (tbody && tbody.lastElementChild) {
+                tbody.removeChild(tbody.lastElementChild);
+            }
+        });
         reindexAll();
     }
     function reindexAll() {
-        const bodies = document.querySelectorAll('.tabel-body');
-        bodies.forEach(tbody => { tbody.querySelectorAll('.nr-cell').forEach((td, i) => td.textContent = i + 1); });
+        document.querySelectorAll('.page').forEach(pageDiv => {
+            const allCells = [...pageDiv.querySelectorAll('.tabel-body .nr-cell'), ...pageDiv.querySelectorAll('.tabel-footer .nr-cell')];
+            allCells.forEach((td, i) => td.textContent = i + 1);
+        });
     }
 
     async function incarcaDate() {
@@ -124,17 +149,19 @@
                 clone.querySelector('.sig-expert').textContent = expert;
                 clone.querySelector('.out-clasa').textContent = MAP_CLASE[clasaCod] || clasaCod;
                 clone.querySelector('.out-data').textContent = `${p.zi} ${luna} ${an}`.trim();
-                const tbody = clone.querySelector('.tabel-body');
+                const pageDiv = clone.querySelector('.page');
                 if (elevi) {
                     elevi.forEach((e, i) => {
+                        const isLast = i === elevi.length - 1;
                         const tr = document.createElement('tr');
                         tr.innerHTML = `<td class="nr-cell">${i+1}</td><td><input type="text" class="edit-name" value="${e.nume_complet}"></td><td><input type="checkbox" class="p-check" checked onclick="toggleCheck(this, 'p')"></td><td><input type="checkbox" class="a-check" onclick="toggleCheck(this, 'a')"></td><td></td>`;
-                        tbody.appendChild(tr);
+                        if (isLast) {
+                            pageDiv.querySelector('.tabel-footer').appendChild(tr);
+                        } else {
+                            pageDiv.querySelector('.tabel-body').appendChild(tr);
+                        }
                     });
                 }
-                // Mut ultimul rând în tfoot pentru a preveni orfani la print
-                const lastRow = tbody.lastElementChild;
-                if (lastRow) clone.querySelector('.last-row-anchor').replaceWith(lastRow);
                 master.appendChild(clone);
             });
             document.getElementById('status-msg').style.display = 'none';
