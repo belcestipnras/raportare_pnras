@@ -171,6 +171,7 @@
     const URL_S = 'https://aexjrbdgajurxzngfkpx.supabase.co';
     const KEY_S = 'sb_publishable_KPV__0BA9z4EvRl5eqC0FQ_hmBLOLYv';
     const FUNCTION_URL = `${URL_S}/functions/v1/chatgpt-pnras`;
+    const R2_FUNCTION_URL = `${URL_S}/functions/v1/r2-upload`;
     const supabaseClient = supabase.createClient(URL_S, KEY_S);
 
     const params = new URLSearchParams(window.location.search);
@@ -267,6 +268,11 @@
                     data: r.data, titlu: r.cont, obiective: "", activitati: r.actv || r.cont,
                     metode: "", mijloace: r.res, organizare: "", concluzii: "" 
                 }));
+                // Salvăm imediat ca să nu se piardă la refresh
+                await supabaseClient.from('planificari_documente').upsert(
+                    { tip_document: config.idData, expert: config.expert, continut_json: { fise: rows } },
+                    { onConflict: 'tip_document' }
+                );
             }
         }
         const container = document.getElementById('container-fise');
@@ -335,7 +341,7 @@
                 const { presignedUrl, publicUrl } = await resp.json();
                 await fetch(presignedUrl, { method: 'PUT', headers: { 'Content-Type': fisier.type }, body: fisier });
 
-                await supabaseClient.from('liste_fisiere').insert({
+                const { error: insertErr } = await supabaseClient.from('liste_fisiere').insert({
                     expert:     config.expert,
                     luna:       config.luna,
                     an:         config.an,
@@ -346,6 +352,11 @@
                     object_key: objectKey,
                     creat_la:   new Date().toISOString()
                 });
+                if (insertErr) {
+                    console.error('Supabase insert error:', insertErr);
+                    setStatus('error', `❌ DB: ${insertErr.message}`);
+                    return;
+                }
             }
 
             setStatus('saved', `✅ ${fisiere.length > 1 ? fisiere.length + ' fișiere încărcate' : 'Listă încărcată'}!`);
@@ -384,10 +395,12 @@
                 btn.classList.add('are-fisier');
                 const tip = btn.dataset.tip;
                 const label = tip === 'prezenta' ? '👥 Prez.' : '🍱 Masă';
+                const dataFisaBtn = btn.dataset.dataFisa;
+                const tipBtn = btn.dataset.tip;
                 btn.innerHTML = `${label} <span style="background:#10b981;color:#fff;border-radius:8px;padding:0 4px;font-size:9px;">${nr}</span><input type="file" accept=".pdf,image/*" multiple>`;
                 btn.querySelector('input').onchange = (e) => {
                     e.stopPropagation();
-                    incarcaLista(e.target, tip, btn.dataset.dataFisa, btn);
+                    incarcaLista(e.target, tipBtn, dataFisaBtn, btn);
                 };
                 btn.title = `${nr} fișier(e) încărcat(e) — adaugă mai multe`;
             }
@@ -486,8 +499,7 @@ REGULI: NU scrie altceva în afară de aceste 5 secțiuni. Fiecare secțiune pe 
     // CLOUDFLARE R2 — UPLOAD & VIZUALIZARE
     // =============================================
 
-    // URL-ul Supabase Edge Function pentru R2
-    const R2_FUNCTION_URL = `${URL_S}/functions/v1/r2-upload`;
+
 
     // Convertește orice imagine în JPEG folosind canvas (suportă HEIC, WEBP, BMP, TIFF, PNG, etc.)
     async function convertToJpeg(fisier) {
