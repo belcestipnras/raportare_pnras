@@ -306,49 +306,51 @@
     // =============================================
 
     async function incarcaLista(inputEl, tip, dataFisa, btn) {
-        const fisier = inputEl.files[0];
-        if (!fisier) return;
+        const fisiere = inputEl.files;
+        if (!fisiere || fisiere.length === 0) return;
 
-        // Extragem ziua din data fișei (ex: "15.02.2026" → "15")
         const zi = dataFisa.split(/[.\-]/)[0];
-
         const expertNorm = normalizeaza(config.expert);
         const clasaNorm  = normalizeaza(config.clasa);
         const dataNorm   = dataFisa.replace(/[.\-]/g, '_');
-        const ext        = fisier.name.split('.').pop().toLowerCase();
-        const numeFinal  = `LISTA_${tip.toUpperCase()}_${dataNorm}_${clasaNorm}.${ext}`;
-        const objectKey  = `${expertNorm}/${clasaNorm}/${normalizeaza(config.luna)}_${config.an}/liste/${numeFinal}`;
 
-        setStatus('loading', '⏳ Se încarcă lista...');
         btn.style.opacity = '0.6';
         btn.style.pointerEvents = 'none';
 
         try {
-            const resp = await fetch(R2_FUNCTION_URL, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${KEY_S}` },
-                body: JSON.stringify({ action: 'upload', fileName: numeFinal, fileType: fisier.type, objectKey })
-            });
-            const { presignedUrl, publicUrl } = await resp.json();
+            for (let i = 0; i < fisiere.length; i++) {
+                const fisier = fisiere[i];
+                setStatus('loading', `⏳ Se încarcă ${i+1}/${fisiere.length}...`);
 
-            await fetch(presignedUrl, { method: 'PUT', headers: { 'Content-Type': fisier.type }, body: fisier });
+                const ext       = fisier.name.split('.').pop().toLowerCase();
+                const ts        = Date.now() + i;
+                const numeFinal = `LISTA_${tip.toUpperCase()}_${dataNorm}_${clasaNorm}_${ts}.${ext}`;
+                const objectKey = `${expertNorm}/${clasaNorm}/${normalizeaza(config.luna)}_${config.an}/liste/${numeFinal}`;
 
-            await supabaseClient.from('liste_fisiere').upsert({
-                expert:     config.expert,
-                luna:       config.luna,
-                an:         config.an,
-                zi:         parseInt(zi),
-                clasa:      config.clasa,
-                tip:        tip,
-                public_url: publicUrl,
-                object_key: objectKey,
-                creat_la:   new Date().toISOString()
-            }, { onConflict: 'expert,luna,an,zi,clasa,tip' });
+                const resp = await fetch(R2_FUNCTION_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${KEY_S}` },
+                    body: JSON.stringify({ action: 'upload', fileName: numeFinal, fileType: fisier.type, objectKey })
+                });
+                const { presignedUrl, publicUrl } = await resp.json();
+                await fetch(presignedUrl, { method: 'PUT', headers: { 'Content-Type': fisier.type }, body: fisier });
 
-            btn.classList.add('are-fisier');
-            btn.title = `${tip === 'prezenta' ? 'Prezență' : 'Masă'} încărcată ✅ — click pentru a înlocui`;
-            setStatus('saved', `✅ Lista de ${tip} încărcată!`);
+                await supabaseClient.from('liste_fisiere').insert({
+                    expert:     config.expert,
+                    luna:       config.luna,
+                    an:         config.an,
+                    zi:         parseInt(zi),
+                    clasa:      config.clasa,
+                    tip:        tip,
+                    public_url: publicUrl,
+                    object_key: objectKey,
+                    creat_la:   new Date().toISOString()
+                });
+            }
+
+            setStatus('saved', `✅ ${fisiere.length > 1 ? fisiere.length + ' fișiere încărcate' : 'Listă încărcată'}!`);
             setTimeout(() => setStatus('none', ''), 3000);
+            afiseazaFisiereleIncarcate();
 
         } catch (err) {
             console.error(err);
@@ -368,14 +370,26 @@
 
         if (!data || data.length === 0) return;
 
-        const existente = new Set(data.map(l => `${l.zi}_${l.tip}`));
+        // Numărăm câte fișiere există per zi+tip
+        const numarare = {};
+        data.forEach(l => {
+            const key = `${l.zi}_${l.tip}`;
+            numarare[key] = (numarare[key] || 0) + 1;
+        });
 
         document.querySelectorAll('.sf-btn-data[data-zi]').forEach(btn => {
             const key = `${parseInt(btn.dataset.zi)}_${btn.dataset.tip}`;
-            if (existente.has(key)) {
+            const nr = numarare[key] || 0;
+            if (nr > 0) {
                 btn.classList.add('are-fisier');
                 const tip = btn.dataset.tip;
-                btn.title = `${tip === 'prezenta' ? 'Prezență' : 'Masă'} încărcată ✅ — click pentru a înlocui`;
+                const label = tip === 'prezenta' ? '👥 Prez.' : '🍱 Masă';
+                btn.innerHTML = `${label} <span style="background:#10b981;color:#fff;border-radius:8px;padding:0 4px;font-size:9px;">${nr}</span><input type="file" accept=".pdf,image/*" multiple>`;
+                btn.querySelector('input').onchange = (e) => {
+                    e.stopPropagation();
+                    incarcaLista(e.target, tip, btn.dataset.dataFisa, btn);
+                };
+                btn.title = `${nr} fișier(e) încărcat(e) — adaugă mai multe`;
             }
         });
     }
@@ -709,7 +723,7 @@ REGULI: NU scrie altceva în afară de aceste 5 secțiuni. Fiecare secțiune pe 
             const btnPrezenta = document.createElement('button');
             btnPrezenta.className = 'sf-btn-data prezenta';
             btnPrezenta.title = 'Încarcă lista de prezență';
-            btnPrezenta.innerHTML = '👥 Prez.<input type="file" accept=".pdf,image/*">';
+            btnPrezenta.innerHTML = '👥 Prez.<input type="file" accept=".pdf,image/*" multiple>';
             btnPrezenta.querySelector('input').onchange = (e) => {
                 e.stopPropagation();
                 incarcaLista(e.target, 'prezenta', data, btnPrezenta);
@@ -719,7 +733,7 @@ REGULI: NU scrie altceva în afară de aceste 5 secțiuni. Fiecare secțiune pe 
             const btnMasa = document.createElement('button');
             btnMasa.className = 'sf-btn-data masa';
             btnMasa.title = 'Încarcă lista de masă';
-            btnMasa.innerHTML = '🍱 Masă<input type="file" accept=".pdf,image/*">';
+            btnMasa.innerHTML = '🍱 Masă<input type="file" accept=".pdf,image/*" multiple>';
             btnMasa.querySelector('input').onchange = (e) => {
                 e.stopPropagation();
                 incarcaLista(e.target, 'masa', data, btnMasa);
@@ -728,8 +742,10 @@ REGULI: NU scrie altceva în afară de aceste 5 secțiuni. Fiecare secțiune pe 
             // Marcăm dacă există deja fișiere (se actualizează la verificaListeExistente)
             btnPrezenta.dataset.zi = data.split(/[.\-]/)[0];
             btnPrezenta.dataset.tip = 'prezenta';
+            btnPrezenta.dataset.dataFisa = data;
             btnMasa.dataset.zi = data.split(/[.\-]/)[0];
             btnMasa.dataset.tip = 'masa';
+            btnMasa.dataset.dataFisa = data;
 
             const labelAdauga = document.createElement('div');
             labelAdauga.style.cssText = 'padding: 4px 14px 2px; font-size: 9px; color: #334155; letter-spacing: 0.5px; text-transform: uppercase;';
@@ -759,16 +775,22 @@ REGULI: NU scrie altceva în afară de aceste 5 secțiuni. Fiecare secțiune pe 
 
             // Adăugăm rândurile pentru prezență și masă (din liste_fisiere)
             const zi = String(parseInt(data.split(/[.\-]/)[0]));
-            (listePeZi[zi] || []).forEach(l => {
-                const numeAfisat = l.tip === 'prezenta' ? '👥 Prezență' : '🍱 Masă';
+            const listeZi = listePeZi[zi] || [];
+            // Numărăm per tip pentru afișare "Prezență 1", "Prezență 2" etc.
+            const nrPerTip = {};
+            listeZi.forEach(l => {
+                nrPerTip[l.tip] = (nrPerTip[l.tip] || 0) + 1;
+                const nr = nrPerTip[l.tip];
+                const eticheta = l.tip === 'prezenta' ? '👥 Prezență' : '🍱 Masă';
+                const numeAfisat = `${eticheta} ${nr}`;
                 const culoare = l.tip === 'prezenta' ? '#7dd3fc' : '#fcd34d';
                 const rand = document.createElement('div');
                 rand.className = 'sf-fisier-row';
                 rand.style.borderLeftColor = culoare;
                 rand.innerHTML = `
-                    <span style="font-size:11px; color:${culoare}; flex:1; padding-left:4px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
+                    <a href="${l.public_url}" target="_blank" style="font-size:11px; color:${culoare}; flex:1; padding-left:4px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; text-decoration:none;">
                         ${numeAfisat}
-                    </span>
+                    </a>
                     <div class="sf-fisier-actions" style="opacity:1;">
                         <a href="${l.public_url}" target="_blank" class="sf-act-btn" title="Deschide">🔗</a>
                         <button class="sf-act-btn" title="Șterge" onclick="stergeLista(${l.id},'${zi}','${l.tip}',this)">🗑️</button>
