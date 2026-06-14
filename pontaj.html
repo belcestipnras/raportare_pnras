@@ -391,29 +391,102 @@ async function openC() {
     refresh();
 }
 
+    async function openProiect() {
+        // Încarcă rândul Proiect
+        const { data: existent } = await supabaseClient.from('pontaj_detaliat')
+            .select('*').match({ expert: "Proiect", zi: state.zi, luna: state.luna, an: state.an }).maybeSingle();
+        document.getElementById('proiect-nr-elevi').value = existent ? (existent.nr_elevi_proiect || 0) : '';
+
+        // Încarcă pontajele existente ale profesorilor pentru această zi cu clase_grupe = PROIECT
+        const { data: profExistenti } = await supabaseClient.from('pontaj_detaliat')
+            .select('expert, nr_ore').match({ zi: state.zi, luna: state.luna, an: state.an })
+            .eq('clase_grupe', 'PROIECT');
+        const profMap = {};
+        if (profExistenti) profExistenti.forEach(r => profMap[r.expert] = r.nr_ore);
+
+        // Construiește lista profesorilor
+        const lista = document.getElementById('proiect-profesori-list');
+        lista.innerHTML = '';
+        const profesori = Object.keys(experti).filter(n => n !== 'Proiect');
+        profesori.forEach(nume => {
+            const bifat = profMap.hasOwnProperty(nume);
+            const ore = profMap[nume] || 1;
+            lista.innerHTML += `
+                <div style="display:flex; align-items:center; gap:8px; background:#0d1117; border:1px solid var(--border); border-radius:6px; padding:6px 10px;">
+                    <input type="checkbox" id="prf-chk-${nume}" ${bifat ? 'checked' : ''} 
+                        onchange="document.getElementById('prf-ore-${nume}').style.opacity=this.checked?'1':'0.3'"
+                        style="width:16px; height:16px; accent-color:#7c3aed; cursor:pointer; flex-shrink:0;">
+                    <label for="prf-chk-${nume}" style="flex:1; font-size:12px; font-weight:600; cursor:pointer; color:${bifat?'#fff':'#8b949e'};">${nume}</label>
+                    <div style="display:flex; align-items:center; gap:4px; opacity:${bifat?'1':'0.3'};" id="prf-ore-${nume}">
+                        <span style="font-size:10px; color:#8b949e;">ore:</span>
+                        <input type="number" id="prf-ore-val-${nume}" min="1" max="6" value="${ore}" 
+                            style="width:38px; background:#000; color:#fff; border:1px solid #7c3aed; border-radius:4px; text-align:center; font-weight:bold; font-size:14px; padding:2px 0; outline:none;">
+                    </div>
+                </div>`;
+        });
+
+        document.getElementById('pop-proiect').style.display='flex';
+    }
+
     async function saveProiect() {
         const nrEl = parseInt(document.getElementById('proiect-nr-elevi').value) || 0;
-        const ore = parseInt(document.getElementById('proiect-ore').value) || 1;
+        const profesori = Object.keys(experti).filter(n => n !== 'Proiect');
+
+        // Salvează rândul Proiect (nr elevi)
         await supabaseClient.from('pontaj_detaliat').upsert({
             expert: "Proiect",
             zi: state.zi,
             luna: state.luna,
             an: state.an,
-            nr_ore: ore,
+            nr_ore: 0,
             clase_grupe: "PROIECT",
             fara_masa: false,
             nr_elevi_proiect: nrEl
         }, { onConflict: 'expert,zi,luna,an' });
-        document.getElementById('pop-proiect').style.display='none';
+
+        // Salvează/șterge pontajul fiecărui profesor
+        for (const nume of profesori) {
+            const bifat = document.getElementById(`prf-chk-${nume}`)?.checked;
+            if (bifat) {
+                const ore = parseInt(document.getElementById(`prf-ore-val-${nume}`)?.value) || 1;
+                await supabaseClient.from('pontaj_detaliat').upsert({
+                    expert: nume,
+                    zi: state.zi,
+                    luna: state.luna,
+                    an: state.an,
+                    nr_ore: ore,
+                    clase_grupe: "PROIECT",
+                    fara_masa: false,
+                    nr_elevi_proiect: 0
+                }, { onConflict: 'expert,zi,luna,an' });
+            } else {
+                // Dacă există o înregistrare PROIECT pentru acest prof și nu mai e bifat, o ștergem
+                const { data: ex } = await supabaseClient.from('pontaj_detaliat')
+                    .select('id').match({ expert: nume, zi: state.zi, luna: state.luna, an: state.an })
+                    .eq('clase_grupe', 'PROIECT').maybeSingle();
+                if (ex) await supabaseClient.from('pontaj_detaliat').delete()
+                    .match({ expert: nume, zi: state.zi, luna: state.luna, an: state.an });
+            }
+        }
+
+        closeModals();
         refresh();
     }
 
-    async function openProiect() {
-        const { data: existent } = await supabaseClient.from('pontaj_detaliat')
-            .select('*').match({ expert: "Proiect", zi: state.zi, luna: state.luna, an: state.an }).maybeSingle();
-        document.getElementById('proiect-nr-elevi').value = existent ? (existent.nr_elevi_proiect || 0) : '';
-        document.getElementById('proiect-ore').value = existent ? existent.nr_ore : 1;
-        document.getElementById('pop-proiect').style.display='flex';
+    async function deleteProiect() {
+        if (!confirm("Ștergi activitatea de Proiect și toți profesorii asociați pentru această zi?")) return;
+        const profesori = Object.keys(experti).filter(n => n !== 'Proiect');
+        await supabaseClient.from('pontaj_detaliat').delete()
+            .match({ expert: "Proiect", zi: state.zi, luna: state.luna, an: state.an });
+        for (const nume of profesori) {
+            const { data: ex } = await supabaseClient.from('pontaj_detaliat')
+                .select('id').match({ expert: nume, zi: state.zi, luna: state.luna, an: state.an })
+                .eq('clase_grupe', 'PROIECT').maybeSingle();
+            if (ex) await supabaseClient.from('pontaj_detaliat').delete()
+                .match({ expert: nume, zi: state.zi, luna: state.luna, an: state.an });
+        }
+        closeModals();
+        refresh();
     }
     async function deleteData() { if(confirm("Ștergi?")) { await supabaseClient.from('pontaj_detaliat').delete().match({ expert:state.exp, zi:state.zi, luna:state.luna, an:state.an }); closeModals(); refresh(); } }
     function closeModals() { document.getElementById('pop-ore').style.display='none'; document.getElementById('pop-clase').style.display='none'; document.getElementById('pop-proiect').style.display='none'; }
@@ -477,19 +550,19 @@ async function resetarePontajLuna() {
 </script>
 
 <div id="pop-proiect" class="modal">
-    <div class="modal-box">
-        <h3 style="color:#a78bfa;">🎯 Proiect — Activitate Independentă</h3>
-        <div style="margin-bottom:10px;">
+    <div class="modal-box" style="width:380px; max-height:90vh; overflow-y:auto;">
+        <h3 style="color:#a78bfa; margin-top:0;">🎯 Proiect — Activitate Independentă</h3>
+        <div style="margin-bottom:12px;">
             <label style="font-size:11px; color:#8b949e; display:block; margin-bottom:4px;">NR. ELEVI PARTICIPANȚI</label>
             <input type="number" id="proiect-nr-elevi" min="0" style="width:100%; background:#000; color:#a78bfa; border:2px solid #7c3aed; padding:10px; border-radius:6px; font-size:22px; font-weight:800; text-align:center; outline:none;">
         </div>
-        <div style="margin-bottom:15px;">
-            <label style="font-size:11px; color:#8b949e; display:block; margin-bottom:4px;">NR. ORE</label>
-            <input type="number" id="proiect-ore" min="1" max="8" value="1" style="width:100%; background:#000; color:#fff; border:1px solid var(--border); padding:8px; border-radius:6px; font-size:16px; font-weight:700; text-align:center; outline:none;">
+        <div style="margin-bottom:12px;">
+            <label style="font-size:11px; color:#8b949e; display:block; margin-bottom:8px; text-transform:uppercase; letter-spacing:1px;">Profesori participanți</label>
+            <div id="proiect-profesori-list" style="display:flex; flex-direction:column; gap:6px;"></div>
         </div>
-        <div style="display:flex; gap:10px;">
+        <div style="display:flex; gap:10px; margin-top:15px;">
             <button class="btn" style="background:#7c3aed; color:#fff; flex:2;" onclick="saveProiect()">SALVEAZĂ CLOUD</button>
-            <button class="btn" style="background:var(--error); color:#fff; flex:1;" onclick="deleteData()">ȘTERGE</button>
+            <button class="btn" style="background:var(--error); color:#fff; flex:1;" onclick="deleteProiect()">ȘTERGE</button>
         </div>
         <button onclick="closeModals()" style="width:100%; margin-top:10px; background:none; border:none; color:#777; cursor:pointer;">Închide</button>
     </div>
