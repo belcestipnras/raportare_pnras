@@ -1192,7 +1192,9 @@ async function r2DeleteFile(publicUrl, bucketKey) {
             const ex = docPer[c.id] || [];
             const listaCustom = cartonasePer[c.id];
             const ascunse = ascunsePer[c.id] || [];
-            const lista = completeazaLista((listaCustom && listaCustom.length > 0) ? listaCustom : LISTA_DOCUMENTE, c.id).filter(t => !ascunse.includes(t));
+            // Dacă există config salvată, o folosim direct (fără completeazaLista care ar readăuga secțiuni șterse)
+            const _listaBazaItem = (listaCustom && listaCustom.length > 0) ? listaCustom : completeazaLista(LISTA_DOCUMENTE, c.id);
+            const lista = _listaBazaItem.filter(t => !ascunse.includes(t));
             const totalOk = lista.filter(tip => {
                 if (ex.includes(tip)) return true;
                 const prefix = tip.match(/^(\d+(?:\.\d+)?)\.\s/);
@@ -2006,8 +2008,13 @@ async function r2DeleteFile(publicUrl, bucketKey) {
         const { data: cfgData } = await db.from('cartonase_config')
             .select('cartonase, ascunse').eq('contract_id', contractId).maybeSingle();
         const ascunseContract = (cfgData && cfgData.ascunse) || [];
-        const listaCartonase = completeazaLista((cfgData && cfgData.cartonase && cfgData.cartonase.length)
-            ? cfgData.cartonase : LISTA_DOCUMENTE, contractId)
+        // Dacă există config în DB, folosim lista exact cum e salvată (fără completeazaLista,
+        // care ar readăuga secțiuni șterse din 12-19). completeazaLista se aplică doar
+        // când nu există nicio configurare.
+        const _listaBaza = (cfgData && cfgData.cartonase && cfgData.cartonase.length)
+            ? cfgData.cartonase
+            : completeazaLista(LISTA_DOCUMENTE, contractId);
+        const listaCartonase = _listaBaza
             .filter(t => !ascunseContract.includes(t))
             .sort((a, b) => {
                 const na = parseFloat((a.match(/^([\d.]+)/) || [0,0])[1]) || 999;
