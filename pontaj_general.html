@@ -849,6 +849,35 @@
         ::-webkit-scrollbar { height: 5px; width: 5px; }
         ::-webkit-scrollbar-track { background: #f1f5f9; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+
+        /* ── ASCUNDERE RÂND LA PRINT ── */
+        .btn-ascunde-print {
+            background: none;
+            border: none;
+            font-size: 11px;
+            cursor: pointer;
+            padding: 1px 3px;
+            border-radius: 3px;
+            line-height: 1;
+            opacity: 0.35;
+            transition: opacity 0.15s;
+            color: #64748b;
+            flex-shrink: 0;
+        }
+        .btn-ascunde-print:hover { opacity: 1; background: #f1f5f9; }
+
+        /* Rând marcat ca ascuns la print — vizual pe ecran */
+        tr.ascuns-print td {
+            opacity: 0.3;
+        }
+        tr.ascuns-print .btn-ascunde-print {
+            opacity: 1 !important;
+            color: #ef4444;
+        }
+
+        @media print {
+            tr.ascuns-print { display: none !important; }
+        }
     </style>
 </head>
 <body>
@@ -1359,11 +1388,34 @@
                     tr.remove();
                     recalcTotals();
                 };
+                const btnAscunde = document.createElement('button');
+                btnAscunde.className = 'btn-ascunde-print no-print';
+                btnAscunde.title = 'Ascunde la print';
+                btnAscunde.textContent = '🖨️';
+                btnAscunde.onclick = () => {
+                    tr.classList.toggle('ascuns-print');
+                    btnAscunde.title = tr.classList.contains('ascuns-print') ? 'Afișează la print' : 'Ascunde la print';
+                };
                 wrapper2.appendChild(span);
+                wrapper2.appendChild(btnAscunde);
                 wrapper2.appendChild(btnDel);
                 tdExp.appendChild(wrapper2);
             } else {
-                tdExp.textContent = exp;
+                const wrapper2 = document.createElement('div');
+                wrapper2.style.cssText = 'display:flex;align-items:center;justify-content:space-between;gap:4px;';
+                const span = document.createElement('span');
+                span.textContent = exp;
+                const btnAscunde = document.createElement('button');
+                btnAscunde.className = 'btn-ascunde-print no-print';
+                btnAscunde.title = 'Ascunde la print';
+                btnAscunde.textContent = '🖨️';
+                btnAscunde.onclick = () => {
+                    tr.classList.toggle('ascuns-print');
+                    btnAscunde.title = tr.classList.contains('ascuns-print') ? 'Afișează la print' : 'Ascunde la print';
+                };
+                wrapper2.appendChild(span);
+                wrapper2.appendChild(btnAscunde);
+                tdExp.appendChild(wrapper2);
             }
             tr.appendChild(tdExp);
 
