@@ -228,8 +228,10 @@
                 h+=`</tr>`;
 
                 if(iso){h+=`<tr><td colspan="${cc+1}"><div class="ci-wrap">`;
-                    const allC=D.filter(r=>r.tip_rand==='CONTRACT'&&r.pilon===pi&&r.subcategorie===sc).sort((a,b)=>new Date(a.data_document)-new Date(b.data_document));
-                    const byY={};ANI.forEach(a=>{byY[a]=allC.filter(c=>c.an==a)});
+                    const LUNI_RO_BA={ianuarie:0,februarie:1,martie:2,aprilie:3,mai:4,iunie:5,iulie:6,august:7,septembrie:8,octombrie:9,noiembrie:10,decembrie:11};
+                    function getAnLunaFromTitlu(titlu){const t=(titlu||'').toLowerCase();let luna=-1,an=null;for(const[l,i]of Object.entries(LUNI_RO_BA)){if(t.includes(l)){luna=i;break}}const mA=(titlu||'').match(/(20\d{2})/);if(mA)an=parseInt(mA[1]);return{an,luna}}
+                    const allC=D.filter(r=>r.tip_rand==='CONTRACT'&&r.pilon===pi&&r.subcategorie===sc).sort((a,b)=>{const da=getAnLunaFromTitlu(a.titlu),db=getAnLunaFromTitlu(b.titlu);if(da.an!==db.an)return(da.an||0)-(db.an||0);return da.luna-db.luna});
+                    const byY={};ANI.forEach(a=>{byY[a]=allC.filter(c=>getAnLunaFromTitlu(c.titlu).an==a)});
                     for(const an of ANI){if(!byY[an].length)continue;h+=`<div class="ygl"><span class="ygl-b">${an}</span> Contracte ${an} (${byY[an].length})</div>`;
                         for(const ct of byY[an])h+=renderCtr(ct,sc,aDF)}
                     const bo=D.find(r=>r.tip_rand==='BUGET'&&r.pilon===pi&&r.subcategorie===sc);
