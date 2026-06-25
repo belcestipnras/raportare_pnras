@@ -1437,10 +1437,22 @@ async function r2DeleteFile(publicUrl, bucketKey) {
 
         if (active.length > 0) {
             const grupe = {};
-            active.forEach(c => { const an = c.an || '-'; if (!grupe[an]) grupe[an] = []; grupe[an].push(c); });
+            active.forEach(c => {
+                const ext = extragelunaAnDinTitlu(c.titlu);
+                const an = ext.an || '-';
+                if (!grupe[an]) grupe[an] = [];
+                grupe[an].push(c);
+            });
             Object.keys(grupe).sort().forEach(an => {
                 html += '<div class="an-header">&#128197; ' + an + '</div>';
-                grupe[an].forEach(c => { html += genStatItem(c, false); });
+                grupe[an]
+                    .sort((a, b) => {
+                        const da = extragelunaAnDinTitlu(a.titlu);
+                        const db = extragelunaAnDinTitlu(b.titlu);
+                        return (LUNI_MAP[da.luna ? da.luna.toLowerCase() : ''] ?? 99) -
+                               (LUNI_MAP[db.luna ? db.luna.toLowerCase() : ''] ?? 99);
+                    })
+                    .forEach(c => { html += genStatItem(c, false); });
             });
         }
 
@@ -1451,10 +1463,22 @@ async function r2DeleteFile(publicUrl, bucketKey) {
                     '<div style="font-size:15px;font-weight:700;color:#6b7280;">State de plată blocate</div>' +
                 '</div>';
             const grupeB = {};
-            blocateList.forEach(c => { const an = c.an || '-'; if (!grupeB[an]) grupeB[an] = []; grupeB[an].push(c); });
+            blocateList.forEach(c => {
+                const ext = extragelunaAnDinTitlu(c.titlu);
+                const an = ext.an || '-';
+                if (!grupeB[an]) grupeB[an] = [];
+                grupeB[an].push(c);
+            });
             Object.keys(grupeB).sort().forEach(an => {
                 html += '<div class="an-header" style="color:#9ca3af;border-color:#e5e7eb;">&#128197; ' + an + '</div>';
-                grupeB[an].forEach(c => { html += genStatItem(c, true); });
+                grupeB[an]
+                    .sort((a, b) => {
+                        const da = extragelunaAnDinTitlu(a.titlu);
+                        const db = extragelunaAnDinTitlu(b.titlu);
+                        return (LUNI_MAP[da.luna ? da.luna.toLowerCase() : ''] ?? 99) -
+                               (LUNI_MAP[db.luna ? db.luna.toLowerCase() : ''] ?? 99);
+                    })
+                    .forEach(c => { html += genStatItem(c, true); });
             });
             html += '</div>';
         }
