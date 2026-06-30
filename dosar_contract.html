@@ -1156,6 +1156,7 @@ async function genereazaDosar(){
     let y=520,ri=0,nc=0;
     const gopd={};
     if(docs) docs.forEach(d=>{if(d.tip_document==='DOSAR ACHIZIȚIE PDF')return;if(!gopd[d.tip_document])gopd[d.tip_document]=[];gopd[d.tip_document].push(d);});
+    Object.keys(gopd).forEach(t=>gopd[t].sort((a,b)=>(a.data_inregistrare||'9999-99-99').localeCompare(b.data_inregistrare||'9999-99-99')));
 
     // Completează nr/dată factură din buget_pnras pentru documentele de tip factură
     const {data:facturiBuget, error:errFB} = await supabaseClient.from('buget_pnras').select('id,numar,data_document,titlu').eq('parent_id', contractId).eq('tip_rand','FACTURA').order('data_document',{ascending:true});
@@ -1402,7 +1403,8 @@ async function genereazaDosar(){
     } catch(e) { console.warn('Nu s-a putut încărca crai.jpeg:', e); }
 
     for(const tip of ordine){
-      const list=docs.filter(d=>d.tip_document===tip);
+      const list=docs.filter(d=>d.tip_document===tip)
+        .sort((a,b)=>(a.data_inregistrare||'9999-99-99').localeCompare(b.data_inregistrare||'9999-99-99'));
       if(!list.length)continue;
       nrSectiuneCurent++;
       let page=pdfFinal.addPage([595,842]);
