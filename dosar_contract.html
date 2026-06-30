@@ -704,18 +704,21 @@ async function incarcaDocumente(){
   if(error){ console.log("EROARE LOAD:", error); return; }
 
   // Facturile din buget_achizitii (furnizor=UUID, tip=13. Factura) → le remapăm la "13. Factură"
-  // Documentele cu tip_document = UUID (EXCL_... sau format UUID) → le remapăm la "Alte documente"
+  // Documentele cu tip_document = UUID → le remapăm la "Alte documente"
+  // Documentele cu tip_document = EXCL_... sunt marcaje tehnice de excludere ofertant (fără fișier real) → se exclud complet din afișare
   const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
   const EXCL_REGEX = /^EXCL_[0-9a-f]{8}-/i;
-  const data = (docs||[]).map(d => {
-    if(d.furnizor&&d.furnizor.length===36&&d.tip_document==="13. Factura") {
-      return {...d, tip_document:"13. Factură"};
-    }
-    if(d.tip_document && (UUID_REGEX.test(d.tip_document) || EXCL_REGEX.test(d.tip_document))) {
-      return {...d, tip_document:"19. Alte documente"};
-    }
-    return d;
-  });
+  const data = (docs||[])
+    .filter(d => !(d.tip_document && EXCL_REGEX.test(d.tip_document)))
+    .map(d => {
+      if(d.furnizor&&d.furnizor.length===36&&d.tip_document==="13. Factura") {
+        return {...d, tip_document:"13. Factură"};
+      }
+      if(d.tip_document && UUID_REGEX.test(d.tip_document)) {
+        return {...d, tip_document:"19. Alte documente"};
+      }
+      return d;
+    });
   const existente = data.map(d=>d.tip_document);
   _existente = existente;
 
@@ -1052,7 +1055,8 @@ async function genereazaDosar(){
   try{
     const{data:docsRaw}=await supabaseClient.from("documente_contract").select("*").eq("contract_id",contractId);
     if(!docsRaw||!docsRaw.length){alert("Nu există documente");return;}
-    const docs=docsRaw.map(d=>d.tip_document==="13. Factura"?{...d,tip_document:"13. Factură"}:d);
+    const EXCL_REGEX_GEN = /^EXCL_[0-9a-f]{8}-/i;
+    const docs=docsRaw.filter(d=>!(d.tip_document && EXCL_REGEX_GEN.test(d.tip_document))).map(d=>d.tip_document==="13. Factura"?{...d,tip_document:"13. Factură"}:d);
     const ordine=[...listaDocumente];
 
     upd(2,'Se încarcă documentele...');
