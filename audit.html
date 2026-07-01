@@ -838,6 +838,17 @@ async function r2DeleteFile(publicUrl, bucketKey) {
         return rez;
     }
 
+    // Elimină prefixul numeric ("12. ", "5.1 " etc.) pentru a compara cartonașele doar după text,
+    // indiferent de renumerotări (ex. "13. Factură" redenumit "12. Factură")
+    function bazaEticheta(t) {
+        return (t || '').replace(/^\d+(?:\.\d+)*\.?\s*/, '').trim().toLowerCase();
+    }
+    function tipPotrivit(tipCautat, tipExistent) {
+        if (tipCautat === tipExistent) return true;
+        const baza = bazaEticheta(tipCautat);
+        return !!baza && baza === bazaEticheta(tipExistent);
+    }
+
     // ===================== DIALOG =====================
     function arataDialog(titlu, mesaj, butoane, cuInput, placeholder, valoareInitiala) {
         return new Promise(resolve => {
@@ -1197,9 +1208,7 @@ async function r2DeleteFile(publicUrl, bucketKey) {
             const lista = _listaBazaItem.filter(t => !ascunse.includes(t));
             const totalOk = lista.filter(tip => {
                 if (ex.includes(tip)) return true;
-                const prefix = tip.match(/^(\d+(?:\.\d+)?)\.\s/);
-                if (prefix) { const p = prefix[1] + '.'; return ex.some(e => e.startsWith(p)); }
-                return false;
+                return ex.some(e => tipPotrivit(tip, e));
             }).length;
             const complet = lista.length > 0 && totalOk === lista.length;
             let st = '';
@@ -2111,15 +2120,10 @@ async function r2DeleteFile(publicUrl, bucketKey) {
         });
 
         const dosarPdf = docs ? docs.find(d => d.tip_document === 'DOSAR ACHIZIȚIE PDF') : null;
-        // Prefix matching: "13. Factură" se potrivește cu orice doc care începe cu "13."
+        // Potrivire după text (ignorând numărul din față): "Factură" se potrivește indiferent de numerotare
         function docExistaAudit(tip, existente) {
             if (existente.includes(tip)) return true;
-            const prefix = tip.match(/^(\d+(?:\.\d+)?)\.\s/);
-            if (prefix) {
-                const p = prefix[1] + '.';
-                return existente.some(e => e.startsWith(p));
-            }
-            return false;
+            return existente.some(e => tipPotrivit(tip, e));
         }
         const totalOk = listaCartonase.filter(tip => docExistaAudit(tip, existente)).length;
         const complet = listaCartonase.length > 0 && totalOk === listaCartonase.length;
@@ -2143,12 +2147,10 @@ async function r2DeleteFile(publicUrl, bucketKey) {
 
         html += '<div class="checklist">';
         listaCartonase.forEach(tip => {
-            // Colectam toate fisierele cu prefix numeric potrivit
-            const prefix = tip.match(/^([\d.]+)\.\s/);
+            // Colectam toate fisierele care se potrivesc după text (indiferent de numărul din față)
             let fisiere = grupate[tip] || [];
-            if (prefix && fisiere.length === 0) {
-                const p = prefix[1] + '.';
-                fisiere = Object.keys(grupate).filter(k => k.startsWith(p)).flatMap(k => grupate[k]);
+            if (fisiere.length === 0) {
+                fisiere = Object.keys(grupate).filter(k => tipPotrivit(tip, k)).flatMap(k => grupate[k]);
             }
             const areDoc = docExistaAudit(tip, existente);
             let cls = 'check-miss', ico = '❌';
@@ -2160,23 +2162,23 @@ async function r2DeleteFile(publicUrl, bucketKey) {
                 '<span class="check-name">' + tip + '</span>' +
                 '</div>';
 
-            if (tip === '9. Contract' || tip === '13. Factură') {
+            if (tipPotrivit(tip, '9. Contract') || tipPotrivit(tip, '13. Factură')) {
                 html += '<div style="margin-top:7px;margin-left:28px;display:flex;align-items:flex-start;gap:6px;color:#9ca3af;font-size:11px;font-style:italic;line-height:1.6;">' +
                     '<span style="flex-shrink:0;margin-top:1px;">⚠️</span>' +
                     '<span>Verifică să fie menționate: <b>Codul Proiectului</b>, <b>Bun de plată</b>, <b>Viza CFP</b>, <b>Certificat în privința realității, regularității, legalității</b></span>' +
                     '</div>';
             }
 
-            if (tip === '14. ALOP') {
+            if (tipPotrivit(tip, '14. ALOP')) {
                 html += '<div style="margin-top:7px;margin-left:28px;display:flex;align-items:flex-start;gap:6px;color:#9ca3af;font-size:11px;font-style:italic;line-height:1.6;">' +
                     '<span style="flex-shrink:0;margin-top:1px;">⚠️</span>' +
                     '<span>Verifică să fie menționate: <b>Codul Proiectului</b>, <b>Certificat în privința realității, regularității, legalității</b></span>' +
                     '</div>';
             }
 
-            // Pentru 13. Factura adaugam si facturile din buget_achizitii
+            // Pentru cartonașul de Factură adaugam si facturile din buget_achizitii (indiferent de numărul cartonașului)
             let fisiereAfisate = [...fisiere];
-            if (tip === '13. Factură') {
+            if (tipPotrivit(tip, '13. Factură')) {
                 const factBuget = docsMapped.filter(d => d.tip_document === '13. Factură' && d.furnizor && d.furnizor.length === 36 && d.link_drive);
                 fisiereAfisate = [...fisiereAfisate, ...factBuget];
             }
