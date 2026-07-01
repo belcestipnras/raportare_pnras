@@ -1164,7 +1164,7 @@ async function r2DeleteFile(publicUrl, bucketKey) {
         const { data: toateContractele } = await db.from('buget_pnras').select('*')
             .eq('tip_rand', 'CONTRACT').order('data_document', { ascending: true });
 
-        const { data: documente } = await db.from('documente_contract').select('contract_id, tip_document');
+        const { data: documente } = await db.from('documente_contract').select('contract_id, tip_document, furnizor');
 
         const { data: manual } = await db.from('audit_continut').select('*')
             .eq('card_id', '00000000-0000-0000-0000-000000000001').is('parent_id', null).eq('sters', false)
