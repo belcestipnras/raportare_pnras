@@ -582,6 +582,18 @@ let _saritMigrare = false;
 let _migratLocal = false;
 let listaAscunse = [];  // cartonașe excluse din dosar
 
+// Elimină prefixul numeric ("12. ", "5.1 " etc.) pentru a compara doar textul cartonașului
+function bazaEticheta(t){
+  return (t||"").replace(/^\d+(?:\.\d+)*\.?\s*/, "").trim().toLowerCase();
+}
+// Găsește titlul CURENT din cartonaș care corespunde unei valori tip_document salvate (posibil cu numerotare veche)
+function etichetaAfisare(tipRaw){
+  const baza = bazaEticheta(tipRaw);
+  if(!baza) return tipRaw;
+  const match = listaDocumente.find(c => bazaEticheta(c) === baza);
+  return match || tipRaw;
+}
+
 const obligatorii = [
   "1. Referat de necesitate","2. Notă de justificare","3. Cerere de ofertă","4. Anunț achiziție",
   "5. Ofertă","6. Proces-verbal selecție oferte","7. Comunicare selecție oferte",
@@ -719,7 +731,7 @@ async function incarcaDocumente(){
       }
       return d;
     });
-  const existente = data.map(d=>d.tip_document);
+  const existente = data.map(d=>etichetaAfisare(d.tip_document));
   _existente = existente;
 
   document.getElementById("bifaComplet").checked = !!data.find(d=>d.dosar_complet_manual===true);
@@ -730,7 +742,7 @@ async function incarcaDocumente(){
     tbody.innerHTML = `<tr><td style="color:#888;text-align:center">Niciun document încă</td></tr>`;
   } else {
     const grupate = {};
-    data.filter(d=>!listaAscunse.includes(d.tip_document)).forEach(d => { if(!grupate[d.tip_document]) grupate[d.tip_document]=[]; grupate[d.tip_document].push(d); });
+    data.filter(d=>!listaAscunse.includes(etichetaAfisare(d.tip_document))).forEach(d => { const et=etichetaAfisare(d.tip_document); if(!grupate[et]) grupate[et]=[]; grupate[et].push(d); });
 
     let html = "";
     const LISTA_SALARII_ORDINE = ["Foaie de pontaj colectiv", "Stat de plată", "ALOP", "Ordin de plată", "Extras de cont"];
