@@ -1834,8 +1834,30 @@ async function saveLast(expert,luna,an,html,problems){
 async function loadDosarDinUrl(publicUrl){
   const resp=await fetch(publicUrl+'?t='+Date.now()); // cache-bust
   if(!resp.ok)throw new Error('HTTP '+resp.status);
-  const html=await resp.text();
-  return html.replace(/data:image\/jfif/gi,'data:image/jpeg').replace(/data:image\/pjpeg/gi,'data:image/jpeg');
+
+  // [ADAUGAT] Protectie anti "Invalid string length" pentru dosare salvate in format vechi (necomprimat).
+  // Un fisier HTML salvat inainte de optimizarea fotografiilor poate depasi limita maxima
+  // de lungime a unui string in browser (~500 MB) si nu poate fi citit deloc.
+  const LIMITA_OCTETI=250*1024*1024; // 250 MB — prag de siguranta
+  const marime=parseInt(resp.headers.get('Content-Length')||'0',10);
+  const MSG_VECHI='Dosarul salvat este în format vechi (fotografii necomprimate) și este prea mare pentru a fi deschis. Apăsați „GENEREAZĂ DOSAR" pentru luna respectivă — va fi regenerat și salvat automat în noul format optimizat.';
+  if(marime>LIMITA_OCTETI){
+    throw new Error(MSG_VECHI+' (dimensiune fișier: '+(marime/1024/1024).toFixed(0)+' MB)');
+  }
+
+  let html;
+  try{
+    html=await resp.text();
+  }catch(e){
+    // Content-Length poate lipsi la unele raspunsuri — prindem si cazul in care citirea insasi esueaza
+    if(e instanceof RangeError||/invalid string length/i.test(e.message||''))throw new Error(MSG_VECHI);
+    throw e;
+  }
+
+  // [ADAUGAT] Rulam inlocuirile doar daca sunt necesare — evitam 2 copii integrale ale unui string urias
+  if(html.indexOf('data:image/jfif')!==-1||html.indexOf('data:image/JFIF')!==-1)html=html.replace(/data:image\/jfif/gi,'data:image/jpeg');
+  if(html.indexOf('data:image/pjpeg')!==-1||html.indexOf('data:image/PJPEG')!==-1)html=html.replace(/data:image\/pjpeg/gi,'data:image/jpeg');
+  return html;
 }
 
 async function loadLast(){
