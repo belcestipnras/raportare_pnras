@@ -838,6 +838,45 @@ async function loadAntet(){
   }catch(e){console.warn('Antet load failed:',e);ANTET_B64=ANTET_URL;}
 }
 
+// ===== [ADAUGAT] COMPRESIE IMAGINI — previne eroarea "Invalid string length" =====
+// La dosarele cu multe fotografii, base64-ul imaginilor la rezolutie completa depaseste
+// limita maxima de lungime a unui string in browser. Functia redimensioneaza imaginea
+// la max 1800px pe latura lunga si o recodeaza JPEG (calitate 0.82) — suficient pentru
+// tiparire A4 (~155 DPI), dar de ~10-20x mai mic ca dimensiune.
+// Daca ceva esueaza (format exotic etc.), se foloseste EXACT metoda veche (readAsDataURL),
+// deci comportamentul existent nu se schimba.
+async function blobToDataURLCompressed(blob,maxDim=1800,quality=0.82){
+  try{
+    let bmp;
+    try{
+      bmp=await createImageBitmap(blob);
+    }catch(eBmp){
+      bmp=await new Promise((res,rej)=>{
+        const u=URL.createObjectURL(blob);
+        const im=new Image();
+        im.onload=()=>{URL.revokeObjectURL(u);res(im);};
+        im.onerror=err=>{URL.revokeObjectURL(u);rej(err);};
+        im.src=u;
+      });
+    }
+    const w=bmp.width||bmp.naturalWidth,h=bmp.height||bmp.naturalHeight;
+    if(!w||!h)throw new Error('Dimensiuni imagine necunoscute');
+    const sc=Math.min(1,maxDim/Math.max(w,h));
+    const cv=document.createElement('canvas');
+    cv.width=Math.max(1,Math.round(w*sc));
+    cv.height=Math.max(1,Math.round(h*sc));
+    const cx=cv.getContext('2d');
+    cx.fillStyle='#ffffff'; // fundal alb pentru PNG-uri cu transparenta
+    cx.fillRect(0,0,cv.width,cv.height);
+    cx.drawImage(bmp,0,0,cv.width,cv.height);
+    if(bmp.close)bmp.close();
+    return cv.toDataURL('image/jpeg',quality);
+  }catch(e){
+    console.warn('Compresie imagine esuata, se foloseste originalul:',e);
+    return await new Promise(res=>{const rd=new FileReader();rd.onload=()=>res(rd.result);rd.readAsDataURL(blob);});
+  }
+}
+
 // ===== RENDER PDF — fiecare pagina = canvas → img (pixel-perfect) =====
 async function renderPdfPages(url,ec){
   try{
@@ -1259,7 +1298,7 @@ async function build(expert,luna,an){
               if(Array.isArray(blob))blob=blob[0];
             }catch(heicErr){console.warn('heic2any error:',heicErr);}
           }
-          const imgB64=await new Promise(res=>{const rd=new FileReader();rd.onload=()=>res(rd.result);rd.readAsDataURL(blob);});
+          const imgB64=await blobToDataURLCompressed(blob); // [ADAUGAT] compresie anti "Invalid string length" (fallback intern la readAsDataURL)
           const labelHtml=anexaLabel?`<div style="text-align:center;font-weight:bold;font-size:13pt;margin-bottom:8px;">${anexaLabel}</div>`:'';
           H+=`<div class="A4 ${ec} r2-foto-page"><div class="antet-wrap">${antetImg()}</div>${labelHtml}<img src="${imgB64}" class="r2-foto"></div>`;
         }else if(isPDF){
@@ -1306,7 +1345,7 @@ async function build(expert,luna,an){
             const mimeLP=extLP==='png'?'image/png':extLP==='gif'?'image/gif':extLP==='webp'?'image/webp':(extLP==='heic'||extLP==='heif')?'image/heic':'image/jpeg';
             let blobLP=new Blob([bufLP],{type:mimeLP});
             if(extLP==='heic'||extLP==='heif'){try{blobLP=await heic2any({blob:blobLP,toType:'image/jpeg',quality:0.92});if(Array.isArray(blobLP))blobLP=blobLP[0];}catch(e){}}
-            const b64LP=await new Promise(res=>{const rd=new FileReader();rd.onload=()=>res(rd.result);rd.readAsDataURL(blobLP);});
+            const b64LP=await blobToDataURLCompressed(blobLP); // [ADAUGAT] compresie anti "Invalid string length"
             H+=`<div class="A4 ${ec} r2-foto-page"><img src="${b64LP}" class="r2-foto"></div>`;
           }else if(isPdfLP||extLP==='pdf')H+=await renderPdfFromBuffer(bufLP,lpFisier.public_url,ec);
           else H+=await renderWordFromBuffer(bufLP,lpFisier.public_url,ec);
@@ -1337,7 +1376,7 @@ async function build(expert,luna,an){
               const mimeLM=extLM==='png'?'image/png':extLM==='gif'?'image/gif':extLM==='webp'?'image/webp':(extLM==='heic'||extLM==='heif')?'image/heic':'image/jpeg';
               let blobLM=new Blob([bufLM],{type:mimeLM});
               if(extLM==='heic'||extLM==='heif'){try{blobLM=await heic2any({blob:blobLM,toType:'image/jpeg',quality:0.92});if(Array.isArray(blobLM))blobLM=blobLM[0];}catch(e){}}
-              const b64LM=await new Promise(res=>{const rd=new FileReader();rd.onload=()=>res(rd.result);rd.readAsDataURL(blobLM);});
+              const b64LM=await blobToDataURLCompressed(blobLM); // [ADAUGAT] compresie anti "Invalid string length"
               H+=`<div class="A4 ${ec} r2-foto-page"><img src="${b64LM}" class="r2-foto"></div>`;
             }else if(isPdfLM||extLM==='pdf')H+=await renderPdfFromBuffer(bufLM,lmFisier.public_url,ec);
             else H+=await renderWordFromBuffer(bufLM,lmFisier.public_url,ec);
