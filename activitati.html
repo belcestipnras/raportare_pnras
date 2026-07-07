@@ -53,6 +53,20 @@
 .expert-card.admin-special:hover .folder-icon {
     color: white;
 }
+.expert-card.proiecte-special {
+    border: 2px dashed #7c3aed;
+    background: #f5f3ff;
+}
+.expert-card.proiecte-special .folder-icon {
+    color: #7c3aed;
+}
+.expert-card.proiecte-special:hover {
+    background: #7c3aed;
+    color: white;
+}
+.expert-card.proiecte-special:hover .folder-icon {
+    color: white;
+}
     </style>
 </head>
 <body>
@@ -114,6 +128,13 @@ html += `
                 </div>
             `;
 
+            html += `
+                <div class="expert-card proiecte-special" onclick="accesProiecte()">
+                    <div class="folder-icon">🎯</div>
+                    <div class="expert-name">Proiecte</div>
+                </div>
+            `;
+
             // 2. Adăugăm la final folderul administrativ (Notă Comandă)
             html += `
                 <div class="expert-card admin-card" onclick="window.location.href='nota_comanda_masa.html'">
@@ -130,6 +151,16 @@ function accesAdmin() {
             
             if (parolaIntroduca === "Geografie123") {
                 window.location.href = 'dosar_lunar_v10.html';
+            } else if (parolaIntroduca !== null) {
+                alert("Parolă incorectă! Acces refuzat.");
+            }
+        }
+
+        function accesProiecte() {
+            const parolaIntroduca = prompt("Introduceți parola de administrator:");
+
+            if (parolaIntroduca === "Geografie123") {
+                window.location.href = 'dosar-expert.html?mod=proiecte';
             } else if (parolaIntroduca !== null) {
                 alert("Parolă incorectă! Acces refuzat.");
             }

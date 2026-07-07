@@ -72,6 +72,19 @@
             padding-left: 20px; 
         }
 
+        .proiect-field-box {
+            border: 1px dashed #ccc;
+            padding: 4px;
+            margin-top: 4px;
+            margin-bottom: 14px;
+            min-height: 1.5em;
+            outline: none;
+            font-family: "Times New Roman", serif;
+            font-size: 11pt;
+            white-space: pre-wrap;
+        }
+        .proiect-field-box ul { margin: 0; padding-left: 20px; }
+
         .no-print { position: fixed; top: 0; left: 0; width: 100%; background: #1e293b; padding: 15px 20px; display: flex; align-items: center; justify-content: flex-end; gap: 10px; z-index: 1000; box-shadow: 0 2px 10px rgba(0,0,0,0.2); box-sizing: border-box; }
         .btn { padding: 8px 16px; border: none; cursor: pointer; font-weight: bold; border-radius: 6px; font-family: sans-serif; font-size: 14px; transition: 0.2s; }
         .btn-green { background: #22c55e; color: white; } .btn-green:hover { background: #16a34a; }
@@ -92,7 +105,7 @@
             body { background: white; padding: 0; margin: 0; }
             .page { width: 100%; margin: 0; box-shadow: none; padding: 0; border: none; min-height: auto; }
             .no-print, #save-status { display: none !important; }
-            .edit-cell, input, #lista-obiective, .manual-date-cell { border: none !important; padding: 0 !important; }
+            .edit-cell, input, #lista-obiective, .manual-date-cell, .proiect-field-box { border: none !important; padding: 0 !important; }
             .readonly-cell { background: transparent !important; }
             .footer-pnrr { position: fixed; bottom: 0; left: 0; right: 0; background: white; padding-bottom: 5px; border-top: 1px solid #000; }
         }
@@ -105,7 +118,7 @@
         <button class="btn btn-red" onclick="deleteLastRow()">➖ Șterge Ultimul</button>
         <button class="btn btn-orange" onclick="resetData()">🔄 Reset</button>
         <button class="btn btn-back" id="btn-back">⬅️ Înapoi</button>
-        <button class="btn btn-print" onclick="window.print()">🖨️ PDF</button>
+        <button class="btn btn-print" id="btn-print" onclick="window.print()">🖨️ PDF</button>
     </div>
 
     <div id="save-status" class="status-loading">⏳ Se inițializează...</div>
@@ -116,16 +129,53 @@
             <div class="nr-inregistrare">
                 Nr. înregistrare: <input type="text" id="nr-reg" maxlength="4"> / <input type="text" id="data-reg" maxlength="10">
             </div>
-            <div style="text-align: center; font-size: 14pt; font-weight: bold; margin-bottom: 10px;">Planificare lunară a activităților</div>
-            <div style="text-align: center; font-size: 12pt; line-height: 1.3; margin-bottom: 20px;">
+            <div style="text-align: center; font-size: 14pt; font-weight: bold; margin-bottom: 10px;" id="titlu-document">Planificare lunară a activităților</div>
+
+            <div id="header-normal" style="text-align: center; font-size: 12pt; line-height: 1.3; margin-bottom: 20px;">
                 <div id="label-activitate-tip" style="font-weight: bold;"></div>
                 <div id="label-disciplina"></div>
                 <div style="font-weight: bold; margin-top: 10px;">Expert: <span id="label-nume"></span></div>
                 <div style="font-weight: bold;">Luna: <span id="label-luna"></span></div>
                 <div style="font-weight: bold;">Clasa: <span id="label-clasa"></span></div>
             </div>
-            <strong>Obiective:</strong>
-            <div id="lista-obiective" contenteditable="true"><ul><li></li></ul></div>
+
+            <div id="header-proiect" style="display:none; text-align: center; font-size: 12pt; line-height: 1.3; margin-bottom: 20px;">
+                <div id="label-proiect-titlu" contenteditable="true" class="proiect-field-box" style="display:inline-block; font-weight: bold; font-size: 13pt; text-align:center; border:1px dashed #ccc;"></div>
+                <div style="font-weight: bold; margin-top: 10px;">Perioada de desfășurare:</div>
+                <div id="label-proiect-perioada" contenteditable="true" class="proiect-field-box" style="display:inline-block; text-align:center; font-weight:normal;"></div>
+                <div style="font-weight: bold;">Echipa de implementare:</div>
+                <div id="label-proiect-echipa" contenteditable="true" class="proiect-field-box" style="text-align:center; font-weight:normal;"></div>
+            </div>
+
+            <div id="obiective-normal">
+                <strong>Obiective:</strong>
+                <div id="lista-obiective" contenteditable="true"><ul><li></li></ul></div>
+            </div>
+
+            <div id="campuri-proiect" style="display:none;">
+                <strong>Argument / Justificare:</strong>
+                <div id="proiect-argument" class="proiect-field-box" contenteditable="true"></div>
+
+                <strong>Scop:</strong>
+                <div id="proiect-scop" class="proiect-field-box" contenteditable="true"></div>
+
+                <strong>Obiective specifice:</strong>
+                <div id="proiect-obiective" class="proiect-field-box" contenteditable="true"><ul><li></li></ul></div>
+
+                <strong>Grup țintă / Beneficiari:</strong>
+                <div id="proiect-grup-tinta" class="proiect-field-box" contenteditable="true"></div>
+
+                <strong>Resurse (materiale și umane):</strong>
+                <div id="proiect-resurse" class="proiect-field-box" contenteditable="true"></div>
+
+                <strong>Rezultate așteptate:</strong>
+                <div id="proiect-rezultate" class="proiect-field-box" contenteditable="true"></div>
+
+                <strong>Modalități de evaluare / monitorizare:</strong>
+                <div id="proiect-evaluare" class="proiect-field-box" contenteditable="true"></div>
+
+                <strong>Calendarul activităților:</strong>
+            </div>
         </div>
 
         <table class="main-table">
@@ -143,7 +193,7 @@
         </table>
 
         <div class="signature-section">
-            <div class="sig-box"><strong>Întocmit,</strong><br>Expert:<br><span id="sig-expert-nume"></span></div>
+            <div class="sig-box" id="sig-box-intocmit"><strong>Întocmit,</strong><br>Expert:<br><span id="sig-expert-nume"></span></div>
             <div class="sig-box sig-center"><strong>Avizat,</strong><br>Manager proiect,<br>prof. dr. Ciprian MIHAI</div>
             <div class="sig-box sig-right"><strong>Aprobat,</strong><br>Director,<br>prof. Cătălin Ionuț BAZILUC</div>
         </div>
@@ -161,12 +211,16 @@
     const supabaseClient = supabase.createClient(URL_S, KEY_S);
 
     const params = new URLSearchParams(window.location.search);
+    const proiectParam = params.get('proiect');
     const config = {
-        expert: params.get('expert'),
+        expert: params.get('expert') || '',
         luna: params.get('luna'),
         an: params.get('an'),
         clasa: params.get('clasa'),
-        idDoc: `PLAN_${params.get('expert')}_${params.get('clasa')}_${params.get('luna')}_${params.get('an')}`
+        proiect: proiectParam,
+        idDoc: proiectParam
+            ? `PLAN_PROIECT_${proiectParam}`
+            : `PLAN_${params.get('expert')}_${params.get('clasa')}_${params.get('luna')}_${params.get('an')}`
     };
 
     function transformClasa(cod) {
@@ -213,11 +267,126 @@
     }
 
     document.getElementById('btn-back').onclick = () => {
-        if(config.expert) window.location.href = `dosar-expert.html?expert=${encodeURIComponent(config.expert)}`;
-        else window.history.back();
+        if (config.proiect) {
+            window.location.href = config.expert ? `dosar-expert.html?expert=${encodeURIComponent(config.expert)}` : `dosar-expert.html?mod=proiecte`;
+        } else if (config.expert) {
+            window.location.href = `dosar-expert.html?expert=${encodeURIComponent(config.expert)}`;
+        } else {
+            window.history.back();
+        }
     };
 
     async function init() {
+        if (config.proiect) {
+            await initProiect();
+        } else {
+            await initNormal();
+        }
+    }
+
+    async function initProiect() {
+        setStatus('loading', '⏳ Se sincronizează datele...');
+
+        // Comutare pe layout-ul de proiect
+        document.getElementById('header-normal').style.display = 'none';
+        document.getElementById('header-proiect').style.display = 'block';
+        document.getElementById('obiective-normal').style.display = 'none';
+        document.getElementById('campuri-proiect').style.display = 'block';
+        document.getElementById('titlu-document').innerText = 'Planificare de proiect';
+        document.getElementById('label-proiect-titlu').innerText = config.proiect;
+
+        // Printarea e permisă doar din folderul general „Proiecte" (fără expert în URL),
+        // nu și din folderul individual al unui expert — planificarea de proiect e comună.
+        if (config.expert) {
+            document.getElementById('btn-print').style.display = 'none';
+        }
+
+        // 1. Toate zilele pontate pentru acest proiect, din orice lună/an
+        const { data: pnt } = await supabaseClient
+            .from('pontaj_detaliat')
+            .select('expert, zi, luna, an')
+            .eq('nume_proiect', config.proiect)
+            .eq('clase_grupe', 'PROIECT');
+
+        const luniOrdine = ["Ianuarie","Februarie","Martie","Aprilie","Mai","Iunie","Iulie","August","Septembrie","Octombrie","Noiembrie","Decembrie"];
+        const zileMap = new Map();
+        const echipaSet = new Set();
+        (pnt || []).forEach(r => {
+            if (r.expert !== 'Proiect') {
+                echipaSet.add(r.expert);
+                const key = `${r.zi}-${r.luna}-${r.an}`;
+                if (!zileMap.has(key)) zileMap.set(key, { zi: r.zi, luna: r.luna, an: r.an });
+            }
+        });
+        const zileSortate = [...zileMap.values()].sort((a, b) => {
+            if (a.an !== b.an) return a.an - b.an;
+            const diffLuna = luniOrdine.indexOf(a.luna) - luniOrdine.indexOf(b.luna);
+            if (diffLuna !== 0) return diffLuna;
+            return a.zi - b.zi;
+        });
+        const echipa = [...echipaSet].sort();
+
+        // Valori calculate automat din pontaj — folosite ca propunere implicită
+        const autoEchipa = echipa.join(', ') || '—';
+        let autoPerioada = '—';
+        if (zileSortate.length > 0) {
+            const prima = formatDate(zileSortate[0].zi, zileSortate[0].luna, zileSortate[0].an);
+            const ultima = formatDate(zileSortate[zileSortate.length - 1].zi, zileSortate[zileSortate.length - 1].luna, zileSortate[zileSortate.length - 1].an);
+            autoPerioada = (prima === ultima) ? prima : `${prima} – ${ultima}`;
+        }
+        document.getElementById('label-proiect-echipa').innerText = autoEchipa;
+        document.getElementById('label-proiect-perioada').innerText = autoPerioada;
+
+        // 2. Documentul salvat — dacă utilizatorul a editat manual Titlu/Perioada/Echipa, acele valori au prioritate
+        const { data: planDoc } = await supabaseClient
+            .from('planificari_documente')
+            .select('continut_json')
+            .eq('tip_document', config.idDoc)
+            .maybeSingle();
+
+        let savedRows = [];
+        if (planDoc && planDoc.continut_json) {
+            const saved = planDoc.continut_json;
+            savedRows = saved.tableRows || [];
+            document.getElementById('nr-reg').value = saved.nr || "";
+            document.getElementById('data-reg').value = saved.dataReg || "";
+            document.getElementById('proiect-argument').innerHTML = saved.argument || "";
+            document.getElementById('proiect-scop').innerHTML = saved.scop || "";
+            document.getElementById('proiect-obiective').innerHTML = saved.obiectiveSpecifice || "<ul><li></li></ul>";
+            document.getElementById('proiect-grup-tinta').innerHTML = saved.grupTinta || "";
+            document.getElementById('proiect-resurse').innerHTML = saved.resurse || "";
+            document.getElementById('proiect-rezultate').innerHTML = saved.rezultate || "";
+            document.getElementById('proiect-evaluare').innerHTML = saved.evaluare || "";
+            if (saved.titlu) document.getElementById('label-proiect-titlu').innerText = saved.titlu;
+            if (saved.perioada) document.getElementById('label-proiect-perioada').innerText = saved.perioada;
+            if (saved.echipa) document.getElementById('label-proiect-echipa').innerText = saved.echipa;
+        }
+
+        // 3. Merge rânduri calendar (ca la clasă, dar pe toate zilele proiectului, orice lună)
+        if (zileSortate.length > 0) {
+            const tempRows = [];
+            zileSortate.forEach(z => {
+                const dataCalendaristica = formatDate(z.zi, z.luna, z.an);
+                const existingRow = savedRows.find(r => r.data === dataCalendaristica);
+                tempRows.push(existingRow || { data: dataCalendaristica, cont: "", actv: "", res: "", eval: "", manual: false });
+            });
+            const manualRows = savedRows.filter(r => r.manual === true);
+            localRows = [...tempRows, ...manualRows];
+        } else {
+            localRows = savedRows.length > 0 ? savedRows : [{ data: "", cont: "", actv: "", res: "", eval: "", manual: true }];
+        }
+
+        // 4. Semnătura — reflectă textul curent (eventual editat manual) din Echipa de implementare
+        const echipaText = document.getElementById('label-proiect-echipa').innerText;
+        const echipaListaSemnatura = echipaText.split(',').map(s => s.trim()).filter(Boolean).join('<br>') || '—';
+        document.getElementById('sig-box-intocmit').innerHTML = `<strong>Întocmit,</strong><br>Echipa de implementare:<br>${echipaListaSemnatura}`;
+
+        renderTable();
+        isReady = true;
+        setStatus('saved', '✅ Date sincronizate');
+    }
+
+    async function initNormal() {
         setStatus('loading', '⏳ Se sincronizează datele...');
         
         // 1. Setări etichete antet (Rămân neschimbate)
@@ -331,14 +500,43 @@
         setStatus('unsaved', '💾 Se salvează...');
         clearTimeout(t);
         t = setTimeout(async () => {
-            const obj = { nr: document.getElementById('nr-reg').value, dataReg: document.getElementById('data-reg').value, obiective: document.getElementById('lista-obiective').innerHTML, tableRows: localRows };
-            const { error } = await supabaseClient.from('planificari_documente').upsert({ expert: config.expert, tip_document: config.idDoc, luna: config.luna, an: config.an, continut_json: obj }, { onConflict: 'tip_document' });
+            let obj, payload;
+            if (config.proiect) {
+                obj = {
+                    nr: document.getElementById('nr-reg').value,
+                    dataReg: document.getElementById('data-reg').value,
+                    titlu: document.getElementById('label-proiect-titlu').innerText,
+                    perioada: document.getElementById('label-proiect-perioada').innerText,
+                    echipa: document.getElementById('label-proiect-echipa').innerText,
+                    argument: document.getElementById('proiect-argument').innerHTML,
+                    scop: document.getElementById('proiect-scop').innerHTML,
+                    obiectiveSpecifice: document.getElementById('proiect-obiective').innerHTML,
+                    grupTinta: document.getElementById('proiect-grup-tinta').innerHTML,
+                    resurse: document.getElementById('proiect-resurse').innerHTML,
+                    rezultate: document.getElementById('proiect-rezultate').innerHTML,
+                    evaluare: document.getElementById('proiect-evaluare').innerHTML,
+                    tableRows: localRows
+                };
+                payload = { expert: config.expert || 'Proiect', tip_document: config.idDoc, luna: 'Proiect', an: 'Proiect', continut_json: obj };
+            } else {
+                obj = { nr: document.getElementById('nr-reg').value, dataReg: document.getElementById('data-reg').value, obiective: document.getElementById('lista-obiective').innerHTML, tableRows: localRows };
+                payload = { expert: config.expert, tip_document: config.idDoc, luna: config.luna, an: config.an, continut_json: obj };
+            }
+            const { error } = await supabaseClient.from('planificari_documente').upsert(payload, { onConflict: 'tip_document' });
             setStatus(error ? 'error' : 'saved', error ? '❌ Eroare' : '✅ Salvat în Cloud');
         }, 1000);
     }
 
     function setStatus(cl, txt) { const s = document.getElementById('save-status'); s.className = `status-${cl}`; s.innerText = txt; }
     document.getElementById('nr-reg').oninput = triggerSave; document.getElementById('data-reg').oninput = triggerSave; document.getElementById('lista-obiective').oninput = triggerSave;
+    ['proiect-argument','proiect-scop','proiect-obiective','proiect-grup-tinta','proiect-resurse','proiect-rezultate','proiect-evaluare','label-proiect-titlu','label-proiect-perioada'].forEach(id => {
+        document.getElementById(id).oninput = triggerSave;
+    });
+    document.getElementById('label-proiect-echipa').oninput = function() {
+        const echipaListaSemnatura = this.innerText.split(',').map(s => s.trim()).filter(Boolean).join('<br>') || '—';
+        document.getElementById('sig-box-intocmit').innerHTML = `<strong>Întocmit,</strong><br>Echipa de implementare:<br>${echipaListaSemnatura}`;
+        triggerSave();
+    };
     init();
 </script>
 </body>

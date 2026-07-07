@@ -397,6 +397,25 @@ async function openC() {
             .select('*').match({ expert: "Proiect", zi: state.zi, luna: state.luna, an: state.an }).maybeSingle();
         document.getElementById('proiect-nr-elevi').value = existent ? (existent.nr_elevi_proiect || 0) : '';
 
+        // Încarcă lista tuturor proiectelor deja pontate (nume distincte)
+        const { data: toateProiectele } = await supabaseClient.from('pontaj_detaliat')
+            .select('nume_proiect').eq('clase_grupe', 'PROIECT').not('nume_proiect', 'is', null);
+        const numeUnice = [...new Set((toateProiectele || []).map(r => r.nume_proiect).filter(Boolean))].sort();
+
+        const numeCurent = existent ? (existent.nume_proiect || '') : '';
+        const selectEl = document.getElementById('proiect-nume-select');
+        selectEl.innerHTML = numeUnice.map(n => `<option value="${n}" ${n === numeCurent ? 'selected' : ''}>${n}</option>`).join('')
+            + `<option value="__nou__" ${!numeCurent || !numeUnice.includes(numeCurent) ? 'selected' : ''}>+ Proiect nou</option>`;
+
+        const inputNou = document.getElementById('proiect-nume-nou');
+        if (!numeCurent || !numeUnice.includes(numeCurent)) {
+            inputNou.style.display = 'block';
+            inputNou.value = numeCurent || '';
+        } else {
+            inputNou.style.display = 'none';
+            inputNou.value = '';
+        }
+
         // Încarcă pontajele existente ale profesorilor pentru această zi cu clase_grupe = PROIECT
         const { data: profExistenti } = await supabaseClient.from('pontaj_detaliat')
             .select('expert, nr_ore').match({ zi: state.zi, luna: state.luna, an: state.an })
@@ -428,7 +447,29 @@ async function openC() {
         document.getElementById('pop-proiect').style.display='flex';
     }
 
+    function onProiectNumeChange(val) {
+        const inputNou = document.getElementById('proiect-nume-nou');
+        if (val === '__nou__') {
+            inputNou.style.display = 'block';
+            inputNou.value = '';
+            inputNou.focus();
+        } else {
+            inputNou.style.display = 'none';
+            inputNou.value = '';
+        }
+    }
+
     async function saveProiect() {
+        const selectVal = document.getElementById('proiect-nume-select').value;
+        const numeProiect = (selectVal === '__nou__')
+            ? document.getElementById('proiect-nume-nou').value.trim()
+            : selectVal.trim();
+
+        if (!numeProiect) {
+            alert("Te rog completează numele proiectului.");
+            return;
+        }
+
         const nrEl = parseInt(document.getElementById('proiect-nr-elevi').value) || 0;
         const profesori = Object.keys(experti).filter(n => n !== 'Proiect');
 
@@ -441,7 +482,8 @@ async function openC() {
             nr_ore: 0,
             clase_grupe: "PROIECT",
             fara_masa: false,
-            nr_elevi_proiect: nrEl
+            nr_elevi_proiect: nrEl,
+            nume_proiect: numeProiect
         }, { onConflict: 'expert,zi,luna,an' });
 
         // Salvează/șterge pontajul fiecărui profesor
@@ -457,7 +499,8 @@ async function openC() {
                     nr_ore: ore,
                     clase_grupe: "PROIECT",
                     fara_masa: false,
-                    nr_elevi_proiect: 0
+                    nr_elevi_proiect: 0,
+                    nume_proiect: numeProiect
                 }, { onConflict: 'expert,zi,luna,an' });
             } else {
                 // Dacă există o înregistrare PROIECT pentru acest prof și nu mai e bifat, o ștergem
@@ -552,6 +595,12 @@ async function resetarePontajLuna() {
 <div id="pop-proiect" class="modal">
     <div class="modal-box" style="width:380px; max-height:90vh; overflow-y:auto;">
         <h3 style="color:#a78bfa; margin-top:0;">🎯 Proiect — Activitate Independentă</h3>
+        <div style="margin-bottom:12px;">
+            <label style="font-size:11px; color:#8b949e; display:block; margin-bottom:4px;">NUME PROIECT</label>
+            <select id="proiect-nume-select" onchange="onProiectNumeChange(this.value)" style="width:100%; background:#000; color:#a78bfa; border:2px solid #7c3aed; padding:10px; border-radius:6px; font-size:14px; font-weight:700; outline:none;">
+            </select>
+            <input type="text" id="proiect-nume-nou" placeholder="Scrie numele noului proiect..." style="display:none; width:100%; background:#000; color:#a78bfa; border:2px solid #7c3aed; padding:10px; border-radius:6px; font-size:14px; font-weight:700; outline:none; margin-top:6px; box-sizing:border-box;">
+        </div>
         <div style="margin-bottom:12px;">
             <label style="font-size:11px; color:#8b949e; display:block; margin-bottom:4px;">NR. ELEVI PARTICIPANȚI</label>
             <input type="number" id="proiect-nr-elevi" min="0" style="width:100%; background:#000; color:#a78bfa; border:2px solid #7c3aed; padding:10px; border-radius:6px; font-size:22px; font-weight:800; text-align:center; outline:none;">

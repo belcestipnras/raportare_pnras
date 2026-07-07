@@ -184,6 +184,26 @@
         const { data: documente } = await _supabase.from('planificari_documente').select('*').eq('expert', expert).ilike('tip_document', `%${selectatLuna}_${selectatAn}%`);
         const { data: totiElevii } = await _supabase.from('elevi').select('*');
 
+        // Zilele de Proiect ale acestui expert în luna curentă folosesc o planificare COMUNĂ
+        // (tip_document = PLAN_PROIECT_{nume}), salvată eventual de alt expert — o încărcăm separat.
+        const numeProiecteLuna = [...new Set((pontaje || []).filter(p => p.clase_grupe === 'PROIECT' && p.nume_proiect).map(p => p.nume_proiect))];
+        let planuriProiect = {};
+        if (numeProiecteLuna.length > 0) {
+            const { data: docsProiect } = await _supabase.from('planificari_documente')
+                .select('tip_document, continut_json')
+                .in('tip_document', numeProiecteLuna.map(n => `PLAN_PROIECT_${n}`));
+            (docsProiect || []).forEach(d => { planuriProiect[d.tip_document] = d.continut_json; });
+        }
+
+        // Nr. elevi participanți la Proiect e ținut pe rândul „master" (expert: "Proiect"), pe zi
+        let nrEleviProiectPeZi = {};
+        if (numeProiecteLuna.length > 0) {
+            const { data: masterProiect } = await _supabase.from('pontaj_detaliat')
+                .select('zi, nr_elevi_proiect')
+                .eq('expert', 'Proiect').eq('luna', selectatLuna).eq('an', selectatAn);
+            (masterProiect || []).forEach(r => { nrEleviProiectPeZi[r.zi] = r.nr_elevi_proiect || 0; });
+        }
+
         let totalOre = 0; let claseSet = new Set();
         if(pontaje) pontaje.forEach(p => { totalOre += parseFloat(p.nr_ore || 0); claseSet.add(p.clase_grupe); });
 
@@ -210,25 +230,41 @@
                     if (!clasaSimpla) return;
 nrActivitate++;
 
-                    // A. Căutăm tema activității
-                    const idPlan = `PLAN_${expert}_${clasaSimpla}_${selectatLuna}_${selectatAn}`;
-                    const docPlan = documente ? documente.find(d => d.tip_document === idPlan) : null;
+                    const esteProiect = (clasaSimpla === 'PROIECT');
+                    const dataCautata = `${p.zi.toString().padStart(2, '0')}.${lunaCod}.${selectatAn}`;
                     let temaZi = "---";
-                    
-                    if (docPlan && docPlan.continut_json) {
-                        const dataCautata = `${p.zi.toString().padStart(2, '0')}.${lunaCod}.${selectatAn}`;
-                        const randZi = docPlan.continut_json.tableRows?.find(r => r.data === dataCautata);
-                        if (randZi) temaZi = randZi.cont || "Activitate remedială conform planificării";
-                    }
-
-                    // B. Calculăm elevii (folosind clasa_grupa din tabelul elevi)
                     let nrEleviClasa = 0;
-                    if (totiElevii) {
-                        const clasaTinta = clasaSimpla.toUpperCase();
-                        nrEleviClasa = totiElevii.filter(e => {
-                            const clasaElev = (e.clasa_grupa || e.clasa || "").toString().trim().toUpperCase();
-                            return clasaElev === clasaTinta;
-                        }).length;
+                    let etichetaActivitate;
+
+                    if (esteProiect) {
+                        // A. Tema zilei — din planificarea comună de proiect (PLAN_PROIECT_{nume})
+                        etichetaActivitate = p.nume_proiect || 'Proiect';
+                        const docProiect = planuriProiect[`PLAN_PROIECT_${p.nume_proiect}`];
+                        if (docProiect) {
+                            const randZi = docProiect.tableRows?.find(r => r.data === dataCautata);
+                            if (randZi) temaZi = randZi.cont || "Activitate de proiect conform planificării";
+                        }
+                        // B. Nr. elevi — din rândul master „Proiect" al aceleiași zile
+                        nrEleviClasa = nrEleviProiectPeZi[p.zi] || 0;
+                    } else {
+                        etichetaActivitate = MAP_CLASE[clasaSimpla] || clasaSimpla;
+
+                        // A. Căutăm tema activității
+                        const idPlan = `PLAN_${expert}_${clasaSimpla}_${selectatLuna}_${selectatAn}`;
+                        const docPlan = documente ? documente.find(d => d.tip_document === idPlan) : null;
+                        if (docPlan && docPlan.continut_json) {
+                            const randZi = docPlan.continut_json.tableRows?.find(r => r.data === dataCautata);
+                            if (randZi) temaZi = randZi.cont || "Activitate remedială conform planificării";
+                        }
+
+                        // B. Calculăm elevii (folosind clasa_grupa din tabelul elevi)
+                        if (totiElevii) {
+                            const clasaTinta = clasaSimpla.toUpperCase();
+                            nrEleviClasa = totiElevii.filter(e => {
+                                const clasaElev = (e.clasa_grupa || e.clasa || "").toString().trim().toUpperCase();
+                                return clasaElev === clasaTinta;
+                            }).length;
+                        }
                     }
 
                     // C. Formatăm textul pentru ore (1 oră vs 2 ore)
@@ -236,8 +272,8 @@ nrActivitate++;
 
                     // D. Adăugăm rândul în raport
                     htmlActivitati += `<div class="lista-activitati">
-                        <b>${indexAfisat}.</b> <b>${MAP_CLASE[clasaSimpla] || clasaSimpla}</b> | 
-                        Data: <b>${p.zi.toString().padStart(2, '0')}.${lunaCod}.${selectatAn}</b> | 
+                        <b>${indexAfisat}.</b> <b>${etichetaActivitate}</b> | 
+                        Data: <b>${dataCautata}</b> | 
                         Nr. elevi: <b>${nrEleviClasa}</b> | 
                         Timp: <b>${textOre}</b><br>
                         <i>Conținut: ${temaZi}</i>

@@ -139,6 +139,13 @@
 }
 .common-card:hover { transform: translateY(-2px); box-shadow: 0 8px 12px rgba(0,0,0,0.2); }
 
+/* Card special pentru Proiecte (mov, distinct de clasele normale) */
+.proiect-card {
+    background: linear-gradient(145deg, #7c3aed, #5b21b6) !important;
+    color: #fff !important;
+}
+.proiect-card .clasa-title { color: #fff !important; }
+
 /* Grid-ul pentru clase (jos) */
 .classes-grid-container {
     display: grid;
@@ -173,8 +180,9 @@
     const supabaseClient = supabase.createClient(URL_S, KEY_S);
 
     const params = new URLSearchParams(window.location.search);
-    const expert = params.get('expert');
-    document.getElementById('nume-expert-side').innerText = expert;
+    const mod = params.get('mod');
+    const expert = params.get('expert') || '';
+    document.getElementById('nume-expert-side').innerText = (mod === 'proiecte') ? 'Toate Proiectele' : expert;
 
     const arhivaConfig = [
         { an: 2025, luni: ["Ianuarie", "Februarie", "Martie", "Aprilie", "Mai", "Iunie", "Iulie", "August", "Septembrie", "Octombrie", "Noiembrie", "Decembrie"] },
@@ -208,6 +216,54 @@
         nav.appendChild(btnAjutor);
     }
 
+    function buildSidebarProiecte() {
+        const nav = document.getElementById('sidebar-nav');
+        const label = document.createElement('span');
+        label.className = 'an-label';
+        label.innerText = 'Toate Proiectele';
+        nav.appendChild(label);
+
+        const btnAjutor = document.createElement('a');
+        btnAjutor.className = 'btn-ajutor';
+        btnAjutor.innerText = 'AJUTĂ-MĂ!';
+        btnAjutor.href = `ajuta.html`;
+        nav.appendChild(btnAjutor);
+    }
+
+    async function loadToateProiectele() {
+        const display = document.getElementById('content-area');
+        display.innerHTML = "<div class='empty-hint' style='color:white;'>Se încarcă proiectele...</div>";
+
+        // Interogare: toate proiectele pontate, indiferent de expert, lună sau an
+        const { data } = await supabaseClient.from('pontaj_detaliat')
+            .select('nume_proiect')
+            .eq('clase_grupe', 'PROIECT')
+            .not('nume_proiect', 'is', null);
+
+        const proiecteUnice = [...new Set((data || []).map(r => r.nume_proiect).filter(Boolean))].sort();
+
+        if (proiecteUnice.length === 0) {
+            display.innerHTML = `<div class="empty-hint" style="color:white;">Nu există niciun proiect pontat momentan.</div>`;
+            return;
+        }
+
+        let htmlContent = `<div class="section-header">🎯 Proiecte</div>`;
+        htmlContent += `<div class="classes-grid-container">`;
+        proiecteUnice.forEach(nume => {
+            htmlContent += `
+                <div class="clasa-card proiect-card">
+                    <div class="clasa-title">🎯 ${nume}</div>
+                    <div class="docs-grid" style="grid-template-columns: 1fr;">
+                        ${docItemProiect('Planificare', '📅', 'planificare.html', nume)}
+                    </div>
+                </div>
+            `;
+        });
+        htmlContent += `</div>`;
+
+        display.innerHTML = htmlContent;
+    }
+
     async function loadClase(luna, an, btnEl) {
         // 1. Gestionare butoane active
         document.querySelectorAll('.luna-btn').forEach(b => b.classList.remove('active'));
@@ -218,7 +274,7 @@
 
         // 2. Interogare baza de date
         const { data } = await supabaseClient.from('pontaj_detaliat')
-            .select('clase_grupe')
+            .select('clase_grupe, nume_proiect')
             .match({ expert: expert, luna: luna, an: an.toString() });
 
         if (!data || data.length === 0) {
@@ -226,9 +282,16 @@
             return;
         }
 
-        // 3. Extragere clase unice
+        // 3. Extragere clase unice + proiecte unice (separate)
         let claseUnice = new Set();
-        data.forEach(p => p.clase_grupe.split(',').forEach(c => claseUnice.add(c.trim())));
+        let proiecteUnice = new Set();
+        data.forEach(p => {
+            if (p.clase_grupe.trim() === 'PROIECT') {
+                if (p.nume_proiect) proiecteUnice.add(p.nume_proiect);
+            } else {
+                p.clase_grupe.split(',').forEach(c => claseUnice.add(c.trim()));
+            }
+        });
 
         // 4. CONSTRUIRE HTML
         
@@ -243,25 +306,44 @@
             </div>
         `;
 
-        // --- SECȚIUNEA 2: Documente per Clasă (Jos) ---
-        htmlContent += `<div class="section-header">🏫 Documente per Clasă / Grupă</div>`;
-        htmlContent += `<div class="classes-grid-container">`;
-
-        claseUnice.forEach(clasa => {
-            htmlContent += `
-                <div class="clasa-card">
-                    <div class="clasa-title">Clasa ${clasa}</div>
-                    <div class="docs-grid">
-                        ${docItem('Planificare', '📅', 'planificare.html', luna, an, clasa)}
-                        ${docItem('Fișe', '📄', 'fise.html', luna, an, clasa)}
-                        ${docItem('Prezență', '👥', 'liste_prezenta.html', luna, an, clasa)}
-                        ${docItem('Masă', '🍱', 'liste_masa.html', luna, an, clasa)}
+        // --- SECȚIUNEA 2: Proiecte (dacă există) ---
+        if (proiecteUnice.size > 0) {
+            htmlContent += `<div class="section-header">🎯 Proiecte</div>`;
+            htmlContent += `<div class="classes-grid-container">`;
+            proiecteUnice.forEach(nume => {
+                htmlContent += `
+                    <div class="clasa-card proiect-card">
+                        <div class="clasa-title">🎯 ${nume}</div>
+                        <div class="docs-grid" style="grid-template-columns: 1fr;">
+                            ${docItemProiect('Planificare', '📅', 'planificare.html', nume)}
+                        </div>
                     </div>
-                </div>
-            `;
-        });
+                `;
+            });
+            htmlContent += `</div>`;
+        }
 
-        htmlContent += `</div>`; // Închidem containerul de clase
+        // --- SECȚIUNEA 3: Documente per Clasă (Jos) ---
+        if (claseUnice.size > 0) {
+            htmlContent += `<div class="section-header">🏫 Documente per Clasă / Grupă</div>`;
+            htmlContent += `<div class="classes-grid-container">`;
+
+            claseUnice.forEach(clasa => {
+                htmlContent += `
+                    <div class="clasa-card">
+                        <div class="clasa-title">Clasa ${clasa}</div>
+                        <div class="docs-grid">
+                            ${docItem('Planificare', '📅', 'planificare.html', luna, an, clasa)}
+                            ${docItem('Fișe', '📄', 'fise.html', luna, an, clasa)}
+                            ${docItem('Prezență', '👥', 'liste_prezenta.html', luna, an, clasa)}
+                            ${docItem('Masă', '🍱', 'liste_masa.html', luna, an, clasa)}
+                        </div>
+                    </div>
+                `;
+            });
+
+            htmlContent += `</div>`; // Închidem containerul de clase
+        }
 
         display.innerHTML = htmlContent;
     }
@@ -298,7 +380,24 @@
         `;
     }
 
-    buildSidebar();
+    // Documentele de Proiect sunt comune tuturor lunilor/experților implicați,
+    // deci link-ul folosește doar 'proiect' (nume) — și 'expert' doar dacă e cunoscut.
+    function docItemProiect(label, icon, link, numeProiect) {
+        const expertPart = expert ? `&expert=${encodeURIComponent(expert)}` : '';
+        return `
+            <div class="doc-btn" onclick="window.open('${link}?proiect=${encodeURIComponent(numeProiect)}${expertPart}', '_blank')">
+                <i>${icon}</i>
+                <label>${label}</label>
+            </div>
+        `;
+    }
+
+    if (mod === 'proiecte') {
+        buildSidebarProiecte();
+        loadToateProiectele();
+    } else {
+        buildSidebar();
+    }
 </script>
 </body>
 </html>
