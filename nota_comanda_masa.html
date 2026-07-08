@@ -55,8 +55,8 @@
             .sheet { box-shadow: none; margin: 0; width: 100%; padding: 0 !important; }
             .input-inv { border: none !important; }
             .tabel-comanda, .tabel-comanda th, .tabel-comanda td, .info-box { border: 1pt solid #000 !important; }
-            .bloc-final { page-break-inside: avoid; break-inside: avoid; }
-            .tabel-comanda tr { page-break-inside: avoid; break-inside: avoid; }
+            .info-container, .info-box { page-break-inside: avoid; break-inside: avoid; }
+            .semnatura { page-break-before: avoid; break-before: avoid; page-break-inside: avoid; break-inside: avoid; }
         }
     </style>
 </head>
@@ -119,30 +119,28 @@
                 </tfoot>
             </table>
 
-            <div class="bloc-final">
-                <div class="info-container">
-                    <div class="info-box" contenteditable="true" id="db-mentiuni" oninput="autoSave()">
-                        <div style="font-weight:bold; color:var(--primary); margin-bottom:5px;">🔍 Mențiuni:</div>
-                        <ul style="margin:0; padding:0; list-style:none; font-size:10.5pt;">
-                            <li style="text-indent:0.5cm;">1. Produsele trebuie fi livrate conform contractului de prestări servicii de catering Nr. 143/06.12.2024;</li>
-                            <li style="text-indent:0.5cm;">2. Produsele trebuie să fie conforme din punct de vedere sanitar-veterinar;</li>
-                            <li style="text-indent:0.5cm;">3. Pe durata transportului, marfa trebuie să fie însoțită de aviz;</li>
-                        </ul>
-                    </div>
-                    <div class="info-box" contenteditable="true" id="db-livrare" oninput="autoSave()">
-                        <div style="font-weight:bold; color:var(--primary); margin-bottom:5px;">🚚 Date privind livrarea:</div>
-                        <ul style="margin:0; padding:0; list-style:none; font-size:10.5pt;">
-                            <li style="text-indent:0.5cm;">1. Numele delegatului: Murariu Mirela;</li>
-                            <li style="text-indent:0.5cm;">2. Livrările se vor efectua la adresa beneficiarului, la datele stabilite conform prezentei note de comanda, la ora 13.30;</li>
-                            <li style="text-indent:0.5cm;">3. Persoana delegată pentru a primi produsele este Pavel Ioan, tel. 0748159864;</li>
-                            <li style="text-indent:0.5cm;">4. Dacă livrarea nu se poate efectua în ziua stabilită, vă rugăm să ne înștiințați cu cel puțin 4 ore înainte.</li>
-                        </ul>
-                    </div>
+            <div class="info-container">
+                <div class="info-box" contenteditable="true" id="db-mentiuni" oninput="autoSave()">
+                    <div style="font-weight:bold; color:var(--primary); margin-bottom:5px;">🔍 Mențiuni:</div>
+                    <ul style="margin:0; padding:0; list-style:none; font-size:10.5pt;">
+                        <li style="text-indent:0.5cm;">1. Produsele trebuie fi livrate conform contractului de prestări servicii de catering Nr. 143/06.12.2024;</li>
+                        <li style="text-indent:0.5cm;">2. Produsele trebuie să fie conforme din punct de vedere sanitar-veterinar;</li>
+                        <li style="text-indent:0.5cm;">3. Pe durata transportului, marfa trebuie să fie însoțită de aviz;</li>
+                    </ul>
                 </div>
+                <div class="info-box" contenteditable="true" id="db-livrare" oninput="autoSave()">
+                    <div style="font-weight:bold; color:var(--primary); margin-bottom:5px;">🚚 Date privind livrarea:</div>
+                    <ul style="margin:0; padding:0; list-style:none; font-size:10.5pt;">
+                        <li style="text-indent:0.5cm;">1. Numele delegatului: Murariu Mirela;</li>
+                        <li style="text-indent:0.5cm;">2. Livrările se vor efectua la adresa beneficiarului, la datele stabilite conform prezentei note de comanda, la ora 13.30;</li>
+                        <li style="text-indent:0.5cm;">3. Persoana delegată pentru a primi produsele este Pavel Ioan, tel. 0748159864;</li>
+                        <li style="text-indent:0.5cm;">4. Dacă livrarea nu se poate efectua în ziua stabilită, vă rugăm să ne înștiințați cu cel puțin 4 ore înainte.</li>
+                    </ul>
+                </div>
+            </div>
 
-                <div class="semnatura" contenteditable="true" id="db-semn" oninput="autoSave()">
-                    🖋️ Manager proiect,<br>prof. dr. Ciprian MIHAI
-                </div>
+            <div class="semnatura" contenteditable="true" id="db-semn" oninput="autoSave()">
+                🖋️ Manager proiect,<br>prof. dr. Ciprian MIHAI
             </div>
         </div>
     </div>
