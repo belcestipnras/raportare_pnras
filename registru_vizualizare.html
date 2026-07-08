@@ -534,7 +534,7 @@ function initDragDrop() {
                 const zFmt = z.toString().padStart(2,'0');
                 payload.push({
                     zi_inreg: zFmt, luna_inreg: currentLuna, an_inreg: currentAn,
-                    cuprins_act: `Aviz de însoțire a mărfii. Masă rece ${zFmt}.${lunaNr}.${currentAn}`,
+                    cuprins_act: `Aviz de însoțire a mărfii. Masă caldă ${zFmt}.${lunaNr}.${currentAn}`,
                     stare: 'activ', doc_id: `A_${Date.now()}_${i}`
                 });
             });
@@ -547,19 +547,19 @@ function initDragDrop() {
         } else if(tip === 'Notă_CMD') {
             payload.push({
                 zi_inreg: zi || '', luna_inreg: currentLuna, an_inreg: currentAn,
-                cuprins_act: `Notă de comandă masă rece, ${currentLuna.toLowerCase()} ${currentAn}`,
+                cuprins_act: `Notă de comandă masă caldă, ${currentLuna.toLowerCase()} ${currentAn}`,
                 stare: 'activ', doc_id: `NOTA_CMD_${Date.now()}`
             });
         } else if(tip === 'RAP_MASA') {
             payload.push({
                 zi_inreg: zi || '', luna_inreg: currentLuna, an_inreg: currentAn,
-                cuprins_act: `Raport activitate masă rece, ${currentLuna.toLowerCase()} ${currentAn}`,
+                cuprins_act: `Raport activitate masă caldă, ${currentLuna.toLowerCase()} ${currentAn}`,
                 stare: 'activ', doc_id: `RAP_MASA_${Date.now()}`
             });
         } else if(tip === 'PV_MASA') {
             payload.push({
                 zi_inreg: zi || '', luna_inreg: currentLuna, an_inreg: currentAn,
-                cuprins_act: `Proces-verbal recepție masă rece, ${currentLuna.toLowerCase()} ${currentAn}`,
+                cuprins_act: `Proces-verbal recepție masă caldă, ${currentLuna.toLowerCase()} ${currentAn}`,
                 stare: 'activ', doc_id: `PV_MASA_${Date.now()}`
             });
         } else if(tip === 'PONT_GEN') {
@@ -934,7 +934,7 @@ function initDragDrop() {
     const _DOC_OB_KEY = 'registru_doc_obligatorii_v1';
     const _DOC_OB_DEFAULT = [
         'Planificări','Orar general','Orare experți','Notă de comandă',
-        'Masă rece (avize)','Raport masă rece','PV masă rece',
+        'Masă caldă (avize)','Raport masă caldă','PV masă caldă',
         'Rapoarte experți','Pontaje individuale','Pontaj general','Stat de plată'
     ];
     window._docObligatorii = _DOC_OB_DEFAULT.slice();
@@ -1075,10 +1075,10 @@ async function proceseazaSchimbareData(id, ziNoua) {
         { id:'ORAR_GEN',   label:'Orar general',              areZi: true,  count: null },
         { id:'ORAR',       label:'Orare experți',        areZi: true,  count: expertiUnici.length },
         { id:'NOTA_CMD',   label:'Notă de comandă', areZi: true,  count: null },
-        { id:'AVIZ',       label:'Masă rece (avize)',    areZi: false, count: zMasa.length,
+        { id:'AVIZ',       label:'Masă caldă (avize)',    areZi: false, count: zMasa.length,
           infoZile: primaZiMasa ? primaZiMasa+'.'+lunaNr+'–'+ultimaZiMasa+'.'+lunaNr : 'fără zile' },
-        { id:'RAP_MASA',   label:'Raport masă rece',     areZi: true,  count: null },
-        { id:'PV_MASA',    label:'PV masă rece',         areZi: true,  count: null },
+        { id:'RAP_MASA',   label:'Raport masă caldă',     areZi: true,  count: null },
+        { id:'PV_MASA',    label:'PV masă caldă',         areZi: true,  count: null },
         { id:'RAPORT',     label:'Rapoarte experți',     areZi: true,  count: expertiUnici.length },
         { id:'PONT',       label:'Pontaje individuale',       areZi: true,  count: expertiUnici.length },
         { id:'PONT_GEN',   label:'Pontaj general',            areZi: true,  count: null },
@@ -1384,9 +1384,9 @@ async function printLuna() {
         if (d.startsWith('ORAR_GEN_')) return 'Orar general';
         if (d.startsWith('ORAR_'))     return 'Orare experți';
         if (d.startsWith('NOTA_CMD_')) return 'Notă de comandă';
-        if (d.startsWith('A_'))        return 'Avize masă rece';
-        if (d.startsWith('RAP_MASA_')) return 'Raport masă rece';
-        if (d.startsWith('PV_MASA_'))  return 'PV masă rece';
+        if (d.startsWith('A_'))        return 'Avize masă caldă';
+        if (d.startsWith('RAP_MASA_')) return 'Raport masă caldă';
+        if (d.startsWith('PV_MASA_'))  return 'PV masă caldă';
         if (d.startsWith('RAP_'))      return 'Rapoarte experți';
         if (d.startsWith('PONT_GEN_')) return 'Pontaj general';
         if (d.startsWith('PONT_'))     return 'Pontaje individuale';
