@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notă Comandă - PNRAS</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Montserrat:wght@700&display=swap" rel="stylesheet">
+    <style>
+        :root { --primary: #1e40af; --accent: #3b82f6; --save-color: #10b981; }
+        body { margin: 0; font-family: 'Inter', sans-serif; background: #475569; color: #1e293b; }
+        
+        .selection-container { display: flex; flex-direction: column; align-items: center; padding: 50px 20px; background: #e2e8f0; min-height: 100vh;}
+        .months-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 20px; width: 100%; max-width: 1000px; margin-top: 30px; }
+        .month-card { background: white; padding: 25px; border-radius: 15px; text-align: center; cursor: pointer; transition: 0.3s; border: 2px solid #fff; font-weight: 700; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        .month-card:hover { transform: translateY(-5px); border-color: var(--primary); color: var(--primary); }
+
+        #document-view { display: none; padding: 40px 0; position: relative; }
+        .sheet {
+            background: white; width: 210mm; margin: 0 auto; box-sizing: border-box; 
+            padding: 1.5cm; position: relative; font-family: "Times New Roman", Times, serif; 
+            font-size: 12pt; line-height: 1.5; color: #000; box-shadow: 0 0 30px rgba(0,0,0,0.3);
+        }
+        .antet-img { width: 100%; height: auto; margin-bottom: 10px; }
+
+        .nr-inregistrare { margin-top: 5px; font-weight: bold; font-size: 12pt; display: flex; align-items: center; }
+        .input-inv { border: none; outline: none; font-family: inherit; font-size: inherit; font-weight: bold; background: transparent; padding: 0; margin: 0; }
+        
+        .header-box { text-align: center; margin: 20px 0; border: 1pt solid var(--primary); padding: 15px; border-radius: 12px; background: #f0f7ff; }
+        .titlu-principal { font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: 18pt; color: var(--primary); text-transform: uppercase; margin: 0; }
+        
+        .destinatar-card { background: #f8fafc; padding: 15px; border-left: 6px solid var(--primary); margin: 15px 0; border-radius: 4px; font-weight: bold; outline: none;}
+        .continut-text { text-indent: 1.25cm; text-align: justify; margin-bottom: 8px; outline: none; }
+
+        .tabel-comanda { width: 100%; border-collapse: collapse; border: 1pt solid #000; table-layout: fixed; }
+        .tabel-comanda th, .tabel-comanda td { border: 1pt solid #000; padding: 8px; text-align: center; outline: none; }
+        .tabel-comanda th { background: #eff6ff !important; font-weight: bold; }
+
+        .info-container { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 25px; }
+        .info-box { border: 1pt solid #000; padding: 12px; border-radius: 8px; outline: none; }
+        .semnatura { margin-top: 40px; text-align: right; font-weight: bold; padding-right: 30px; outline: none; }
+
+        .controls { position: fixed; top: 20px; left: 20px; z-index: 1000; display: flex; gap: 10px; }
+        .btn-ui { padding: 12px 20px; border-radius: 10px; border: none; cursor: pointer; font-weight: bold; font-family: 'Inter'; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .btn-reset { background: #ef4444; color: white; }
+        .btn-print { background: var(--primary); color: white; }
+        .btn-comunicare { background: #7c3aed; color: white; }
+        .status-notif { position: fixed; bottom: 20px; right: 20px; background: white; padding: 10px 20px; border-radius: 30px; border: 2px solid var(--save-color); font-weight: bold; display: none; z-index: 9999; }
+
+        @media print {
+            @page { size: A4; margin: 1.5cm; }
+            body { background: white; margin: 0; }
+            #document-view { padding: 0; display: block !important; }
+            .controls, #selection-view, .status-notif { display: none !important; }
+            .sheet { box-shadow: none; margin: 0; width: 100%; padding: 0 !important; }
+            .input-inv { border: none !important; }
+            .tabel-comanda, .tabel-comanda th, .tabel-comanda td, .info-box { border: 1pt solid #000 !important; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="save-status" class="status-notif">☁️ Se salvează...</div>
+
+    <div class="controls">
+        <button class="btn-ui" style="background:white; border:2px solid var(--primary);" onclick="goBack()">⬅️ Înapoi</button>
+        <button class="btn-ui btn-reset" onclick="resetLaPontaj()">🔄 Revenire la datele din pontaj</button>
+        <button id="print-btn" class="btn-ui btn-print" style="display:none;" onclick="window.print()">🖨️ Printează</button>
+        <button id="comunicare-btn" class="btn-ui btn-comunicare" style="display:none;" onclick="genereazaComunicari()">📄 Comunicări nelivrare</button>
+    </div>
+
+    <div id="selection-view" class="selection-container">
+        <h1 style="color: var(--primary); font-family: Montserrat;">📅 Notă de Comandă</h1>
+        <div class="months-grid" id="months-grid"></div>
+    </div>
+
+    <div id="document-view">
+        <div class="sheet">
+            <img src="antet_pnras.jpeg" alt="Antet PNRAS" class="antet-img">
+            
+            <div class="nr-inregistrare">
+                Nr. <input type="text" id="db-nr" class="input-inv" style="width:40px; text-align:right;" oninput="autoSave()">/<input type="text" id="db-data-nr" class="input-inv" style="width:110px;" oninput="autoSave()">
+            </div>
+
+            <div class="header-box">
+                <div class="titlu-principal">📝 Notă de comandă</div>
+                <div class="subtitlu">privind distribuirea pachetului alimentar de tip masă caldă, pentru elevii participanți la activitățile remediale și extracurriculare</div>
+            </div>
+
+            <div class="destinatar-card" contenteditable="true" id="db-dest" oninput="autoSave()">
+                🏢 Către: SC PROCONS IAȘI SRL<br>📍 Adresa: Sat Belcești, Comuna Belcești, nr. 370, mansardă, Județul Iași
+            </div>
+
+            <div class="continut-text" contenteditable="true" id="db-salut" oninput="autoSave()">👋 Stimată doamnă Murariu Mirela,</div>
+            <div class="continut-text">
+                Vă transmitem prezenta notă de comandă cu privire la distribuirea pachetului alimentar de tip masă caldă, pentru 
+                <strong>luna <span id="luna-text-dinamic" style="color:var(--primary)">________</span></strong>, după cum urmează:
+            </div>
+
+            <div style="font-weight: bold; margin: 15px 0 5px 0; color: var(--primary);">📌 Denumire activitate, conform cererii de finanțare: A II.3. Gustări/Masă rece/caldă și sănătoasă</div>
+
+            <table class="tabel-comanda">
+                <thead>
+                    <tr>
+                        <th style="width: 8%;">Nr. crt.</th>
+                        <th style="width: 42%;">Denumirea serviciului</th>
+                        <th style="width: 25%;">Data</th>
+                        <th style="width: 25%;">Cantitate (porții)</th>
+                    </tr>
+                </thead>
+                <tbody id="corp-tabel-nota"></tbody>
+                <tfoot>
+                    <tr style="font-weight: bold; background: #f8fafc;">
+                        <td colspan="3" style="text-align: right; padding-right: 15px;">📊 TOTAL PORȚII LUNĂ</td>
+                        <td id="total-final">0</td>
+                    </tr>
+                </tfoot>
+            </table>
+
+            <div class="info-container">
+                <div class="info-box" contenteditable="true" id="db-mentiuni" oninput="autoSave()">
+                    <div style="font-weight:bold; color:var(--primary); margin-bottom:5px;">🔍 Mențiuni:</div>
+                    <ul style="margin:0; padding:0; list-style:none; font-size:10.5pt;">
+                        <li style="text-indent:0.5cm;">1. Produsele trebuie fi livrate conform contractului de prestări servicii de catering Nr. 143/06.12.2024;</li>
+                        <li style="text-indent:0.5cm;">2. Produsele trebuie să fie conforme din punct de vedere sanitar-veterinar;</li>
+                        <li style="text-indent:0.5cm;">3. Pe durata transportului, marfa trebuie să fie însoțită de aviz;</li>
+                    </ul>
+                </div>
+                <div class="info-box" contenteditable="true" id="db-livrare" oninput="autoSave()">
+                    <div style="font-weight:bold; color:var(--primary); margin-bottom:5px;">🚚 Date privind livrarea:</div>
+                    <ul style="margin:0; padding:0; list-style:none; font-size:10.5pt;">
+                        <li style="text-indent:0.5cm;">1. Numele delegatului: Murariu Mirela;</li>
+                        <li style="text-indent:0.5cm;">2. Livrările se vor efectua la adresa beneficiarului, la datele stabilite conform prezentei note de comanda, la ora 13.30;</li>
+                        <li style="text-indent:0.5cm;">3. Persoana delegată pentru a primi produsele este Pavel Ioan, tel. 0748159864;</li>
+                        <li style="text-indent:0.5cm;">4. Dacă livrarea nu se poate efectua în ziua stabilită, vă rugăm să ne înștiințați cu cel puțin 4 ore înainte.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="semnatura" contenteditable="true" id="db-semn" oninput="autoSave()">
+                🖋️ Manager proiect,<br>prof. dr. Ciprian MIHAI
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        const URL_S = 'https://aexjrbdgajurxzngfkpx.supabase.co';
+        const KEY_S = 'sb_publishable_KPV__0BA9z4EvRl5eqC0FQ_hmBLOLYv';
+        const supabase = window.supabase.createClient(URL_S, KEY_S);
+
+        const luniNames = ["Ianuarie", "Februarie", "Martie", "Aprilie", "Mai", "Iunie", "Iulie", "August", "Septembrie", "Octombrie", "Noiembrie", "Decembrie"];
+        const luniMap = {"Ianuarie":"01","Februarie":"02","Martie":"03","Aprilie":"04","Mai":"05","Iunie":"06","Iulie":"07","August":"08","Septembrie":"09","Octombrie":"10","Noiembrie":"11","Decembrie":"12"};
+        let currentLuna = "";
+        let currentAn = 2025;
+        let saveTimer = null;
+
+        // Lunile disponibile: tot anul 2025, plus 2026 până în august
+        const luniAnii = [
+            ...luniNames.map(l => ({ luna: l, an: 2025 })),
+            ...["Ianuarie","Februarie","Martie","Aprilie","Mai","Iunie","Iulie","August"].map(l => ({ luna: l, an: 2026 }))
+        ];
+
+        const grid = document.getElementById('months-grid');
+        grid.innerHTML = luniAnii.map(({luna, an}) => `<div class="month-card" onclick="selectLuna('${luna}', ${an})">📂 ${luna} ${an}</div>`).join('');
+
+        // La încărcare, verificăm dacă avem o lună (și an) în URL
+        window.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const lunaParam = urlParams.get('luna');
+            const anParam = parseInt(urlParams.get('an')) || 2025;
+            const comunicareParam = urlParams.get('comunicare');
+            if (lunaParam && luniNames.includes(lunaParam)) {
+                selectLuna(lunaParam, anParam, false).then(async () => {
+                    if (comunicareParam !== null) {
+                        // Generează și deschide direct comunicarea cu indexul dat
+                        await genereazaComunicari(parseInt(comunicareParam));
+                    }
+                });
+            }
+        });
+
+        window.selectLuna = async (luna, an, updateUrl = true) => {
+            currentLuna = luna;
+            currentAn = an;
+            if (updateUrl) {
+                const newUrl = window.location.protocol + "//" + window.location.host + window.location.pathname + '?luna=' + luna + '&an=' + an;
+                window.history.pushState({path:newUrl}, '', newUrl);
+            }
+            document.getElementById('selection-view').style.display = 'none';
+            document.getElementById('document-view').style.display = 'block';
+            document.getElementById('print-btn').style.display = 'block';
+            document.getElementById('luna-text-dinamic').innerText = luna + ' ' + an;
+            await incarcaDocument();
+        };
+
+        window.goBack = () => {
+            if (document.getElementById('document-view').style.display === 'block') {
+                // Dacă suntem în vizualizarea documentului, mergem înapoi la selecția lunii
+                const cleanUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
+                window.history.pushState({path:cleanUrl}, '', cleanUrl);
+                document.getElementById('document-view').style.display = 'none';
+                document.getElementById('selection-view').style.display = 'flex';
+                document.getElementById('print-btn').style.display = 'none';
+                document.getElementById('comunicare-btn').style.display = 'none';
+            } else {
+                // Altfel mergem la pagina principală a meniului
+                window.location.href = 'nota_comanda_masa.html';
+            }
+        };
+
+        async function incarcaDocument() {
+            // Golim campurile inainte de incarcare ca sa nu ramana valori din luna anterioara
+            document.getElementById('db-nr').value = '';
+            document.getElementById('db-data-nr').value = '';
+            document.getElementById('corp-tabel-nota').innerHTML = '';
+            document.getElementById('total-final').innerText = '0';
+
+            const docId = `NOTA_COM_${currentAn}_${currentLuna}`;
+            const { data: savedDoc } = await supabase.from('planificari_documente').select('continut_json').eq('tip_document', docId).maybeSingle();
+
+            await verificaComunicari();
+
+            if (savedDoc && savedDoc.continut_json) {
+                const j = savedDoc.continut_json;
+                document.getElementById('db-nr').value = j.nr || "";
+                document.getElementById('db-data-nr').value = j.dataNr || "";
+                document.getElementById('db-dest').innerHTML = j.dest;
+                document.getElementById('db-salut').innerHTML = j.salut;
+                document.getElementById('db-mentiuni').innerHTML = j.mentiuni;
+                document.getElementById('db-livrare').innerHTML = j.livrare;
+                document.getElementById('db-semn').innerHTML = j.semn;
+                renderTabel(j.tabel);
+            } else {
+                await resetLaPontaj(false);
+            }
+        }
+
+        // Ratii elevi per clasa/grupa
+        const ratii = {
+            "5A": 10, "5B": 7, "6A": 11, "6B": 12, "6C": 12, "7A": 10, "7B": 8, "8A": 10, "8B": 8, "8C": 12,
+            "SG1": 8, "SG2": 8, "PG1": 12, "PG2": 12, "MG1": 11, "MG2": 11, "DG1": 11, "StG1": 16, "StG2": 14,
+            "SG1A": 8, "SG1B": 8, "PG1A": 10, "PG2A": 10, "StG1A": 13, "StG1B": 10,
+            "AV5A": 8, "AV5B": 8, "AV6A": 13, "AV6B": 8, "AV7A": 12, "AV7B": 9, "AV8A1": 10, "AV8A2": 10, "AV8B1": 8, "AV8B2": 6,
+            "AR5AB": 11, "AR5A": 8, "AR5B": 8, "AR6A": 12, "AR6B": 8, "AR7B": 9,
+            "BA6B": 8, "BA7A": 12, "BA8A1": 10, "BA8A2": 10, "BA8B": 8,
+            "5C": 14, "7C": 8, "AD8B1": 7, "AD8B2": 6, "AD8B3": 8,
+            "PE8A1": 10, "PE8A2": 10, "PE6B1": 8, "PE6B2": 12, "PE7A": 12,
+            "IA5AB1": 11, "IA5AB2": 12, "IA6A": 13, "IA7B": 10
+        };
+
+        async function preiaDatePontaj() {
+            const { data: pontajData } = await supabase
+                .from('pontaj_detaliat')
+                .select('zi, clase_grupe, fara_masa')
+                .eq('an', currentAn)
+                .eq('luna', currentLuna);
+
+            if (!pontajData || pontajData.length === 0) return [];
+
+            // Grupeaza pe zi, toate clasele indiferent de fara_masa
+            const zileMap = {};
+            pontajData.forEach(r => {
+                if (!zileMap[r.zi]) zileMap[r.zi] = new Set();
+                r.clase_grupe.split(',').forEach(c => zileMap[r.zi].add(c.trim()));
+            });
+
+            return Object.entries(zileMap)
+                .map(([zi, clase]) => {
+                    let qty = 0;
+                    clase.forEach(c => qty += (ratii[c] || 0));
+                    return {
+                        data: zi.toString().padStart(2,'0') + '.' + luniMap[currentLuna] + '.' + currentAn,
+                        qty
+                    };
+                })
+                .sort((a, b) => parseInt(a.data.split('.')[0]) - parseInt(b.data.split('.')[0]));
+        }
+
+        window.resetLaPontaj = async (confirmare = true) => {
+            if(confirmare && !confirm("Sigur vrei să ștergi modificările manuale și să revii la datele din baza de date?")) return;
+            const initRows = await preiaDatePontaj();
+            renderTabel(initRows);
+            if(confirmare) {
+                await supabase.from('planificari_documente').delete().eq('tip_document', `NOTA_COM_${currentAn}_${currentLuna}`);
+                alert("S-a revenit la datele din pontaj.");
+            }
+        };
+
+        function renderTabel(rows) {
+            const tbody = document.getElementById('corp-tabel-nota');
+            const txt = "Pachet alimentar de tip masă caldă, conform Contractului nr. 143/06.12.2024";
+            tbody.innerHTML = rows.map((r, i) => `
+                <tr>
+                    <td contenteditable="true" oninput="autoSave()">${i+1}</td>
+                    ${i===0 ? `<td rowspan="${rows.length}" contenteditable="true" oninput="autoSave()">${txt}</td>` : ''}
+                    <td contenteditable="true" oninput="autoSave()">${r.data}</td>
+                    <td contenteditable="true" class="qty-field" oninput="recalc()">${r.qty}</td>
+                </tr>
+            `).join('');
+            recalc(false);
+        }
+
+        window.recalc = (trigger = true) => {
+            let t = 0;
+            document.querySelectorAll('.qty-field').forEach(c => t += parseInt(c.innerText.replace(/\D/g,'')) || 0);
+            document.getElementById('total-final').innerText = t;
+            if(trigger) autoSave();
+        };
+
+        window.autoSave = () => {
+            const st = document.getElementById('save-status');
+            st.style.display = 'block';
+            st.innerText = '☁️ Se salvează...';
+            if(saveTimer) clearTimeout(saveTimer);
+            saveTimer = setTimeout(salveazaInCloud, 1500);
+        };
+
+        async function salveazaInCloud() {
+            const trs = Array.from(document.getElementById('corp-tabel-nota').rows);
+            const tabelData = trs.map(r => ({
+                data: r.cells[r.cells.length-2].innerText,
+                qty: r.cells[r.cells.length-1].innerText
+            }));
+            const payload = {
+                nr: document.getElementById('db-nr').value,
+                dataNr: document.getElementById('db-data-nr').value,
+                dest: document.getElementById('db-dest').innerHTML,
+                salut: document.getElementById('db-salut').innerHTML,
+                mentiuni: document.getElementById('db-mentiuni').innerHTML,
+                livrare: document.getElementById('db-livrare').innerHTML,
+                semn: document.getElementById('db-semn').innerHTML,
+                tabel: tabelData
+            };
+            await supabase.from('planificari_documente').upsert({
+                tip_document: `NOTA_COM_${currentAn}_${currentLuna}`,
+                an: currentAn,
+                luna: currentLuna,
+                continut_json: payload,
+                expert: "AUTOSAVE"
+            }, { onConflict: 'tip_document' });
+            const st = document.getElementById('save-status');
+            st.innerText = '✅ Salvat în Cloud';
+            setTimeout(() => st.style.display = 'none', 1500);
+        }
+
+        // ============================================================
+        // COMUNICARI NELIVRARE
+        // ============================================================
+
+        function suntConsecutive(zi1, zi2, luna, an) {
+            let d = new Date(an, luniNames.indexOf(luna), zi1);
+            d.setDate(d.getDate() + 1);
+            while (d.getDay() === 0) d.setDate(d.getDate() + 1);
+            return d.getDate() === zi2;
+        }
+
+        function grupeazaZile(zile, luna, an) {
+            if (zile.length === 0) return [];
+            const grupuri = [];
+            let grupCurent = [zile[0]];
+            for (let i = 1; i < zile.length; i++) {
+                if (suntConsecutive(grupCurent[grupCurent.length-1], zile[i], luna, an)) {
+                    grupCurent.push(zile[i]);
+                } else {
+                    grupuri.push([...grupCurent]);
+                    grupCurent = [zile[i]];
+                }
+            }
+            grupuri.push([...grupCurent]);
+            return grupuri;
+        }
+
+        function formatData(zi, luna, an) {
+            return zi.toString().padStart(2,'0') + '.' + luniMap[luna] + '.' + an;
+        }
+
+        async function verificaComunicari() {
+            const { data } = await supabase
+                .from('pontaj_detaliat')
+                .select('zi').eq('an', currentAn).eq('luna', currentLuna).eq('fara_masa', true).limit(1);
+            document.getElementById('comunicare-btn').style.display = (data && data.length > 0) ? 'block' : 'none';
+        }
+
+        window.genereazaComunicari = async (targetIdx = null) => {
+            const { data: pontajData } = await supabase
+                .from('pontaj_detaliat')
+                .select('zi').eq('an', currentAn).eq('luna', currentLuna).eq('fara_masa', true);
+
+            const zileFaraMasa = [...new Set((pontajData || []).map(r => r.zi))].sort((a,b) => a-b);
+
+            if (zileFaraMasa.length === 0) { alert('Nu exista zile fara masa.'); return; }
+
+            const grupuri = grupeazaZile(zileFaraMasa, currentLuna, currentAn);
+
+            const docId = 'COMUNICARE_' + currentAn + '_' + currentLuna;
+            const { data: savedCom } = await supabase.from('planificari_documente')
+                .select('continut_json').eq('tip_document', docId).maybeSingle();
+
+            // Citim numerele deja alocate în registru_documente pentru acest document
+            const { data: regRows } = await supabase
+                .from('registru_documente')
+                .select('nr, data_doc, referinta')
+                .eq('tip', 'COMUNICARE')
+                .eq('an', currentAn)
+                .eq('luna', currentLuna)
+                .order('nr', { ascending: true });
+
+            // Calculăm max nr existent pentru a aloca numere noi
+            const { data: maxRow } = await supabase
+                .from('registru_documente')
+                .select('nr')
+                .eq('tip', 'COMUNICARE')
+                .eq('an', currentAn)
+                .order('nr', { ascending: false })
+                .limit(1)
+                .maybeSingle();
+            let nextNr = (maxRow?.nr ?? 0) + 1;
+
+            // Construim comunicariData
+            let comunicariData = grupuri.map((grup, idx) => ({
+                idx,
+                dataStart: formatData(grup[0], currentLuna, currentAn),
+                dataEnd: grup.length > 1 ? formatData(grup[grup.length-1], currentLuna, currentAn) : null,
+                nr: '', dataNr: ''
+            }));
+
+            // Restaurăm datele salvate anterior (text editabil)
+            if (savedCom && savedCom.continut_json && savedCom.continut_json.comunicari) {
+                savedCom.continut_json.comunicari.forEach(saved => {
+                    if (comunicariData[saved.idx]) {
+                        comunicariData[saved.idx].dataNr = saved.dataNr || '';
+                        ['destinatar','titlu','salut','p1','p2','p3','p4','semn'].forEach(f => {
+                            if (saved[f]) comunicariData[saved.idx][f] = saved[f];
+                        });
+                    }
+                });
+            }
+
+            // Alocăm / recuperăm numerele din registru_documente per grup
+            const inserts = [];
+            for (let i = 0; i < comunicariData.length; i++) {
+                const refKey = `COMUNICARE_${currentAn}_${currentLuna}_${i}`;
+                const existing = (regRows || []).find(r => r.referinta === refKey);
+                if (existing) {
+                    comunicariData[i].nr = String(existing.nr);
+                    if (!comunicariData[i].dataNr) comunicariData[i].dataNr = existing.data_doc || '';
+                } else {
+                    comunicariData[i].nr = String(nextNr);
+                    inserts.push({
+                        tip: 'COMUNICARE',
+                        nr: nextNr,
+                        an: currentAn,
+                        data_doc: comunicariData[i].dataStart,
+                        luna: currentLuna,
+                        referinta: refKey
+                    });
+                    nextNr++;
+                }
+            }
+
+            if (inserts.length > 0) {
+                await supabase.from('registru_documente').insert(inserts);
+
+                // Renumerotare cronologică pe contorul comun (avize + comunicări)
+                const { data: toateDoc } = await supabase
+                    .from('registru_documente')
+                    .select('id, nr, data_doc, tip')
+                    .eq('an', currentAn);
+
+                if (toateDoc && toateDoc.length > 0) {
+                    function parseD(s) {
+                        if (!s) return new Date(0);
+                        const p = s.split('.');
+                        return p.length === 3 ? new Date(`${p[2]}-${p[1]}-${p[0]}`) : new Date(0);
+                    }
+                    const sortate = [...toateDoc].sort((a,b) => {
+                        const d = parseD(a.data_doc) - parseD(b.data_doc);
+                        if (d !== 0) return d;
+                        if (a.tip < b.tip) return -1;
+                        if (a.tip > b.tip) return 1;
+                        return (a.id||0) - (b.id||0);
+                    });
+                    await Promise.all(sortate.map((r, idx) =>
+                        r.nr !== idx + 1
+                            ? supabase.from('registru_documente').update({ nr: idx + 1 }).eq('id', r.id)
+                            : Promise.resolve()
+                    ));
+                    // Actualizăm nr-urile în comunicariData pentru afișare corectă
+                    for (let i = 0; i < comunicariData.length; i++) {
+                        const refKey = `COMUNICARE_${currentAn}_${currentLuna}_${i}`;
+                        const { data: rowActual } = await supabase
+                            .from('registru_documente')
+                            .select('nr')
+                            .eq('referinta', refKey)
+                            .maybeSingle();
+                        if (rowActual) comunicariData[i].nr = String(rowActual.nr);
+                    }
+                }
+            }
+
+            deschideFereastaComunicari(comunicariData, currentLuna, targetIdx);
+        };
+
+        function deschideFereastaComunicari(comunicariData, luna, targetIdx = null) {
+            const url = 'comunicari_nelivrare.html?luna=' + encodeURIComponent(luna) + '&an=' + currentAn + (targetIdx !== null ? '&idx=' + targetIdx : '');
+            window.open(url, '_blank');
+        }
+
+    </script>
+</body>
+</html>

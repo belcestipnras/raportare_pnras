@@ -143,6 +143,42 @@
 
     const PRET_UNITAR = 13.8;
 
+    // Intervale de vacanță — anul școlar 2025-2026, județul Iași
+    const vacante = [
+        ['2025-10-27', '2025-10-31'], // vacanța de toamnă
+        ['2025-12-22', '2026-01-09'], // vacanța de iarnă
+        ['2026-03-30', '2026-04-10'], // vacanța de primăvară
+        ['2026-06-15', '2026-08-31']  // vacanța de vară
+    ];
+
+    // Sărbători legale (zile nelucrătoare conform Codului Muncii)
+    const sarbatoriLegale = [
+        '2025-11-30', // Sf. Andrei
+        '2025-12-01', // Ziua Națională
+        '2025-12-25', // Crăciun
+        '2025-12-26', // A doua zi de Crăciun
+        '2026-01-01', // Anul Nou
+        '2026-01-02', // Anul Nou
+        '2026-01-06', // Boboteaza
+        '2026-01-07', // Sf. Ion
+        '2026-01-24', // Ziua Unirii
+        '2026-04-10', // Vinerea Mare
+        '2026-04-12', // Paștele
+        '2026-04-13', // A doua zi de Paște
+        '2026-05-01', // Ziua Muncii
+        '2026-05-31', // Rusaliile
+        '2026-06-01'  // A doua zi de Rusalii / Ziua Copilului
+    ];
+
+    function esteZiSpeciala(ziNr, lunaNr, anNr) {
+        const dataObj = new Date(anNr, lunaNr - 1, ziNr);
+        const ziSaptamana = dataObj.getDay(); // 0 = duminică, 6 = sâmbătă
+        if (ziSaptamana === 0 || ziSaptamana === 6) return true;
+        const iso = `${anNr}-${String(lunaNr).padStart(2,'0')}-${String(ziNr).padStart(2,'0')}`;
+        if (sarbatoriLegale.includes(iso)) return true;
+        return vacante.some(([start, end]) => iso >= start && iso <= end);
+    }
+
     async function loadAll() {
         // Pontaj
         const { data: pontaj } = await sb.from('setari_pontaj').select('*').match({ luna, an });
@@ -169,12 +205,11 @@
             const cantitate = parseInt(r.valoare_aviz) || 0;
             const valoare = (cantitate * PRET_UNITAR).toFixed(2);
             const nrAviz = nrPtZi[zi] || '?';
+            const ora = esteZiSpeciala(parseInt(zi), parseInt(lunaNum), parseInt(an)) ? '10.00' : '13.30';
 
             const sheet = document.createElement('div');
             sheet.className = 'sheet';
             sheet.innerHTML = `
-                <img src="antet_pnras.jpeg" alt="Antet PNRAS" class="antet-img">
-
                 <table class="table-header-info">
                     <tr>
                         <td>
@@ -190,6 +225,12 @@
                         </td>
                     </tr>
                 </table>
+
+                <div style="text-align:center; font-size:11pt; margin: 10px 0 15px 0; line-height:1.4;">
+                    PROGRAMUL NAȚIONAL PENTRU REDUCEREA ABANDONULUI ȘCOLAR (PNRAS)<br>
+                    Cod proiect: F-PNRAS-2-2023-0447<br>
+                    Proiect: FII UNUL DINTRE C.R.A.I.! (Creativitate, Reziliență, Adaptabilitate, Incluziune)
+                </div>
 
                 <div style="font-size:12pt; font-weight:bold; margin: 10px 0 4px 0;">
                     Nr. ${nrAviz}/${dataF}
@@ -231,7 +272,7 @@
                 <div class="sectiune-text">
                     <strong>Date privind expediția:</strong>
                     <p>1. Numele delegatului: Murariu Mirela; C.I. Seria MZ, Nr. 710839</p>
-                    <p>2. Expedierea s-a efectuat în prezența noastră la data de ${dataF}, ora 13.30.</p>
+                    <p>2. Expedierea s-a efectuat în prezența noastră la data de ${dataF}, ora ${ora}.</p>
                 </div>
 
                 <div class="semnaturi">
