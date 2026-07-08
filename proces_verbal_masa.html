@@ -31,6 +31,7 @@
         .data-table th { background: #f2f2f2; font-weight: bold; }
         .data-table tbody tr { page-break-inside: avoid; break-inside: avoid; }
         .data-table tbody tr:last-child { page-break-after: avoid; break-after: avoid; }
+        .data-table tfoot tr { page-break-inside: avoid; break-inside: avoid; page-break-before: avoid; break-before: avoid; }
 
         .col-nr    { width: 7%; }
         .col-data  { width: 13%; }
@@ -83,6 +84,13 @@
             </tr>
         </thead>
         <tbody id="tbody-pv"></tbody>
+        <tfoot>
+            <tr style="font-weight:bold; background:#f2f2f2;">
+                <td colspan="3" style="text-align:right; padding-right:10px;">TOTAL PORȚII</td>
+                <td id="total-primite-pv">0</td>
+                <td id="total-aviz-pv">0</td>
+            </tr>
+        </tfoot>
     </table>
 
     <div class="section-signatures">
@@ -161,13 +169,17 @@
         // Tabel avize
         const { data: records } = await supabaseClient.from('setari_pontaj').select('*').match({ luna, an }).order('zi', { ascending: true });
         if (records && records.length > 0) {
-            let index = 1, rowsHtml = '';
+            let index = 1, rowsHtml = '', totalPortii = 0;
             records.filter(r => r.valoare_aviz > 0).forEach(row => {
                 const ziF  = String(row.zi).padStart(2, '0');
                 const dataF = `${ziF}.${luniMapping[luna]}.${an}`;
-                rowsHtml += `<tr><td>${index++}</td><td>${dataF}</td><td class="col-spec">${meniuriConfig[row.tip_meniu] || 'Meniu'}</td><td>${row.valoare_aviz}</td><td>${row.valoare_aviz}</td></tr>`;
+                const portii = parseInt(row.valoare_aviz) || 0;
+                totalPortii += portii;
+                rowsHtml += `<tr><td>${index++}</td><td>${dataF}</td><td class="col-spec">${meniuriConfig[row.tip_meniu] || 'Meniu'}</td><td>${portii}</td><td>${portii}</td></tr>`;
             });
             document.getElementById('tbody-pv').innerHTML = rowsHtml;
+            document.getElementById('total-primite-pv').innerText = totalPortii;
+            document.getElementById('total-aviz-pv').innerText = totalPortii;
         }
 
         // Numere înregistrare din registru_master
