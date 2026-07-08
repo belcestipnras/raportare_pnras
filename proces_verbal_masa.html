@@ -178,10 +178,7 @@
 
             const randPV = cuNumere.find(r =>
                 r.luna_inreg === luna &&
-                r.cuprins_act && r.cuprins_act.toLowerCase().includes('proces') &&
-                r.cuprins_act.toLowerCase().includes('verbal') &&
-                r.cuprins_act.toLowerCase().includes('recepție') &&
-                r.cuprins_act.toLowerCase().includes('masă caldă')
+                r.doc_id && r.doc_id.startsWith('PV_MASA_')
             );
             if (randPV) {
                 const ziPad = (randPV.zi_inreg || '..').toString().padStart(2, '0');
@@ -194,9 +191,7 @@
 
             const randNC = cuNumere.find(r =>
                 r.luna_inreg === luna &&
-                r.cuprins_act && r.cuprins_act.toLowerCase().includes('notă') &&
-                r.cuprins_act.toLowerCase().includes('comandă') &&
-                r.cuprins_act.toLowerCase().includes('masă caldă')
+                r.doc_id && r.doc_id.startsWith('NOTA_CMD_')
             );
             if (randNC) {
                 const ziPad = (randNC.zi_inreg || '..').toString().padStart(2, '0');
