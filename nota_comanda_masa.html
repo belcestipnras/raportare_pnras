@@ -249,27 +249,34 @@
             "PE8A1": 10, "PE8A2": 10, "PE6B1": 8, "PE6B2": 12, "PE7A": 12,
             "IA5AB1": 11, "IA5AB2": 12, "IA6A": 13, "IA7B": 10,
             "8A2026": 26, "8B2026": 24,
-            "8A EN": 18, "8B EN": 18
+            "8A EN": 18, "8B EN": 18,
+            "PROIECT": 0
         };
 
         async function preiaDatePontaj() {
             const { data: pontajData } = await supabase
                 .from('pontaj_detaliat')
-                .select('zi, clase_grupe, fara_masa')
+                .select('zi, clase_grupe, fara_masa, expert, nr_elevi_proiect')
                 .eq('an', currentAn)
                 .eq('luna', currentLuna);
 
             if (!pontajData || pontajData.length === 0) return [];
 
-            // Grupeaza pe zi, toate clasele indiferent de fara_masa
+            // Grupeaza pe zi, toate clasele indiferent de fara_masa (rândul "Proiect" se tratează separat mai jos)
             const zileMap = {};
             pontajData.forEach(r => {
+                if (r.expert === 'Proiect') return;
                 if (!zileMap[r.zi]) zileMap[r.zi] = new Set();
                 r.clase_grupe.split(',').forEach(c => zileMap[r.zi].add(c.trim()));
             });
 
-            return Object.entries(zileMap)
-                .map(([zi, clase]) => {
+            // Toate zilele cu activitate, inclusiv zile cu doar rând "Proiect"
+            const toateZilele = new Set(Object.keys(zileMap).map(z => parseInt(z)));
+            pontajData.forEach(r => { if (r.expert === 'Proiect') toateZilele.add(r.zi); });
+
+            return Array.from(toateZilele)
+                .map(zi => {
+                    const clase = zileMap[zi] || new Set();
                     let qty = 0;
                     clase.forEach(c => {
                         if (ratii[c] === undefined) {
@@ -277,6 +284,19 @@
                         }
                         qty += (ratii[c] || 0);
                     });
+
+                    // +1 porție per expert activ (cu masă, exclus "Proiect"), începând cu anul 2026 — identic cu pontaj.html
+                    if (parseInt(currentAn) >= 2026) {
+                        const profiActivi = new Set(
+                            pontajData.filter(p => p.zi === zi && !p.fara_masa && p.expert !== 'Proiect').map(p => p.expert)
+                        );
+                        qty += profiActivi.size;
+                    }
+
+                    // Porții introduse manual la "Proiect"
+                    const randProiect = pontajData.find(p => p.zi === zi && p.expert === 'Proiect');
+                    if (randProiect) qty += (randProiect.nr_elevi_proiect || 0);
+
                     return {
                         data: zi.toString().padStart(2,'0') + '.' + luniMap[currentLuna] + '.' + currentAn,
                         qty
