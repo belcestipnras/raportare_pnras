@@ -245,14 +245,14 @@
         document.getElementById('dc').innerHTML=h}
 
     function renderCtr(ct,sc,docs){const id=ct.id,io=!!exK[id];const fac=D.filter(r=>r.parent_id===id&&r.tip_rand==='FACTURA').sort((a,b)=>new Date(a.data_document)-new Date(b.data_document));
-        const cheltuitCtr=fac.reduce((s,f)=>s+parseFloat(f.valoare),0);const ramasCtr=parseFloat(ct.valoare)-cheltuitCtr;const pctCtr=parseFloat(ct.valoare)>0?Math.min((cheltuitCtr/parseFloat(ct.valoare))*100,100):0;
+        const cheltuitCtrFaraTVA=fac.reduce((s,f)=>s+(parseFloat(f.val_fara_tva)||0),0);const ctFaraTVA=parseFloat(ct.val_fara_tva)||0;const ramasCtr=ctFaraTVA-cheltuitCtrFaraTVA;const pctCtr=ctFaraTVA>0?Math.min((cheltuitCtrFaraTVA/ctFaraTVA)*100,100):0;
         const tp=sc==='c'?'Stat':'Contract',tb=sc==='c'?'STAT':'CTR';const tit=`${tp} Nr. ${ct.numar||'??'}/${fD(ct.data_document)} (${ct.titlu})`;
         let cs='planificat';if(ct.stare==='Finalizat')cs='platit';else if(ct.stare==='In_derulare')cs='derulare';
         const ds=ct.stare==='Finalizat'?'Finalizat':ct.stare==='In_derulare'?'În derulare':'Planificat';
         const tv=(ct.val_tva>0||ct.val_fara_tva>0)?`<div class="tva-d">(Fără TVA: ${fB(ct.val_fara_tva)} | TVA: ${fB(ct.val_tva)})</div>`:'';
         const dc=docs.filter(d=>d.contract_id===id);
         const barCol=pctCtr>=100?'var(--green)':pctCtr>=50?'var(--orange)':'var(--blue)';
-        const execInfo=sc!=='c'?`<div class="cbox-exec"><div class="cbox-exec-bar"><div class="cbox-exec-fill" style="width:${pctCtr}%;background:${barCol}"></div></div><div class="cbox-exec-item"><span class="cbox-exec-lbl">Plătit:</span><span class="cbox-exec-val red">${fS(cheltuitCtr)}</span></div><div class="cbox-exec-item"><span class="cbox-exec-lbl">Rămas:</span><span class="cbox-exec-val green">${fS(ramasCtr)}</span></div><div class="cbox-exec-item"><span class="cbox-exec-lbl">${pctCtr.toFixed(0)}%</span></div></div>`:'';
+        const execInfo=sc!=='c'?`<div class="cbox-exec"><div class="cbox-exec-bar"><div class="cbox-exec-fill" style="width:${pctCtr}%;background:${barCol}"></div></div><div class="cbox-exec-item"><span class="cbox-exec-lbl">Plătit:</span><span class="cbox-exec-val red">${fS(cheltuitCtrFaraTVA)}</span><span style="color:var(--text-muted);font-weight:600">(fără TVA)</span></div><div class="cbox-exec-item"><span class="cbox-exec-lbl">Rămas:</span><span class="cbox-exec-val green">${fS(ramasCtr)}</span></div><div class="cbox-exec-item"><span class="cbox-exec-lbl">${pctCtr.toFixed(0)}%</span></div></div>`:'';
 
         let h=`<div class="cbox"><div class="cbox-h" onclick="togK('${id}')"><span class="cbox-type">${tb}</span><span class="cbox-title">${tit}</span><div class="cbox-meta"><span class="cbox-amt">${fB(ct.valoare)}</span><span class="cbox-st ${cs}">${ds}</span><div class="cbox-acts" onclick="event.stopPropagation()"><button class="ba" onclick="openDosar('${id}',this)" title="Dosar">📁</button><button class="ba" onclick="editC('${id}')">✏️</button><button class="ba del" onclick="delC('${id}')">🗑️</button></div></div></div>${tv}${execInfo}`;
         h+=`<div class="fc ${io?'open':''}">`;
