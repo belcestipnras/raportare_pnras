@@ -180,7 +180,7 @@
     let D=[],exY={TOTAL:true},exC={},exS={},exK={};
     const ANI=[2024,2025,2026];
     const fB=v=>new Intl.NumberFormat('ro-RO',{style:'currency',currency:'RON',minimumFractionDigits:2}).format(v);
-    const fS=v=>Math.abs(v)>=1000?new Intl.NumberFormat('ro-RO',{maximumFractionDigits:0}).format(v)+' lei':fB(v);
+    const fS=v=>Math.abs(v)>=1000?new Intl.NumberFormat('ro-RO',{minimumFractionDigits:2,maximumFractionDigits:2}).format(v)+' lei':fB(v);
     const fD=s=>{if(!s)return"";const p=s.split('T')[0].split("-");return p.length===3?`${p[2]}.${p[1]}.${p[0]}`:s};
     const SC={a:'Servicii și bunuri',b:'Subvenții, ajutoare, premii',c:'Cheltuieli salariale',d:'Formare cadre didactice',e:'Mobilier și amenajări',f:'Echipamente și software'};
     const NP={I:'Cat. I: Identificare și monitorizare — MATE',II:'Cat. II: Prevenire, intervenție, compensare',III:'Cat. III: Lucrări minore, bunuri',IV:'Cat. IV: Digitalizare educațional'};
