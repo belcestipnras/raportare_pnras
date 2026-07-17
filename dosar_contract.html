@@ -1153,14 +1153,15 @@ async function genereazaDosar(){
     const fOB=await opisDoc.embedFont(PDFLib.StandardFonts.HelveticaBold);
     const fOI=await opisDoc.embedFont(PDFLib.StandardFonts.HelveticaOblique);
     const fOBI=await opisDoc.embedFont(PDFLib.StandardFonts.HelveticaBoldOblique);
-    // Fundalul paginii-șablon (antet, chenare) capturat înainte de a scrie ceva pe el,
-    // ca să poată fi refolosit pe pagini suplimentare de opis dacă nu încape pe una singură.
-    const opisBg=await opisDoc.embedPage(pageOpis);
+    // Fundal pentru pagini suplimentare de opis: se copiază dintr-o încărcare "curată" a
+    // șablonului (niciodată modificată), folosind copyPages — o copie reală și izolată,
+    // nu o referință vie ca la embedPage (care ar prelua la salvare și textul deja scris).
+    const opisTemplatePristine=await PDFDocument.load(opisBytes);
     const OPIS_START_Y=520, OPIS_MIN_Y=40;
-    function adaugaPaginaOpis(){
-      const p=opisDoc.addPage([pageOpis.getWidth(),pageOpis.getHeight()]);
-      p.drawPage(opisBg);
-      return p;
+    async function adaugaPaginaOpis(){
+      const [copiaPagina]=await opisDoc.copyPages(opisTemplatePristine,[0]);
+      opisDoc.addPage(copiaPagina);
+      return copiaPagina;
     }
 
     // Ștampile full-page (25 PNG-uri, overlay A4)
@@ -1207,8 +1208,8 @@ async function genereazaDosar(){
       if(n===3)return{font:fOI,indent:40,size:8,areDoc:true};
       return{font:fOI,indent:60,size:8,areDoc:true};
     }
-    function dr(text,nrI,dI,fmt){
-      if(y<OPIS_MIN_Y){curOpisPage=adaugaPaginaOpis();y=OPIS_START_Y;ri=0;}
+    async function dr(text,nrI,dI,fmt){
+      if(y<OPIS_MIN_Y){curOpisPage=await adaugaPaginaOpis();y=OPIS_START_Y;ri=0;}
       if(ri%2===1)curOpisPage.drawRectangle({x:85,y:y-4,width:425,height:16,color:PDFLib.rgb(0.97,0.97,0.98)});
       if(fmt.areNrCrt){nc++;curOpisPage.drawText(String(nc),{x:86,y,size:fmt.size,font:fmt.font});}
       curOpisPage.drawText(roPDF(text),{x:105+fmt.indent,y,size:fmt.size,font:fmt.font});
@@ -1219,12 +1220,12 @@ async function genereazaDosar(){
     for(const tip of listaDocumente.filter(t=>t&&t!=='DOSAR ACHIZIȚIE PDF'&&!listaAscunse.includes(t))){
       const niv=getNivel(tip),fmt=getFmt(niv),ft=gopd[tip]||[];
       const fd=niv===1?{font:fOB,indent:0,size:9,areDoc:true,areNrCrt:false}:{...fmt,areDoc:true,areNrCrt:false};
-      if(!ft.length){dr(tip,"-",null,fd);}
-      else if(ft.length===1){dr(tip,ft[0].nr_inregistrare,ft[0].data_inregistrare,fd);}
+      if(!ft.length){await dr(tip,"-",null,fd);}
+      else if(ft.length===1){await dr(tip,ft[0].nr_inregistrare,ft[0].data_inregistrare,fd);}
       else{
-        dr(tip,null,null,{...fd,areDoc:false,areNrCrt:false});
+        await dr(tip,null,null,{...fd,areDoc:false,areNrCrt:false});
         const fe={font:fOI,indent:fd.indent+20,size:fd.size-0.5,areDoc:true,areNrCrt:false};
-        for(const f of ft){dr((f.nume_fisier||"doc").replace(/\.(pdf|jpe?g|png)$/i,"").substring(0,60),f.nr_inregistrare,f.data_inregistrare,fe);}
+        for(const f of ft){await dr((f.nume_fisier||"doc").replace(/\.(pdf|jpe?g|png)$/i,"").substring(0,60),f.nr_inregistrare,f.data_inregistrare,fe);}
       }
     }
     (await pdfFinal.copyPages(opisDoc,opisDoc.getPageIndices())).forEach(p=>pdfFinal.addPage(p));
