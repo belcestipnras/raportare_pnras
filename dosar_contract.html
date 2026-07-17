@@ -1153,6 +1153,15 @@ async function genereazaDosar(){
     const fOB=await opisDoc.embedFont(PDFLib.StandardFonts.HelveticaBold);
     const fOI=await opisDoc.embedFont(PDFLib.StandardFonts.HelveticaOblique);
     const fOBI=await opisDoc.embedFont(PDFLib.StandardFonts.HelveticaBoldOblique);
+    // Fundalul paginii-șablon (antet, chenare) capturat înainte de a scrie ceva pe el,
+    // ca să poată fi refolosit pe pagini suplimentare de opis dacă nu încape pe una singură.
+    const opisBg=await opisDoc.embedPage(pageOpis);
+    const OPIS_START_Y=520, OPIS_MIN_Y=40;
+    function adaugaPaginaOpis(){
+      const p=opisDoc.addPage([pageOpis.getWidth(),pageOpis.getHeight()]);
+      p.drawPage(opisBg);
+      return p;
+    }
 
     // Ștampile full-page (25 PNG-uri, overlay A4)
     const vreaStampila=await intreabaStampila();
@@ -1169,7 +1178,7 @@ async function genereazaDosar(){
       stampilaPachet=shuffleArray(imaginiStampile);
     }
 
-    let y=520,ri=0,nc=0;
+    let y=OPIS_START_Y,ri=0,nc=0,curOpisPage=pageOpis;
     const gopd={};
     if(docs) docs.forEach(d=>{if(d.tip_document==='DOSAR ACHIZIȚIE PDF')return;if(!gopd[d.tip_document])gopd[d.tip_document]=[];gopd[d.tip_document].push(d);});
     Object.keys(gopd).forEach(t=>gopd[t].sort((a,b)=>(a.data_inregistrare||'9999-99-99').localeCompare(b.data_inregistrare||'9999-99-99')));
@@ -1199,16 +1208,15 @@ async function genereazaDosar(){
       return{font:fOI,indent:60,size:8,areDoc:true};
     }
     function dr(text,nrI,dI,fmt){
-      if(y<40)return;
-      if(ri%2===1)pageOpis.drawRectangle({x:85,y:y-4,width:425,height:16,color:PDFLib.rgb(0.97,0.97,0.98)});
-      if(fmt.areNrCrt){nc++;pageOpis.drawText(String(nc),{x:86,y,size:fmt.size,font:fmt.font});}
-      pageOpis.drawText(roPDF(text),{x:105+fmt.indent,y,size:fmt.size,font:fmt.font});
-      if(fmt.areDoc){let df="-";if(dI){const p=dI.split("-");if(p.length===3)df=`${p[2]}.${p[1]}.${p[0]}`;}pageOpis.drawText(roPDF(`${nrI||"-"} / ${df}`),{x:400,y,size:fmt.size,font:fmt.font});}
+      if(y<OPIS_MIN_Y){curOpisPage=adaugaPaginaOpis();y=OPIS_START_Y;ri=0;}
+      if(ri%2===1)curOpisPage.drawRectangle({x:85,y:y-4,width:425,height:16,color:PDFLib.rgb(0.97,0.97,0.98)});
+      if(fmt.areNrCrt){nc++;curOpisPage.drawText(String(nc),{x:86,y,size:fmt.size,font:fmt.font});}
+      curOpisPage.drawText(roPDF(text),{x:105+fmt.indent,y,size:fmt.size,font:fmt.font});
+      if(fmt.areDoc){let df="-";if(dI){const p=dI.split("-");if(p.length===3)df=`${p[2]}.${p[1]}.${p[0]}`;}curOpisPage.drawText(roPDF(`${nrI||"-"} / ${df}`),{x:400,y,size:fmt.size,font:fmt.font});}
       y-=18;ri++;
     }
 
     for(const tip of listaDocumente.filter(t=>t&&t!=='DOSAR ACHIZIȚIE PDF'&&!listaAscunse.includes(t))){
-      if(y<40)break;
       const niv=getNivel(tip),fmt=getFmt(niv),ft=gopd[tip]||[];
       const fd=niv===1?{font:fOB,indent:0,size:9,areDoc:true,areNrCrt:false}:{...fmt,areDoc:true,areNrCrt:false};
       if(!ft.length){dr(tip,"-",null,fd);}
@@ -1216,7 +1224,7 @@ async function genereazaDosar(){
       else{
         dr(tip,null,null,{...fd,areDoc:false,areNrCrt:false});
         const fe={font:fOI,indent:fd.indent+20,size:fd.size-0.5,areDoc:true,areNrCrt:false};
-        for(const f of ft){if(y<40)break;dr((f.nume_fisier||"doc").replace(/\.(pdf|jpe?g|png)$/i,"").substring(0,60),f.nr_inregistrare,f.data_inregistrare,fe);}
+        for(const f of ft){dr((f.nume_fisier||"doc").replace(/\.(pdf|jpe?g|png)$/i,"").substring(0,60),f.nr_inregistrare,f.data_inregistrare,fe);}
       }
     }
     (await pdfFinal.copyPages(opisDoc,opisDoc.getPageIndices())).forEach(p=>pdfFinal.addPage(p));
