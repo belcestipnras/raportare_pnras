@@ -1544,6 +1544,24 @@ function closeModal() {
         });
     }
 
+    // Funcție pentru a parsa data din formatul zz.ll.aaaa în obiect Date, pentru sortare cronologică corectă
+    function parseDataNr(dataStr) {
+        if (!dataStr) return new Date(0);
+        const parts = dataStr.trim().split('.');
+        if (parts.length === 3) {
+            const zi = parseInt(parts[0], 10);
+            const luna = parseInt(parts[1], 10) - 1;
+            const an = parseInt(parts[2], 10);
+            return new Date(an, luna, zi);
+        }
+        return new Date(0);
+    }
+
+    // Sortare cronologică (cel mai recent primul) în fiecare secțiune
+    [hotarari, decizii, pvuri, alte].forEach(lista => {
+        lista.sort((a, b) => parseDataNr(b.nr_d) - parseDataNr(a.nr_d));
+    });
+
     function tipAfisaj(doc) {
         if (doc.tip_registru === '1_HOTARARE') return 'HOTĂRÂRE';
         if (doc.tip_registru === '1_DECIZIE') return 'DECIZIE';
