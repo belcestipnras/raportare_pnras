@@ -86,6 +86,7 @@
         .completare-row span[contenteditable="true"]:focus { background: #eff6ff; }
 
         .obs-footer { margin-top: 20px; font-size: 0.78rem; font-style: italic; color: #475569; }
+        .auto-badge { font-size: 0.68rem; font-style: italic; color: #92400e; background: #fef3c7; display: inline-block; padding: 2px 8px; border-radius: 4px; margin-top: 5px; }
 
         @media print {
             @page { margin: 0; size: A4; }
@@ -103,6 +104,7 @@
             .section-subtitle { font-size: 0.62rem; padding: 4px 10px; margin: 10px 0 5px 0; background: #fef3c7 !important; -webkit-print-color-adjust: exact; }
 
             .info-table td { font-size: 0.7rem; padding: 5px 8px; line-height: 1.2; }
+            .auto-badge { font-size: 0.58rem; padding: 1px 6px; background: #fef3c7 !important; -webkit-print-color-adjust: exact; }
             .mate-table th { font-size: 0.55rem; padding: 5px 8px; background: #1e3a8a !important; -webkit-print-color-adjust: exact; }
             .mate-table td { font-size: 0.68rem; padding: 5px 8px; line-height: 1.2; }
             .radio-label { font-size: 0.6rem; gap: 3px; }
@@ -245,7 +247,46 @@
             const container = document.getElementById('sheetsContainer');
             container.innerHTML = '<div style="text-align:center; padding:50px; color:white;">Se încarcă datele...</div>';
             const { data } = await _db.from(TABLE_DATA).select('*').eq('clasa', currentClass).eq('anul', currentYear).order('nume_elev', { ascending: true });
-            if(data) renderSheets(data);
+            if (data) {
+                await loadIstoricAbandon(data);
+                renderSheets(data);
+            }
+        }
+
+        // Verifică, pentru fiecare elev (după CNP), dacă în anul școlar anterior a avut deja un
+        // dosar de caz deschis (coloana nr_dosar, completată pe rândul cu anul = currentYear - 1),
+        // ceea ce înseamnă că a fost identificat și înregistrat în lista de "Elevi în proces de abandon".
+        // Dacă da, și elevul nu are deja o valoare setată pentru anul curent, se pre-completează
+        // automat "DA" (rămâne editabil manual).
+        async function loadIstoricAbandon(students) {
+            const cnpuri = students.map(s => s.cnp).filter(Boolean);
+            if (!cnpuri.length) return;
+
+            const { data, error } = await _db
+                .from(TABLE_DATA)
+                .select('cnp, nr_dosar')
+                .eq('anul', currentYear - 1)
+                .in('cnp', cnpuri);
+
+            if (error) {
+                console.warn('Nu am putut verifica istoricul din anul școlar anterior:', error.message);
+                return;
+            }
+
+            const istoricCuDosar = {};
+            (data || []).forEach(row => {
+                if (row.cnp && row.nr_dosar && String(row.nr_dosar).trim() !== '') istoricCuDosar[row.cnp] = true;
+            });
+
+            students.forEach(s => {
+                const nesetatAnulAcesta = (s[COL_LISTA_ABANDON] === null || s[COL_LISTA_ABANDON] === undefined || s[COL_LISTA_ABANDON] === '');
+                if (nesetatAnulAcesta && s.cnp && istoricCuDosar[s.cnp]) {
+                    s[COL_LISTA_ABANDON] = 'DA';
+                    s._autoDetectat = true;
+                    // salvăm și în baza de date, ca valoarea să rămână persistentă pentru anul curent
+                    _db.from(TABLE_DATA).update({ [COL_LISTA_ABANDON]: 'DA' }).eq('id', s.id);
+                }
+            });
         }
 
         let currentStudents = [];
@@ -276,7 +317,7 @@
 
                     <div class="section-title">Indicatorii de risc</div>
                     <table class="info-table">
-                        <tr><td class="label-cell">Școala (denumire &amp; codul unic de identificare):</td><td class="value-cell">Asociația Dokimasia / PNRAS</td></tr>
+                        <tr><td class="label-cell">Școala (denumire &amp; codul unic de identificare):</td><td class="value-cell">Liceul Tehnologic ”Victor Mihăilescu Craiu” Belcești, 17130374</td></tr>
                         <tr><td class="label-cell">Nume și prenume elev:</td><td class="value-cell">${s.nume_elev}</td></tr>
                         <tr><td class="label-cell">CNP elev:</td><td class="value-cell">${s.cnp || '—'}</td></tr>
                         <tr><td class="label-cell">Clasa în care se află elevul:</td><td class="value-cell">${s.clasa}</td></tr>
@@ -287,6 +328,7 @@
                                     <label class="radio-label"><input type="radio" name="${s.id}_${COL_LISTA_ABANDON}" value="DA" ${s[COL_LISTA_ABANDON] === 'DA' ? 'checked' : ''} onchange="updateValue(${idx}, '${COL_LISTA_ABANDON}', 'DA')"> DA</label>
                                     <label class="radio-label"><input type="radio" name="${s.id}_${COL_LISTA_ABANDON}" value="NU" ${s[COL_LISTA_ABANDON] !== 'DA' ? 'checked' : ''} onchange="updateValue(${idx}, '${COL_LISTA_ABANDON}', 'NU')"> NU</label>
                                 </div>
+                                ${s._autoDetectat ? `<div class="auto-badge">detectat automat — era în listă în anul ${currentYear-2}-${currentYear-1}</div>` : ''}
                             </td>
                         </tr>
                     </table>
@@ -362,6 +404,13 @@
             const s = currentStudents[idx];
             s[col] = val;
             const sheet = document.querySelector(`.sheet[data-idx="${idx}"]`);
+            if (col === COL_LISTA_ABANDON && s._autoDetectat) {
+                s._autoDetectat = false;
+                if (sheet) {
+                    const badge = sheet.querySelector('.auto-badge');
+                    if (badge) badge.remove();
+                }
+            }
             if (sheet) updateConcluzie(sheet, s);
             await _db.from(TABLE_DATA).update({ [col]: val }).eq('id', s.id);
         }
