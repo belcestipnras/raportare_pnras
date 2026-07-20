@@ -48,17 +48,18 @@
 
         .nr-inreg-row { display: inline-block; background: #eff6ff; border: 1px solid #bfdbfe; padding: 8px 15px; border-radius: 6px; font-family: 'Montserrat'; font-weight: 800; font-size: 0.9rem; color: #1e40af; margin-bottom: 20px; }
 
-        .doc-title-container { text-align: center; margin-bottom: 25px; }
+        .doc-title-container { text-align: center; margin-bottom: 20px; }
         .doc-title-main { font-family: 'Montserrat'; font-weight: 800; font-size: 1.4rem; text-transform: uppercase; color: #1e3a8a; margin: 0; }
-        .doc-title-cat { font-family: 'Montserrat'; font-weight: 800; font-size: 0.7rem; margin: 5px 0; color: #000; text-transform: uppercase; }
-        .doc-title-sub { font-family: 'Montserrat'; font-weight: 700; font-size: 0.85rem; color: #1e293b; background: #fef3c7; display: inline-block; padding: 5px 15px; border-radius: 4px; margin-top: 5px; }
 
-        .info-card { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 15px 20px; margin-bottom: 15px; display: grid; grid-template-columns: 2fr 1fr 2fr 1fr; gap: 15px; border-top: 4px solid var(--primary); }
-        .info-card-cnp { background: #f8fafc; border: 1px solid #e2e8f0; border-top: none; border-radius: 0 0 12px 12px; padding: 0 20px 15px 20px; margin-top: -15px; margin-bottom: 15px; }
-        .info-label { font-size: 0.6rem; text-transform: uppercase; color: #64748b; font-weight: 800; }
-        .info-value { font-weight: 700; font-size: 0.95rem; color: #000; border-bottom: 1px solid #cbd5e1; display: block; }
+        .section-title { font-family: 'Montserrat'; font-weight: 800; font-size: 0.85rem; color: #1e3a8a; text-transform: uppercase; margin: 20px 0 8px 0; }
+        .section-subtitle { font-weight: 800; font-size: 0.78rem; color: #92400e; background: #fef3c7; padding: 6px 12px; border-radius: 6px; margin: 20px 0 8px 0; }
 
-        .mate-table { width: 100%; border-collapse: collapse; margin-bottom: 25px; border: 1px solid #94a3b8; }
+        .info-table { width: 100%; border-collapse: collapse; margin-bottom: 10px; border: 1px solid #94a3b8; }
+        .info-table td { padding: 8px 12px; border: 1px solid #cbd5e1; font-size: 0.85rem; color: #1e293b; vertical-align: middle; }
+        .info-table td.label-cell { font-weight: 700; background: #f8fafc; width: 55%; }
+        .info-table td.value-cell { font-weight: 700; color: #000; }
+
+        .mate-table { width: 100%; border-collapse: collapse; margin-bottom: 10px; border: 1px solid #94a3b8; }
         .mate-table th { background: #1e3a8a; color: white; padding: 10px; text-align: left; font-weight: 800; text-transform: uppercase; font-size: 0.65rem; }
         .mate-table td { padding: 8px 12px; border: 1px solid #cbd5e1; font-size: 0.82rem; color: #1e293b; }
         .mate-table tr:nth-child(even) { background-color: #f8fafc; }
@@ -66,19 +67,60 @@
         .radio-group { display: flex; gap: 15px; justify-content: center; }
         .radio-label { display: flex; align-items: center; gap: 5px; cursor: pointer; font-weight: 800; font-size: 0.7rem; }
 
-        .footer-section { margin-top: 40px; display: flex; justify-content: space-between; align-items: flex-end; }
-        .sig-label { font-size: 0.8rem; font-weight: 800; color: #000; margin-bottom: 40px; text-transform: uppercase; }
-        .sig-name { font-size: 0.9rem; font-weight: 800; color: #000; border-top: 1px solid #000; padding-top: 5px; }
+        .conclusion-box { border: 2px solid #1e3a8a; border-radius: 10px; padding: 12px 18px; margin: 15px 0; background: #eff6ff; }
+        .conclusion-row { display: flex; gap: 25px; margin-top: 8px; align-items: center; }
+        .concl-opt { font-weight: 700; font-size: 0.85rem; color: #64748b; padding: 4px 10px; border-radius: 6px; border: 1px solid #cbd5e1; }
+        .concl-opt.active-risc { color: #991b1b; background: #fee2e2; border-color: #ef4444; }
+        .concl-opt.active-ok { color: #065f46; background: #d1fae5; border-color: #10b981; }
+
+        .risk-note { border-left: 4px solid #f59e0b; background: #fffbeb; padding: 10px 15px; margin: 15px 0; font-size: 0.82rem; color: #78350f; }
+        .risk-note b { text-transform: uppercase; }
+
+        .concl-explicatie { margin: 8px 0 0 0; padding-left: 18px; font-size: 0.72rem; color: #475569; line-height: 1.3; }
+        .concl-explicatie li { margin-bottom: 2px; }
+
+        .completare-box { margin-top: 25px; border-top: 1px dashed #94a3b8; padding-top: 15px; }
+        .completare-box .section-title { margin-top: 0; }
+        .completare-row { font-size: 0.85rem; color: #1e293b; margin-bottom: 8px; }
+        .completare-row span[contenteditable="true"] { font-weight: 700; border-bottom: 1px solid #94a3b8; padding: 0 4px; outline: none; }
+        .completare-row span[contenteditable="true"]:focus { background: #eff6ff; }
+
+        .obs-footer { margin-top: 20px; font-size: 0.78rem; font-style: italic; color: #475569; }
 
         @media print {
             @page { margin: 0; size: A4; }
             body { background: white; display: block; }
             .sidebar { display: none !important; }
             .main-content { padding: 0; margin: 0; background: white; overflow: visible; }
-            .sheet { box-shadow: none; margin: 0; width: 210mm; min-height: 296mm; page-break-after: always; padding: 10mm 15mm !important; border: none; }
-            .mate-table th { background: #1e3a8a !important; -webkit-print-color-adjust: exact; }
-            .doc-title-sub { background: #fef3c7 !important; -webkit-print-color-adjust: exact; }
-            .nr-inreg-row { background: #eff6ff !important; -webkit-print-color-adjust: exact; }
+            .sheet { box-shadow: none; margin: 0; width: 210mm; min-height: 296mm; page-break-after: always; padding: 8mm 14mm !important; border: none; }
+
+            .sheet-antet { margin-bottom: 8px; }
+            .nr-inreg-row { font-size: 0.72rem; padding: 5px 10px; margin-bottom: 10px; background: #eff6ff !important; -webkit-print-color-adjust: exact; }
+            .doc-title-container { margin-bottom: 10px; }
+            .doc-title-main { font-size: 1.05rem; }
+
+            .section-title { font-size: 0.7rem; margin: 10px 0 5px 0; }
+            .section-subtitle { font-size: 0.62rem; padding: 4px 10px; margin: 10px 0 5px 0; background: #fef3c7 !important; -webkit-print-color-adjust: exact; }
+
+            .info-table td { font-size: 0.7rem; padding: 5px 8px; line-height: 1.2; }
+            .mate-table th { font-size: 0.55rem; padding: 5px 8px; background: #1e3a8a !important; -webkit-print-color-adjust: exact; }
+            .mate-table td { font-size: 0.68rem; padding: 5px 8px; line-height: 1.2; }
+            .radio-label { font-size: 0.6rem; gap: 3px; }
+            .radio-group { gap: 10px; }
+
+            .conclusion-box { padding: 8px 12px; margin: 10px 0; background: #eff6ff !important; -webkit-print-color-adjust: exact; }
+            .conclusion-row { margin-top: 5px; gap: 15px; }
+            .concl-opt { font-size: 0.68rem; padding: 3px 8px; }
+            .concl-opt.active-risc { background: #fee2e2 !important; -webkit-print-color-adjust: exact; }
+            .concl-opt.active-ok { background: #d1fae5 !important; -webkit-print-color-adjust: exact; }
+            .concl-explicatie { font-size: 0.6rem; margin-top: 5px; }
+
+            .risk-note { font-size: 0.66rem; padding: 6px 10px; margin: 10px 0; background: #fffbeb !important; -webkit-print-color-adjust: exact; }
+
+            .completare-box { margin-top: 12px; padding-top: 8px; }
+            .completare-row { font-size: 0.68rem; margin-bottom: 4px; }
+
+            .obs-footer { font-size: 0.6rem; margin-top: 10px; }
         }
     </style>
 </head>
@@ -125,12 +167,15 @@
         let saveTimeout = null;
 
         const INDICATORS = [
-            { col: 'fo_frecventa', text: 'Elevul are o prezenţă scăzută la şcoală (peste 20 absenţe nemotivate/lună)' },
-            { col: 'fo_rezultate', text: 'Elevul are performanţe academice scăzute (note < 6,5, corigențe sau scădere bruscă)' },
-            { col: 'fo_repetent_1', text: 'Elevul a repetat cel puţin un an de studiu' },
-            { col: 'fo_repetent_m', text: 'Elevul a repetat cel puţin doi ani de studiu' },
-            { col: 'fo_sanctionat', text: 'Elevul are un istoric şcolar de sancţiuni disciplinare sau plângeri' }
+            { col: 'fo_frecventa', text: 'Elevul are frecvenţă şcolară redusă' },
+            { col: 'fo_rezultate', text: 'Elevul are performanţe şcolare slabe' },
+            { col: 'fo_repetent_1', text: 'Elevul a rămas repetent o dată' },
+            { col: 'fo_repetent_m', text: 'Elevul a rămas repetent de două sau mai multe ori' },
+            { col: 'fo_sanctionat', text: 'Elevul a primit sancţiuni în cadrul şcolii (exmatriculare, mustrare, mutare pe motive disciplinare, notă scăzută la purtare etc.) sau plângeri făcute de alţi elevi şi/sau părinţi şi/sau cadre didactice pe motiv de violenţă, bullying, furt, distrugerea de bunuri etc.' }
         ];
+
+        // Coloana din tabel pentru "Elevul este deja identificat și înregistrat în lista de Elevi în proces de abandon"
+        const COL_LISTA_ABANDON = 'fo_lista_abandon';
 
         // Populare Grid Clase
         const clase = ['5A','5B','5C','6A','6B','6C','7A','7B','7C','8A','8B','8C'];
@@ -203,7 +248,15 @@
             if(data) renderSheets(data);
         }
 
+        let currentStudents = [];
+
+        function esteInRisc(s) {
+            if (s[COL_LISTA_ABANDON] === 'DA') return true;
+            return INDICATORS.some(ind => s[ind.col] === 'DA');
+        }
+
         function renderSheets(students) {
+            currentStudents = students;
             const container = document.getElementById('sheetsContainer');
             container.innerHTML = "";
             const nr = document.getElementById('nrBaza').value || '...';
@@ -212,27 +265,34 @@
             students.forEach((s, idx) => {
                 const sheet = document.createElement('div');
                 sheet.className = 'sheet';
+                sheet.dataset.idx = idx;
                 sheet.innerHTML = `
                     <div class="sheet-antet"><img src="antet_pnras.jpeg"></div>
                     <div class="nr-inreg-row">NR. ÎNREG: <span class="nr-display">${nr}/${currentClass}/${idx+1}/${dt}</span></div>
                     
                     <div class="doc-title-container">
                         <h1 class="doc-title-main">Fișa de observație MATE</h1>
-                        <p class="doc-title-cat"><b>Categoria I: Activități de identificarea și monitorizare a elevilor în risc de abandon școlar - MATE</b></p>
-                        <p class="doc-title-sub">A I.2. Aplicarea Fișei de observație și a Fișei de evaluare MATE</p>
                     </div>
 
-                    <div class="info-card">
-                        <div class="info-item"><span class="info-label">Elev</span><span class="info-value">${s.nume_elev}</span></div>
-                        <div class="info-item"><span class="info-label">Clasă</span><span class="info-value">${s.clasa}</span></div>
-                        <div class="info-item"><span class="info-label">Diriginte</span><span class="info-value">Prof. ${s.diriginte || ''}</span></div>
-                        <div class="info-item"><span class="info-label">An Școlar</span><span class="info-value">${currentYear-1}-${currentYear}</span></div>
-                    </div>
-                    <div class="info-card-cnp">
-                        <div class="info-item"><span class="info-label">CNP</span><span class="info-value">${s.cnp || '—'}</span></div>
-                    </div>
+                    <div class="section-title">Indicatorii de risc</div>
+                    <table class="info-table">
+                        <tr><td class="label-cell">Școala (denumire &amp; codul unic de identificare):</td><td class="value-cell">Asociația Dokimasia / PNRAS</td></tr>
+                        <tr><td class="label-cell">Nume și prenume elev:</td><td class="value-cell">${s.nume_elev}</td></tr>
+                        <tr><td class="label-cell">CNP elev:</td><td class="value-cell">${s.cnp || '—'}</td></tr>
+                        <tr><td class="label-cell">Clasa în care se află elevul:</td><td class="value-cell">${s.clasa}</td></tr>
+                        <tr>
+                            <td class="label-cell">Elevul este identificat și înregistrat în lista de „Elevi în proces de abandon”?</td>
+                            <td>
+                                <div class="radio-group">
+                                    <label class="radio-label"><input type="radio" name="${s.id}_${COL_LISTA_ABANDON}" value="DA" ${s[COL_LISTA_ABANDON] === 'DA' ? 'checked' : ''} onchange="updateValue(${idx}, '${COL_LISTA_ABANDON}', 'DA')"> DA</label>
+                                    <label class="radio-label"><input type="radio" name="${s.id}_${COL_LISTA_ABANDON}" value="NU" ${s[COL_LISTA_ABANDON] !== 'DA' ? 'checked' : ''} onchange="updateValue(${idx}, '${COL_LISTA_ABANDON}', 'NU')"> NU</label>
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
 
-                    <table class="mate-table">
+                    <div class="section-subtitle" data-role="indicatori-subtitlu">DOAR DACĂ ELEVUL FRECVENTEAZĂ ȘCOALA (și nu este pe lista „Elevilor în proces de abandon”)</div>
+                    <table class="mate-table" data-role="indicatori-tabel">
                         <thead><tr><th style="width: 75%;">Indicatori de risc identificați</th><th style="text-align:center;">DA / NU</th></tr></thead>
                         <tbody>
                             ${INDICATORS.map(ind => `
@@ -240,8 +300,8 @@
                                     <td>${ind.text}</td>
                                     <td>
                                         <div class="radio-group">
-                                            <label class="radio-label"><input type="radio" name="${s.id}_${ind.col}" value="DA" ${s[ind.col] === 'DA' ? 'checked' : ''} onchange="updateValue(${s.id}, '${ind.col}', 'DA')"> DA</label>
-                                            <label class="radio-label"><input type="radio" name="${s.id}_${ind.col}" value="NU" ${s[ind.col] !== 'DA' ? 'checked' : ''} onchange="updateValue(${s.id}, '${ind.col}', 'NU')"> NU</label>
+                                            <label class="radio-label"><input type="radio" name="${s.id}_${ind.col}" value="DA" ${s[ind.col] === 'DA' ? 'checked' : ''} onchange="updateValue(${idx}, '${ind.col}', 'DA')"> DA</label>
+                                            <label class="radio-label"><input type="radio" name="${s.id}_${ind.col}" value="NU" ${s[ind.col] !== 'DA' ? 'checked' : ''} onchange="updateValue(${idx}, '${ind.col}', 'NU')"> NU</label>
                                         </div>
                                     </td>
                                 </tr>
@@ -249,18 +309,61 @@
                         </tbody>
                     </table>
 
-                    <div class="footer-section">
-                        <div class="sig-box">
-                            <div class="sig-label">Profesor Diriginte,</div>
-                            <div class="sig-name">Prof. ${s.diriginte || ''}</div>
+                    <div class="conclusion-box">
+                        <div class="section-title" style="margin:0;">Concluzia Fișei de observație MATE</div>
+                        <div class="conclusion-row">
+                            <span>Elevul este:</span>
+                            <span class="concl-opt" data-role="concl-risc">1. Cu risc de abandon sau PTS</span>
+                            <span class="concl-opt" data-role="concl-ok">0. Fără risc</span>
                         </div>
-                    </div>`;
+                        <ul class="concl-explicatie">
+                            <li>Dacă toți cei 5 indicatori sunt completați cu „Nu” → elevul nu are risc de abandon sau PTS.</li>
+                            <li>Dacă cel puțin unul dintre cei 5 indicatori este completat cu „Da” → elev cu risc de abandon sau de părăsire timpurie a școlii.</li>
+                        </ul>
+                    </div>
+
+                    <div class="risk-note" data-role="risk-note">
+                        <b>Doar pentru elevii supuși riscului</b><br>
+                        Planificarea evaluării: cazul este evaluat de școală în baza Fișei de evaluare MATE.
+                    </div>
+
+                    <div class="completare-box">
+                        <div class="section-title">Datele privind completarea Fișei de observație MATE</div>
+                        <div class="completare-row">Numele și prenumele persoanei care a completat fișa: <span contenteditable="true">${s.diriginte || ''}</span></div>
+                        <div class="completare-row">Funcția persoanei care a completat fișa: <span contenteditable="true">Profesor Diriginte</span></div>
+                        <div class="completare-row">Data la care a fost completată fișa: <span contenteditable="true">${dt}</span></div>
+                    </div>
+
+                    <div class="obs-footer">Observație: Această fișă trebuie trimisă spre introducere în „Observatorul școlii”.</div>`;
                 container.appendChild(sheet);
+                updateConcluzie(sheet, s);
             });
         }
 
-        async function updateValue(id, col, val) {
-            await _db.from(TABLE_DATA).update({ [col]: val }).eq('id', id);
+        function updateConcluzie(sheet, s) {
+            const subtitlu = sheet.querySelector('[data-role="indicatori-subtitlu"]');
+            const tabel = sheet.querySelector('[data-role="indicatori-tabel"]');
+            const risicNote = sheet.querySelector('[data-role="risk-note"]');
+            const conclRisc = sheet.querySelector('[data-role="concl-risc"]');
+            const conclOk = sheet.querySelector('[data-role="concl-ok"]');
+
+            const inLista = s[COL_LISTA_ABANDON] === 'DA';
+            // Tabelul de indicatori se aplică doar dacă elevul NU e deja pe lista de abandon
+            subtitlu.style.display = inLista ? 'none' : 'block';
+            tabel.style.display = inLista ? 'none' : 'table';
+
+            const risc = esteInRisc(s);
+            conclRisc.classList.toggle('active-risc', risc);
+            conclOk.classList.toggle('active-ok', !risc);
+            risicNote.style.display = risc ? 'block' : 'none';
+        }
+
+        async function updateValue(idx, col, val) {
+            const s = currentStudents[idx];
+            s[col] = val;
+            const sheet = document.querySelector(`.sheet[data-idx="${idx}"]`);
+            if (sheet) updateConcluzie(sheet, s);
+            await _db.from(TABLE_DATA).update({ [col]: val }).eq('id', s.id);
         }
     </script>
 </body>
