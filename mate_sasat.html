@@ -107,7 +107,13 @@
     const _db = supabase.createClient(supabaseUrl, supabaseKey);
     const TABLE_NAME = 'mate_pnras';
 
-    let currentClass = null; let currentPeriod = null; let currentYear = null;
+    let currentClass = null; let currentPeriod = null; let currentYear = null; let currentSuffix = '';
+
+    // Fiecare perioadă din interiorul aceluiași an școlar își are propriul set de coloane
+    // (ex: MARTIE 2026 folosește coloane cu sufix "_mar" ca să nu suprascrie SEPTEMBRIE 2025).
+    function getSuffix(period) {
+        return period === 'MARTIE 2026' ? '_mar' : '';
+    }
 
     // TOATE COLOANELE SUNT ACUM CU LITERE MICI (ex: a11, b53)
     const DATA = [
@@ -235,6 +241,7 @@
         
         currentClass = cls; 
         currentPeriod = period; 
+        currentSuffix = getSuffix(period);
         
         // LOGICA NOUĂ: Dacă este Septembrie 2025, forțăm anul 2026
         let yearToFetch = year;
@@ -270,7 +277,7 @@
         DATA.forEach(sec => {
             h += `<div class="section-title">${sec.title}</div>`; if(sec.desc) h += `<div class="section-desc">${sec.desc}</div>`;
             sec.items.forEach(q => {
-                const name = `${uid}_${q.c}`; const dbValue = elev[q.c];
+                const name = `${uid}_${q.c}`; const dbValue = elev[q.c + currentSuffix];
                 h += `<div class="q-item">`;
                 if(q.type === 'scale') {
                     h += `<div class="q-row"><div class="q-text"><span class="q-code">${q.c}.</span> ${q.t}</div><div class="scale-box">${[1,2,3,4,5].map(v => `<label class="scale-opt"><input type="radio" name="${name}" value="${v}" ${(dbValue===v)?'checked':''}><span class="scale-val">${v}</span></label>`).join('')}</div></div>`;
@@ -389,8 +396,8 @@
         for (let sheet of sheets) {
             const cnp = sheet.dataset.cnp; if(!cnp) continue;
             let answers = {};
-            sheet.querySelectorAll('input[type="radio"]:checked').forEach(r => answers[r.name.split('_')[1]] = parseInt(r.value));
-            const txt = sheet.querySelector('textarea'); if(txt) answers['d3'] = txt.value;
+            sheet.querySelectorAll('input[type="radio"]:checked').forEach(r => answers[r.name.split('_')[1] + currentSuffix] = parseInt(r.value));
+            const txt = sheet.querySelector('textarea'); if(txt) answers['d3' + currentSuffix] = txt.value;
             if(Object.keys(answers).length > 0) {
                 const { error } = await _db.from(TABLE_NAME).update(answers).eq('cnp', cnp);
                 if(error) errors.push(error.message); else successCount++;
@@ -417,11 +424,11 @@ async function resetAllForms() {
     // Generăm automat lista de coloane din structura DATA pentru a le pune pe null
     DATA.forEach(section => {
         section.items.forEach(q => {
-            resetData[q.c] = null;
+            resetData[q.c + currentSuffix] = null;
         });
     });
     // Adăugăm și feedback-ul deschis
-    resetData['d3'] = null;
+    resetData['d3' + currentSuffix] = null;
 
     let updatePromises = [];
 

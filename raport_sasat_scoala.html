@@ -160,7 +160,12 @@ const METRICS_MAP = [
     { id: "B6", t: "(B6) Violența între elevi (Bullying)", items: ["b61","b62","b63","b64"], limit: 15, mode: "RISK", label: "Risc" }
 ];
 
-let currentPeriod = ""; let dateleCurente = []; let timeoutSalvare = null;
+let currentPeriod = ""; let dateleCurente = []; let timeoutSalvare = null; let currentSuffix = '';
+
+// Trebuie să corespundă exact cu getSuffix din mate_sasat.html
+function getSuffix(period) {
+    return period === 'MARTIE 2026' ? '_mar' : '';
+}
 
 function getLvl(perc, mode) {
     const p = parseFloat(perc);
@@ -182,9 +187,10 @@ async function initRaport(period, year, btn) {
     document.querySelectorAll('.p-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
     currentPeriod = period;
+    currentSuffix = getSuffix(period);
     document.getElementById('display-period').innerText = period;
     let targetYear = (period === 'SEPTEMBRIE 2025') ? 2026 : year;
-    const { data } = await _db.from('mate_pnras').select('*').eq('anul', targetYear).not('a11', 'is', null);
+    const { data } = await _db.from('mate_pnras').select('*').eq('anul', targetYear).not('a11' + currentSuffix, 'is', null);
     dateleCurente = data || [];
     renderSummary(dateleCurente, "school-summary-body");
     renderClasses(dateleCurente);
@@ -197,7 +203,7 @@ function renderSummary(data, targetId) {
     if(!data.length) return;
     METRICS_MAP.forEach(m => {
         let cnt = 0; data.forEach(e => {
-            let s = 0; m.items.forEach(it => s += (e[it]||0));
+            let s = 0; m.items.forEach(it => s += (e[it + currentSuffix]||0));
             if (m.mode === "OPTIMAL" ? s >= m.limit : s > m.limit) cnt++;
         });
         let p = ((cnt / data.length) * 100).toFixed(1);
