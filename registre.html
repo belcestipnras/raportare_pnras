@@ -590,8 +590,10 @@
                     );
                 } else if (tipRegistru === 'dosare') {
                     elevi = eleviInitial.filter(elev =>
-                        ['fo_frecventa','fo_rezultate','fo_repetent_1','fo_repetent_m','fo_sanctionat']
-                            .some(camp => (elev[camp] || '').toUpperCase().trim() === 'DA')
+                        elev.nr_dosar &&
+                        elev.nr_dosar.trim() !== '' &&
+                        elev.nr_dosar.trim() !== '-' &&
+                        elev.nr_dosar.trim() !== '---'
                     );
                 }
 
