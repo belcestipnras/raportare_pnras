@@ -121,6 +121,23 @@ let anScolarDisplay = '2025 - 2026';
 let toateDatele = [];
 let vizualizareCurenta = 'General';
 let contextStatisticiAI = {};
+let nrInregBaza = '';
+
+function formatNrInreg(baza, view) {
+    if (!baza) return '';
+    const segs = baza.split('/').map(x => x.trim()).filter(Boolean);
+    if (segs.length < 2) return `Nr. ${baza}`;
+    const numar = segs[0];
+    const data = segs.slice(1).join('/');
+    return (view === 'General') ? `Nr. ${numar}/${data}` : `Nr. ${numar}/${view}/${data}`;
+}
+
+function parseBazaDinInput(raw) {
+    let s = (raw || '').replace(/^Nr\.?\s*/i, '').trim();
+    const segs = s.split('/').map(x => x.trim()).filter(Boolean);
+    if (segs.length >= 3) return `${segs[0]}/${segs.slice(2).join('/')}`;
+    return segs.join('/');
+}
 
 const MATE_MAP = {
     'sub-a': { title: "(A) Factori de risc în relaţie cu sprijinul familial", items: [
@@ -182,18 +199,22 @@ async function switchView(view) {
     renderIndicators(subset);
     renderSignatures(subset);
     
-    // REÎNCĂRCARE DIN DB PENTRU FIECARE VIZUALIZARE (REPARĂ PROBLEMA REFRESH)
+    // REÎNCĂRCARE observații din DB pentru fiecare vizualizare (REPARĂ PROBLEMA REFRESH)
     const idRef = subset[0]?.id;
     if (idRef) {
-        const { data, error } = await _db.from('mate_pnras').select('observatii_evaluare, nr_inregistrare').eq('id', idRef).single();
+        const { data, error } = await _db.from('mate_pnras').select('observatii_evaluare').eq('id', idRef).single();
         if (!error && data) {
             document.getElementById('ai-box').innerHTML = data.observatii_evaluare || "";
-            document.getElementById('nr-inreg-input').value = data.nr_inregistrare || "";
-            // Sincronizăm și local
             subset[0].observatii_evaluare = data.observatii_evaluare;
-            subset[0].nr_inregistrare = data.nr_inregistrare;
         }
     }
+
+    // Numărul de înregistrare e un singur cod, comun pentru tot anul (indiferent de clasă/general);
+    // se formatează diferit doar la afișare: cu clasa inserată, sau fără, pentru "General".
+    const idCodificatNr = `REG_evaluare_${anSelectat}`;
+    const { data: dataNr } = await _db.from('numere_inregistrare').select('nr_c').eq('id_unique', idCodificatNr).single();
+    nrInregBaza = dataNr?.nr_c || '';
+    document.getElementById('nr-inreg-input').value = formatNrInreg(nrInregBaza, view);
 }
 
 function renderIndicators(subset) {
@@ -234,21 +255,29 @@ function renderSignatures(subset) {
 async function salveazaDate() {
     const subset = vizualizareCurenta === 'General' ? toateDatele : toateDatele.filter(e => e.clasa === vizualizareCurenta);
     const idReferinta = subset[0]?.id;
-    if (!idReferinta) return;
-
     const valAI = document.getElementById('ai-box').innerHTML;
-    const valNr = document.getElementById('nr-inreg-input').value;
 
-    const { error } = await _db.from('mate_pnras').update({ 
-        observatii_evaluare: valAI, 
-        nr_inregistrare: valNr 
-    }).eq('id', idReferinta);
-
-    if (!error) {
+    if (idReferinta) {
+        await _db.from('mate_pnras').update({ observatii_evaluare: valAI }).eq('id', idReferinta);
         subset[0].observatii_evaluare = valAI;
-        subset[0].nr_inregistrare = valNr;
-        console.log("Date salvate persistent.");
     }
+
+    const rawInput = document.getElementById('nr-inreg-input').value;
+    nrInregBaza = parseBazaDinInput(rawInput);
+    document.getElementById('nr-inreg-input').value = formatNrInreg(nrInregBaza, vizualizareCurenta);
+
+    const idCodificatNr = `REG_evaluare_${anSelectat}`;
+    const { error } = await _db.from('numere_inregistrare').upsert({
+        id_unique: idCodificatNr,
+        expert_nume: 'Sistem',
+        luna: 1,
+        an: anSelectat,
+        nr_c: nrInregBaza,
+        ultima_modificare: new Date().toISOString()
+    }, { onConflict: 'id_unique' });
+
+    if (!error) console.log("Date salvate persistent.");
+    else console.error("Eroare la salvarea numărului de înregistrare:", error);
 }
 
 async function genereazaAnalizaAI() {
