@@ -20370,7 +20370,7 @@ async function onAnulChange(anNou) {
             let html = `<tr class="data-row">
                 <td class="col-nr" onclick="del(${row.data.id})" title="Click pentru a șterge">${row.nr || index + 1}</td>`;
             
-            if(isAlfabetic) html += `<td class="col-clasa">${row.data.clasa}</td>`;
+            if(isAlfabetic) html += `<td class="col-clasa"><input class="edit-input" style="text-align:center" value="${row.data.clasa}" onblur="save(${row.data.id}, 'clasa', this.value)" onkeydown="handleEnter(event)"></td>`;
             
             html += `<td><input class="edit-input" value="${row.data.nume_elev}" onblur="save(${row.data.id}, 'nume_elev', this.value)" onkeydown="handleEnter(event)"></td>
                 <td class="col-cnp"><input class="edit-input" style="text-align:center" value="${row.data.cnp || ''}" onblur="save(${row.data.id}, 'cnp', this.value)" onkeydown="handleEnter(event)"></td>
@@ -20491,7 +20491,7 @@ async function onAnulChange(anNou) {
         } 
     }
 
-    async function save(id, col, val) { await _supabase.from('mate_pnras').update({ [col]: val }).eq('id', id); const idx = dataCache.findIndex(x => x.id === id); if(idx > -1) { dataCache[idx][col] = val; if(col === 'nume_elev') { const isAlfabetic = document.getElementById('txtClasa').innerText === 'TOATE'; updateView(isAlfabetic); } } }
+    async function save(id, col, val) { await _supabase.from('mate_pnras').update({ [col]: val }).eq('id', id); const idx = dataCache.findIndex(x => x.id === id); if(idx > -1) { dataCache[idx][col] = val; if(col === 'nume_elev' || col === 'clasa') { const isAlfabetic = document.getElementById('txtClasa').innerText === 'TOATE'; updateView(isAlfabetic); } } }
     
     async function adaugaRand() { 
         const p = { nume_elev: "", clasa: clasaSelectata, anul: parseInt(anul), diriginte: document.getElementById('txtDiriginte').innerText, cnp: "" }; 
