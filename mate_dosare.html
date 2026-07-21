@@ -138,14 +138,42 @@
 
     async function fetchInreg() {
         let id_doc = modulPrintGeneral ? `DOSARE_CAZ_${anul}_GENERAL` : `DOSARE_CAZ_${anul}_${clasaSelectata}`;
-        const { data } = await _supabase.from('registru_numere').select('nr_inreg').eq('id_document', id_doc).maybeSingle();
-        document.getElementById('nrInregInput').value = data ? data.nr_inreg : (modulPrintGeneral ? " / / " : ` /${clasaSelectata}/ `);
+        const { data, error } = await _supabase
+            .from('registru_numere')
+            .select('nr_inreg')
+            .eq('id_document', id_doc)
+            .order('id', { ascending: false })
+            .limit(1);
+        if (error) console.error('Eroare la citirea numărului de înregistrare:', error);
+        const val = (data && data.length > 0) ? data[0].nr_inreg : null;
+        document.getElementById('nrInregInput').value = val || (modulPrintGeneral ? " / / " : ` /${clasaSelectata}/ `);
     }
 
     async function saveCentralInreg(val) {
         if(!clasaSelectata && !modulPrintGeneral) return;
         let id_doc = modulPrintGeneral ? `DOSARE_CAZ_${anul}_GENERAL` : `DOSARE_CAZ_${anul}_${clasaSelectata}`;
-        await _supabase.from('registru_numere').upsert({ id_document: id_doc, nr_inreg: val, anul: anul, tip_document: 'dosare_caz' }, { onConflict: 'id_document' });
+        // Verificăm întâi dacă există deja o înregistrare pentru acest document, ca să nu creăm
+        // rânduri duplicate (upsert pe id_document necesită o constrângere UNIQUE care poate lipsi).
+        const { data: existent, error: errSelect } = await _supabase
+            .from('registru_numere')
+            .select('id')
+            .eq('id_document', id_doc)
+            .order('id', { ascending: false })
+            .limit(1);
+        if (errSelect) { console.error('Eroare la verificarea numărului de înregistrare:', errSelect); return; }
+
+        let errSave;
+        if (existent && existent.length > 0) {
+            const { error } = await _supabase.from('registru_numere')
+                .update({ nr_inreg: val, anul: anul, tip_document: 'dosare_caz' })
+                .eq('id', existent[0].id);
+            errSave = error;
+        } else {
+            const { error } = await _supabase.from('registru_numere')
+                .insert({ id_document: id_doc, nr_inreg: val, anul: anul, tip_document: 'dosare_caz' });
+            errSave = error;
+        }
+        if (errSave) { console.error('Eroare la salvarea numărului de înregistrare:', errSave); alert('Numărul de înregistrare nu a putut fi salvat. Verifică consola pentru detalii.'); }
     }
 
     function renderTabs() {
