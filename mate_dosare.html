@@ -72,8 +72,7 @@
     </div>
     <div style="display:flex; gap:10px;">
         <button class="btn" style="border-color:var(--accent-red); color:var(--accent-red);" onclick="resetData()">Resetare Date</button>
-        <button class="btn" style="background:var(--accent-blue); color:white;" onclick="printMod('toate')">Printează Tot</button>
-        <button class="btn" onclick="window.print()">Printează Clasa</button>
+        <button class="btn" onclick="window.print()">Printează</button>
     </div>
 </div>
 
@@ -180,9 +179,22 @@
         const container = document.getElementById('selectorClase');
         container.innerHTML = '';
         const clase = [...new Set(dataCache.map(e => e.clasa))].sort();
+
+        const btnToate = document.createElement('button');
+        btnToate.className = `btn btn-clasa ${modulPrintGeneral ? 'active' : ''}`;
+        btnToate.style.borderColor = 'var(--accent-blue)';
+        btnToate.style.color = modulPrintGeneral ? '#fff' : 'var(--accent-blue)';
+        btnToate.innerText = 'TOATE';
+        btnToate.onclick = async () => {
+            modulPrintGeneral = true;
+            await fetchInreg();
+            renderTabs();
+        };
+        container.appendChild(btnToate);
+
         clase.forEach(c => {
             const btn = document.createElement('button');
-            btn.className = `btn btn-clasa ${c === clasaSelectata ? 'active' : ''}`;
+            btn.className = `btn btn-clasa ${(!modulPrintGeneral && c === clasaSelectata) ? 'active' : ''}`;
             btn.innerText = c;
             btn.onclick = async () => { 
                 clasaSelectata = c; 
@@ -287,14 +299,6 @@
         }
     }
 
-    async function printMod(tip) {
-        if(tip === 'toate') {
-            modulPrintGeneral = true;
-            await fetchInreg();
-            updateView();
-            setTimeout(() => { window.print(); modulPrintGeneral = false; renderTabs(); }, 500);
-        }
-    }
     init();
 </script>
 </body>
