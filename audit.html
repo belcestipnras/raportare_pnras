@@ -638,6 +638,24 @@
     const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFleGpyYmRnYWp1cnh6bmdma3B4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgxMzE3NTYsImV4cCI6MjA4MzcwNzc1Nn0.VUx0QOKgjX4m23HOF2rBpE9vWA3T18KtjLc0w_iXhqA';
     const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
+    // Supabase/PostgREST limitează implicit la 1000 rânduri per query.
+    // Pentru query-uri agregate (fără filtru pe contract_id) trebuie paginat,
+    // altfel dosarele "de la coadă" pierd documente din calculul COMPLET/X.
+    async function fetchAllRows(table, selectStr) {
+        let toate = [];
+        let de_la = 0;
+        const PAS = 1000;
+        while (true) {
+            const { data, error } = await db.from(table).select(selectStr).range(de_la, de_la + PAS - 1);
+            if (error) { console.error('[fetchAllRows]', table, error); break; }
+            if (!data || data.length === 0) break;
+            toate = toate.concat(data);
+            if (data.length < PAS) break;
+            de_la += PAS;
+        }
+        return toate;
+    }
+
 /* ===== CLOUDFLARE R2 — WORKER PROXY ===== */
 // ⚠️  Înlocuiește URL-ul de mai jos cu URL-ul Worker-ului tău după deploy
 const WORKER_URL = "https://r2-proxy.belcesti-pnras2024.workers.dev";
@@ -1164,7 +1182,7 @@ async function r2DeleteFile(publicUrl, bucketKey) {
         const { data: toateContractele } = await db.from('buget_pnras').select('*')
             .eq('tip_rand', 'CONTRACT').order('data_document', { ascending: true });
 
-        const { data: documente } = await db.from('documente_contract').select('contract_id, tip_document, furnizor');
+        const documente = await fetchAllRows('documente_contract', 'contract_id, tip_document, furnizor');
 
         const { data: manual } = await db.from('audit_continut').select('*')
             .eq('card_id', '00000000-0000-0000-0000-000000000001').is('parent_id', null).eq('sters', false)
@@ -1356,7 +1374,7 @@ async function r2DeleteFile(publicUrl, bucketKey) {
         const { data: toateContractele } = await db.from('buget_pnras').select('*')
             .eq('tip_rand', 'CONTRACT').order('data_document', { ascending: true });
 
-        const { data: documente } = await db.from('documente_contract').select('contract_id, tip_document');
+        const documente = await fetchAllRows('documente_contract', 'contract_id, tip_document');
 
         const { data: blocate } = await db.from('audit_continut').select('titlu')
             .eq('card_id', '00000000-0000-0000-0000-000000000004').eq('tip', 'blocat').eq('sters', false);
