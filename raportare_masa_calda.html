@@ -602,6 +602,8 @@ async function load(){
 // ===== SIDEBAR =====
 // Starea secțiunilor deschise — persistă între re-render-uri, gol la deschidere = toate colapsate
 let _sbOpen=new Set();
+// Starea cardurilor de secțiune (dosar principal) deschise — persistă între re-render-uri (ex: după upload aviz)
+let _scOpen=new Set();
 
 function renderSidebar(byTip){
   document.getElementById('sidebar').innerHTML=SECTIUNI.map((s,i)=>{
@@ -896,7 +898,7 @@ function renderMain(byTip){
     } else if(s.id==='S2'){
       cnt=_facturi.filter(f=>f.doc&&!f.doc.exclude_print).length+(byTip[mk(s.id)]||[]).filter(d=>!d.exclude_print).length;
     } else {cnt=(byTip[mk(s.id)]||[]).filter(d=>!d.exclude_print).length;}
-    return`<div class="sec-card collapsed" id="sc_${s.id}">
+    return`<div class="sec-card${_scOpen.has(s.id)?'':' collapsed'}" id="sc_${s.id}">
       <div class="sec-hdr" onclick="toggleSec('${s.id}')">
         <span class="sec-hdr-icon">${s.icon}</span>
         <div class="sec-hdr-info">
@@ -967,7 +969,13 @@ function upzoneHtml(secId,zi=''){
     onchange="onFileInput(event,'${secId}','${zi}')">`;
 }
 
-function toggleSec(id){document.getElementById('sc_'+id).classList.toggle('collapsed');}
+function toggleSec(id){
+  const el=document.getElementById('sc_'+id);
+  if(!el)return;
+  el.classList.toggle('collapsed');
+  if(el.classList.contains('collapsed')) _scOpen.delete(id);
+  else _scOpen.add(id);
+}
 
 // ===== UPLOAD =====
 function onDrop(ev,secId,zi){
