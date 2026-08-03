@@ -70,6 +70,7 @@
         #lista-obiective ul { 
             margin: 0; 
             padding-left: 20px; 
+            list-style-position: inside;
         }
 
         .proiect-field-box {
@@ -83,7 +84,7 @@
             font-size: 11pt;
             white-space: pre-wrap;
         }
-        .proiect-field-box ul { margin: 0; padding-left: 20px; }
+        .proiect-field-box ul { margin: 0; padding-left: 20px; list-style-position: inside; }
 
         .no-print { position: fixed; top: 0; left: 0; width: 100%; background: #1e293b; padding: 15px 20px; display: flex; align-items: center; justify-content: flex-end; gap: 10px; z-index: 1000; box-shadow: 0 2px 10px rgba(0,0,0,0.2); box-sizing: border-box; }
         .btn { padding: 8px 16px; border: none; cursor: pointer; font-weight: bold; border-radius: 6px; font-family: sans-serif; font-size: 14px; transition: 0.2s; }
@@ -194,7 +195,7 @@
 
         <div class="signature-section">
             <div class="sig-box" id="sig-box-intocmit"><strong>Întocmit,</strong><br>Expert:<br><span id="sig-expert-nume"></span></div>
-            <div class="sig-box sig-center"><strong>Avizat,</strong><br>Manager proiect,<br>prof. dr. Ciprian MIHAI</div>
+            <div class="sig-box sig-center" id="sig-box-avizat"><strong>Avizat,</strong><br>Manager proiect,<br>prof. dr. Ciprian MIHAI</div>
             <div class="sig-box sig-right"><strong>Aprobat,</strong><br>Director,<br>prof. Cătălin Ionuț BAZILUC</div>
         </div>
 
@@ -379,7 +380,8 @@
         // 4. Semnătura — reflectă textul curent (eventual editat manual) din Echipa de implementare
         const echipaText = document.getElementById('label-proiect-echipa').innerText;
         const echipaListaSemnatura = echipaText.split(',').map(s => s.trim()).filter(Boolean).join('<br>') || '—';
-        document.getElementById('sig-box-intocmit').innerHTML = `<strong>Întocmit,</strong><br>Echipa de implementare:<br>${echipaListaSemnatura}`;
+        document.getElementById('sig-box-intocmit').innerHTML = `<strong>Manager proiect,</strong><br>prof. dr. Ciprian MIHAI`;
+        document.getElementById('sig-box-avizat').style.display = 'none';
 
         renderTable();
         isReady = true;
@@ -532,11 +534,7 @@
     ['proiect-argument','proiect-scop','proiect-obiective','proiect-grup-tinta','proiect-resurse','proiect-rezultate','proiect-evaluare','label-proiect-titlu','label-proiect-perioada'].forEach(id => {
         document.getElementById(id).oninput = triggerSave;
     });
-    document.getElementById('label-proiect-echipa').oninput = function() {
-        const echipaListaSemnatura = this.innerText.split(',').map(s => s.trim()).filter(Boolean).join('<br>') || '—';
-        document.getElementById('sig-box-intocmit').innerHTML = `<strong>Întocmit,</strong><br>Echipa de implementare:<br>${echipaListaSemnatura}`;
-        triggerSave();
-    };
+    document.getElementById('label-proiect-echipa').oninput = triggerSave;
     init();
 </script>
 </body>

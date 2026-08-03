@@ -36,7 +36,18 @@
 
         .msg-special { padding: 30px; border: 2px dashed #dc2626; color: #b91c1c; font-weight: bold; text-align: center; background: #fef2f2; margin-top: 20px; border-radius: 10px; line-height: 1.5; }
         input.edit-name { border: none !important; outline: none !important; width: 100%; font-family: inherit; font-size: inherit; background: transparent; text-align: center; font-weight: 600; }
-        
+
+        /* ===== LISTĂ COMUNĂ PROIECT — MASĂ (toți elevii, o singură listă continuă) ===== */
+        .proiect-table { width: 100%; border-collapse: collapse; font-family: 'Roboto Mono', monospace; }
+        .proiect-table thead { display: table-header-group; } /* se repetă pe fiecare pagină printată */
+        .proiect-table th, .proiect-table td { border: 1px solid black; padding: 8px 5px; font-size: 13px; text-align: center; vertical-align: middle; }
+        .proiect-table .thead-antet td, .proiect-table .thead-titlu td, .proiect-table .thead-info td { border: none; padding: 4px 0; }
+        .proiect-table .thead-cols th { background: #f8fafc; text-transform: uppercase; font-size: 11px; }
+        @media print { .proiect-table tr { break-inside: avoid; } }
+        .sig3 { display: flex; justify-content: space-between; gap: 20px; margin-top: 40px; }
+        .sig3 .sb { flex: 1; text-align: center; font-size: 13px; line-height: 1.6; outline: none; }
+        .sig3 .sb:focus { background: #f8fafc; }
+
         /* Stil special pentru izolarea paginii la printare individuală */
         .hide-for-print { display: none !important; }
 
@@ -49,6 +60,7 @@
         <button id="btn-back" class="main-btn btn-back-bold"><span>⬅</span> ÎNAPOI</button>
         <button class="main-btn btn-success" onclick="addRow()">➕ ADAUGĂ RÂND</button>
         <button class="main-btn btn-danger" onclick="removeLastRow()">➖ ȘTERGE RÂND</button>
+        <button id="btn-revino-lista" class="main-btn" style="display:none; background:#f59e0b; color:#000;" onclick="revinoLaListaCompleta(_currentProiect)">🔄 REVINO LA LISTA COMPLETĂ</button>
     </div>
     <div id="master-container"></div>
     <template id="page-template">
@@ -142,6 +154,17 @@
     }
 
     function addRow() {
+        const tbodyP = document.getElementById('tabel-body-proiect-masa');
+        if (tbodyP) {
+            const proiect = new URLSearchParams(window.location.search).get('proiect') || '';
+            const pSafe = proiect.replace(/'/g, "\\'");
+            const nextNr = tbodyP.querySelectorAll('tr').length + 1;
+            const tr = document.createElement('tr');
+            tr.innerHTML = `<td class="nr-cell">${nextNr}</td><td><input type="text" class="edit-name" placeholder="Nume Prenume" oninput="autoSaveProiectMasa('${pSafe}')"></td><td><input type="checkbox" class="p-check" checked onclick="toggleCheck(this, 'p'); autoSaveProiectMasa('${pSafe}')"></td><td><input type="checkbox" class="a-check" onclick="toggleCheck(this, 'a'); autoSaveProiectMasa('${pSafe}')"></td><td></td>`;
+            tbodyP.appendChild(tr);
+            autoSaveProiectMasa(proiect);
+            return;
+        }
         document.querySelectorAll('.tabel-body').forEach(tbody => {
             if (tbody.closest('.container-tabel').style.display !== 'none') {
                 const tr = document.createElement('tr');
@@ -153,19 +176,164 @@
     }
 
     function removeLastRow() {
+        const tbodyP = document.getElementById('tabel-body-proiect-masa');
+        if (tbodyP) {
+            const rows = tbodyP.querySelectorAll('tr');
+            if (rows.length) rows[rows.length - 1].remove();
+            reindexAll();
+            autoSaveProiectMasa(new URLSearchParams(window.location.search).get('proiect') || '');
+            return;
+        }
         document.querySelectorAll('.tabel-body').forEach(tbody => { if (tbody.lastElementChild) tbody.removeChild(tbody.lastElementChild); });
         reindexAll();
     }
 
     function reindexAll() {
+        const tbodyP = document.getElementById('tabel-body-proiect-masa');
+        if (tbodyP) {
+            tbodyP.querySelectorAll('.nr-cell').forEach((td, i) => td.textContent = i + 1);
+            return;
+        }
         document.querySelectorAll('.tabel-body').forEach(tbody => {
             tbody.querySelectorAll('.nr-cell').forEach((td, i) => td.textContent = i + 1);
         });
     }
 
+    // ===================== LISTĂ COMUNĂ PROIECT — MASĂ (toți elevii, editabilă, cu salvare) =====================
+    const ANUL_CURENT_PROIECT_MASA = '2026'; // anul academic curent din mate_pnras (text)
+    let _proiectMasaSaveTimer = null;
+    let _currentProiect = null;
+
+    function sanitizeDocIdMasa(s) {
+        return (s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-zA-Z0-9_\-]/g, '_');
+    }
+
+    async function preiaRosterCompletMasa() {
+        // Sursă corectă pentru toți elevii școlii: mate_pnras (nu 'elevi', care are duplicate pe grupe)
+        // ATENȚIE: doar .select() — nicio operație de scriere/ștergere nu atinge vreodată mate_pnras.
+        const { data: elevi } = await _supabase.from('mate_pnras')
+            .select('nume_elev').eq('anul', ANUL_CURENT_PROIECT_MASA);
+        const numeUnice = [...new Set((elevi || []).map(e => e.nume_elev).filter(Boolean))]
+            .sort((a, b) => a.localeCompare(b, 'ro'));
+        return numeUnice.map(n => ({ nume: n, p: true, a: false }));
+    }
+
+    async function revinoLaListaCompleta(proiect) {
+        if (!proiect) return;
+        if (!confirm('Sigur revii la lista completă cu toți elevii? Orice nume adăugat/șters/editat manual în lista curentă se va pierde. (Baza de date cu elevii — mate_pnras — nu e afectată, doar lista de aici.)')) return;
+        const randuri = await preiaRosterCompletMasa();
+        const titlu = document.getElementById('pr-titlu-m')?.innerText || 'LISTĂ DE PRIMIRE A PACHETULUI ALIMENTAR DE TIP MASĂ CALDĂ — PROIECT';
+        const numeAfisat = document.getElementById('pr-nume-m')?.innerText || proiect;
+        const intocmit = document.getElementById('pr-intocmit-m')?.innerHTML || 'Manager proiect,<br>prof. dr. Ciprian MIHAI';
+        const aprobat = document.getElementById('pr-aprobat-m')?.innerHTML || 'Aprobat,<br>Director,<br>prof. Cătălin-Ionuț BAZILUC';
+        randareTabelProiectMasa(proiect, randuri, titlu, numeAfisat, intocmit, aprobat);
+        await salveazaProiectMasa(proiect);
+    }
+
+    async function incarcaDateProiectMasa(proiect, expert) {
+        _currentProiect = proiect;
+        document.getElementById('btn-revino-lista').style.display = 'flex';
+        document.getElementById('btn-back').onclick = () => {
+            window.location.href = expert ? `dosar-expert.html?expert=${encodeURIComponent(expert)}` : `dosar-expert.html?mod=proiecte`;
+        };
+
+        const docId = 'LISTA_MASA_PROIECT_' + sanitizeDocIdMasa(proiect);
+        const { data: savedDoc } = await _supabase.from('planificari_documente')
+            .select('continut_json').eq('tip_document', docId).maybeSingle();
+
+        let randuri, titlu, numeAfisat, intocmit, aprobat;
+        if (savedDoc && savedDoc.continut_json && Array.isArray(savedDoc.continut_json.randuri)) {
+            const j = savedDoc.continut_json;
+            randuri = j.randuri;
+            titlu = j.titlu ?? 'LISTĂ DE PRIMIRE A PACHETULUI ALIMENTAR DE TIP MASĂ CALDĂ — PROIECT';
+            numeAfisat = j.numeAfisat ?? proiect;
+            intocmit = j.intocmit ?? 'Manager proiect,<br>prof. dr. Ciprian MIHAI';
+            aprobat = j.aprobat ?? 'Aprobat,<br>Director,<br>prof. Cătălin-Ionuț BAZILUC';
+        } else {
+            randuri = await preiaRosterCompletMasa();
+            titlu = 'LISTĂ DE PRIMIRE A PACHETULUI ALIMENTAR DE TIP MASĂ CALDĂ — PROIECT';
+            numeAfisat = proiect;
+            intocmit = 'Manager proiect,<br>prof. dr. Ciprian MIHAI';
+            aprobat = 'Aprobat,<br>Director,<br>prof. Cătălin-Ionuț BAZILUC';
+        }
+
+        randareTabelProiectMasa(proiect, randuri, titlu, numeAfisat, intocmit, aprobat);
+        document.getElementById('status-msg').style.display = 'none';
+    }
+
+    function randareTabelProiectMasa(proiect, randuri, titlu, numeAfisat, intocmit, aprobat) {
+        const master = document.getElementById('master-container');
+        const pSafe = proiect.replace(/'/g, "\\'");
+        const rows = randuri.map((r, i) => `
+            <tr>
+                <td class="nr-cell">${i + 1}</td>
+                <td><input type="text" class="edit-name" value="${(r.nume || '').replace(/"/g, '&quot;')}" oninput="autoSaveProiectMasa('${pSafe}')"></td>
+                <td><input type="checkbox" class="p-check" ${r.p !== false ? 'checked' : ''} onclick="toggleCheck(this, 'p'); autoSaveProiectMasa('${pSafe}')"></td>
+                <td><input type="checkbox" class="a-check" ${r.a === true ? 'checked' : ''} onclick="toggleCheck(this, 'a'); autoSaveProiectMasa('${pSafe}')"></td>
+                <td></td>
+            </tr>`).join('');
+
+        master.innerHTML = `
+            <div class="page" style="min-height:auto;">
+                <table class="proiect-table">
+                    <thead>
+                        <tr class="thead-antet"><td colspan="5"><img src="antet_pnras.jpeg" class="antet-img"></td></tr>
+                        <tr class="thead-titlu"><td colspan="5"><h2 id="pr-titlu-m" contenteditable="true" oninput="autoSaveProiectMasa('${pSafe}')">${titlu}</h2></td></tr>
+                        <tr class="thead-info"><td colspan="5">
+                            <div class="grid-info" style="margin-bottom:0;">
+                                <div class="info-item" style="grid-column: span 2;"><span class="info-label">Proiect:</span> <span class="info-value" id="pr-nume-m" contenteditable="true" oninput="autoSaveProiectMasa('${pSafe}')">${numeAfisat}</span></div>
+                            </div>
+                        </td></tr>
+                        <tr class="thead-cols"><th style="width:5%;">Nr.</th><th style="width:55%;">Nume elev</th><th style="width:10%;">Da</th><th style="width:10%;">Nu</th><th style="width:20%;">Semnătura</th></tr>
+                    </thead>
+                    <tbody id="tabel-body-proiect-masa">${rows}</tbody>
+                </table>
+                <div class="sig3">
+                    <div class="sb" id="pr-intocmit-m" contenteditable="true" oninput="autoSaveProiectMasa('${pSafe}')">${intocmit}</div>
+                    <div class="sb" id="pr-aprobat-m" contenteditable="true" oninput="autoSaveProiectMasa('${pSafe}')">${aprobat}</div>
+                </div>
+            </div>
+        `;
+    }
+
+    function autoSaveProiectMasa(proiect) {
+        if (!proiect) return;
+        clearTimeout(_proiectMasaSaveTimer);
+        _proiectMasaSaveTimer = setTimeout(() => salveazaProiectMasa(proiect), 1200);
+    }
+
+    async function salveazaProiectMasa(proiect) {
+        const tbodyP = document.getElementById('tabel-body-proiect-masa');
+        if (!tbodyP) return;
+        const randuri = [...tbodyP.querySelectorAll('tr')].map(tr => ({
+            nume: tr.querySelector('.edit-name').value,
+            p: tr.querySelector('.p-check').checked,
+            a: tr.querySelector('.a-check').checked
+        }));
+        const docId = 'LISTA_MASA_PROIECT_' + sanitizeDocIdMasa(proiect);
+        await _supabase.from('planificari_documente').upsert({
+            tip_document: docId,
+            an: 0,
+            luna: 'PROIECT',
+            continut_json: {
+                randuri,
+                titlu: document.getElementById('pr-titlu-m')?.innerText ?? '',
+                numeAfisat: document.getElementById('pr-nume-m')?.innerText ?? '',
+                intocmit: document.getElementById('pr-intocmit-m')?.innerHTML ?? '',
+                aprobat: document.getElementById('pr-aprobat-m')?.innerHTML ?? ''
+            },
+            expert: 'PROIECT_COMUN'
+        }, { onConflict: 'tip_document' });
+    }
+
     async function incarcaDate() {
         try {
             const params = new URLSearchParams(window.location.search);
+            const proiect = params.get('proiect');
+            if (proiect) {
+                await incarcaDateProiectMasa(proiect, params.get('expert'));
+                return;
+            }
             globalConfig = { expert: params.get('expert'), clasa: params.get('clasa'), luna: params.get('luna'), an: params.get('an') };
             document.getElementById('btn-back').onclick = () => { window.location.href = `dosar-expert.html?expert=${encodeURIComponent(globalConfig.expert)}`; };
             
