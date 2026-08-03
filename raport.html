@@ -111,9 +111,88 @@
         "Aparascăi Vasile": { act: "A II.6.", desc: "Activități pentru dezvoltarea literației. Club de lectură", disc: "Activități extracurriculare la Clubul de lectură și literație", poz: "Expert activități extracurriculare la Clubul de lectură și literație", cim: "48/PNRAS/31.10.2024" }
     };
 
+    const _paramsRaport = new URLSearchParams(window.location.search);
+    const _numeProiectURL = _paramsRaport.get('proiect');
+    const _expertURLProiect = _paramsRaport.get('expert');
+
+    function sanitizeDocIdRaport(s) {
+        return (s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-zA-Z0-9_\-]/g, '_');
+    }
+
     function duTeInapoiLaDosar() {
         const expert = localStorage.getItem('expertPNRAS');
         window.location.href = expert ? `dosar-expert.html?expert=${encodeURIComponent(expert)}` : 'index.html';
+    }
+
+    function duTeInapoiProiect() {
+        window.location.href = _expertURLProiect ? `dosar-expert.html?expert=${encodeURIComponent(_expertURLProiect)}` : 'dosar-expert.html?mod=proiecte';
+    }
+
+    // ===================== RAPORT DE ACTIVITATE — PROIECT (document comun, editabil) =====================
+    // Complet separat de raportul lunar per-expert. Conținutul lui (Rezultate/Livrabile) e preluat
+    // automat în raportul lunar al fiecărui expert, în zilele de Proiect din luna respectivă.
+    let _raportProiectSaveTimer = null;
+
+    async function initProiect(numeProiect) {
+        document.querySelector('.no-print').innerHTML = `
+            <div class="header-ui">
+                <button type="button" class="btn-back-custom" onclick="duTeInapoiProiect()"><span>⬅</span> ÎNAPOI</button>
+                <button type="button" style="background:var(--primary); color:white; padding:12px 25px; border:none; border-radius:10px; cursor:pointer; font-weight:bold;" onclick="window.print()">🖨️ PRINTEAZĂ</button>
+            </div>`;
+
+        const docId = 'RAPORT_PROIECT_' + sanitizeDocIdRaport(numeProiect);
+        const { data: saved } = await _supabase.from('planificari_documente').select('continut_json').eq('tip_document', docId).maybeSingle();
+        const j = (saved && saved.continut_json) || {};
+        const pSafe = numeProiect.replace(/'/g, "\\'");
+
+        const container = document.getElementById('report-content');
+        container.innerHTML = `
+        <div class="page">
+            <img src="antet_pnras.jpeg" class="antet-img">
+            <div class="titlu-container">
+                <div class="titlu-raport">RAPORT DE ACTIVITATE — PROIECT</div>
+                <div style="font-weight:700; color:#475569;">${numeProiect}</div>
+            </div>
+
+            <div class="sectiune-titlu">Descrierea activității desfășurate</div>
+            <div class="caseta-text" id="rp-desc" contenteditable="true" oninput="autoSaveRaportProiect('${pSafe}')">${j.desc ?? '<p>Completați descrierea activității desfășurate în cadrul proiectului.</p>'}</div>
+
+            <div class="grid-info-finale">
+                <div>
+                    <div class="sectiune-titlu">Rezultate obținute</div>
+                    <div class="col-editabila" id="rp-rez" contenteditable="true" oninput="autoSaveRaportProiect('${pSafe}')">${j.rez ?? '<ul class="lista-oficiala"><li>Completați rezultatele obținute în cadrul proiectului.</li></ul>'}</div>
+                </div>
+                <div>
+                    <div class="sectiune-titlu">Livrabile</div>
+                    <div class="col-editabila" id="rp-livr" contenteditable="true" oninput="autoSaveRaportProiect('${pSafe}')">${j.livr ?? '<ul class="lista-oficiala"><li>Completați livrabilele proiectului.</li></ul>'}</div>
+                </div>
+            </div>
+
+            <div class="grid-semnaturi">
+                <div class="sem-block"><b>Manager proiect,</b><br><div class="sem-linia"></div>prof. dr. Ciprian MIHAI</div>
+                <div class="sem-block"><b>Aprobat,</b><br>Director,<br><div class="sem-linia"></div>prof. Cătălin Ionuț BAZILUC</div>
+            </div>
+        </div>`;
+    }
+
+    function autoSaveRaportProiect(numeProiect) {
+        clearTimeout(_raportProiectSaveTimer);
+        _raportProiectSaveTimer = setTimeout(() => salveazaRaportProiect(numeProiect), 1200);
+    }
+
+    async function salveazaRaportProiect(numeProiect) {
+        const docId = 'RAPORT_PROIECT_' + sanitizeDocIdRaport(numeProiect);
+        await _supabase.from('planificari_documente').upsert({
+            tip_document: docId,
+            an: 0,
+            luna: 'PROIECT',
+            expert: 'PROIECT_COMUN',
+            continut_json: {
+                desc: document.getElementById('rp-desc')?.innerHTML ?? '',
+                rez: document.getElementById('rp-rez')?.innerHTML ?? '',
+                livr: document.getElementById('rp-livr')?.innerHTML ?? ''
+            }
+        }, { onConflict: 'tip_document' });
     }
 
     // Cache local pentru datele din Supabase
@@ -188,11 +267,19 @@
         // (tip_document = PLAN_PROIECT_{nume}), salvată eventual de alt expert — o încărcăm separat.
         const numeProiecteLuna = [...new Set((pontaje || []).filter(p => p.clase_grupe === 'PROIECT' && p.nume_proiect).map(p => p.nume_proiect))];
         let planuriProiect = {};
+        let rapoarteProiect = {};
         if (numeProiecteLuna.length > 0) {
             const { data: docsProiect } = await _supabase.from('planificari_documente')
                 .select('tip_document, continut_json')
                 .in('tip_document', numeProiecteLuna.map(n => `PLAN_PROIECT_${n}`));
             (docsProiect || []).forEach(d => { planuriProiect[d.tip_document] = d.continut_json; });
+
+            // Raportul comun de proiect (editabil din dosar-expert.html, cartonașul „Raport activitate")
+            // — Rezultatele și Livrabilele completate acolo se adaugă automat mai jos, în raportul lunar.
+            const { data: docsRaportProiect } = await _supabase.from('planificari_documente')
+                .select('tip_document, continut_json')
+                .in('tip_document', numeProiecteLuna.map(n => `RAPORT_PROIECT_${sanitizeDocIdRaport(n)}`));
+            (docsRaportProiect || []).forEach(d => { rapoarteProiect[d.tip_document] = d.continut_json; });
         }
 
         // Nr. elevi participanți la Proiect e ținut pe rândul „master" (expert: "Proiect"), pe zi
@@ -304,11 +391,22 @@ nrActivitate++;
         });
         listaClaseLivrabile.sort(); // Le punem în ordine: 5A, 6A...
 
+        // Conținut suplimentar din raportul comun de proiect (dacă expertul a lucrat la vreun proiect luna asta)
+        let extraRezultateProiect = '';
+        let extraLivrabileProiect = '';
+        numeProiecteLuna.forEach(n => {
+            const doc = rapoarteProiect[`RAPORT_PROIECT_${sanitizeDocIdRaport(n)}`];
+            if (doc) {
+                if (doc.rez) extraRezultateProiect += doc.rez;
+                if (doc.livr) extraLivrabileProiect += doc.livr;
+            }
+        });
+
         const rezultateImplicite = `<ul class="lista-oficiala">
             <li><b>${nrActivitate}</b> activități susținute;</li>
             <li><b>${nrActivitate}</b> liste de prezență;</li>
             <li>Consilierea și sprijinirea elevilor în procesul de învățare.</li>
-        </ul>`;
+        </ul>${extraRezultateProiect}`;
 
         const livrabileImplicite = `<ul class="lista-oficiala">
             <li>Planificări: ${listaClaseLivrabile.join(', ')};</li>
@@ -316,7 +414,7 @@ nrActivitate++;
             <li><b>${nrMasaCalda}</b> Liste ”masă caldă”;</li>
             <li>Pontaj ${selectatLuna};</li>
             <li>Orar ${selectatLuna}.</li>
-        </ul>`;
+        </ul>${extraLivrabileProiect}`;
         
         // --- SFÂRȘIT LOGICĂ NOUĂ ---
 
@@ -370,7 +468,10 @@ nrActivitate++;
             </div>
         </div>`;
     }
-    window.onload = init;
+    window.onload = function() {
+        if (_numeProiectURL) initProiect(_numeProiectURL);
+        else init();
+    };
 </script>
 </body>
 </html>
