@@ -144,10 +144,19 @@
 }
 .common-card:hover { transform: translateY(-2px); box-shadow: 0 8px 12px rgba(0,0,0,0.2); }
 
+/* Grid dedicat pentru cardurile de Proiect — mai lat, ca să încapă toate cele 5 cartonașe pe un rând */
+.proiecte-grid-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(520px, 1fr));
+    gap: 20px;
+    width: 100%;
+}
+
 /* Card special pentru Proiecte (mov, distinct de clasele normale) */
 .proiect-card {
     background: linear-gradient(145deg, #7c3aed, #5b21b6) !important;
     color: #fff !important;
+    overflow: hidden; /* siguranță: nu lăsăm conținutul să iasă din card */
 }
 .proiect-card .clasa-title { color: #fff !important; }
 
@@ -163,6 +172,7 @@
 .doc-slot {
     display: flex; flex-direction: column; align-items: center; justify-content: center;
     border-radius: 14px; padding: 10px 5px; position: relative; min-height: 70px;
+    min-width: 0; overflow: hidden;
 }
 .doc-slot.empty {
     background: rgba(255,255,255,0.12); border: 1px dashed rgba(255,255,255,0.5);
@@ -183,6 +193,12 @@
 }
 .doc-slot-actions button:hover { background: #e2e8f0; transform: scale(1.1); }
 .doc-slot-actions button.del:hover { background: #fee2e2; }
+
+/* Puțin mai compact în cardul de Proiect, unde sunt 5 sloturi pe rând */
+.proiect-card .doc-slot-icon { font-size: 18px; }
+.proiect-card .doc-slot-label { font-size: 9px; }
+.proiect-card .doc-slot-actions { gap: 3px; flex-wrap: wrap; justify-content: center; }
+.proiect-card .doc-slot-actions button { padding: 3px 5px; font-size: 11px; }
 
 /* ===== GALERIE FOTO PROIECT ===== */
 .galerie-foto {
@@ -309,7 +325,7 @@
         const { map: docMap, fotoMap } = await incarcaDocMapProiecte();
 
         let htmlContent = `<div class="section-header">🎯 Proiecte</div>`;
-        htmlContent += `<div class="classes-grid-container">`;
+        htmlContent += `<div class="proiecte-grid-container">`;
         proiecteUnice.forEach(nume => {
             const npSafe = nume.replace(/'/g, "\\'");
             htmlContent += `
@@ -379,7 +395,7 @@
         if (proiecteUnice.size > 0) {
             const { map: docMap, fotoMap } = await incarcaDocMapProiecte();
             htmlContent += `<div class="section-header">🎯 Proiecte <span style="font-weight:400; font-size:0.75em; opacity:0.7;">(doar vizualizare — organizare din secțiunea Proiecte)</span></div>`;
-            htmlContent += `<div class="classes-grid-container">`;
+            htmlContent += `<div class="proiecte-grid-container">`;
             proiecteUnice.forEach(nume => {
                 htmlContent += `
                     <div class="clasa-card proiect-card">
