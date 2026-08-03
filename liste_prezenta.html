@@ -177,10 +177,20 @@
         // Sursă corectă pentru toți elevii școlii: mate_pnras (nu 'elevi', care are duplicate pe grupe)
         // ATENȚIE: doar .select() — nicio operație de scriere/ștergere nu atinge vreodată mate_pnras.
         const { data: elevi } = await _supabase.from('mate_pnras')
-            .select('nume_elev').eq('anul', ANUL_CURENT_PROIECT);
-        const numeUnice = [...new Set((elevi || []).map(e => e.nume_elev).filter(Boolean))]
-            .sort((a, b) => a.localeCompare(b, 'ro'));
-        return numeUnice.map(n => ({ nume: n, p: true, a: false }));
+            .select('nume_elev, cnp').eq('anul', ANUL_CURENT_PROIECT);
+        // Deduplicare pe CNP (elevul real), NU pe nume — există elevi diferiți cu nume identice
+        // (ex. doi "COJOCARU DAVID ANDREI" în clase diferite); deduplicarea pe nume îi pierdea.
+        const vazute = new Set();
+        const unice = [];
+        (elevi || []).forEach(e => {
+            if (!e.nume_elev) return;
+            const cheie = e.cnp || e.nume_elev;
+            if (vazute.has(cheie)) return;
+            vazute.add(cheie);
+            unice.push(e.nume_elev);
+        });
+        unice.sort((a, b) => a.localeCompare(b, 'ro'));
+        return unice.map(n => ({ nume: n, p: true, a: false }));
     }
 
     async function revinoLaListaCompleta(proiect) {
@@ -235,21 +245,20 @@
                 <td><input type="text" class="edit-name" value="${(r.nume || '').replace(/"/g, '&quot;')}" oninput="autoSaveProiect('${pSafe}')"></td>
                 <td><input type="checkbox" class="p-check" ${r.p !== false ? 'checked' : ''} onclick="toggleCheck(this, 'p'); autoSaveProiect('${pSafe}')"></td>
                 <td><input type="checkbox" class="a-check" ${r.a === true ? 'checked' : ''} onclick="toggleCheck(this, 'a'); autoSaveProiect('${pSafe}')"></td>
-                <td></td>
             </tr>`).join('');
 
         master.innerHTML = `
             <div class="page" style="min-height:auto;">
                 <table class="proiect-table">
                     <thead>
-                        <tr class="thead-antet"><td colspan="5"><img src="antet_pnras.jpeg" class="antet-img"></td></tr>
-                        <tr class="thead-titlu"><td colspan="5"><h2 id="pr-titlu" contenteditable="true" oninput="autoSaveProiect('${pSafe}')">${titlu}</h2></td></tr>
-                        <tr class="thead-info"><td colspan="5">
+                        <tr class="thead-antet"><td colspan="4"><img src="antet_pnras.jpeg" class="antet-img"></td></tr>
+                        <tr class="thead-titlu"><td colspan="4"><h2 id="pr-titlu" contenteditable="true" oninput="autoSaveProiect('${pSafe}')">${titlu}</h2></td></tr>
+                        <tr class="thead-info"><td colspan="4">
                             <div class="grid-info" style="margin-bottom:0;">
                                 <div class="info-item" style="grid-column: span 2;"><span class="info-label">Proiect:</span> <span class="info-value" id="pr-nume" contenteditable="true" oninput="autoSaveProiect('${pSafe}')">${numeAfisat}</span></div>
                             </div>
                         </td></tr>
-                        <tr class="thead-cols"><th style="width:5%;">Nr.</th><th style="width:55%;">Nume și prenume elev</th><th style="width:10%;">P</th><th style="width:10%;">A</th><th style="width:20%;">Semnătura</th></tr>
+                        <tr class="thead-cols"><th style="width:6%;">Nr.</th><th style="width:74%;">Nume și prenume elev</th><th style="width:10%;">P</th><th style="width:10%;">A</th></tr>
                     </thead>
                     <tbody id="tabel-body-proiect">${rows}</tbody>
                 </table>
