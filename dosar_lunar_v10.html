@@ -1082,7 +1082,7 @@ async function build(expert,luna,an){
   const allListe=lR.data||[];
   if(!pont.length)return{h:pg(ec,`<div style="justify-content:center;text-align:center;padding:40px;">Nu există pontaj pentru ${expert} în ${luna} ${an}.</div>`),p:[{t:'err',s:'General',m:'Nu există activități pontate.'}]};
 
-  let clsS=new Set();pont.forEach(p=>p.clase_grupe.split(',').forEach(c=>clsS.add(c.trim())));
+  let clsS=new Set();pont.forEach(p=>p.clase_grupe.split(',').forEach(c=>{const t=c.trim();if(t&&t!=='PROIECT')clsS.add(t);}));
   const clase=Array.from(clsS).sort();
   let totOre=0;pont.forEach(p=>totOre+=parseFloat(p.nr_ore||0));
   let actCod='';for(let k in MA)if(MA[k].includes(expert))actCod=k;

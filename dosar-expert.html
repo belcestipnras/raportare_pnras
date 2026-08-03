@@ -153,6 +153,32 @@
     gap: 20px;
     width: 100%;
 }
+
+/* ===== SLOTURI DOCUMENTE PROIECT (editabile) ===== */
+.doc-slot {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    border-radius: 14px; padding: 10px 5px; position: relative; min-height: 70px;
+}
+.doc-slot.empty {
+    background: rgba(255,255,255,0.12); border: 1px dashed rgba(255,255,255,0.5);
+    cursor: pointer; transition: 0.2s;
+}
+.doc-slot.empty:hover { background: rgba(255,255,255,0.22); transform: scale(1.03); }
+.doc-slot.filled {
+    background: rgba(255,255,255,0.95); color: #0f172a;
+    border: 1px solid rgba(255,255,255,0.6);
+}
+.doc-slot-icon { font-size: 22px; margin-bottom: 4px; }
+.doc-slot-label { font-size: 10px; font-weight: 700; text-align: center; line-height: 1.2; }
+.doc-slot-hint { font-size: 9px; opacity: 0.85; margin-top: 2px; }
+.doc-slot-actions { display: flex; gap: 6px; margin-top: 6px; }
+.doc-slot-actions button {
+    border: none; background: #f1f5f9; border-radius: 8px; padding: 4px 7px;
+    cursor: pointer; font-size: 12px; transition: 0.2s;
+}
+.doc-slot-actions button:hover { background: #e2e8f0; transform: scale(1.1); }
+.doc-slot-actions button.del:hover { background: #fee2e2; }
+
     </style>
 </head>
 <body>
@@ -168,6 +194,9 @@
         <a href="activitati.html" class="btn-exit">IEȘIRE SISTEM</a>
     </aside>
 
+    <input type="file" id="file-input-proiect" style="display:none;" accept=".pdf,.jpg,.jpeg,.png,.heic,.heif,.doc,.docx">
+
+
     <main class="main-panel">
         <div id="content-area">
             <div class="empty-hint">Vă rugăm selectați o lună pentru a vizualiza documentele celor 4 clase.</div>
@@ -179,6 +208,15 @@
     const KEY_S = 'sb_publishable_KPV__0BA9z4EvRl5eqC0FQ_hmBLOLYv';
     const supabaseClient = supabase.createClient(URL_S, KEY_S);
 
+    // ===== R2 (Cloudflare) — identice cu dosar_lunar_v10.html, necesare pentru funcția Edge r2-upload =====
+    const SB_URL_R2 = 'https://aexjrbdgajurxzngfkpx.supabase.co';
+    const SB_KEY_R2 = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFleGpyYmRnYWp1cnh6bmdma3B4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgxMzE3NTYsImV4cCI6MjA4MzcwNzc1Nn0.VUx0QOKgjX4m23HOF2rBpE9vWA3T18KtjLc0w_iXhqA';
+
+    // Starea curentă a vizualizării (pentru a putea reîncărca după upload/ștergere)
+    let _viewState = { tip: null, luna: null, an: null };
+    let _lastBtnEl = null;
+    let _uploadTarget = null; // { numeProiect, tipDocument, oldId }
+
     const params = new URLSearchParams(window.location.search);
     const mod = params.get('mod');
     const expert = params.get('expert') || '';
@@ -188,6 +226,7 @@
         { an: 2025, luni: ["Ianuarie", "Februarie", "Martie", "Aprilie", "Mai", "Iunie", "Iulie", "August", "Septembrie", "Octombrie", "Noiembrie", "Decembrie"] },
         { an: 2026, luni: ["Ianuarie", "Februarie", "Martie", "Aprilie", "Mai", "Iunie", "Iulie"] }
     ];
+
 
     function buildSidebar() {
         const nav = document.getElementById('sidebar-nav');
@@ -233,6 +272,7 @@
     async function loadToateProiectele() {
         const display = document.getElementById('content-area');
         display.innerHTML = "<div class='empty-hint' style='color:white;'>Se încarcă proiectele...</div>";
+        _viewState = { tip: 'proiecte', luna: null, an: null };
 
         // Interogare: toate proiectele pontate, indiferent de expert, lună sau an
         const { data } = await supabaseClient.from('pontaj_detaliat')
@@ -247,6 +287,8 @@
             return;
         }
 
+        const docMap = await incarcaDocMapProiecte();
+
         let htmlContent = `<div class="section-header">🎯 Proiecte</div>`;
         htmlContent += `<div class="classes-grid-container">`;
         proiecteUnice.forEach(nume => {
@@ -254,9 +296,9 @@
                 <div class="clasa-card proiect-card">
                     <div class="clasa-title">🎯 ${nume}</div>
                     <div class="docs-grid">
-                        ${docItemProiect('Planificare', '📅', 'planificare.html', nume)}
-                        ${docItemProiect('Prezență', '👥', 'liste_prezenta.html', nume)}
-                        ${docItemProiect('Masă', '🍱', 'liste_masa.html', nume)}
+                        ${slotProiect(nume, 'planificare', 'Planificare', '📅', docMap)}
+                        ${slotProiect(nume, 'prezenta', 'Prezență', '👥', docMap)}
+                        ${slotProiect(nume, 'masa', 'Masă', '🍱', docMap)}
                     </div>
                 </div>
             `;
@@ -270,6 +312,8 @@
         // 1. Gestionare butoane active
         document.querySelectorAll('.luna-btn').forEach(b => b.classList.remove('active'));
         btnEl.classList.add('active');
+        _viewState = { tip: 'clase', luna, an };
+        _lastBtnEl = btnEl;
 
         const display = document.getElementById('content-area');
         display.innerHTML = "<div class='empty-hint' style='color:white;'>Se încarcă datele...</div>";
@@ -310,6 +354,7 @@
 
         // --- SECȚIUNEA 2: Proiecte (dacă există) ---
         if (proiecteUnice.size > 0) {
+            const docMap = await incarcaDocMapProiecte();
             htmlContent += `<div class="section-header">🎯 Proiecte</div>`;
             htmlContent += `<div class="classes-grid-container">`;
             proiecteUnice.forEach(nume => {
@@ -317,9 +362,9 @@
                     <div class="clasa-card proiect-card">
                         <div class="clasa-title">🎯 ${nume}</div>
                         <div class="docs-grid">
-                            ${docItemProiect('Planificare', '📅', 'planificare.html', nume)}
-                            ${docItemProiect('Prezență', '👥', 'liste_prezenta.html', nume)}
-                            ${docItemProiect('Masă', '🍱', 'liste_masa.html', nume)}
+                            ${slotProiect(nume, 'planificare', 'Planificare', '📅', docMap)}
+                            ${slotProiect(nume, 'prezenta', 'Prezență', '👥', docMap)}
+                            ${slotProiect(nume, 'masa', 'Masă', '🍱', docMap)}
                         </div>
                     </div>
                 `;
@@ -384,16 +429,112 @@
         `;
     }
 
-    // Documentele de Proiect sunt comune tuturor lunilor/experților implicați,
-    // deci link-ul folosește doar 'proiect' (nume) — și 'expert' doar dacă e cunoscut.
-    function docItemProiect(label, icon, link, numeProiect) {
-        const expertPart = expert ? `&expert=${encodeURIComponent(expert)}` : '';
+    // ===================== DOCUMENTE PROIECT (editabile — încărcate manual, semnate) =====================
+    // Tabel dedicat, complet separat de documente_r2 / liste_fisiere folosite de dosar_lunar_v10.html,
+    // ca să nu existe niciun risc de interferență la generarea dosarului lunar per expert.
+
+    async function incarcaDocMapProiecte() {
+        const { data } = await supabaseClient.from('documente_proiect').select('*');
+        const map = {};
+        (data || []).forEach(d => { map[d.nume_proiect + '|' + d.tip_document] = d; });
+        return map;
+    }
+
+    function slotProiect(numeProiect, tipDocument, label, icon, docMap) {
+        const rec = docMap[numeProiect + '|' + tipDocument];
+        const npSafe = numeProiect.replace(/'/g, "\\'");
+        if (rec) {
+            return `
+                <div class="doc-slot filled" title="${rec.nume_fisier || ''}">
+                    <div class="doc-slot-icon">${icon}</div>
+                    <div class="doc-slot-label">${label}</div>
+                    <div class="doc-slot-actions">
+                        <button onclick="event.stopPropagation(); window.open('${rec.public_url}', '_blank')" title="Deschide">📂</button>
+                        <button onclick="event.stopPropagation(); declanseazaInlocuire('${npSafe}', '${tipDocument}')" title="Înlocuiește">🔄</button>
+                        <button class="del" onclick="event.stopPropagation(); stergeDocProiect('${rec.id}')" title="Șterge">🗑️</button>
+                    </div>
+                </div>`;
+        }
         return `
-            <div class="doc-btn" onclick="window.open('${link}?proiect=${encodeURIComponent(numeProiect)}${expertPart}', '_blank')">
-                <i>${icon}</i>
-                <label>${label}</label>
-            </div>
-        `;
+            <div class="doc-slot empty" onclick="declanseazaUpload('${npSafe}', '${tipDocument}')">
+                <div class="doc-slot-icon">${icon}</div>
+                <div class="doc-slot-label">${label}</div>
+                <div class="doc-slot-hint">📤 Încarcă</div>
+            </div>`;
+    }
+
+    function declanseazaUpload(numeProiect, tipDocument) {
+        _uploadTarget = { numeProiect, tipDocument, oldId: null };
+        document.getElementById('file-input-proiect').click();
+    }
+
+    async function declanseazaInlocuire(numeProiect, tipDocument) {
+        const { data } = await supabaseClient.from('documente_proiect').select('id')
+            .eq('nume_proiect', numeProiect).eq('tip_document', tipDocument).maybeSingle();
+        _uploadTarget = { numeProiect, tipDocument, oldId: data ? data.id : null };
+        document.getElementById('file-input-proiect').click();
+    }
+
+    async function reincarcaViewCurenta() {
+        if (_viewState.tip === 'proiecte') await loadToateProiectele();
+        else if (_viewState.tip === 'clase' && _lastBtnEl) await loadClase(_viewState.luna, _viewState.an, _lastBtnEl);
+    }
+
+    document.getElementById('file-input-proiect').addEventListener('change', async (e) => {
+        const file = e.target.files[0];
+        const target = _uploadTarget;
+        e.target.value = '';
+        if (!file || !target) return;
+        await incarcaFisierProiect(file, target);
+    });
+
+    async function incarcaFisierProiect(file, target) {
+        const cont = document.getElementById('content-area');
+        const loadingMsg = document.createElement('div');
+        loadingMsg.style.cssText = 'position:fixed;top:20px;right:20px;background:#1e293b;color:#fff;padding:10px 18px;border-radius:10px;font-size:12px;font-weight:700;z-index:9999;';
+        loadingMsg.innerText = '⏳ Se încarcă ' + file.name + '...';
+        document.body.appendChild(loadingMsg);
+        try {
+            const numeSafe = target.numeProiect.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9_\-]/g, "_");
+            const ext = (file.name.split('.').pop() || 'pdf');
+            const objectKey = `documente_proiect/${numeSafe}/${target.tipDocument}_${Date.now()}.${ext}`;
+
+            const R2_URL = `${SB_URL_R2}/functions/v1/r2-upload`;
+            const presignResp = await fetch(R2_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${SB_KEY_R2}` },
+                body: JSON.stringify({ action: 'upload', fileName: file.name, fileType: file.type || 'application/octet-stream', objectKey })
+            });
+            if (!presignResp.ok) throw new Error('R2 presign failed: ' + presignResp.status);
+            const { presignedUrl, publicUrl } = await presignResp.json();
+
+            const upResp = await fetch(presignedUrl, { method: 'PUT', headers: { 'Content-Type': file.type || 'application/octet-stream' }, body: file });
+            if (!upResp.ok) throw new Error('R2 upload failed: ' + upResp.status);
+
+            if (target.oldId) {
+                await supabaseClient.from('documente_proiect').delete().eq('id', target.oldId);
+            }
+            await supabaseClient.from('documente_proiect').insert({
+                nume_proiect: target.numeProiect,
+                tip_document: target.tipDocument,
+                nume_fisier: file.name,
+                public_url: publicUrl,
+                object_key: objectKey,
+                expert: expert || null
+            });
+
+            await reincarcaViewCurenta();
+        } catch (err) {
+            alert('Eroare la încărcare: ' + err.message);
+        } finally {
+            loadingMsg.remove();
+        }
+    }
+
+    async function stergeDocProiect(id) {
+        if (!confirm('Sigur ștergi acest document semnat? (Fișierul rămâne pe server, doar legătura din dosar dispare.)')) return;
+        await supabaseClient.from('documente_proiect').delete().eq('id', id);
+        await reincarcaViewCurenta();
     }
 
     if (mod === 'proiecte') {
