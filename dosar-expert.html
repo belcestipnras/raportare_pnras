@@ -314,6 +314,7 @@
                         ${slotProiect(nume, 'planificare', 'Planificare', '📅', docMap, 'planificare.html')}
                         ${slotProiect(nume, 'prezenta', 'Prezență', '👥', docMap, 'liste_prezenta.html')}
                         ${slotProiect(nume, 'masa', 'Masă', '🍱', docMap, 'liste_masa.html')}
+                        ${slotProiect(nume, 'raport', 'Raport activitate', '📊', docMap, null)}
                         ${slotFotoProiect(nume, fotoMap[nume] || [])}
                     </div>
                     <div class="galerie-foto" id="galerie-${idSigurFoto(nume)}" style="display:none;"></div>
@@ -382,6 +383,7 @@
                             ${slotProiectReadOnly(nume, 'planificare', 'Planificare', '📅', docMap)}
                             ${slotProiectReadOnly(nume, 'prezenta', 'Prezență', '👥', docMap)}
                             ${slotProiectReadOnly(nume, 'masa', 'Masă', '🍱', docMap)}
+                            ${slotProiectReadOnly(nume, 'raport', 'Raport activitate', '📊', docMap)}
                             ${slotFotoProiectReadOnly(nume, fotoMap[nume] || [])}
                         </div>
                         <div class="galerie-foto" id="galerie-${idSigurFoto(nume)}" style="display:none;"></div>
@@ -491,14 +493,15 @@
         const rec = docMap[numeProiect + '|' + tipDocument];
         const npSafe = numeProiect.replace(/'/g, "\\'");
         const expertPart = expert ? `&expert=${encodeURIComponent(expert)}` : '';
-        const editUrl = `${link}?proiect=${encodeURIComponent(numeProiect)}${expertPart}`;
+        const editUrl = link ? `${link}?proiect=${encodeURIComponent(numeProiect)}${expertPart}` : null;
+        const btnEdit = editUrl ? `<button onclick="event.stopPropagation(); window.open('${editUrl}', '_blank')" title="Editează">✏️</button>` : '';
         if (rec) {
             return `
                 <div class="doc-slot filled" title="${rec.nume_fisier || ''}">
                     <div class="doc-slot-icon">${icon}</div>
                     <div class="doc-slot-label">${label}</div>
                     <div class="doc-slot-actions">
-                        <button onclick="event.stopPropagation(); window.open('${editUrl}', '_blank')" title="Editează">✏️</button>
+                        ${btnEdit}
                         <button onclick="event.stopPropagation(); window.open('${rec.public_url}', '_blank')" title="Deschide semnat">📂</button>
                         <button onclick="event.stopPropagation(); declanseazaInlocuire('${npSafe}', '${tipDocument}')" title="Înlocuiește semnat">🔄</button>
                         <button class="del" onclick="event.stopPropagation(); stergeDocProiect('${rec.id}')" title="Șterge semnat">🗑️</button>
@@ -510,7 +513,7 @@
                 <div class="doc-slot-icon">${icon}</div>
                 <div class="doc-slot-label">${label}</div>
                 <div class="doc-slot-actions">
-                    <button onclick="event.stopPropagation(); window.open('${editUrl}', '_blank')" title="Editează">✏️</button>
+                    ${btnEdit}
                     <button onclick="event.stopPropagation(); declanseazaUpload('${npSafe}', '${tipDocument}')" title="Încarcă semnat">📤</button>
                 </div>
             </div>`;
