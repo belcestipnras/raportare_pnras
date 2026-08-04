@@ -164,7 +164,6 @@ body{font-family:'Inter',sans-serif;background:#0f172a;color:#e2e8f0;min-height:
       <button class="btn btn-back" onclick="goBack()">⬅ Înapoi</button>
       <span class="cp-title">🧾 Dosar Factură</span>
       <span class="cp-fact" id="cp-fact-label">—</span>
-      <button class="btn" onclick="editeazaNrFactura()" style="background:linear-gradient(135deg,#7c3aed,#5b21b6);">✏️ Nr. înregistrare</button>
       <button class="btn" onclick="genereazaDosarFactura()" style="background:linear-gradient(135deg,#2563eb,#1e40af);">📄 Generează dosar</button>
       <a id="btnDosarGenerat" href="#" target="_blank" style="display:none;padding:7px 16px;border-radius:6px;font-weight:700;font-size:12px;background:linear-gradient(135deg,#065f46,#047857);color:#6ee7b7;text-decoration:none;">📂 Deschide dosar</a>
       <a id="btnDosarDescarca" href="#" download style="display:none;padding:7px 16px;border-radius:6px;font-weight:700;font-size:12px;background:linear-gradient(135deg,#334155,#1e293b);color:#e2e8f0;text-decoration:none;">⬇ Salvează</a>
@@ -272,8 +271,30 @@ async function loadFacturi(){
   if(!contractId){grid.innerHTML='<div style="grid-column:1/-1;color:#ef4444;text-align:center;padding:40px;">⚠️ Lipsă contract ID.</div>';return;}
 
   const{data:facturi,error}=await db.from('documente_contract').select('*')
-    .eq('contract_id',contractId).eq('tip_document','13. Factura').order('data_inregistrare',{ascending:true});
+    .eq('contract_id',contractId).eq('tip_document','13. Factura');
   if(error){grid.innerHTML=`<div style="grid-column:1/-1;color:#ef4444;text-align:center;padding:40px;">❌ ${error.message}</div>`;return;}
+
+  // Preluăm automat Nr. / Data / Descriere / Fără TVA / TVA / TOTAL din buget_achizitii.html (buget_pnras) — acolo se introduc.
+  // Legătura există deja: la încărcarea PDF-ului din buget_achizitii.html, documente_contract.furnizor
+  // se salvează ca fiind ID-ul rândului FACTURA din buget_pnras.
+  const{data:bugetRows}=await db.from('buget_pnras').select('id,numar,data_document,titlu,valoare,val_fara_tva,val_tva')
+    .eq('parent_id',contractId).eq('tip_rand','FACTURA');
+  const bugetById={};(bugetRows||[]).forEach(b=>{bugetById[b.id]=b;});
+  (facturi||[]).forEach(f=>{
+    const bg=bugetById[f.furnizor];
+    f.nr_inregistrare=bg?bg.numar:null;
+    f.data_inregistrare=bg?bg.data_document:null;
+    f.descriere=bg?bg.titlu:null;
+    f.valoare=bg?bg.valoare:null;
+    f.val_fara_tva=bg?bg.val_fara_tva:null;
+    f.val_tva=bg?bg.val_tva:null;
+    f._legataDeBuget=!!bg;
+  });
+  facturi.sort((a,b)=>{
+    const da=a.data_inregistrare?new Date(a.data_inregistrare):new Date(0);
+    const dbb=b.data_inregistrare?new Date(b.data_inregistrare):new Date(0);
+    return da-dbb;
+  });
 
   // Toate documentele dosar pentru facturile din acest contract
   const{data:allDosarDocs}=await db.from('documente_contract').select('tip_document,furnizor')
@@ -288,14 +309,17 @@ async function loadFacturi(){
     const pct=secManuale.length?Math.round((completate/secManuale.length)*100):0;
     const isPdf=(f.link_drive||'').toLowerCase().split('?')[0].endsWith('.pdf');
 
+    const fmtLei=v=>Number(v).toLocaleString('ro-RO',{minimumFractionDigits:2});
     const card=document.createElement('div');
     card.className='fact-card';
     card.innerHTML=`
       <div class="fact-card-icon">${isPdf?'📄':'🖼️'}</div>
       ${f.nr_inregistrare?`<div class="fact-card-nr">Nr. ${f.nr_inregistrare}</div>`:''}
-      <div class="fact-card-title">${f.nume_fisier||'Factură fără nume'}</div>
+      <div class="fact-card-title">${f.descriere||f.nume_fisier||'Factură fără nume'}</div>
       <div class="fact-card-meta">
-        <span>📅 ${fmtData(f.data_inregistrare)}</span>
+        <span>📅 ${f.data_inregistrare?fmtData(f.data_inregistrare):'—'}</span>
+        ${f.valoare!=null?`<span>💰 TOTAL ${fmtLei(f.valoare)} lei${(f.val_fara_tva!=null)?` (fără TVA: ${fmtLei(f.val_fara_tva)} + TVA: ${fmtLei(f.val_tva||0)})`:''}</span>`:''}
+        ${!f._legataDeBuget?'<span style="color:#f59e0b;">⚠️ Nelegată de o factură din Achiziții</span>':''}
         <span style="color:${pct===100?'#10b981':pct>0?'#f59e0b':'#475569'}">📂 ${completate}/${secManuale.length} secțiuni</span>
       </div>
       <div class="fact-card-progress"><div class="fact-card-bar" style="width:${pct}%"></div></div>
@@ -315,11 +339,9 @@ document.getElementById('fileInputNou').addEventListener('change',async function
   for(const file of files){
     const{data:ex}=await db.from('documente_contract').select('id').eq('contract_id',contractId).eq('nume_fisier',file.name).limit(1);
     if(ex&&ex.length){alert(`⚠️ "${file.name}" există deja.`);continue;}
-    const nrInreg=prompt(`Număr de înregistrare pentru "${file.name}" (apare pe coperta dosarului, poți completa și mai târziu):`,'');
-    if(nrInreg===null){continue;} // Anulat pentru acest fișier
     const fn=`${contractId}_${Date.now()}_${safeName(file.name)}`;
     let url;try{url=await r2Up(fn,file);}catch(e){alert('Eroare upload: '+e.message);this.value='';return;}
-    const{error}=await db.from('documente_contract').insert([{contract_id:contractId,nume_contract:numeAfisat||'',furnizor:furnAfisat||'',tip_document:'13. Factura',nume_fisier:file.name,link_drive:url,nr_inregistrare:nrInreg.trim()||null}]);
+    const{error}=await db.from('documente_contract').insert([{contract_id:contractId,nume_contract:numeAfisat||'',furnizor:furnAfisat||'',tip_document:'13. Factura',nume_fisier:file.name,link_drive:url}]);
     if(error){alert('Eroare salvare: '+error.message);this.value='';return;}
   }
   this.value='';await loadFacturi();
@@ -330,33 +352,12 @@ async function openDosar(factura){
   _facturaActiva=factura;
   document.getElementById('view-index').style.display='none';
   document.getElementById('view-dosar').style.display='block';
-  actualizeazaLabelFactura();
-  await load();
-}
-
-function actualizeazaLabelFactura(){
-  const factura=_facturaActiva;
   const nr=factura.nr_inregistrare?`Nr. ${factura.nr_inregistrare} — `:'';
   const dt=factura.data_inregistrare?fmtData(factura.data_inregistrare)+' — ':'';
-  document.getElementById('cp-fact-label').textContent=nr+dt+(factura.nume_fisier||'Factură');
-}
-
-async function editeazaNrFactura(){
-  if(!_facturaActiva)return;
-  const nrActual=_facturaActiva.nr_inregistrare||'';
-  const nrNou=prompt('Număr de înregistrare factură (apare pe coperta dosarului):',nrActual);
-  if(nrNou===null)return; // Anulat
-  const dtActuala=_facturaActiva.data_inregistrare||'';
-  const dtNoua=prompt('Data înregistrării (AAAA-LL-ZZ), lasă gol dacă nu se aplică:',dtActuala);
-  if(dtNoua===null)return; // Anulat
-
-  const payload={nr_inregistrare:nrNou.trim()||null,data_inregistrare:dtNoua.trim()||null};
-  const{error}=await db.from('documente_contract').update(payload).eq('id',_facturaActiva.id);
-  if(error){alert('Eroare la salvare: '+error.message);return;}
-
-  _facturaActiva.nr_inregistrare=payload.nr_inregistrare;
-  _facturaActiva.data_inregistrare=payload.data_inregistrare;
-  actualizeazaLabelFactura();
+  const desc=factura.descriere?factura.descriere+' — ':'';
+  const val=factura.valoare!=null?` — TOTAL ${Number(factura.valoare).toLocaleString('ro-RO',{minimumFractionDigits:2})} lei`:'';
+  document.getElementById('cp-fact-label').textContent=nr+dt+desc+(factura.nume_fisier||'Factură')+val;
+  await load();
 }
 
 function goBack(){
@@ -765,6 +766,8 @@ async function genereazaDosarFactura(){
     const nrFact = _facturaActiva.nr_inregistrare ? 'Nr. ' + _facturaActiva.nr_inregistrare : '';
     const dataFact = _facturaActiva.data_inregistrare ? _facturaActiva.data_inregistrare.split('-').reverse().join('.') : '';
     const nrDataFact = [nrFact, dataFact].filter(Boolean).join(' / ');
+    const descFact = _facturaActiva.descriere || '';
+    const valFact = _facturaActiva.valoare!=null ? `TOTAL ${Number(_facturaActiva.valoare).toLocaleString('ro-RO',{minimumFractionDigits:2})} lei` + (_facturaActiva.val_fara_tva!=null ? ` (fără TVA: ${Number(_facturaActiva.val_fara_tva).toLocaleString('ro-RO',{minimumFractionDigits:2})} + TVA: ${Number(_facturaActiva.val_tva||0).toLocaleString('ro-RO',{minimumFractionDigits:2})})` : '') : '';
     {
       const W=595,H=842;
       const pageCover = pdfFinal.addPage([W,H]);
@@ -809,13 +812,27 @@ async function genereazaDosarFactura(){
         const t2w = fB.widthOfTextAtSize(t2txt, t2sz);
         pageCover.drawText(t2txt, {x:(W-t2w)/2, y:titluY-32, size:t2sz, font:fB, color:verdeDark});
       }
-      // Furnizor, sub numărul facturii
+      // Furnizor, descriere și valoare, sub numărul facturii
+      let ySub = nrDataFact ? titluY-54 : titluY-32;
       if(furnAfisat){
         const t3txt = roPDF(furnAfisat);
         const t3sz = 13;
         const t3w = fR.widthOfTextAtSize(t3txt, t3sz);
-        const t3y = nrDataFact ? titluY-54 : titluY-32;
-        pageCover.drawText(t3txt, {x:(W-t3w)/2, y:t3y, size:t3sz, font:fR, color:verdeDark});
+        pageCover.drawText(t3txt, {x:(W-t3w)/2, y:ySub, size:t3sz, font:fR, color:verdeDark});
+        ySub -= 18;
+      }
+      if(descFact){
+        const t4txt = roPDF(descFact);
+        const t4sz = 11;
+        const t4w = fR.widthOfTextAtSize(t4txt, t4sz);
+        pageCover.drawText(t4txt, {x:(W-t4w)/2, y:ySub, size:t4sz, font:fR, color:verdeDark});
+        ySub -= 16;
+      }
+      if(valFact){
+        const t5txt = roPDF(valFact);
+        const t5sz = 11;
+        const t5w = fB.widthOfTextAtSize(t5txt, t5sz);
+        pageCover.drawText(t5txt, {x:(W-t5w)/2, y:ySub, size:t5sz, font:fB, color:verde});
       }
 
       // Crai mare, deasupra separatorului
@@ -901,7 +918,9 @@ async function genereazaDosarFactura(){
         iy-=ilh;
       }
       if(furnAfisat){const lbl=roPDF("Furnizor: ");const lw=font.widthOfTextAtSize(lbl,isz);page.drawText(lbl,{x:36,y:iy,size:isz,font,color:alb,opacity:0.65});page.drawText(roPDF(furnAfisat),{x:36+lw,y:iy,size:isz,font:bold,color:alb,opacity:0.92});iy-=ilh;}
-      if(numeAfisat){const lbl=roPDF("Contract: ");const lw=font.widthOfTextAtSize(lbl,isz);page.drawText(lbl,{x:36,y:iy,size:isz,font,color:alb,opacity:0.65});page.drawText(roPDF(numeAfisat),{x:36+lw,y:iy,size:isz,font:bold,color:alb,opacity:0.92});}
+      if(numeAfisat){const lbl=roPDF("Contract: ");const lw=font.widthOfTextAtSize(lbl,isz);page.drawText(lbl,{x:36,y:iy,size:isz,font,color:alb,opacity:0.65});page.drawText(roPDF(numeAfisat),{x:36+lw,y:iy,size:isz,font:bold,color:alb,opacity:0.92});iy-=ilh;}
+      if(descFact){const lbl=roPDF("Descriere: ");const lw=font.widthOfTextAtSize(lbl,isz);page.drawText(lbl,{x:36,y:iy,size:isz,font,color:alb,opacity:0.65});page.drawText(roPDF(descFact),{x:36+lw,y:iy,size:isz,font:bold,color:alb,opacity:0.92});iy-=ilh;}
+      if(valFact){const lbl=roPDF("Valoare: ");const lw=font.widthOfTextAtSize(lbl,isz);page.drawText(lbl,{x:36,y:iy,size:isz,font,color:alb,opacity:0.65});page.drawText(roPDF(valFact),{x:36+lw,y:iy,size:isz,font:bold,color:alb,opacity:0.92});}
       const nrText=roPDF("Sectiunea "+String(nrSec).padStart(2,'0'));
       page.drawText(nrText,{x:(W-font.widthOfTextAtSize(nrText,9))/2,y:38,size:9,font,color:alb,opacity:0.55});
       page.drawRectangle({x:0,y:0,width:W,height:32,color:culoareDark,opacity:0.55});
