@@ -369,7 +369,7 @@ const SECTIUNI=[
   {id:'S9',label:'Avize / Comunicări / Liste',icon:'📦',avize:true},
 ];
 
-let _luna='',_an='',_pontaj=[],_pontDet=[],_byTip={},_ctrDocs=[],_facturi=[],_eleviPerClasa={},_listeZiClasa={};
+let _luna='',_an='',_pontaj=[],_pontDet=[],_byTip={},_ctrDocs=[],_facturi=[],_eleviPerClasa={},_listeZiClasa={},_documenteProiect={};
 // Comunicări ascunse manual — salvate în Supabase
 let _comunicariAscunse={};
 function _tipComAsc(){return `COM_ASCUNSE_${_luna}_${_an}`;}
@@ -499,11 +499,11 @@ async function load(){
     const[docsR,pontR,detR,ctrR]=await Promise.all([
       db.from('documente_contract').select('*').eq('contract_id',CTR_ID).order('data_upload',{ascending:true}),
       db.from('setari_pontaj').select('*').match({luna:_luna,an:_an}).order('zi',{ascending:true}),
-      db.from('pontaj_detaliat').select('zi,clase_grupe,expert').eq('luna',_luna).eq('an',_an),
+      db.from('pontaj_detaliat').select('zi,clase_grupe,expert,nume_proiect').eq('luna',_luna).eq('an',_an),
       db.from('documente_contract').select('*').eq('contract_id',CTR_ID).eq('tip_document','9. Contract')
     ]);
     // Fetch secundar — nu blochează dacă eșuează
-    const[factR,eleviR,listeR]=await Promise.all([
+    const[factR,eleviR,listeR,proiecteR]=await Promise.all([
       db.from('buget_pnras').select('id,titlu,numar,data_document,valoare,val_fara_tva').eq('parent_id',CTR_ID).eq('tip_rand','FACTURA').ilike('titlu','%'+_luna.toLowerCase()+'%').order('data_document',{ascending:true}).then(r=>{
         if(r.data) r.data=r.data.filter(f=>{
           if(!f.data_document) return true;
@@ -512,7 +512,8 @@ async function load(){
         return r;
       }).catch(()=>({data:[]})),
       db.from('elevi').select('clasa_grupa').then(r=>r).catch(()=>({data:[]})),
-      db.from('liste_fisiere').select('*').eq('luna',_luna).eq('an',_an).then(r=>r).catch(()=>({data:[]}))
+      db.from('liste_fisiere').select('*').eq('luna',_luna).eq('an',_an).then(r=>r).catch(()=>({data:[]})),
+      db.from('documente_proiect').select('*').then(r=>r).catch(()=>({data:[]}))
     ]);
     _ctrDocs=ctrR.data||[];
     // Număr elevi per clasă
@@ -538,6 +539,9 @@ async function load(){
       const prez=arr.find(l=>l.tip==='prezenta'&&l.expert===masa.expert);
       _listeZiClasa[k]={masa,prez:prez||null,expert:masa.expert};
     });
+    // Documente de Proiect (Listă masă / Listă prezență comune, salvate din secțiunea Proiecte)
+    _documenteProiect={};
+    (proiecteR.data||[]).forEach(d=>{ _documenteProiect[d.nume_proiect+'|'+d.tip_document]=d; });
     // Pentru fiecare factură găsită după titlu, preia PDF-ul din documente_contract
     const facturiMeta=factR.data||[];
     if(facturiMeta.length){
@@ -659,6 +663,39 @@ function toggleSb(id){
 }
 function scrollTo_(id){const el=document.getElementById('sc_'+id);if(el)el.scrollIntoView({behavior:'smooth',block:'start'});}
 
+// Grupează clasele/proiectele active într-o zi. Rândurile de Proiect (clase_grupe==='PROIECT')
+// sunt separate pe nume_proiect (nu contopite într-o singură clasă falsă "PROIECT"),
+// ca să nu se amestece experții/documentele mai multor proiecte diferite.
+function buildClaseProfZi(zi){
+  const claseProf={}; const proiecteMap={}; // cheie afișată -> nume_proiect real
+  _pontDet.filter(pd=>String(pd.zi)===String(zi)).forEach(pd=>{
+    pd.clase_grupe.split(',').forEach(c=>{
+      let cl=c.trim();if(!cl)return;
+      if(cl==='PROIECT'){
+        const npr=pd.nume_proiect||'Proiect';
+        cl='🎯 '+npr;
+        proiecteMap[cl]=npr;
+      }
+      if(!claseProf[cl])claseProf[cl]=[];
+      if(pd.expert&&!claseProf[cl].includes(pd.expert))claseProf[cl].push(pd.expert);
+    });
+  });
+  return {claseProf,proiecteMap};
+}
+
+// Pentru o "clasă" din grupare, întoarce {masa,prez,expert} — din liste_fisiere (clase normale)
+// sau din documente_proiect (Proiect — listă comună, editabilă din secțiunea Proiecte).
+function getListaEntry(zi,cl,proiecteMap){
+  if(proiecteMap&&proiecteMap[cl]){
+    const npr=proiecteMap[cl];
+    const masa=_documenteProiect[npr+'|masa']||null;
+    const prez=_documenteProiect[npr+'|prezenta']||null;
+    if(!masa&&!prez)return null;
+    return {masa,prez,expert:'Proiect — listă comună'};
+  }
+  return _listeZiClasa[String(zi)+'|'+cl]||null;
+}
+
 // ===== MAIN =====
 function renderMain(byTip){
   document.getElementById('dosar-main').innerHTML=SECTIUNI.map((s,i)=>{
@@ -676,14 +713,7 @@ function renderMain(byTip){
             const docs=byTip[k]||[];
             const zi=String(p.zi).padStart(2,'0');
             const dataF=`${zi}.${LC[_luna]}.${_an}`;
-            const claseProf={};
-            _pontDet.filter(pd=>String(pd.zi)===String(p.zi)).forEach(pd=>{
-              pd.clase_grupe.split(',').forEach(c=>{
-                const cl=c.trim();if(!cl)return;
-                if(!claseProf[cl])claseProf[cl]=[];
-                if(pd.expert&&!claseProf[cl].includes(pd.expert))claseProf[cl].push(pd.expert);
-              });
-            });
+            const {claseProf,proiecteMap}=buildClaseProfZi(p.zi);
             const clase=Object.keys(claseProf).sort();
             const claseTagsHtml=clase.map(c=>{
               const profi=(claseProf[c]||[]).join(', ');
@@ -728,12 +758,12 @@ function renderMain(byTip){
                 ${upzoneHtml(s.id,p.zi)}
                 ${(()=>{
                   // Liste din dosar_lunar per clasă — ancora: masa
-                  const clasecu=clase.filter(c=>_listeZiClasa[String(p.zi)+'|'+c]);
+                  const clasecu=clase.filter(c=>getListaEntry(p.zi,c,proiecteMap));
                   if(!clasecu.length)return '';
                   let lHtml='<div class="liste-sectiune">';
                   lHtml+='<div class="liste-sectiune-title">📋 Liste din dosar expert</div>';
                   clasecu.forEach(c=>{
-                    const entry=_listeZiClasa[String(p.zi)+'|'+c];
+                    const entry=getListaEntry(p.zi,c,proiecteMap);
                     lHtml+='<div class="lista-clasa-row">';
                     lHtml+='<span class="lista-clasa-lbl">'+c+'</span>';
                     lHtml+='<span class="lista-expert-lbl">'+entry.expert+'</span>';
@@ -1695,20 +1725,13 @@ async function genDosar(){
             printHtml+=printPlaceholder(s.id,i,s.label,`⚠️ Aviz lipsă pentru data ${dataF} — încarcă PDF-ul avizului în secțiunea S6 → ${dataF}`);
           }
 
-          // ===== LISTE PER CLASĂ — din liste_fisiere =====
-          // Preia clasele active în ziua respectivă din pontaj_detaliat
-          const claseProf={};
-          _pontDet.filter(pd=>String(pd.zi)===String(p.zi)).forEach(pd=>{
-            pd.clase_grupe.split(',').forEach(c=>{
-              const cl=c.trim();if(!cl)return;
-              if(!claseProf[cl])claseProf[cl]=[];
-              if(pd.expert&&!claseProf[cl].includes(pd.expert))claseProf[cl].push(pd.expert);
-            });
-          });
+          // ===== LISTE PER CLASĂ/PROIECT — din liste_fisiere sau documente_proiect =====
+          // Preia clasele/proiectele active în ziua respectivă din pontaj_detaliat
+          const {claseProf,proiecteMap}=buildClaseProfZi(p.zi);
           const claseList=Object.keys(claseProf).sort();
 
           for(const cl of claseList){
-            const entry=_listeZiClasa[String(p.zi)+'|'+cl];
+            const entry=getListaEntry(p.zi,cl,proiecteMap);
 
             // Listă prezență
             if(entry&&entry.prez&&entry.prez.public_url){
@@ -2103,14 +2126,11 @@ async function genDosarTehnic(){
             // Total liste prezență + masă
             let nrPrez=0,nrMasa=0,nrClaseZi=0;
             ziActiveLivrate.forEach(zi=>{
-              const claseProf={};
-              _pontDet.filter(pd=>String(pd.zi)===String(zi)).forEach(pd=>{
-                pd.clase_grupe.split(',').forEach(c2=>{const cl=c2.trim();if(cl)claseProf[cl]=true;});
-              });
+              const {claseProf,proiecteMap}=buildClaseProfZi(zi);
               const clase=Object.keys(claseProf);
               nrClaseZi+=clase.length;
               clase.forEach(cl=>{
-                const entry=_listeZiClasa[String(zi)+'|'+cl];
+                const entry=getListaEntry(zi,cl,proiecteMap);
                 if(entry&&entry.prez&&entry.prez.public_url) nrPrez++;
                 if(entry&&entry.masa&&entry.masa.public_url) nrMasa++;
               });
@@ -2201,20 +2221,13 @@ async function genDosarTehnic(){
             </div>`;
           }
 
-          // Liste per clasă
-          const claseProf={};
-          _pontDet.filter(pd=>String(pd.zi)===String(p.zi)).forEach(pd=>{
-            pd.clase_grupe.split(',').forEach(c2=>{
-              const cl=c2.trim();if(!cl)return;
-              if(!claseProf[cl])claseProf[cl]=[];
-              if(pd.expert&&!claseProf[cl].includes(pd.expert))claseProf[cl].push(pd.expert);
-            });
-          });
+          // Liste per clasă/proiect
+          const {claseProf,proiecteMap}=buildClaseProfZi(p.zi);
           const claseList=Object.keys(claseProf).sort();
 
           for(const cl of claseList){
-            const entry=_listeZiClasa[String(p.zi)+'|'+cl];
-            const nrElevi=_eleviPerClasa[cl]!==undefined?_eleviPerClasa[cl]:'';
+            const entry=getListaEntry(p.zi,cl,proiecteMap);
+            const nrElevi=proiecteMap[cl]?'':(_eleviPerClasa[cl]!==undefined?_eleviPerClasa[cl]:'');
 
             // Pagina separator clasă — ALBASTRU
             printHtml+=`<div class="print-aviz-page" style="border-color:${cListe.border};background:${cListe.bg};">

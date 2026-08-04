@@ -164,6 +164,7 @@ body{font-family:'Inter',sans-serif;background:#0f172a;color:#e2e8f0;min-height:
       <button class="btn btn-back" onclick="goBack()">⬅ Înapoi</button>
       <span class="cp-title">🧾 Dosar Factură</span>
       <span class="cp-fact" id="cp-fact-label">—</span>
+      <button class="btn" onclick="editeazaNrFactura()" style="background:linear-gradient(135deg,#7c3aed,#5b21b6);">✏️ Nr. înregistrare</button>
       <button class="btn" onclick="genereazaDosarFactura()" style="background:linear-gradient(135deg,#2563eb,#1e40af);">📄 Generează dosar</button>
       <a id="btnDosarGenerat" href="#" target="_blank" style="display:none;padding:7px 16px;border-radius:6px;font-weight:700;font-size:12px;background:linear-gradient(135deg,#065f46,#047857);color:#6ee7b7;text-decoration:none;">📂 Deschide dosar</a>
       <a id="btnDosarDescarca" href="#" download style="display:none;padding:7px 16px;border-radius:6px;font-weight:700;font-size:12px;background:linear-gradient(135deg,#334155,#1e293b);color:#e2e8f0;text-decoration:none;">⬇ Salvează</a>
@@ -314,9 +315,11 @@ document.getElementById('fileInputNou').addEventListener('change',async function
   for(const file of files){
     const{data:ex}=await db.from('documente_contract').select('id').eq('contract_id',contractId).eq('nume_fisier',file.name).limit(1);
     if(ex&&ex.length){alert(`⚠️ "${file.name}" există deja.`);continue;}
+    const nrInreg=prompt(`Număr de înregistrare pentru "${file.name}" (apare pe coperta dosarului, poți completa și mai târziu):`,'');
+    if(nrInreg===null){continue;} // Anulat pentru acest fișier
     const fn=`${contractId}_${Date.now()}_${safeName(file.name)}`;
     let url;try{url=await r2Up(fn,file);}catch(e){alert('Eroare upload: '+e.message);this.value='';return;}
-    const{error}=await db.from('documente_contract').insert([{contract_id:contractId,nume_contract:numeAfisat||'',furnizor:furnAfisat||'',tip_document:'13. Factura',nume_fisier:file.name,link_drive:url}]);
+    const{error}=await db.from('documente_contract').insert([{contract_id:contractId,nume_contract:numeAfisat||'',furnizor:furnAfisat||'',tip_document:'13. Factura',nume_fisier:file.name,link_drive:url,nr_inregistrare:nrInreg.trim()||null}]);
     if(error){alert('Eroare salvare: '+error.message);this.value='';return;}
   }
   this.value='';await loadFacturi();
@@ -327,10 +330,33 @@ async function openDosar(factura){
   _facturaActiva=factura;
   document.getElementById('view-index').style.display='none';
   document.getElementById('view-dosar').style.display='block';
+  actualizeazaLabelFactura();
+  await load();
+}
+
+function actualizeazaLabelFactura(){
+  const factura=_facturaActiva;
   const nr=factura.nr_inregistrare?`Nr. ${factura.nr_inregistrare} — `:'';
   const dt=factura.data_inregistrare?fmtData(factura.data_inregistrare)+' — ':'';
   document.getElementById('cp-fact-label').textContent=nr+dt+(factura.nume_fisier||'Factură');
-  await load();
+}
+
+async function editeazaNrFactura(){
+  if(!_facturaActiva)return;
+  const nrActual=_facturaActiva.nr_inregistrare||'';
+  const nrNou=prompt('Număr de înregistrare factură (apare pe coperta dosarului):',nrActual);
+  if(nrNou===null)return; // Anulat
+  const dtActuala=_facturaActiva.data_inregistrare||'';
+  const dtNoua=prompt('Data înregistrării (AAAA-LL-ZZ), lasă gol dacă nu se aplică:',dtActuala);
+  if(dtNoua===null)return; // Anulat
+
+  const payload={nr_inregistrare:nrNou.trim()||null,data_inregistrare:dtNoua.trim()||null};
+  const{error}=await db.from('documente_contract').update(payload).eq('id',_facturaActiva.id);
+  if(error){alert('Eroare la salvare: '+error.message);return;}
+
+  _facturaActiva.nr_inregistrare=payload.nr_inregistrare;
+  _facturaActiva.data_inregistrare=payload.data_inregistrare;
+  actualizeazaLabelFactura();
 }
 
 function goBack(){
@@ -783,6 +809,14 @@ async function genereazaDosarFactura(){
         const t2w = fB.widthOfTextAtSize(t2txt, t2sz);
         pageCover.drawText(t2txt, {x:(W-t2w)/2, y:titluY-32, size:t2sz, font:fB, color:verdeDark});
       }
+      // Furnizor, sub numărul facturii
+      if(furnAfisat){
+        const t3txt = roPDF(furnAfisat);
+        const t3sz = 13;
+        const t3w = fR.widthOfTextAtSize(t3txt, t3sz);
+        const t3y = nrDataFact ? titluY-54 : titluY-32;
+        pageCover.drawText(t3txt, {x:(W-t3w)/2, y:t3y, size:t3sz, font:fR, color:verdeDark});
+      }
 
       // Crai mare, deasupra separatorului
       if(imgCraiCover){
@@ -866,6 +900,7 @@ async function genereazaDosarFactura(){
         page.drawText(roPDF(nrDtF),{x:36+lw,y:iy,size:isz,font:bold,color:alb,opacity:0.92});
         iy-=ilh;
       }
+      if(furnAfisat){const lbl=roPDF("Furnizor: ");const lw=font.widthOfTextAtSize(lbl,isz);page.drawText(lbl,{x:36,y:iy,size:isz,font,color:alb,opacity:0.65});page.drawText(roPDF(furnAfisat),{x:36+lw,y:iy,size:isz,font:bold,color:alb,opacity:0.92});iy-=ilh;}
       if(numeAfisat){const lbl=roPDF("Contract: ");const lw=font.widthOfTextAtSize(lbl,isz);page.drawText(lbl,{x:36,y:iy,size:isz,font,color:alb,opacity:0.65});page.drawText(roPDF(numeAfisat),{x:36+lw,y:iy,size:isz,font:bold,color:alb,opacity:0.92});}
       const nrText=roPDF("Sectiunea "+String(nrSec).padStart(2,'0'));
       page.drawText(nrText,{x:(W-font.widthOfTextAtSize(nrText,9))/2,y:38,size:9,font,color:alb,opacity:0.55});
