@@ -1084,6 +1084,50 @@ async function build(expert,luna,an){
 
   let clsS=new Set();pont.forEach(p=>p.clase_grupe.split(',').forEach(c=>{const t=c.trim();if(t&&t!=='PROIECT')clsS.add(t);}));
   const clase=Array.from(clsS).sort();
+
+  // ===== PROIECT: planificare comună + documente semnate încărcate din cardul de Proiect =====
+  const numeProiecteLuna=[...new Set(pont.filter(p=>p.clase_grupe.trim()==='PROIECT'&&p.nume_proiect).map(p=>p.nume_proiect))].sort();
+  let planuriProiect={},docsProiect={};
+  if(numeProiecteLuna.length){
+    const[ppR,dpR]=await Promise.all([
+      db.from('planificari_documente').select('tip_document,continut_json').in('tip_document',numeProiecteLuna.map(n=>`PLAN_PROIECT_${n}`)),
+      db.from('documente_proiect').select('*').in('nume_proiect',numeProiecteLuna)
+    ]);
+    (ppR.data||[]).forEach(d=>{planuriProiect[d.tip_document]=d.continut_json;});
+    (dpR.data||[]).forEach(d=>{
+      if(!docsProiect[d.nume_proiect])docsProiect[d.nume_proiect]={};
+      if(!docsProiect[d.nume_proiect][d.tip_document])docsProiect[d.nume_proiect][d.tip_document]=[];
+      docsProiect[d.nume_proiect][d.tip_document].push(d);
+    });
+  }
+
+  // Randează un fișier semnat de Proiect (PDF/imagine/Word) descărcat din documente_proiect
+  async function randeazaDocProiect(rec,eticheta,numeP){
+    if(!rec||!rec.public_url){
+      H+=pg(ec,`<div style="text-align:center;padding:60px 40px;"><div style="font-size:13pt;color:#dc2626;font-weight:bold;margin-bottom:12px;">⚠️ ${eticheta} lipsă</div><div style="font-size:10pt;color:#64748b;">Încarcă fișierul semnat din cardul de Proiect (dosar-expert.html → Proiecte).</div></div>`);
+      P.push({t:'warn',s:`III. ${eticheta} — Proiect: ${numeP}`,m:`${eticheta} nu a fost încă încărcată.`});
+      return;
+    }
+    st(`📄 Randare ${eticheta} — ${numeP}...`,'load');
+    try{
+      const buf=await fetch(rec.public_url).then(r=>r.arrayBuffer());
+      const b=new Uint8Array(buf.slice(0,16));
+      const isImgR=(b[0]===0xFF&&b[1]===0xD8)||(b[0]===0x89&&b[1]===0x50)||(b[0]===0x47&&b[1]===0x49&&b[2]===0x46);
+      const isPdfR=b[0]===0x25&&b[1]===0x50&&b[2]===0x44&&b[3]===0x46;
+      if(isImgR&&!isPdfR){
+        const blobR=new Blob([buf],{type:'image/jpeg'});
+        const b64R=await blobToDataURLCompressed(blobR);
+        H+=`<div class="A4 ${ec} r2-foto-page"><div class="antet-wrap">${antetImg()}</div><img src="${b64R}" class="r2-foto"></div>`;
+      }else if(isPdfR){
+        H+=await renderPdfFromBuffer(buf,rec.public_url,ec);
+      }else{
+        H+=await renderWordFromBuffer(buf,rec.public_url,ec);
+      }
+    }catch(e){
+      H+=pg(ec,`<div style="text-align:center;padding:60px 40px;"><div style="font-size:13pt;color:#dc2626;font-weight:bold;margin-bottom:12px;">⚠️ Eroare la randare ${eticheta}</div><a href="${rec.public_url}" target="_blank" style="background:#2563eb;color:white;padding:10px 24px;border-radius:6px;text-decoration:none;font-weight:bold;">Deschide fișierul original</a></div>`);
+      P.push({t:'warn',s:`III. ${eticheta} — Proiect: ${numeP}`,m:'Eroare la randare: '+e.message});
+    }
+  }
   let totOre=0;pont.forEach(p=>totOre+=parseFloat(p.nr_ore||0));
   let actCod='';for(let k in MA)if(MA[k].includes(expert))actCod=k;
 
@@ -1109,7 +1153,7 @@ async function build(expert,luna,an){
         <b>Activitate:</b> ${inf.a} ${inf.d}<br>
         <b>Disciplină:</b> ${inf.di}<br>
         <b>CIM:</b> nr. ${inf.c}<br>
-        <b>Clase:</b> ${clase.map(c=>normClasa(c)).join(', ')}<br>
+        <b>Clase:</b> ${clase.map(c=>normClasa(c)).join(', ')}${numeProiecteLuna.length?(clase.length?' · ':'')+'🎯 '+numeProiecteLuna.join(', '):''}<br>
         <b>Total ore pontate:</b> ${totOre}
       </div>
     </div>
@@ -1121,7 +1165,7 @@ async function build(expert,luna,an){
 
   // ========== SECTION I ==========
   prg(12);st('📅 Secț. I: Planificări...','load');
-  H+=`<div class="sec-sep sec-sep-I ${ec}"><div class="sec-sep-icon">📅</div><div class="sec-sep-num">Secțiunea I</div><div class="sec-sep-title">Planificarea activităților</div><div class="sec-sep-sub">${clase.length} planificări — ${expert}</div></div>`;
+  H+=`<div class="sec-sep sec-sep-I ${ec}"><div class="sec-sep-icon">📅</div><div class="sec-sep-num">Secțiunea I</div><div class="sec-sep-title">Planificarea activităților</div><div class="sec-sep-sub">${clase.length+numeProiecteLuna.length} planificări — ${expert}</div></div>`;
 
   for(const cls of clase){
     const cn=normClasa(cls);const idP=`PLAN_${expert}_${cls}_${luna}_${an}`;
@@ -1172,6 +1216,45 @@ async function build(expert,luna,an){
     cnt.pl++;
   }
 
+  // ===== Planificare comună — pentru fiecare Proiect al lunii =====
+  for(const numeP of numeProiecteLuna){
+    const pj=planuriProiect[`PLAN_PROIECT_${numeP}`];
+    const nr=pj?.nr||'',dr=pj?.dataReg||'';
+    if(!pj)P.push({t:'warn',s:`I. Planificare — Proiect: ${numeP}`,m:'Planificarea comună de proiect nu a fost încă completată.'});
+    const rows=pj?.tableRows||[];
+    let rH='';rows.forEach((r,i)=>{
+      rH+=`<tr><td style="text-align:center;">${i+1}</td><td style="text-align:center;">${r.data||''}</td><td style="text-align:left;">${esc(r.cont)}</td><td style="text-align:left;">${esc(r.actv)}</td><td style="text-align:left;">${esc(r.res)}</td><td style="text-align:center;">${esc(r.eval)}</td></tr>`;
+    });
+    H+=pg(ec,`<div class="antet-wrap">${antetImg()}</div>
+      <div class="plan-nr-inreg">Nr. înregistrare: ${nr||'____'} / ${dr||'__________'}</div>
+      <div class="plan-title">Planificare — Proiect</div>
+      <div class="plan-info">
+        <div style="font-weight:bold;">${inf.a} ${inf.d}</div>
+        <div>${inf.di}</div>
+        <div style="font-weight:bold; margin-top:10px;">Proiect: ${esc(numeP)}</div>
+        <div style="font-weight:bold;">Luna: ${luna} ${an}</div>
+      </div>
+      <strong>Obiective:</strong>
+      <div class="plan-obiective">${pj?.obiective||'<i style="color:#999;">Necompletate</i>'}</div>
+      <table class="plan-table">
+        <thead><tr>
+          <th style="width:50px;">Nr.</th>
+          <th style="width:90px;">Data</th>
+          <th>Conținuturi</th>
+          <th>Activități</th>
+          <th>Resurse</th>
+          <th style="width:12%;">Eval.</th>
+        </tr></thead>
+        <tbody>${rH}</tbody>
+      </table>
+      <div class="plan-sig">
+        <div class="plan-sig-box"><strong>Manager proiect,</strong><br>prof. dr. Ciprian MIHAI</div>
+        <div class="plan-sig-box plan-sig-right"><strong>Aprobat,</strong><br>Director,<br>prof. Cătălin Ionuț BAZILUC</div>
+      </div>
+      ${ftr()}`);
+    cnt.pl++;
+  }
+
   // ========== SECTION II ==========
   prg(25);st('🕒 Secț. II: Orar...','load');
   H+=`<div class="sec-sep sec-sep-II ${ec}"><div class="sec-sep-icon">🕒</div><div class="sec-sep-num">Secțiunea II</div><div class="sec-sep-title">Orar Individual</div><div class="sec-sep-sub">${expert} — ${luna} ${an}</div></div>`;
@@ -1203,7 +1286,7 @@ async function build(expert,luna,an){
 
   // ========== SECTION III ==========
   prg(30);st('📄 Secț. III: Fișe & liste...','load');
-  H+=`<div class="sec-sep sec-sep-III ${ec}"><div class="sec-sep-icon">📄</div><div class="sec-sep-num">Secțiunea III</div><div class="sec-sep-title">Fișe de activitate,<br>Prezență, Masă caldă</div><div class="sec-sep-sub">${clase.length} clase — ${expert}</div></div>`;
+  H+=`<div class="sec-sep sec-sep-III ${ec}"><div class="sec-sep-icon">📄</div><div class="sec-sep-num">Secțiunea III</div><div class="sec-sep-title">Fișe de activitate,<br>Prezență, Masă caldă</div><div class="sec-sep-sub">${clase.length} clase${numeProiecteLuna.length?' + '+numeProiecteLuna.length+' proiect(e)':''} — ${expert}</div></div>`;
 
   for(let ci=0;ci<clase.length;ci++){
     const cls=clase[ci];const cn=normClasa(cls);
@@ -1392,6 +1475,29 @@ async function build(expert,luna,an){
           P.push({t:'warn',s:`III. Masă — ${normClasa(cls)} — ${z2(p.zi)}.${lc}.${an}`,m:`Lista de masă a fost generată automat. Încarcă lista semnată din fise.html → butonul 🍱 Masă.`});
         }
       }
+    }
+  }
+
+  // ===== Documente Proiect (semnate, încărcate din cardul de Proiect) — pentru fiecare Proiect al lunii =====
+  for(const numeP of numeProiecteLuna){
+    const dp=docsProiect[numeP]||{};
+    const activitatiProiect=pont.filter(p=>p.clase_grupe.trim()==='PROIECT'&&p.nume_proiect===numeP).length;
+
+    H+=clsSep(ec,`<div class="cls-sep-icon">🎯</div><div class="cls-sep-title">${esc(numeP)}</div><div class="cls-sep-sub">${expert} — ${luna} ${an}</div><div class="cls-sep-stats"><div class="cls-stat">📝 ${activitatiProiect} activități</div></div>`);
+
+    await randeazaDocProiect((dp['prezenta']||[])[0],'Listă prezență',numeP);cnt.pr++;
+    await randeazaDocProiect((dp['masa']||[])[0],'Listă masă',numeP);cnt.ma++;
+
+    const fotoListaP=dp['foto']||[];
+    for(const f of fotoListaP){
+      st(`🖼️ Randare foto — ${numeP}...`,'load');
+      try{
+        const bufF=await fetch(f.public_url).then(r=>r.arrayBuffer());
+        const blobF=new Blob([bufF],{type:'image/jpeg'});
+        const b64F=await blobToDataURLCompressed(blobF);
+        H+=`<div class="A4 ${ec} r2-foto-page"><div class="antet-wrap">${antetImg()}</div><img src="${b64F}" class="r2-foto"></div>`;
+        cnt.r2f++;
+      }catch(e){ /* fotografiile sunt opționale — nu blocăm dosarul */ }
     }
   }
 
