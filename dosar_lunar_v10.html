@@ -816,7 +816,7 @@ const st=(m,t)=>{const e=document.getElementById('status');e.className='st-'+t;e
 const prg=p=>{document.getElementById('pw').style.display='block';document.getElementById('pb').style.width=p+'%';};
 const hprg=()=>{document.getElementById('pw').style.display='none';};
 const z2=n=>String(n).padStart(2,'0');
-const oS=(zi,lc,cls)=>{const l=parseInt(lc);if(l===7||l===8||(l===9&&parseInt(zi)<=7))return"08:00";return(cls&&cls.includes('5'))?"13:00":"14:00";};
+const oS=(zi,lc,cls)=>{if(cls&&cls.trim()==='PROIECT')return"09:00";const l=parseInt(lc);if(l===7||l===8||(l===9&&parseInt(zi)<=7))return"08:00";return(cls&&cls.includes('5'))?"13:00":"14:00";};
 const aT=(s,h)=>{let[hh,mm]=s.split(':').map(Number);let t=hh*60+mm+h*60;return z2(Math.floor(t/60))+':'+z2(t%60);};
 const esc=s=>s?(s+'').replace(/</g,'&lt;').replace(/>/g,'&gt;'):'';
 const antetImg=()=>`<img src="${ANTET_B64||ANTET_URL}" class="antet" crossorigin="anonymous">`;
@@ -1087,14 +1087,22 @@ async function build(expert,luna,an){
 
   // ===== PROIECT: documente semnate încărcate din cardul de Proiect (Planificare/Prezență/Masă/Foto) =====
   const numeProiecteLuna=[...new Set(pont.filter(p=>p.clase_grupe.trim()==='PROIECT'&&p.nume_proiect).map(p=>p.nume_proiect))].sort();
-  let docsProiect={};
+  let docsProiect={},planuriProiectContinut={},nrEleviProiectPeZi={};
   if(numeProiecteLuna.length){
-    const{data:dpData}=await db.from('documente_proiect').select('*').in('nume_proiect',numeProiecteLuna);
-    (dpData||[]).forEach(d=>{
+    const[dpR,ppR,mpR]=await Promise.all([
+      db.from('documente_proiect').select('*').in('nume_proiect',numeProiecteLuna),
+      // Conținutul (tableRows) al planificării comune de proiect — folosit doar pentru „tema zilei" din Secțiunea IV
+      db.from('planificari_documente').select('tip_document,continut_json').in('tip_document',numeProiecteLuna.map(n=>`PLAN_PROIECT_${n}`)),
+      // Nr. elevi participanți e ținut pe rândul „master" (expert: „Proiect"), pe zi
+      db.from('pontaj_detaliat').select('zi,nr_elevi_proiect').eq('expert','Proiect').eq('luna',luna).eq('an',an)
+    ]);
+    (dpR.data||[]).forEach(d=>{
       if(!docsProiect[d.nume_proiect])docsProiect[d.nume_proiect]={};
       if(!docsProiect[d.nume_proiect][d.tip_document])docsProiect[d.nume_proiect][d.tip_document]=[];
       docsProiect[d.nume_proiect][d.tip_document].push(d);
     });
+    (ppR.data||[]).forEach(d=>{planuriProiectContinut[d.tip_document]=d.continut_json;});
+    (mpR.data||[]).forEach(r=>{nrEleviProiectPeZi[r.zi]=r.nr_elevi_proiect||0;});
   }
 
   // Randează un fișier semnat de Proiect (PDF/imagine/Word) descărcat din documente_proiect
@@ -1228,7 +1236,7 @@ async function build(expert,luna,an){
   const oD=allPl.find(p=>p.tip_document===oK);
   const oNr=oD?.continut_json?.nr_inreg||'...';const oData=oD?.continut_json?.data_inreg||'...';
   let oR='';let zP={};pont.forEach(p=>{if(!zP[p.zi])zP[p.zi]=[];zP[p.zi].push(p);});
-  Object.keys(zP).sort((a,b)=>a-b).forEach(z=>{let cs=null;zP[z].forEach(act=>{if(!cs)cs=oS(z,lc,act.clase_grupe);const f=aT(cs,parseFloat(act.nr_ore||0));const ct=act.clase_grupe.split(',').map(c=>normClasa(c.trim())).join(', ');oR+=`<tr><td>${z2(z)}.${lc}.${an}</td><td style="text-align:left;padding-left:6px;font-size:9pt;">${ct}</td><td>${cs}–${f}</td><td>${act.nr_ore}</td></tr>`;cs=f;});});
+  Object.keys(zP).sort((a,b)=>a-b).forEach(z=>{let cs=null;zP[z].forEach(act=>{const esteProiect=act.clase_grupe.trim()==='PROIECT';const s=esteProiect?"09:00":(cs||oS(z,lc,act.clase_grupe));const f=aT(s,parseFloat(act.nr_ore||0));const ct=esteProiect?('🎯 '+(act.nume_proiect||'Proiect')):act.clase_grupe.split(',').map(c=>normClasa(c.trim())).join(', ');oR+=`<tr><td>${z2(z)}.${lc}.${an}</td><td style="text-align:left;padding-left:6px;font-size:9pt;">${ct}</td><td>${s}–${f}</td><td>${act.nr_ore}</td></tr>`;cs=f;});});
   H+=pg(ec,`<div class="antet-wrap">${antetImg()}</div>
     <div class="orar-nr-inreg">Nr. înregistrare: ${oNr} / ${oData}</div>
     <div class="orar-title">Orar individual activități PNRAS</div>
@@ -1480,14 +1488,27 @@ async function build(expert,luna,an){
 
   let nrAct=0;let aLH='';
   pont.forEach(p=>{const cU=[...new Set(p.clase_grupe.split(',').map(c=>c.trim()))];const oP=parseFloat(p.nr_ore||0)/cU.length;
-    cU.forEach(cls=>{nrAct++;const iP=`PLAN_${expert}_${cls}_${luna}_${an}`;const pD=allPl.find(d=>d.tip_document===iP);let tema='---';
-    if(pD?.continut_json?.tableRows){const dc=`${z2(p.zi)}.${lc}.${an}`;const rr=pD.continut_json.tableRows.find(r=>r.data===dc);if(rr)tema=rr.cont||'Activitate conform planificării';}
-    const nE=allE.filter(e=>(e.clasa_grupa||'').toUpperCase()===cls.toUpperCase()).length;
-    aLH+=`<div class="rap-lista-activitati"><b>${nrAct}.</b> <b>${normClasa(cls)}</b> | Data: <b>${z2(p.zi)}.${lc}.${an}</b> | Elevi: <b>${nE}</b> | Ore: <b>${oP===1?'1 oră':oP+' ore'}</b><br><i>Conținut: ${esc(tema)}</i></div>`;});});
+    cU.forEach(cls=>{nrAct++;
+      const esteProiect=cls==='PROIECT';
+      const dataCautata=`${z2(p.zi)}.${lc}.${an}`;
+      let tema='---',nE=0,eticheta;
+      if(esteProiect){
+        eticheta=p.nume_proiect||'Proiect';
+        const docProiect=planuriProiectContinut[`PLAN_PROIECT_${p.nume_proiect}`];
+        if(docProiect){const rr=docProiect.tableRows?.find(r=>r.data===dataCautata);if(rr)tema=rr.cont||'Activitate de proiect conform planificării';}
+        nE=nrEleviProiectPeZi[p.zi]||0;
+      }else{
+        eticheta=normClasa(cls);
+        const iP=`PLAN_${expert}_${cls}_${luna}_${an}`;const pD=allPl.find(d=>d.tip_document===iP);
+        if(pD?.continut_json?.tableRows){const rr=pD.continut_json.tableRows.find(r=>r.data===dataCautata);if(rr)tema=rr.cont||'Activitate conform planificării';}
+        nE=allE.filter(e=>(e.clasa_grupa||'').toUpperCase()===cls.toUpperCase()).length;
+      }
+      aLH+=`<div class="rap-lista-activitati"><b>${nrAct}.</b> <b>${esc(eticheta)}</b> | Data: <b>${dataCautata}</b> | Elevi: <b>${nE}</b> | Ore: <b>${oP===1?'1 oră':oP+' ore'}</b><br><i>Conținut: ${esc(tema)}</i></div>`;
+    });});
 
   const rspT=lsG(pid+'_resp','<p>Realizarea sesiunilor de sprijin educațional cu elevii din grupul țintă;</p><p>Punerea în aplicare a planului de servicii educaționale personalizat;</p><p>Realizarea instrumentelor și fișelor de lucru necesare;</p><p>Colaborarea cu membrii echipei de management;</p><p>Monitorizarea frecvenței și progresului elevilor;</p><p>Realizarea documentelor de raportare lunară.</p>');
   const rezT=lsG(pid+'_rez',`<ul><li><b>${nrAct}</b> activități susținute;</li><li><b>${nrAct}</b> liste de prezență;</li><li>Consilierea și sprijinirea elevilor.</li></ul>`);
-  const livT=lsG(pid+'_livr',`<ul><li>Planificări: ${clase.map(c=>normClasa(c)).join(', ')};</li><li><b>${cnt.fi}</b> Fișe & Liste prezență;</li><li><b>${cnt.ma}</b> Liste masă caldă;</li><li>Pontaj ${luna}; Orar ${luna}.</li></ul>`);
+  const livT=lsG(pid+'_livr',`<ul><li>Planificări: ${[...clase.map(c=>normClasa(c)),...numeProiecteLuna].join(', ')};</li><li><b>${cnt.fi}</b> Fișe & Liste prezență;</li><li><b>${cnt.ma}</b> Liste masă caldă;</li><li>Pontaj ${luna}; Orar ${luna}.</li></ul>`);
 
   H+=pg(ec,`<div class="antet-wrap">${antetImg()}</div>
     <div class="rap-nr-inreg-container">Nr. înregistrare: ${rNr} / ${rData}</div>
