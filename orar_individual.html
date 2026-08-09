@@ -76,6 +76,8 @@
     
     // NOUA LOGICĂ DE TIMP
     function determinaOraStart(zi, lunaCod, an, clasa) {
+        // Proiect: începe mereu la 09:00, indiferent de sezon/lună
+        if (clasa && clasa.trim() === 'PROIECT') return "09:00";
         const ziInt = parseInt(zi);
         const lunaInt = parseInt(lunaCod);
         // Iulie, August și 1-7 Septembrie -> 08:00
@@ -160,14 +162,21 @@
             let currentDayStart = null;
             // Ordonăm activitățile din aceeași zi
             zileP[z].sort((a,b) => determinaOraStart(z, lunaCod, selectatAn, a.clase_grupe).localeCompare(determinaOraStart(z, lunaCod, selectatAn, b.clase_grupe))).forEach((act) => {
-                if (!currentDayStart) {
-                    currentDayStart = determinaOraStart(z, lunaCod, selectatAn, act.clase_grupe);
+                const esteProiect = act.clase_grupe.trim() === 'PROIECT';
+                let start;
+                if (esteProiect) {
+                    start = "09:00"; // Proiect: mereu 09:00, indiferent de poziția în lanțul zilei
+                } else if (!currentDayStart) {
+                    start = determinaOraStart(z, lunaCod, selectatAn, act.clase_grupe);
+                } else {
+                    start = currentDayStart;
                 }
-                let f = adunaTimp(currentDayStart, act.nr_ore);
+                let f = adunaTimp(start, act.nr_ore);
+                const eticheta = esteProiect ? ('🎯 ' + (act.nume_proiect || 'Proiect')) : (MAP_CLASE[act.clase_grupe] || act.clase_grupe);
                 html += `<tr>
                     <td>${z.toString().padStart(2,'0')}.${lunaCod}.${selectatAn}</td>
-                    <td>${MAP_CLASE[act.clase_grupe] || act.clase_grupe}</td>
-                    <td>${currentDayStart}-${f}</td>
+                    <td>${eticheta}</td>
+                    <td>${start}-${f}</td>
                     <td>${act.nr_ore}</td>
                 </tr>`; 
                 currentDayStart = f;
