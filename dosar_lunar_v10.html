@@ -884,11 +884,11 @@ async function renderPdfPages(url,ec){
     let html='';
     for(let pgN=1;pgN<=pdf.numPages;pgN++){
       const page=await pdf.getPage(pgN);
-      const vp=page.getViewport({scale:2.0}); // scale 2 = calitate buna
+      const vp=page.getViewport({scale:1.5}); // [REDUS din 2.0] — previne "Invalid string length" la dosare mari
       const canvas=document.createElement('canvas');
       canvas.width=vp.width; canvas.height=vp.height;
       await page.render({canvasContext:canvas.getContext('2d'),viewport:vp}).promise;
-      const imgData=canvas.toDataURL('image/jpeg',0.92);
+      const imgData=canvas.toDataURL('image/jpeg',0.85); // [REDUS din 0.92]
       // Fiecare pagina PDF = o pagina A4, imaginea ocupa tot spatiul util
       html+=pg(ec,`<img src="${imgData}" style="width:100%;height:auto;display:block;" alt="Pagina ${pgN}">`);
     }
@@ -931,11 +931,11 @@ async function renderPdfFromBuffer(arrayBuffer,url,ec,anexaLabel=''){
     let html='';
     for(let pgN=1;pgN<=pdf.numPages;pgN++){
       const page=await pdf.getPage(pgN);
-      const vp=page.getViewport({scale:2.0});
+      const vp=page.getViewport({scale:1.5}); // [REDUS din 2.0] — previne "Invalid string length" la dosare mari
       const canvas=document.createElement('canvas');
       canvas.width=vp.width; canvas.height=vp.height;
       await page.render({canvasContext:canvas.getContext('2d'),viewport:vp}).promise;
-      const imgData=canvas.toDataURL('image/jpeg',0.92);
+      const imgData=canvas.toDataURL('image/jpeg',0.85); // [REDUS din 0.92]
       const label=(anexaLabel&&pgN===1)?`<div style="text-align:center;font-weight:bold;font-size:14pt;margin-bottom:8px;">${anexaLabel}</div>`:'';
       html+=pg(ec,`${label}<img src="${imgData}" style="width:100%;height:auto;display:block;" alt="Pagina ${pgN}">`);
     }
