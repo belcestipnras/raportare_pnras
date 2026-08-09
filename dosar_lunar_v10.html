@@ -1573,7 +1573,7 @@ async function build(expert,luna,an){
   const pontZile={};
   pont.forEach(p=>{
     if(!pontZile[p.zi])pontZile[p.zi]={clase:[],ore:0};
-    const cls=normClasa(p.clase_grupe)||p.clase_grupe;
+    const cls=(p.clase_grupe&&p.clase_grupe.trim()==='PROIECT')?('🎯 '+(p.nume_proiect||'Proiect')):(normClasa(p.clase_grupe)||p.clase_grupe);
     if(!pontZile[p.zi].clase.includes(cls))pontZile[p.zi].clase.push(cls);
     pontZile[p.zi].ore+=parseFloat(p.nr_ore||0);
   });
