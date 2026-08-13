@@ -2242,6 +2242,20 @@ async function r2DeleteFile(publicUrl, bucketKey) {
             d.tip_document === '13. Factura' && d.furnizor && d.furnizor.length === 36
         );
 
+        // Data reală a fiecărei facturi vine din buget_pnras (documente_contract.furnizor = buget_pnras.id),
+        // ca să putem sorta cronologic dosarele de la facturi (cel mai recent primul).
+        const idFacturiBuget = toateFacturile.map(f => f.furnizor).filter(Boolean);
+        let dataFacturaById = {};
+        if (idFacturiBuget.length) {
+            const { data: bugetFact } = await db.from('buget_pnras').select('id,data_document').in('id', idFacturiBuget);
+            (bugetFact || []).forEach(b => { dataFacturaById[b.id] = b.data_document; });
+        }
+        toateFacturile.sort((a, b) => {
+            const da = dataFacturaById[a.furnizor] ? new Date(dataFacturaById[a.furnizor]) : new Date(0);
+            const db_ = dataFacturaById[b.furnizor] ? new Date(dataFacturaById[b.furnizor]) : new Date(0);
+            return db_ - da; // cel mai recent primul
+        });
+
         const areAltceva = tipuriExtra.length > 0 || toateFacturile.some(f => dosareFact[f.id]);
 
         // Separăm dosarele de raportare masă caldă din tipuriExtra
@@ -2276,7 +2290,16 @@ async function r2DeleteFile(publicUrl, bucketKey) {
             // ---- Dosare raportare tehnică ----
             if (dosareTehnice.length > 0) {
                 html += '<div style="margin:10px 0 4px;padding:6px 12px;background:#fff7ed;border-left:3px solid #d97706;border-radius:0 6px 6px 0;font-size:12px;font-weight:700;color:#b45309;">🟠 Dosare raportare tehnică</div>';
-                dosareTehnice.forEach(d => {
+                dosareTehnice.sort((a, b) => {
+                    const ma = a.tip_document.match(/DOSAR_TEH_MASA_(.+)_(\d{4})$/);
+                    const mb = b.tip_document.match(/DOSAR_TEH_MASA_(.+)_(\d{4})$/);
+                    if (!ma || !mb) return 0;
+                    const anA = parseInt(ma[2]), anB = parseInt(mb[2]);
+                    if (anA !== anB) return anB - anA; // cel mai recent an primul
+                    const lunaA = LUNI_MAP[ma[1].toLowerCase()] ?? -1;
+                    const lunaB = LUNI_MAP[mb[1].toLowerCase()] ?? -1;
+                    return lunaB - lunaA; // cea mai recentă lună primul
+                }).forEach(d => {
                     html += '<div class="check-file-row" style="margin:4px 0;">' +
                         '<a class="check-files-dosar" href="' + d.link_drive + '" target="_blank">📎 ' + (d.nume_fisier || d.tip_document) + '</a>' +
                         '</div>';
