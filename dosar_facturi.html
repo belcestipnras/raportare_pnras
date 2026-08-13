@@ -468,8 +468,8 @@ function renderSidebar(){
       </div>`;
   document.getElementById('sidebar').innerHTML=dosarBox+SECTIUNI.map((s,i)=>{
     let cnt=0;
-    if(s.id==='S1') cnt=_contractDocs.filter(d=>!d.exclude_print).length;
-    else if(s.id==='S2') cnt=(_facturaActiva&&_facturaActiva.link_drive&&!_facturaActiva.exclude_print)?1:0;
+    if(s.id==='S1') cnt=_contractDocs.filter(d=>!_excluseFactura.has(d.id)).length;
+    else if(s.id==='S2') cnt=(_facturaActiva&&_facturaActiva.link_drive&&!_excluseFactura.has(_facturaActiva.id))?1:0;
     else if(s.autoKeywords){
       const autoCnt=(_autoDocs[s.id]||[]).filter(d=>!_excluseFactura.has(d.id)).length;
       const manualCnt=Object.keys(_byTip).filter(k=>k.startsWith(mk(s.id))).reduce((a,k)=>a+(_byTip[k]||[]).filter(d=>!d.exclude_print).length,0);
@@ -496,16 +496,16 @@ function renderMain(){
     let body='',cnt=0;
 
     if(s.id==='S1'){
-      cnt=_contractDocs.length;
-      body=cnt
-        ?'<div class="file-list">'+_contractDocs.map(d=>autoRow(d)).join('')+'</div>'
+      cnt=_contractDocs.filter(d=>!_excluseFactura.has(d.id)).length;
+      body=_contractDocs.length
+        ?'<div class="file-list">'+_contractDocs.map(d=>autoRowToggle(d)).join('')+'</div>'
         :'<div class="no-docs" style="color:#f59e0b;">⚠️ Contractul nu a fost găsit.</div>';
     }
     else if(s.id==='S2'){
       const f=_facturaActiva;
-      cnt=f&&f.link_drive?1:0;
-      body=cnt
-        ?'<div class="file-list">'+autoRow(f)+'</div>'
+      cnt=(f&&f.link_drive&&!_excluseFactura.has(f.id))?1:0;
+      body=(f&&f.link_drive)
+        ?'<div class="file-list">'+autoRowToggle(f)+'</div>'
         :'<div class="no-docs" style="color:#f59e0b;">⚠️ Fișierul facturii nu este atașat.</div>';
     }
     else if(s.autoKeywords){
@@ -1042,9 +1042,9 @@ async function genereazaDosarFactura(){
       let docsSecManual=[];
 
       if(s.id==='S1'){
-        docsSecAuto=contractDocsFresh.filter(d=>!d.exclude_print&&d.link_drive);
+        docsSecAuto=contractDocsFresh.filter(d=>!excluseFresh.has(d.id)&&d.link_drive);
       } else if(s.id==='S2'){
-        if(_facturaActiva&&_facturaActiva.link_drive&&!_facturaActiva.exclude_print)docsSecAuto=[_facturaActiva];
+        if(_facturaActiva&&_facturaActiva.link_drive&&!excluseFresh.has(_facturaActiva.id))docsSecAuto=[_facturaActiva];
       } else if(s.autoKeywords){
         docsSecAuto=(autoDocsFresh[s.id]||[]).filter(d=>!excluseFresh.has(d.id)&&d.link_drive);
         docsSecManual=Object.keys(byTipGen).filter(k=>k.startsWith(`FACT_${_facturaActiva.id}_${s.id}`)).flatMap(k=>byTipGen[k]||[]).filter(d=>!d.exclude_print&&d.link_drive);
