@@ -210,12 +210,12 @@ const SECTIUNI = [
   { id:'S1', label:'Contract',                     icon:'📋', auto:true  },
   { id:'S2', label:'Factură',                      icon:'💰', auto:true  },
   { id:'S3', label:'PV Recepție / PV Punere în Funcțiune / PV Dare în Folosință / Raport de Activitate',
-             icon:'📋', auto:false, autoPrefix:['11.','12.'] },
-  { id:'S4', label:'ALOP',                         icon:'💼', auto:false, autoPrefix:['14.'] },
-  { id:'S5', label:'Ordin de Plată (OP)',           icon:'🏦', auto:false, autoPrefix:['15.'] },
-  { id:'S6', label:'Extras de Cont',               icon:'🏧', auto:false, autoPrefix:['16.'] },
+             icon:'📋', auto:false, autoKeywords:['proces-verbal de receptie','dare in folosinta','punere in functiune','raport de activitate'] },
+  { id:'S4', label:'ALOP',                         icon:'💼', auto:false, autoKeywords:['alop'] },
+  { id:'S5', label:'Ordin de Plată (OP)',           icon:'🏦', auto:false, autoKeywords:['ordin de plata'] },
+  { id:'S6', label:'Extras de Cont',               icon:'🏧', auto:false, autoKeywords:['extras de cont'] },
   { id:'S7', label:'NIR / BC / Fișa Mijlocului Fix / Fișa de Magazie',
-             icon:'📦', auto:false, autoPrefix:['17.'] },
+             icon:'📦', auto:false, autoKeywords:['nir','bon de consum','fisa mijloc fix','fisa de magazie'] },
 ];
 
 /* ============ STATE ============ */
@@ -243,6 +243,16 @@ async function r2Del(url){
 
 /* ============ UTILS ============ */
 function safeName(n){return(n||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-zA-Z0-9._-]/g,'_').replace(/_+/g,'_');}
+
+// Normalizează un text pentru potrivire după denumire: fără diacritice, lowercase,
+// și fără numărul de cartonaș din față (ex. "16. Extras de cont" -> "extras de cont")
+function normPotrivire(s){
+  return (s||'')
+    .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+    .toLowerCase()
+    .replace(/^\s*\d+(\.\d+)?\.?\s*/,'')
+    .trim();
+}
 function fileIcon(link){const e=(link||'').split('?')[0].split('.').pop().toLowerCase();return{pdf:'📄',doc:'📝',docx:'📝',jpg:'🖼️',jpeg:'🖼️',png:'🖼️',webp:'🖼️'}[e]||'📎';}
 function toRoman(n){const v=[1000,900,500,400,100,90,50,40,10,9,5,4,1],s=['M','CM','D','CD','C','XC','L','XL','X','IX','V','IV','I'];let r='';for(let i=0;i<v.length;i++)while(n>=v[i]){r+=s[i];n-=v[i];}return r;}
 function fmtData(d){if(!d)return'—';return d.split('-').reverse().join('.');}
@@ -375,13 +385,14 @@ async function load(){
     const{data:ctr}=await db.from('documente_contract').select('*').eq('contract_id',contractId).eq('tip_document','9. Contract');
     _contractDocs=ctr||[];
 
-    // Toate documentele din dosar_contract pentru prefixele auto (S3-S7)
+    // Toate documentele din dosar_contract, potrivite după DENUMIRE (nu după numărul cartonașului — S3-S7)
     const{data:allDocs}=await db.from('documente_contract').select('*').eq('contract_id',contractId);
     _autoDocs={};
-    SECTIUNI.filter(s=>s.autoPrefix).forEach(s=>{
-      _autoDocs[s.id]=(allDocs||[]).filter(d=>
-        s.autoPrefix.some(p=>d.tip_document&&d.tip_document.startsWith(p))
-      ).sort((a,b)=>(a.tip_document||'').localeCompare(b.tip_document||'',undefined,{numeric:true}));
+    SECTIUNI.filter(s=>s.autoKeywords).forEach(s=>{
+      _autoDocs[s.id]=(allDocs||[]).filter(d=>{
+        const nt=normPotrivire(d.tip_document);
+        return s.autoKeywords.some(k=>nt.includes(k));
+      }).sort((a,b)=>(a.tip_document||'').localeCompare(b.tip_document||'',undefined,{numeric:true}));
     });
 
     // Excluderi per factura
@@ -423,7 +434,7 @@ function renderSidebar(){
     let cnt=0;
     if(s.id==='S1') cnt=_contractDocs.filter(d=>!d.exclude_print).length;
     else if(s.id==='S2') cnt=(_facturaActiva&&_facturaActiva.link_drive&&!_facturaActiva.exclude_print)?1:0;
-    else if(s.autoPrefix){
+    else if(s.autoKeywords){
       const autoCnt=(_autoDocs[s.id]||[]).filter(d=>!_excluseFactura.has(d.id)).length;
       const manualCnt=Object.keys(_byTip).filter(k=>k.startsWith(mk(s.id))).reduce((a,k)=>a+(_byTip[k]||[]).filter(d=>!d.exclude_print).length,0);
       cnt=autoCnt+manualCnt;
@@ -461,7 +472,7 @@ function renderMain(){
         ?'<div class="file-list">'+autoRow(f)+'</div>'
         :'<div class="no-docs" style="color:#f59e0b;">⚠️ Fișierul facturii nu este atașat.</div>';
     }
-    else if(s.autoPrefix){
+    else if(s.autoKeywords){
       const autoDocs=_autoDocs[s.id]||[];
       const manualDocs=Object.keys(_byTip).filter(k=>k.startsWith(mk(s.id))).flatMap(k=>_byTip[k]||[]);
       cnt=autoDocs.length+manualDocs.length;
@@ -972,10 +983,11 @@ async function genereazaDosarFactura(){
 
     const{data:allDocsFresh}=await db.from('documente_contract').select('*').eq('contract_id',contractId);
     const autoDocsFresh={};
-    SECTIUNI.filter(s=>s.autoPrefix).forEach(s=>{
-      autoDocsFresh[s.id]=(allDocsFresh||[]).filter(d=>
-        s.autoPrefix.some(p=>d.tip_document&&d.tip_document.startsWith(p))
-      ).sort((a,b)=>(a.tip_document||'').localeCompare(b.tip_document||'',undefined,{numeric:true}));
+    SECTIUNI.filter(s=>s.autoKeywords).forEach(s=>{
+      autoDocsFresh[s.id]=(allDocsFresh||[]).filter(d=>{
+        const nt=normPotrivire(d.tip_document);
+        return s.autoKeywords.some(k=>nt.includes(k));
+      }).sort((a,b)=>(a.tip_document||'').localeCompare(b.tip_document||'',undefined,{numeric:true}));
     });
     const contractDocsFresh=(allDocsFresh||[]).filter(d=>d.tip_document==='9. Contract');
 
@@ -994,7 +1006,7 @@ async function genereazaDosarFactura(){
         docsSecAuto=contractDocsFresh.filter(d=>!d.exclude_print&&d.link_drive);
       } else if(s.id==='S2'){
         if(_facturaActiva&&_facturaActiva.link_drive&&!_facturaActiva.exclude_print)docsSecAuto=[_facturaActiva];
-      } else if(s.autoPrefix){
+      } else if(s.autoKeywords){
         docsSecAuto=(autoDocsFresh[s.id]||[]).filter(d=>!excluseFresh.has(d.id)&&d.link_drive);
         docsSecManual=Object.keys(byTipGen).filter(k=>k.startsWith(`FACT_${_facturaActiva.id}_${s.id}`)).flatMap(k=>byTipGen[k]||[]).filter(d=>!d.exclude_print&&d.link_drive);
       } else {
