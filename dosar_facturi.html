@@ -258,16 +258,32 @@ function normPotrivire(s){
 // MASA_{luna}_{an}_{secId}, unde secId e din propriul SECTIUNI al acelui fișier:
 // S4=PV Recepție, S6=ALOP, S7=Ordin de Plată, S8=Extras de Cont (S9=Avize — NU se preia aici).
 const MASA_SECID_MAP={ S4:'S3', S6:'S4', S7:'S5', S8:'S6' };
+const LUNI_RO=['ianuarie','februarie','martie','aprilie','mai','iunie','iulie','august','septembrie','octombrie','noiembrie','decembrie'];
 
-function sectiuneAutoPentru(tipDocument){
+// facturaLuna/facturaAn = luna+anul FACTURII curente (din data preluată din buget_pnras) —
+// documentele MASA_ (masă caldă) se potrivesc DOAR dacă sunt din aceeași lună ca factura.
+// Documentele numerotate din dosar_contract.html (18. Fotografii etc.) nu au lună, deci se potrivesc mereu.
+function sectiuneAutoPentru(tipDocument,facturaLuna,facturaAn){
   const t=tipDocument||'';
-  const mMasa=t.match(/^MASA_.+_(S\d+)(?:_\d+)?$/);
+  const mMasa=t.match(/^MASA_(.+)_(\d{4})_(S\d+)(?:_\d+)?$/);
   if(mMasa){
-    return MASA_SECID_MAP[mMasa[1]]||null;
+    const lunaDoc=mMasa[1].toLowerCase();
+    const anDoc=mMasa[2];
+    if(facturaLuna&&lunaDoc!==facturaLuna.toLowerCase())return null;
+    if(facturaAn&&anDoc!==String(facturaAn))return null;
+    return MASA_SECID_MAP[mMasa[3]]||null;
   }
   const nt=normPotrivire(t);
   const s=SECTIUNI.find(s=>s.autoKeywords&&s.autoKeywords.some(k=>nt.includes(k)));
   return s?s.id:null;
+}
+
+// Extrage {luna, an} din data facturii curente, pentru filtrarea de mai sus
+function lunaAnFactura(){
+  if(!_facturaActiva||!_facturaActiva.data_inregistrare)return{luna:null,an:null};
+  const d=new Date(_facturaActiva.data_inregistrare);
+  if(isNaN(d))return{luna:null,an:null};
+  return{luna:LUNI_RO[d.getMonth()],an:String(d.getFullYear())};
 }
 function fileIcon(link){const e=(link||'').split('?')[0].split('.').pop().toLowerCase();return{pdf:'📄',doc:'📝',docx:'📝',jpg:'🖼️',jpeg:'🖼️',png:'🖼️',webp:'🖼️'}[e]||'📎';}
 function toRoman(n){const v=[1000,900,500,400,100,90,50,40,10,9,5,4,1],s=['M','CM','D','CD','C','XC','L','XL','X','IX','V','IV','I'];let r='';for(let i=0;i<v.length;i++)while(n>=v[i]){r+=s[i];n-=v[i];}return r;}
@@ -402,12 +418,13 @@ async function load(){
     _contractDocs=ctr||[];
 
     // Toate documentele din dosar_contract, potrivite după DENUMIRE (S3-S7) — inclusiv cele
-    // încărcate din raportare_masa_calda.html (format MASA_luna_an_S{n})
+    // încărcate din raportare_masa_calda.html (format MASA_luna_an_S{n}, filtrate pe luna facturii curente)
     const{data:allDocs}=await db.from('documente_contract').select('*').eq('contract_id',contractId);
+    const{luna:facturaLuna,an:facturaAn}=lunaAnFactura();
     _autoDocs={};
     SECTIUNI.filter(s=>s.autoKeywords).forEach(s=>{ _autoDocs[s.id]=[]; });
     (allDocs||[]).forEach(d=>{
-      const sid=sectiuneAutoPentru(d.tip_document);
+      const sid=sectiuneAutoPentru(d.tip_document,facturaLuna,facturaAn);
       if(sid&&_autoDocs[sid])_autoDocs[sid].push(d);
     });
     Object.keys(_autoDocs).forEach(sid=>{
@@ -1001,10 +1018,11 @@ async function genereazaDosarFactura(){
     const excluseFresh=new Set((exclFresh||[]).map(d=>d.furnizor));
 
     const{data:allDocsFresh}=await db.from('documente_contract').select('*').eq('contract_id',contractId);
+    const{luna:facturaLunaF,an:facturaAnF}=lunaAnFactura();
     const autoDocsFresh={};
     SECTIUNI.filter(s=>s.autoKeywords).forEach(s=>{ autoDocsFresh[s.id]=[]; });
     (allDocsFresh||[]).forEach(d=>{
-      const sid=sectiuneAutoPentru(d.tip_document);
+      const sid=sectiuneAutoPentru(d.tip_document,facturaLunaF,facturaAnF);
       if(sid&&autoDocsFresh[sid])autoDocsFresh[sid].push(d);
     });
     Object.keys(autoDocsFresh).forEach(sid=>{
