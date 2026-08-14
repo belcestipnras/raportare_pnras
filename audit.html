@@ -1032,7 +1032,7 @@ async function r2DeleteFile(publicUrl, bucketKey) {
     // ===================== CONTOR TOTAL PAGINI =====================
     async function calculeazaContorTotal() {
         const [r1, r2] = await Promise.all([
-            db.from('audit_continut').select('id, fisier_url, fisier_pagini').eq('sters', false).eq('tip', 'fisier'),
+            db.from('audit_continut').select('id, fisier_url, fisier_pagini, dimensiune').eq('sters', false).eq('tip', 'fisier'),
             db.from('documente_contract').select('id, link_drive, nr_pagini')
         ]);
 
@@ -1050,6 +1050,9 @@ async function r2DeleteFile(publicUrl, bucketKey) {
         fisiere.forEach(f => { if (f.fisier_pagini > 0) totalPagini += f.fisier_pagini; });
         documente.forEach(d => { if (d.nr_pagini > 0) totalPagini += d.nr_pagini; });
 
+        let totalDimensiune = 0;
+        fisiere.forEach(f => { if (f.dimensiune) totalDimensiune += f.dimensiune; });
+
         console.log('[CONTOR] totalFisiere:', totalFisiere, '| totalPagini:', totalPagini);
 
         // Fișiere audit fără pagini
@@ -1062,7 +1065,7 @@ async function r2DeleteFile(publicUrl, bucketKey) {
         if (fisiereFaraPagini.length > 0) completeazaPaginiDinR2(fisiereFaraPagini, 'audit');
         if (documenteFaraPagini.length > 0) completeazaPaginiDinR2(documenteFaraPagini, 'documente_contract');
 
-        return { totalFisiere, totalPagini };
+        return { totalFisiere, totalPagini, totalDimensiune };
     }
 
     async function completeazaPaginiDinR2(fisiere, sursa) {
@@ -1120,6 +1123,8 @@ async function r2DeleteFile(publicUrl, bucketKey) {
             '<div class="contor-total-item"><div class="contor-total-num" id="ct-fisiere">—</div><div class="contor-total-label">Fișiere totale</div></div>' +
             '<div class="contor-total-sep"></div>' +
             '<div class="contor-total-item"><div class="contor-total-num" id="ct-pagini">—</div><div class="contor-total-label">Pagini înregistrate</div></div>' +
+            '<div class="contor-total-sep"></div>' +
+            '<div class="contor-total-item"><div class="contor-total-num" id="ct-dimensiune">—</div><div class="contor-total-label">Dimensiune totală</div></div>' +
             '<div style="margin-left:auto;">' +
                 '<button onclick="recalculeazaToatePaginile()" style="background:rgba(255,255,255,0.2);border:1px solid rgba(255,255,255,0.4);color:#fff;border-radius:8px;padding:7px 13px;font-size:11px;font-weight:700;cursor:pointer;" title="Recalculează paginile pentru toate fișierele">🔄 Recalculează</button>' +
             '</div>' +
@@ -1158,13 +1163,15 @@ async function r2DeleteFile(publicUrl, bucketKey) {
         cont.innerHTML = html;
 
         // Calculează contorul în fundal și actualizează numerele
-        calculeazaContorTotal().then(({ totalFisiere, totalPagini }) => {
+        calculeazaContorTotal().then(({ totalFisiere, totalPagini, totalDimensiune }) => {
             const elFisiere = document.getElementById('ct-fisiere');
             const elPagini = document.getElementById('ct-pagini');
+            const elDim = document.getElementById('ct-dimensiune');
             const elSub = document.getElementById('ct-subtitle');
             if (!elFisiere) return;
             elFisiere.textContent = totalFisiere.toLocaleString('ro-RO');
             if (elPagini) elPagini.textContent = totalPagini > 0 ? totalPagini.toLocaleString('ro-RO') : '0';
+            if (elDim) elDim.textContent = fmtBytes(totalDimensiune);
             if (elSub) elSub.textContent = 'se completează paginile lipsă în fundal...';
         }).catch(err => {
             console.error('[CONTOR] Eroare:', err);
@@ -2429,7 +2436,18 @@ async function r2DeleteFile(publicUrl, bucketKey) {
         } else {
             rightCol += '<div class="file-list">';
             const total = itemsFiltrate.length;
-            itemsFiltrate.forEach((item, idx) => { rightCol += item.tip === 'folder' ? genFolderItem(item, idx, total) : genFisierItem(item, idx, total); });
+            const areFoldere = itemsFiltrate.some(i => i.tip === 'folder');
+            let toateItemeleCard = null;
+            if (areFoldere) {
+                const { data: toate } = await db.from('audit_continut').select('id, tip, parent_id, dimensiune')
+                    .eq('card_id', cardId).eq('sters', false).neq('tip', 'notita');
+                toateItemeleCard = toate || [];
+            }
+            itemsFiltrate.forEach((item, idx) => {
+                rightCol += item.tip === 'folder'
+                    ? genFolderItem(item, idx, total, dimensiuneFolderRecursiv(item.id, toateItemeleCard || []))
+                    : genFisierItem(item, idx, total);
+            });
             rightCol += '</div>';
         }
         rightCol += '</div>';
@@ -2537,14 +2555,24 @@ async function r2DeleteFile(publicUrl, bucketKey) {
         }
     }
 
-    function genFolderItem(item, idx, total) {
+    function dimensiuneFolderRecursiv(folderId, toateItemele) {
+        let total = 0;
+        toateItemele.filter(i => i.parent_id === folderId).forEach(child => {
+            if (child.tip === 'fisier') total += (child.dimensiune || 0);
+            else if (child.tip === 'folder') total += dimensiuneFolderRecursiv(child.id, toateItemele);
+        });
+        return total;
+    }
+
+    function genFolderItem(item, idx, total, dimFolder) {
         const titluSafe = (item.titlu || '').replace(/'/g, "\'").replace(/"/g, '&quot;');
         const nrCrt = (typeof idx === 'number') ? idx + 1 : '';
         const nrBadge = nrCrt !== '' ? '<div class="nr-crt">' + nrCrt + '</div>' : '';
+        const dimHtml = dimFolder ? ' &middot; ' + fmtBytes(dimFolder) : '';
         return '<div class="file-item" draggable="true" data-id="' + item.id + '" style="cursor:grab;" onclick="deschideSubfolder(\'' + item.id + '\', \'' + item.card_id + '\', \'' + titluSafe + '\')">' +
             nrBadge +
             '<span class="file-icon">&#128193;</span>' +
-            '<div class="file-info"><div class="file-name">' + item.titlu + '</div><div class="file-date">Folder</div></div>' +
+            '<div class="file-info"><div class="file-name">' + item.titlu + '</div><div class="file-date">Folder' + dimHtml + '</div></div>' +
             '<div class="file-actions">' +
             '<button class="btn-small" style="background:#059669;" onclick="event.stopPropagation(); descarcaFolder(\'' + item.id + '\', \'' + item.card_id + '\', \'' + titluSafe + '\')">&#128230;</button>' +
             '<button class="btn-small btn-rename" onclick="event.stopPropagation(); redenumesteFolderul(\'' + item.id + '\', \'' + titluSafe + '\')">&#9998;</button>' +
@@ -2612,7 +2640,9 @@ async function r2DeleteFile(publicUrl, bucketKey) {
         return '<div class="file-item" draggable="true" data-id="' + item.id + '" style="cursor:grab;">' +
             nrBadge +
             '<span class="file-icon">' + icon + '</span>' +
-            '<div class="file-info"><div class="file-name">' + (item.titlu || item.fisier_nume || '-') + '</div></div>' +
+            '<div class="file-info"><div class="file-name">' + (item.titlu || item.fisier_nume || '-') + '</div>' +
+            (item.dimensiune ? '<div class="file-date" style="color:#94a3b8;">' + fmtBytes(item.dimensiune) + '</div>' : '') +
+            '</div>' +
             '<div class="file-actions">' +
             '<button class="btn-small btn-rename" onclick="event.stopPropagation(); redenumesteFisierul(\'' + item.id + '\', \'' + titluSafe + '\')" title="Editează titlul">&#9998;</button>' +
             (item.fisier_url ? '<button class="btn-small btn-open" onclick="event.stopPropagation(); window.open(\'' + item.fisier_url + '\', \'_blank\')" title="Deschide">Deschide</button>' : '') +
@@ -3635,7 +3665,8 @@ function showOrHideGraficForView() {
 // ============================================================
 
 function fmtBytes(b) {
-    if (!b || b <= 0) return '0 MB';
+    if (!b || b <= 0) return '—';
+    if (b < 1024 * 1024) return Math.max(1, Math.round(b / 1024)) + ' KB';
     const mb = b / (1024 * 1024);
     if (mb < 1024) return mb.toFixed(1) + ' MB';
     return (mb / 1024).toFixed(2) + ' GB';
