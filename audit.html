@@ -1010,12 +1010,12 @@ async function r2DeleteFile(publicUrl, bucketKey) {
         if (elPagini) elPagini.textContent = '0';
 
         // Preia toate fișierele (fără reset în masă — poate bloca RLS)
-        const [r1, r2] = await Promise.all([
-            db.from('audit_continut').select('id, fisier_url').eq('sters', false).eq('tip', 'fisier'),
-            db.from('documente_contract').select('id, link_drive')
+        const [d1, d2] = await Promise.all([
+            fetchAllRows('audit_continut', 'id, fisier_url, sters, tip'),
+            fetchAllRows('documente_contract', 'id, link_drive')
         ]);
-        const fisiere = (r1.data || []).filter(f => f.fisier_url);
-        const documente = (r2.data || []).filter(d => d.link_drive && d.link_drive.includes('r2.dev'));
+        const fisiere = (d1 || []).filter(f => f.sters === false && f.tip === 'fisier' && f.fisier_url);
+        const documente = (d2 || []).filter(d => d.link_drive);
         const total = fisiere.length + documente.length;
 
         if (elSub) elSub.textContent = 'Se procesează ' + total + ' fișiere...';
@@ -1031,10 +1031,12 @@ async function r2DeleteFile(publicUrl, bucketKey) {
 
     // ===================== CONTOR TOTAL PAGINI =====================
     async function calculeazaContorTotal() {
-        const [r1, r2] = await Promise.all([
-            db.from('audit_continut').select('id, fisier_url, fisier_pagini, dimensiune').eq('sters', false).eq('tip', 'fisier'),
-            db.from('documente_contract').select('id, link_drive, nr_pagini')
+        const [fisiereData, documenteData] = await Promise.all([
+            fetchAllRows('audit_continut', 'id, fisier_url, fisier_pagini, dimensiune, sters, tip'),
+            fetchAllRows('documente_contract', 'id, link_drive, nr_pagini, dimensiune')
         ]);
+        const r1 = { data: (fisiereData || []).filter(f => f.sters === false && f.tip === 'fisier') };
+        const r2 = { data: documenteData };
 
         console.log('[CONTOR] audit_continut fisiere:', r1.data, 'eroare:', r1.error);
         console.log('[CONTOR] documente_contract:', r2.data, 'eroare:', r2.error);
@@ -1052,13 +1054,14 @@ async function r2DeleteFile(publicUrl, bucketKey) {
 
         let totalDimensiune = 0;
         fisiere.forEach(f => { if (f.dimensiune) totalDimensiune += f.dimensiune; });
+        documente.forEach(d => { if (d.dimensiune) totalDimensiune += d.dimensiune; });
 
         console.log('[CONTOR] totalFisiere:', totalFisiere, '| totalPagini:', totalPagini);
 
         // Fișiere audit fără pagini
         const fisiereFaraPagini = fisiere.filter(f => !(f.fisier_pagini > 0) && f.fisier_url);
-        // Documente contract fără pagini — doar cele cu URL R2 (pub-...r2.dev)
-        const documenteFaraPagini = documente.filter(d => !(d.nr_pagini > 0) && d.link_drive && d.link_drive.includes('r2.dev'));
+        // Documente contract fără pagini — orice document cu link (încărcat manual SAU generat automat)
+        const documenteFaraPagini = documente.filter(d => !(d.nr_pagini > 0) && d.link_drive);
 
         console.log('[CONTOR] fisiere fara pagini:', fisiereFaraPagini.length, '| documente fara pagini:', documenteFaraPagini.length);
 
@@ -1136,7 +1139,7 @@ async function r2DeleteFile(publicUrl, bucketKey) {
             html += '<div class="card" onclick="deschideCard(\'' + c.id + '\', \'' + c.titlu + '\', \'' + c.tip + '\')">' +
                 '<div class="card-icon">' + c.icon + '</div>' +
                 '<div class="card-title">' + c.titlu + '</div>' +
-                '<div class="card-subtitle">Card fix</div>' +
+                '<div class="card-subtitle">Card fix &middot; <span id="card-dim-' + c.id + '" style="color:#94a3b8;">…</span></div>' +
                 '<button class="btn-small" style="position:absolute;bottom:10px;right:10px;background:#059669;font-size:11px;" ' +
                 'onclick="event.stopPropagation(); descarcaTotCard(\'' + c.id + '\', \'' + c.titlu + '\')" title="Descarcă tot conținutul">📦 Descarcă</button></div>';
         });
@@ -1147,7 +1150,7 @@ async function r2DeleteFile(publicUrl, bucketKey) {
                 html += '<div class="card" onclick="deschideCard(\'' + c.id + '\', \'' + titluSafe + '\', \'folder\')">' +
                     '<div class="card-icon">' + (c.icon || '📁') + '</div>' +
                     '<div class="card-title">' + c.titlu + '</div>' +
-                    '<div class="card-subtitle">Card personalizat</div>' +
+                    '<div class="card-subtitle">Card personalizat &middot; <span id="card-dim-' + c.id + '" style="color:#94a3b8;">…</span></div>' +
                     '<button class="btn-small" style="position:absolute;bottom:10px;right:10px;background:#059669;font-size:11px;" ' +
                     'onclick="event.stopPropagation(); descarcaTotCard(\'' + c.id + '\', \'' + titluSafe + '\')" title="Descarcă tot conținutul">📦 Descarcă</button>' +
                     '<button class="btn-small btn-del" style="position:absolute;top:10px;right:10px;" ' +
@@ -1177,6 +1180,23 @@ async function r2DeleteFile(publicUrl, bucketKey) {
             console.error('[CONTOR] Eroare:', err);
             const el = document.getElementById('ct-fisiere');
             if (el) el.textContent = '—';
+        });
+
+        // Calculează dimensiunea fiecărui card (fundal, nu blochează afișarea)
+        fetchAllRows('audit_continut', 'card_id, dimensiune, sters, tip').then((data) => {
+            const dimPerCard = {};
+            (data || []).filter(r => r.sters === false && r.tip === 'fisier').forEach(r => { if (r.dimensiune) dimPerCard[r.card_id] = (dimPerCard[r.card_id] || 0) + r.dimensiune; });
+            document.querySelectorAll('[id^="card-dim-"]').forEach(el => {
+                const cardId = el.id.replace('card-dim-', '');
+                el.textContent = dimPerCard[cardId] ? fmtBytes(dimPerCard[cardId]) : '—';
+            });
+        });
+
+        // "Dosare Achiziții" e alimentat din documente_contract, nu din audit_continut — adăugăm separat
+        fetchAllRows('documente_contract', 'dimensiune').then((data) => {
+            const totalDC = (data || []).reduce((s, d) => s + (d.dimensiune || 0), 0);
+            const el = document.getElementById('card-dim-00000000-0000-0000-0000-000000000001');
+            if (el) el.textContent = totalDC ? fmtBytes(totalDC) : '—';
         });
     }
 
@@ -3686,6 +3706,8 @@ function deschideStatistici() {
 }
 
 async function randeazaStatistici() {
+    const existent = document.getElementById('stats-overlay');
+    if (existent) existent.remove();
     const overlay = document.createElement('div');
     overlay.id = 'stats-overlay';
     overlay.style.cssText = 'position:fixed;inset:0;background:#0f172a;z-index:99999;overflow-y:auto;padding:20px;font-family:Inter,sans-serif;color:#e2e8f0;';
@@ -3703,14 +3725,42 @@ async function randeazaStatistici() {
     document.body.appendChild(overlay);
 
     try {
-        const [evR, contR, carduriR] = await Promise.all([
+        const [evR, contR, carduriR, dcR, contracteR] = await Promise.all([
             fetchAllRows('audit_evenimente', '*'),
-            fetchAllRows('audit_continut', 'id, card_id, tip, sters, dimensiune, titlu, fisier_nume'),
-            fetchAllRows('audit_carduri', 'id, titlu')
+            fetchAllRows('audit_continut', 'id, card_id, parent_id, tip, sters, dimensiune, titlu, fisier_nume'),
+            fetchAllRows('audit_carduri', 'id, titlu'),
+            fetchAllRows('documente_contract', 'id, contract_id, tip_document, nume_fisier, dimensiune'),
+            fetchAllRows('buget_pnras', 'id, titlu')
         ]);
         const evenimente = (evR || []).sort((a, b) => new Date(b.creat_la) - new Date(a.creat_la));
-        const continut = (contR || []).filter(c => !c.sters && c.tip === 'fisier');
-        const carduriMap = {}; (carduriR || []).forEach(c => carduriMap[c.id] = c.titlu);
+        const toateItemele = (contR || []).filter(c => !c.sters && c.tip !== 'notita');
+        const continut = toateItemele.filter(c => c.tip === 'fisier');
+        const documenteContract = dcR || [];
+        const carduriMap = {};
+        CARDURI_FIXE.forEach(c => carduriMap[c.id] = c.titlu);
+        (carduriR || []).forEach(c => carduriMap[c.id] = c.titlu);
+        const contractMap = {}; (contracteR || []).forEach(c => contractMap[c.id] = c.titlu);
+        const itemById = {}; toateItemele.forEach(i => itemById[i.id] = i);
+
+        // Calea completă a unui item (Card / Subfolder / ... / Nume)
+        function caleCompleta(item) {
+            const parts = [];
+            let cur = item, guard = 0;
+            while (cur && guard < 25) {
+                parts.unshift(cur.titlu || cur.fisier_nume || '?');
+                cur = cur.parent_id ? itemById[cur.parent_id] : null;
+                guard++;
+            }
+            return (carduriMap[item.card_id] || item.card_id) + ' / ' + parts.join(' / ');
+        }
+        function dimFolderRec(folderId) {
+            let total = 0;
+            toateItemele.filter(i => i.parent_id === folderId).forEach(ch => {
+                if (ch.tip === 'fisier') total += (ch.dimensiune || 0);
+                else if (ch.tip === 'folder') total += dimFolderRec(ch.id);
+            });
+            return total;
+        }
 
         // ---- Vizite: cine + de câte ori ----
         const vizite = {};
@@ -3731,8 +3781,36 @@ async function randeazaStatistici() {
                 dimPerCard[c.card_id] = (dimPerCard[c.card_id] || 0) + c.dimensiune;
             } else fisiereFaraDimensiune++;
         });
+        // documente_contract merge la card-ul fix "Dosare Achiziții" în vederea de ansamblu
+        const DOSARE_ACHIZITII_ID = '00000000-0000-0000-0000-000000000001';
+        const dimPerContract = {};
+        documenteContract.forEach(d => {
+            if (d.dimensiune) {
+                dimTotal += d.dimensiune;
+                dimPerCard[DOSARE_ACHIZITII_ID] = (dimPerCard[DOSARE_ACHIZITII_ID] || 0) + d.dimensiune;
+                dimPerContract[d.contract_id] = (dimPerContract[d.contract_id] || 0) + d.dimensiune;
+            } else fisiereFaraDimensiune++;
+        });
         const dimRows = Object.entries(dimPerCard)
             .map(([cardId, dim]) => ({ nume: carduriMap[cardId] || cardId, dim }))
+            .sort((a, b) => b.dim - a.dim);
+        const dimContracteRows = Object.entries(dimPerContract)
+            .map(([contractId, dim]) => ({ nume: contractMap[contractId] || contractId, dim }))
+            .sort((a, b) => b.dim - a.dim);
+
+        // ---- TOATE folderele (nu doar cardurile de top), cu dimensiune recursivă ----
+        const toateFolderele = toateItemele.filter(i => i.tip === 'folder')
+            .map(f => ({ cale: caleCompleta(f), dim: dimFolderRec(f.id) }))
+            .filter(f => f.dim > 0)
+            .sort((a, b) => b.dim - a.dim);
+
+        // ---- TOATE documentele individuale, cu dimensiune, sortate descrescător (audit_continut + documente_contract) ----
+        const toateDocumentele = continut.filter(c => c.dimensiune)
+            .map(f => ({ cale: caleCompleta(f), dim: f.dimensiune }))
+            .concat(documenteContract.filter(d => d.dimensiune).map(d => ({
+                cale: 'Dosare Achiziții / ' + (contractMap[d.contract_id] || d.contract_id) + ' / ' + (d.tip_document || d.nume_fisier || '?'),
+                dim: d.dimensiune
+            })))
             .sort((a, b) => b.dim - a.dim);
 
         // ---- Editări / Descărcări / Upload / Ștergeri (ultimele 100 din fiecare) ----
@@ -3742,7 +3820,7 @@ async function randeazaStatistici() {
         const uploaduri = evenimente.filter(e => e.tip_eveniment === 'upload').slice(0, 100);
 
         // ---- Alte statistici relevante ----
-        const totalFisiere = continut.length;
+        const totalFisiere = continut.length + documenteContract.length;
         const totalEvenimente = evenimente.length;
         const azi = new Date(); azi.setHours(0,0,0,0);
         const evAzi = evenimente.filter(e => new Date(e.creat_la) >= azi).length;
@@ -3778,7 +3856,7 @@ async function randeazaStatistici() {
                     ${viziteRows.map(([u, d]) => `<tr style="border-top:1px solid #334155;"><td style="padding:6px 8px;font-weight:600;">${u}</td><td style="padding:6px 8px;">${d.count}</td><td style="padding:6px 8px;color:#94a3b8;">${fmtDataOra(d.ultima)}</td></tr>`).join('')}
                 </table>` : '<div style="color:#64748b;">Niciun eveniment logat încă.</div>')}
 
-            ${sec('📦 Dimensiune fișiere per folder + total', dimRows.length ? `
+            ${sec('📦 Dimensiune fișiere per folder (top nivel) + total', dimRows.length ? `
                 <table style="width:100%;border-collapse:collapse;font-size:13px;">
                     <tr style="color:#94a3b8;text-align:left;"><th style="padding:6px 8px;">Folder</th><th style="padding:6px 8px;">Dimensiune</th></tr>
                     ${dimRows.map(r => `<tr style="border-top:1px solid #334155;"><td style="padding:6px 8px;">${r.nume}</td><td style="padding:6px 8px;font-weight:600;">${fmtBytes(r.dim)}</td></tr>`).join('')}
@@ -3786,6 +3864,30 @@ async function randeazaStatistici() {
                 </table>
                 ${fisiereFaraDimensiune ? `<div style="margin-top:10px;font-size:12px;color:#f59e0b;">⚠️ ${fisiereFaraDimensiune} fișiere încărcate înainte de activarea acestei statistici nu au dimensiune calculată — apasă „🔄 Recalculează dimensiuni lipsă" sus, dreapta.</div>` : ''}
                 ` : '<div style="color:#64748b;">Niciun fișier cu dimensiune calculată încă.</div>')}
+
+            ${sec('📑 Dimensiune — pe fiecare contract (Dosare Achiziții)', dimContracteRows.length ? `
+                <div style="max-height:320px;overflow-y:auto;">
+                <table style="width:100%;border-collapse:collapse;font-size:12px;">
+                    <tr style="color:#94a3b8;text-align:left;"><th style="padding:6px 8px;">Contract</th><th style="padding:6px 8px;">Dimensiune</th></tr>
+                    ${dimContracteRows.map(r => `<tr style="border-top:1px solid #334155;"><td style="padding:6px 8px;">${r.nume}</td><td style="padding:6px 8px;font-weight:600;white-space:nowrap;">${fmtBytes(r.dim)}</td></tr>`).join('')}
+                </table>
+                </div>` : '<div style="color:#64748b;">Niciun document de contract cu dimensiune calculată încă.</div>')}
+
+            ${sec('📁 Dimensiune — TOATE subfolderele (cale completă)', toateFolderele.length ? `
+                <div style="max-height:320px;overflow-y:auto;">
+                <table style="width:100%;border-collapse:collapse;font-size:12px;">
+                    <tr style="color:#94a3b8;text-align:left;"><th style="padding:6px 8px;">Folder</th><th style="padding:6px 8px;">Dimensiune</th></tr>
+                    ${toateFolderele.map(r => `<tr style="border-top:1px solid #334155;"><td style="padding:6px 8px;">${r.cale}</td><td style="padding:6px 8px;font-weight:600;white-space:nowrap;">${fmtBytes(r.dim)}</td></tr>`).join('')}
+                </table>
+                </div>` : '<div style="color:#64748b;">Niciun subfolder cu conținut încă.</div>')}
+
+            ${sec('📄 Dimensiune — TOATE documentele individuale', toateDocumentele.length ? `
+                <div style="max-height:320px;overflow-y:auto;">
+                <table style="width:100%;border-collapse:collapse;font-size:12px;">
+                    <tr style="color:#94a3b8;text-align:left;"><th style="padding:6px 8px;">Document</th><th style="padding:6px 8px;">Dimensiune</th></tr>
+                    ${toateDocumentele.map(r => `<tr style="border-top:1px solid #334155;"><td style="padding:6px 8px;">${r.cale}</td><td style="padding:6px 8px;font-weight:600;white-space:nowrap;">${fmtBytes(r.dim)}</td></tr>`).join('')}
+                </table>
+                </div>` : '<div style="color:#64748b;">Niciun document cu dimensiune calculată încă.</div>')}
 
             ${sec('🧭 Istoricul navigării (ultimele 100)', navigari.length ? `
                 <div style="max-height:260px;overflow-y:auto;font-size:12px;">
@@ -3816,32 +3918,59 @@ async function randeazaStatistici() {
 
 // Recalculează dimensiunea fișierelor încărcate ÎNAINTE de activarea acestei funcționalități
 // (interoghează serverul cu un HEAD request pentru fiecare fișier fără "dimensiune" salvată).
+let _recalcInProgress = false;
+window.addEventListener('beforeunload', function (e) {
+    if (_recalcInProgress) {
+        e.preventDefault();
+        e.returnValue = 'Recalcularea dimensiunilor e în desfășurare — dacă părăsești pagina acum, progresul se pierde. Sigur vrei să pleci?';
+        return e.returnValue;
+    }
+});
+
 async function recalculeazaDimensiuni(btn) {
     const original = btn.textContent;
     btn.disabled = true;
+    _recalcInProgress = true;
     try {
-        const { data: fara } = await db.from('audit_continut').select('id, fisier_url')
-            .eq('sters', false).eq('tip', 'fisier').is('dimensiune', null);
-        if (!fara || !fara.length) { alert('Toate fișierele au deja dimensiunea calculată.'); return; }
-        let ok = 0, esuate = 0;
+        const [d1, d2] = await Promise.all([
+            fetchAllRows('audit_continut', 'id, fisier_url, dimensiune, sters, tip'),
+            fetchAllRows('documente_contract', 'id, link_drive, dimensiune')
+        ]);
+        const lista1 = (d1 || [])
+            .filter(r => r.sters === false && r.tip === 'fisier' && r.dimensiune == null)
+            .map(r => ({ id: r.id, url: r.fisier_url, tabel: 'audit_continut' }));
+        const lista2 = (d2 || [])
+            .filter(r => r.dimensiune == null)
+            .map(r => ({ id: r.id, url: r.link_drive, tabel: 'documente_contract' }));
+        const fara = [...lista1, ...lista2];
+
+        if (!fara.length) { alert('Toate fișierele au deja dimensiunea calculată.'); return; }
+        alert(`⚠️ Se vor descărca efectiv ${fara.length} fișiere ca să le măsoare mărimea (poate dura minute bune — sunt fișiere mari). NU închide sau naviga în altă parte cât timp rulează. Poți relua oricând apăsând din nou — reia doar de unde a rămas.`);
+        let ok = 0, esuate = 0, primaEroare = null;
         for (let i = 0; i < fara.length; i++) {
             btn.textContent = `🔄 ${i + 1}/${fara.length}...`;
             const f = fara[i];
-            if (!f.fisier_url) { esuate++; continue; }
+            if (!f.url) { esuate++; continue; }
             try {
-                const resp = await fetch(f.fisier_url, { method: 'HEAD' });
-                const len = resp.headers.get('content-length');
-                if (len) {
-                    await db.from('audit_continut').update({ dimensiune: parseInt(len, 10) }).eq('id', f.id);
-                    ok++;
-                } else esuate++;
-            } catch (e) { esuate++; }
+                // GET real (nu HEAD) — Content-Length nu e expus la cereri cross-origin
+                // implicit, dar blob.size funcționează mereu, la fel ca la descărcare.
+                const resp = await fetch(f.url);
+                if (!resp.ok) throw new Error('HTTP ' + resp.status);
+                const blob = await resp.blob();
+                await db.from(f.tabel).update({ dimensiune: blob.size }).eq('id', f.id);
+                ok++;
+            } catch (e) {
+                esuate++;
+                if (!primaEroare) primaEroare = e.message;
+                console.warn('[recalculeazaDimensiuni]', f.tabel, 'eșec pentru', f.url, e);
+            }
         }
-        alert(`✓ Recalculat: ${ok} fișiere.` + (esuate ? ` (${esuate} nu au putut fi verificate)` : ''));
+        alert(`✓ Recalculat: ${ok} fișiere.` + (esuate ? ` (${esuate} eșuate${primaEroare ? ' — ex: ' + primaEroare : ''})` : ''));
         randeazaStatistici();
     } catch (e) {
         alert('Eroare: ' + e.message);
     } finally {
+        _recalcInProgress = false;
         btn.disabled = false;
         btn.textContent = original;
     }
