@@ -617,6 +617,9 @@
 <div class="top-bar">
     <button class="btn-back" onclick="inapoi()">&#8592; Înapoi</button>
     <span class="top-title">&#128270; Audit PNRAS</span>
+    <button id="btn-statistici" onclick="deschideStatistici()"
+        style="margin-left:auto; background:transparent; border:1px solid #dfe3e8; color:#9aa2ad; font-size:12px; padding:6px 12px; border-radius:8px; cursor:pointer; opacity:0.6; transition:0.2s;"
+        onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.6">📊 Statistici</button>
 </div>
 
 <div class="breadcrumb" id="breadcrumb">
@@ -637,6 +640,37 @@
     const SUPABASE_URL = 'https://aexjrbdgajurxzngfkpx.supabase.co';
     const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFleGpyYmRnYWp1cnh6bmdma3B4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgxMzE3NTYsImV4cCI6MjA4MzcwNzc1Nn0.VUx0QOKgjX4m23HOF2rBpE9vWA3T18KtjLc0w_iXhqA';
     const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    // ===== STATISTICI / JURNAL DE ACTIVITATE =====
+    // Schimbă parola de mai jos oricând vrei — e verificată doar local, în browser.
+    const STATS_PASSWORD = 'craipnras2026';
+
+    let _ipAuditCache = null;
+    async function ipUtilizatorAudit() {
+        if (_ipAuditCache) return _ipAuditCache;
+        try {
+            const r = await fetch('https://api.ipify.org?format=json');
+            const d = await r.json();
+            _ipAuditCache = d.ip || 'IP necunoscut';
+        } catch (e) {
+            _ipAuditCache = 'IP necunoscut';
+        }
+        return _ipAuditCache;
+    }
+
+    async function logEveniment(tip, detalii) {
+        try {
+            const ip = await ipUtilizatorAudit();
+            await db.from('audit_evenimente').insert({
+                utilizator: ip,
+                tip_eveniment: tip,
+                detalii: (detalii || '').toString().slice(0, 500)
+            });
+        } catch (e) { /* nu blocăm interfața dacă logarea eșuează */ }
+    }
+
+    // O singură vizită logată per încărcare de pagină
+    logEveniment('vizita', 'Deschidere audit.html');
 
     // Supabase/PostgREST limitează implicit la 1000 rânduri per query.
     // Pentru query-uri agregate (fără filtru pe contract_id) trebuie paginat,
@@ -930,6 +964,7 @@ async function r2DeleteFile(publicUrl, bucketKey) {
         salveazaState();
         actualizeazaBreadcrumb();
         incarcaVizualizare();
+        logEveniment('navigare', (item.titlu || item.type || '') + (item.type ? ' [' + item.type + ']' : ''));
     }
 
     function inapoi() {
@@ -2526,6 +2561,7 @@ async function r2DeleteFile(publicUrl, bucketKey) {
         if (r.actiune !== 'da' || !r.text.trim()) return;
         const { error } = await db.from('audit_continut').update({ titlu: r.text.trim() }).eq('id', id);
         if (error) { aratToast('❌ Eroare la redenumire!', 'error'); return; }
+        logEveniment('editare', 'Redenumire folder: "' + numeVechi + '" → "' + r.text.trim() + '"');
         aratToast('✓ Folder redenumit', 'success');
         incarcaVizualizare();
     }
@@ -2538,11 +2574,13 @@ async function r2DeleteFile(publicUrl, bucketKey) {
         if (r.actiune !== 'da' || !r.text.trim()) return;
         const { error } = await db.from('audit_continut').update({ titlu: r.text.trim() }).eq('id', id);
         if (error) { aratToast('❌ Eroare la editare!', 'error'); return; }
+        logEveniment('editare', 'Redenumire fișier: "' + numeVechi + '" → "' + r.text.trim() + '"');
         aratToast('✓ Titlu actualizat', 'success');
         incarcaVizualizare();
     }
 
     async function descarcaFisier(url, numeFisier) {
+        logEveniment('descarcare', numeFisier || url);
         try {
             const response = await fetch(url);
             const blob = await response.blob();
@@ -2721,10 +2759,11 @@ async function r2DeleteFile(publicUrl, bucketKey) {
             const { error: dbError } = await db.from('audit_continut').insert({
                 card_id: uploadTargetCardId, parent_id: uploadTargetParentId,
                 tip: 'fisier', titlu: file.name, fisier_url: auditUrl, fisier_nume: file.name,
-                sters: false, ordine: nextOrd, fisier_pagini: nrPagini || null
+                sters: false, ordine: nextOrd, fisier_pagini: nrPagini || null, dimensiune: file.size || null
             });
             console.log('[UPLOAD] DB insert error:', dbError);
             if (dbError) uploadErrors.push(file.name + ' (DB): ' + (dbError.message || JSON.stringify(dbError)));
+            else logEveniment('upload', file.name + ' (' + Math.round((file.size||0)/1024) + ' KB)');
 
             aratProgressUpload(file.name, i, total, 100);
             await new Promise(res => setTimeout(res, 200));
@@ -2747,6 +2786,7 @@ async function r2DeleteFile(publicUrl, bucketKey) {
         if (r.actiune !== 'da') return;
         await db.from('audit_continut').update({ sters: true }).eq('id', id);
         await db.from('audit_continut').update({ sters: true }).eq('parent_id', id);
+        logEveniment('stergere', 'Item id: ' + id);
         incarcaVizualizare();
     }
 
@@ -2839,6 +2879,7 @@ async function r2DeleteFile(publicUrl, bucketKey) {
 
     // ===================== DESCARCĂ TOT CARD-UL CA ZIP =====================
     async function descarcaTotCard(cardId, titluCard) {
+        logEveniment('descarcare', 'Card complet: ' + (titluCard || cardId));
         aratToast('📦 Se pregătește descărcarea...', 'success');
 
         try {
@@ -2901,6 +2942,7 @@ async function r2DeleteFile(publicUrl, bucketKey) {
 
 
     async function descarcaFolder(folderId, cardId, titluFolder) {
+        logEveniment('descarcare', 'Folder: ' + (titluFolder || folderId));
         aratToast('📦 Se pregătește descărcarea...', 'success');
         try {
             const { data: allItems } = await db.from('audit_continut').select('*')
@@ -2949,6 +2991,7 @@ async function r2DeleteFile(publicUrl, bucketKey) {
 
     // ===================== DESCARCĂ DOSAR CONTRACT (ZIP) =====================
     async function descarcaDosarContract(contractId, titluContract) {
+        logEveniment('descarcare', 'Dosar contract: ' + (titluContract || contractId));
         aratToast('📦 Se pregătește descărcarea...', 'success');
         try {
             const { data: docs } = await db.from('documente_contract').select('*').eq('contract_id', contractId);
@@ -2995,6 +3038,7 @@ async function r2DeleteFile(publicUrl, bucketKey) {
 
     // ===================== DESCARCĂ DOSAR CURENT =====================
     async function descarcaDosarCurent(cardId, parentId, titluDosar) {
+        logEveniment('descarcare', 'Dosar curent: ' + (titluDosar || cardId));
         aratToast('📦 Se pregătește descărcarea dosarului...', 'success');
         try {
             // Luăm TOATE itemele din card (pentru a putea traversa subfolderele)
@@ -3583,6 +3627,192 @@ function showOrHideGraficForView() {
         hideGraficPanel();
         const tab = document.getElementById('grafic-tab-btn');
         if (tab) tab.classList.remove('visible');
+    }
+}
+
+// ============================================================
+// ===================== STATISTICI ===========================
+// ============================================================
+
+function fmtBytes(b) {
+    if (!b || b <= 0) return '0 MB';
+    const mb = b / (1024 * 1024);
+    if (mb < 1024) return mb.toFixed(1) + ' MB';
+    return (mb / 1024).toFixed(2) + ' GB';
+}
+
+function fmtDataOra(iso) {
+    if (!iso) return '—';
+    const d = new Date(iso);
+    return d.toLocaleDateString('ro-RO') + ' ' + d.toLocaleTimeString('ro-RO', { hour: '2-digit', minute: '2-digit' });
+}
+
+function deschideStatistici() {
+    const parola = prompt('🔒 Parolă statistici:');
+    if (parola === null) return;
+    if (parola !== STATS_PASSWORD) { alert('Parolă greșită.'); return; }
+    randeazaStatistici();
+}
+
+async function randeazaStatistici() {
+    const overlay = document.createElement('div');
+    overlay.id = 'stats-overlay';
+    overlay.style.cssText = 'position:fixed;inset:0;background:#0f172a;z-index:99999;overflow-y:auto;padding:20px;font-family:Inter,sans-serif;color:#e2e8f0;';
+    overlay.innerHTML = `
+        <div style="max-width:1100px;margin:0 auto;">
+            <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;">
+                <button onclick="document.getElementById('stats-overlay').remove()"
+                    style="background:#1e293b;color:#e2e8f0;border:1px solid #334155;padding:8px 16px;border-radius:8px;cursor:pointer;font-weight:600;">← Închide</button>
+                <h1 style="font-size:22px;font-weight:800;">📊 Statistici Audit PNRAS</h1>
+                <button onclick="recalculeazaDimensiuni(this)"
+                    style="margin-left:auto;background:#1e293b;color:#93c5fd;border:1px solid #334155;padding:8px 14px;border-radius:8px;cursor:pointer;font-size:12px;">🔄 Recalculează dimensiuni lipsă</button>
+            </div>
+            <div id="stats-body" style="text-align:center;padding:60px;color:#94a3b8;">Se încarcă statisticile...</div>
+        </div>`;
+    document.body.appendChild(overlay);
+
+    try {
+        const [evR, contR, carduriR] = await Promise.all([
+            fetchAllRows('audit_evenimente', '*'),
+            fetchAllRows('audit_continut', 'id, card_id, tip, sters, dimensiune, titlu, fisier_nume'),
+            fetchAllRows('audit_carduri', 'id, titlu')
+        ]);
+        const evenimente = (evR || []).sort((a, b) => new Date(b.creat_la) - new Date(a.creat_la));
+        const continut = (contR || []).filter(c => !c.sters && c.tip === 'fisier');
+        const carduriMap = {}; (carduriR || []).forEach(c => carduriMap[c.id] = c.titlu);
+
+        // ---- Vizite: cine + de câte ori ----
+        const vizite = {};
+        evenimente.filter(e => e.tip_eveniment === 'vizita').forEach(e => {
+            const u = e.utilizator || 'Necunoscut';
+            if (!vizite[u]) vizite[u] = { count: 0, ultima: e.creat_la };
+            vizite[u].count++;
+            if (e.creat_la > vizite[u].ultima) vizite[u].ultima = e.creat_la;
+        });
+        const viziteRows = Object.entries(vizite).sort((a, b) => b[1].count - a[1].count);
+
+        // ---- Dimensiune totală per folder (card) + total general ----
+        const dimPerCard = {};
+        let dimTotal = 0, fisiereFaraDimensiune = 0;
+        continut.forEach(c => {
+            if (c.dimensiune) {
+                dimTotal += c.dimensiune;
+                dimPerCard[c.card_id] = (dimPerCard[c.card_id] || 0) + c.dimensiune;
+            } else fisiereFaraDimensiune++;
+        });
+        const dimRows = Object.entries(dimPerCard)
+            .map(([cardId, dim]) => ({ nume: carduriMap[cardId] || cardId, dim }))
+            .sort((a, b) => b.dim - a.dim);
+
+        // ---- Editări / Descărcări / Upload / Ștergeri (ultimele 100 din fiecare) ----
+        const navigari = evenimente.filter(e => e.tip_eveniment === 'navigare').slice(0, 100);
+        const editari = evenimente.filter(e => e.tip_eveniment === 'editare' || e.tip_eveniment === 'stergere').slice(0, 100);
+        const descarcari = evenimente.filter(e => e.tip_eveniment === 'descarcare').slice(0, 100);
+        const uploaduri = evenimente.filter(e => e.tip_eveniment === 'upload').slice(0, 100);
+
+        // ---- Alte statistici relevante ----
+        const totalFisiere = continut.length;
+        const totalEvenimente = evenimente.length;
+        const azi = new Date(); azi.setHours(0,0,0,0);
+        const evAzi = evenimente.filter(e => new Date(e.creat_la) >= azi).length;
+        const primaData = evenimente.length ? evenimente[evenimente.length - 1].creat_la : null;
+
+        const sec = (titlu, continutHtml) => `
+            <div style="background:#1e293b;border:1px solid #334155;border-radius:14px;padding:18px 20px;margin-bottom:16px;">
+                <div style="font-size:14px;font-weight:800;color:#93c5fd;margin-bottom:12px;text-transform:uppercase;letter-spacing:0.5px;">${titlu}</div>
+                ${continutHtml}
+            </div>`;
+
+        const cardStat = (label, val) => `
+            <div style="background:#0f172a;border:1px solid #334155;border-radius:10px;padding:14px 16px;flex:1;min-width:140px;">
+                <div style="font-size:11px;color:#94a3b8;text-transform:uppercase;letter-spacing:0.5px;">${label}</div>
+                <div style="font-size:22px;font-weight:800;color:#f1f5f9;margin-top:4px;">${val}</div>
+            </div>`;
+
+        const body = document.getElementById('stats-body');
+        body.style.cssText = 'text-align:left;';
+        body.innerHTML = `
+            <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:16px;">
+                ${cardStat('Total evenimente logate', totalEvenimente)}
+                ${cardStat('Evenimente azi', evAzi)}
+                ${cardStat('Total fișiere active', totalFisiere)}
+                ${cardStat('Dimensiune totală', fmtBytes(dimTotal))}
+                ${cardStat('Fișiere fără dimensiune', fisiereFaraDimensiune)}
+                ${cardStat('Log începe din', primaData ? fmtDataOra(primaData).split(' ')[0] : '—')}
+            </div>
+
+            ${sec('👤 Cine și de câte ori a accesat pagina', viziteRows.length ? `
+                <table style="width:100%;border-collapse:collapse;font-size:13px;">
+                    <tr style="color:#94a3b8;text-align:left;"><th style="padding:6px 8px;">IP</th><th style="padding:6px 8px;">Nr. accesări</th><th style="padding:6px 8px;">Ultima vizită</th></tr>
+                    ${viziteRows.map(([u, d]) => `<tr style="border-top:1px solid #334155;"><td style="padding:6px 8px;font-weight:600;">${u}</td><td style="padding:6px 8px;">${d.count}</td><td style="padding:6px 8px;color:#94a3b8;">${fmtDataOra(d.ultima)}</td></tr>`).join('')}
+                </table>` : '<div style="color:#64748b;">Niciun eveniment logat încă.</div>')}
+
+            ${sec('📦 Dimensiune fișiere per folder + total', dimRows.length ? `
+                <table style="width:100%;border-collapse:collapse;font-size:13px;">
+                    <tr style="color:#94a3b8;text-align:left;"><th style="padding:6px 8px;">Folder</th><th style="padding:6px 8px;">Dimensiune</th></tr>
+                    ${dimRows.map(r => `<tr style="border-top:1px solid #334155;"><td style="padding:6px 8px;">${r.nume}</td><td style="padding:6px 8px;font-weight:600;">${fmtBytes(r.dim)}</td></tr>`).join('')}
+                    <tr style="border-top:2px solid #475569;"><td style="padding:6px 8px;font-weight:800;">TOTAL</td><td style="padding:6px 8px;font-weight:800;color:#93c5fd;">${fmtBytes(dimTotal)}</td></tr>
+                </table>
+                ${fisiereFaraDimensiune ? `<div style="margin-top:10px;font-size:12px;color:#f59e0b;">⚠️ ${fisiereFaraDimensiune} fișiere încărcate înainte de activarea acestei statistici nu au dimensiune calculată — apasă „🔄 Recalculează dimensiuni lipsă" sus, dreapta.</div>` : ''}
+                ` : '<div style="color:#64748b;">Niciun fișier cu dimensiune calculată încă.</div>')}
+
+            ${sec('🧭 Istoricul navigării (ultimele 100)', navigari.length ? `
+                <div style="max-height:260px;overflow-y:auto;font-size:12px;">
+                    ${navigari.map(e => `<div style="padding:5px 4px;border-top:1px solid #334155;"><span style="color:#64748b;">${fmtDataOra(e.creat_la)}</span> — <span style="font-weight:600;">${e.utilizator || '—'}</span> → ${e.detalii || ''}</div>`).join('')}
+                </div>` : '<div style="color:#64748b;">Nicio navigare logată încă.</div>')}
+
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+                ${sec('✏️ Ce a editat (ultimele 100)', editari.length ? `
+                    <div style="max-height:260px;overflow-y:auto;font-size:12px;">
+                        ${editari.map(e => `<div style="padding:5px 4px;border-top:1px solid #334155;"><span style="color:#64748b;">${fmtDataOra(e.creat_la)}</span> — <span style="font-weight:600;">${e.utilizator || '—'}</span><br>${e.detalii || ''}</div>`).join('')}
+                    </div>` : '<div style="color:#64748b;">Nicio editare logată încă.</div>')}
+
+                ${sec('⬇️ Ce a descărcat (ultimele 100)', descarcari.length ? `
+                    <div style="max-height:260px;overflow-y:auto;font-size:12px;">
+                        ${descarcari.map(e => `<div style="padding:5px 4px;border-top:1px solid #334155;"><span style="color:#64748b;">${fmtDataOra(e.creat_la)}</span> — <span style="font-weight:600;">${e.utilizator || '—'}</span><br>${e.detalii || ''}</div>`).join('')}
+                    </div>` : '<div style="color:#64748b;">Nicio descărcare logată încă.</div>')}
+            </div>
+
+            ${sec('⬆️ Ce a încărcat (ultimele 100)', uploaduri.length ? `
+                <div style="max-height:220px;overflow-y:auto;font-size:12px;">
+                    ${uploaduri.map(e => `<div style="padding:5px 4px;border-top:1px solid #334155;"><span style="color:#64748b;">${fmtDataOra(e.creat_la)}</span> — <span style="font-weight:600;">${e.utilizator || '—'}</span> — ${e.detalii || ''}</div>`).join('')}
+                </div>` : '<div style="color:#64748b;">Niciun upload logat încă.</div>')}
+        `;
+    } catch (e) {
+        document.getElementById('stats-body').innerHTML = '<div style="color:#f87171;">❌ Eroare la încărcarea statisticilor: ' + e.message + '</div>';
+    }
+}
+
+// Recalculează dimensiunea fișierelor încărcate ÎNAINTE de activarea acestei funcționalități
+// (interoghează serverul cu un HEAD request pentru fiecare fișier fără "dimensiune" salvată).
+async function recalculeazaDimensiuni(btn) {
+    const original = btn.textContent;
+    btn.disabled = true;
+    try {
+        const { data: fara } = await db.from('audit_continut').select('id, fisier_url')
+            .eq('sters', false).eq('tip', 'fisier').is('dimensiune', null);
+        if (!fara || !fara.length) { alert('Toate fișierele au deja dimensiunea calculată.'); return; }
+        let ok = 0, esuate = 0;
+        for (let i = 0; i < fara.length; i++) {
+            btn.textContent = `🔄 ${i + 1}/${fara.length}...`;
+            const f = fara[i];
+            if (!f.fisier_url) { esuate++; continue; }
+            try {
+                const resp = await fetch(f.fisier_url, { method: 'HEAD' });
+                const len = resp.headers.get('content-length');
+                if (len) {
+                    await db.from('audit_continut').update({ dimensiune: parseInt(len, 10) }).eq('id', f.id);
+                    ok++;
+                } else esuate++;
+            } catch (e) { esuate++; }
+        }
+        alert(`✓ Recalculat: ${ok} fișiere.` + (esuate ? ` (${esuate} nu au putut fi verificate)` : ''));
+        randeazaStatistici();
+    } catch (e) {
+        alert('Eroare: ' + e.message);
+    } finally {
+        btn.disabled = false;
+        btn.textContent = original;
     }
 }
 </script>
