@@ -1031,30 +1031,41 @@ async function r2DeleteFile(publicUrl, bucketKey) {
 
     // ===================== CONTOR TOTAL PAGINI =====================
     async function calculeazaContorTotal() {
-        const [fisiereData, documenteData] = await Promise.all([
+        const [fisiereData, documenteData, r2Data, listeData, proiectData] = await Promise.all([
             fetchAllRows('audit_continut', 'id, fisier_url, fisier_pagini, dimensiune, sters, tip'),
-            fetchAllRows('documente_contract', 'id, link_drive, nr_pagini, dimensiune')
+            fetchAllRows('documente_contract', 'id, link_drive, nr_pagini, dimensiune'),
+            fetchAllRows('documente_r2', 'id, public_url, nr_pagini, dimensiune'),
+            fetchAllRows('liste_fisiere', 'id, public_url, dimensiune'),
+            fetchAllRows('documente_proiect', 'id, public_url, dimensiune')
         ]);
         const r1 = { data: (fisiereData || []).filter(f => f.sters === false && f.tip === 'fisier') };
         const r2 = { data: documenteData };
 
         console.log('[CONTOR] audit_continut fisiere:', r1.data, 'eroare:', r1.error);
         console.log('[CONTOR] documente_contract:', r2.data, 'eroare:', r2.error);
+        console.log('[CONTOR] documente_r2:', r2Data.length, '| liste_fisiere:', listeData.length, '| documente_proiect:', proiectData.length);
 
         const fisiere = r1.data || [];
         const documente = r2.data || [];
+        const fisiereR2 = r2Data || [];
+        const listeF = listeData || [];
+        const docProiect = proiectData || [];
 
         console.log('[CONTOR] nr fisiere:', fisiere.length, '| exemple fisier_pagini:', fisiere.slice(0,3).map(f => f.fisier_pagini));
 
-        const totalFisiere = fisiere.length + documente.length;
+        const totalFisiere = fisiere.length + documente.length + fisiereR2.length + listeF.length + docProiect.length;
 
         let totalPagini = 0;
         fisiere.forEach(f => { if (f.fisier_pagini > 0) totalPagini += f.fisier_pagini; });
         documente.forEach(d => { if (d.nr_pagini > 0) totalPagini += d.nr_pagini; });
+        fisiereR2.forEach(d => { if (d.nr_pagini > 0) totalPagini += d.nr_pagini; });
 
         let totalDimensiune = 0;
         fisiere.forEach(f => { if (f.dimensiune) totalDimensiune += f.dimensiune; });
         documente.forEach(d => { if (d.dimensiune) totalDimensiune += d.dimensiune; });
+        fisiereR2.forEach(d => { if (d.dimensiune) totalDimensiune += d.dimensiune; });
+        listeF.forEach(d => { if (d.dimensiune) totalDimensiune += d.dimensiune; });
+        docProiect.forEach(d => { if (d.dimensiune) totalDimensiune += d.dimensiune; });
 
         console.log('[CONTOR] totalFisiere:', totalFisiere, '| totalPagini:', totalPagini);
 
@@ -1062,11 +1073,13 @@ async function r2DeleteFile(publicUrl, bucketKey) {
         const fisiereFaraPagini = fisiere.filter(f => !(f.fisier_pagini > 0) && f.fisier_url);
         // Documente contract fără pagini — orice document cu link (încărcat manual SAU generat automat)
         const documenteFaraPagini = documente.filter(d => !(d.nr_pagini > 0) && d.link_drive);
+        const r2FaraPagini = fisiereR2.filter(d => !(d.nr_pagini > 0) && d.public_url);
 
-        console.log('[CONTOR] fisiere fara pagini:', fisiereFaraPagini.length, '| documente fara pagini:', documenteFaraPagini.length);
+        console.log('[CONTOR] fisiere fara pagini:', fisiereFaraPagini.length, '| documente fara pagini:', documenteFaraPagini.length, '| documente_r2 fara pagini:', r2FaraPagini.length);
 
         if (fisiereFaraPagini.length > 0) completeazaPaginiDinR2(fisiereFaraPagini, 'audit');
         if (documenteFaraPagini.length > 0) completeazaPaginiDinR2(documenteFaraPagini, 'documente_contract');
+        if (r2FaraPagini.length > 0) completeazaPaginiDinR2(r2FaraPagini, 'documente_r2');
 
         return { totalFisiere, totalPagini, totalDimensiune };
     }
@@ -1084,14 +1097,16 @@ async function r2DeleteFile(publicUrl, bucketKey) {
         }
 
         async function proceseazaUnul(f) {
-            const url = sursa === 'documente_contract' ? f.link_drive : f.fisier_url;
+            const url = (sursa === 'documente_contract') ? f.link_drive
+                : (sursa === 'documente_r2') ? f.public_url
+                : f.fisier_url;
             if (!url) return;
             try {
                 const pagini = await numaraPagini(url);
                 if (!pagini || pagini <= 0) return;
 
-                if (sursa === 'documente_contract') {
-                    await db.from('documente_contract').update({ nr_pagini: pagini }).eq('id', f.id);
+                if (sursa === 'documente_contract' || sursa === 'documente_r2') {
+                    await db.from(sursa).update({ nr_pagini: pagini }).eq('id', f.id);
                 } else {
                     await db.from('audit_continut').update({ fisier_pagini: pagini }).eq('id', f.id);
                 }
@@ -3725,17 +3740,23 @@ async function randeazaStatistici() {
     document.body.appendChild(overlay);
 
     try {
-        const [evR, contR, carduriR, dcR, contracteR] = await Promise.all([
+        const [evR, contR, carduriR, dcR, contracteR, r2R, listeR, proiectR] = await Promise.all([
             fetchAllRows('audit_evenimente', '*'),
             fetchAllRows('audit_continut', 'id, card_id, parent_id, tip, sters, dimensiune, titlu, fisier_nume'),
             fetchAllRows('audit_carduri', 'id, titlu'),
             fetchAllRows('documente_contract', 'id, contract_id, tip_document, nume_fisier, dimensiune'),
-            fetchAllRows('buget_pnras', 'id, titlu')
+            fetchAllRows('buget_pnras', 'id, titlu'),
+            fetchAllRows('documente_r2', 'id, expert, clasa, tip_fisier, nume_fisier, dimensiune'),
+            fetchAllRows('liste_fisiere', 'id, expert, clasa, tip, dimensiune'),
+            fetchAllRows('documente_proiect', 'id, nume_proiect, tip_document, nume_fisier, dimensiune')
         ]);
         const evenimente = (evR || []).sort((a, b) => new Date(b.creat_la) - new Date(a.creat_la));
         const toateItemele = (contR || []).filter(c => !c.sters && c.tip !== 'notita');
         const continut = toateItemele.filter(c => c.tip === 'fisier');
         const documenteContract = dcR || [];
+        const documenteR2 = r2R || [];
+        const listeFisiere = listeR || [];
+        const documenteProiect = proiectR || [];
         const carduriMap = {};
         CARDURI_FIXE.forEach(c => carduriMap[c.id] = c.titlu);
         (carduriR || []).forEach(c => carduriMap[c.id] = c.titlu);
@@ -3791,8 +3812,21 @@ async function randeazaStatistici() {
                 dimPerContract[d.contract_id] = (dimPerContract[d.contract_id] || 0) + d.dimensiune;
             } else fisiereFaraDimensiune++;
         });
+
+        // ---- documente_r2 (Fișe/Foto), liste_fisiere (Prezență/Masă) și documente_proiect (Proiecte) ----
+        let dimR2 = 0, dimListe = 0, dimProiect = 0;
+        documenteR2.forEach(d => { if (d.dimensiune) dimR2 += d.dimensiune; else fisiereFaraDimensiune++; });
+        listeFisiere.forEach(d => { if (d.dimensiune) dimListe += d.dimensiune; else fisiereFaraDimensiune++; });
+        documenteProiect.forEach(d => { if (d.dimensiune) dimProiect += d.dimensiune; else fisiereFaraDimensiune++; });
+        dimTotal += dimR2 + dimListe + dimProiect;
+
         const dimRows = Object.entries(dimPerCard)
             .map(([cardId, dim]) => ({ nume: carduriMap[cardId] || cardId, dim }))
+            .concat([
+                { nume: 'Fișe & Foto (documente_r2)', dim: dimR2 },
+                { nume: 'Liste Prezență & Masă (liste_fisiere)', dim: dimListe },
+                { nume: 'Documente Proiect (documente_proiect)', dim: dimProiect }
+            ].filter(r => r.dim > 0))
             .sort((a, b) => b.dim - a.dim);
         const dimContracteRows = Object.entries(dimPerContract)
             .map(([contractId, dim]) => ({ nume: contractMap[contractId] || contractId, dim }))
@@ -3804,11 +3838,23 @@ async function randeazaStatistici() {
             .filter(f => f.dim > 0)
             .sort((a, b) => b.dim - a.dim);
 
-        // ---- TOATE documentele individuale, cu dimensiune, sortate descrescător (audit_continut + documente_contract) ----
+        // ---- TOATE documentele individuale, cu dimensiune, sortate descrescător (toate sursele) ----
         const toateDocumentele = continut.filter(c => c.dimensiune)
             .map(f => ({ cale: caleCompleta(f), dim: f.dimensiune }))
             .concat(documenteContract.filter(d => d.dimensiune).map(d => ({
                 cale: 'Dosare Achiziții / ' + (contractMap[d.contract_id] || d.contract_id) + ' / ' + (d.tip_document || d.nume_fisier || '?'),
+                dim: d.dimensiune
+            })))
+            .concat(documenteR2.filter(d => d.dimensiune).map(d => ({
+                cale: 'Fișe & Foto / ' + (d.expert || '?') + ' / ' + (d.clasa || '') + ' / ' + (d.nume_fisier || d.tip_fisier || '?'),
+                dim: d.dimensiune
+            })))
+            .concat(listeFisiere.filter(d => d.dimensiune).map(d => ({
+                cale: 'Liste Prezență & Masă / ' + (d.expert || '?') + ' / ' + (d.clasa || '') + ' / ' + (d.tip || '?'),
+                dim: d.dimensiune
+            })))
+            .concat(documenteProiect.filter(d => d.dimensiune).map(d => ({
+                cale: 'Documente Proiect / ' + (d.nume_proiect || '?') + ' / ' + (d.tip_document || d.nume_fisier || '?'),
                 dim: d.dimensiune
             })))
             .sort((a, b) => b.dim - a.dim);
@@ -3820,7 +3866,7 @@ async function randeazaStatistici() {
         const uploaduri = evenimente.filter(e => e.tip_eveniment === 'upload').slice(0, 100);
 
         // ---- Alte statistici relevante ----
-        const totalFisiere = continut.length + documenteContract.length;
+        const totalFisiere = continut.length + documenteContract.length + documenteR2.length + listeFisiere.length + documenteProiect.length;
         const totalEvenimente = evenimente.length;
         const azi = new Date(); azi.setHours(0,0,0,0);
         const evAzi = evenimente.filter(e => new Date(e.creat_la) >= azi).length;
@@ -3932,9 +3978,12 @@ async function recalculeazaDimensiuni(btn) {
     btn.disabled = true;
     _recalcInProgress = true;
     try {
-        const [d1, d2] = await Promise.all([
+        const [d1, d2, d3, d4, d5] = await Promise.all([
             fetchAllRows('audit_continut', 'id, fisier_url, dimensiune, sters, tip'),
-            fetchAllRows('documente_contract', 'id, link_drive, dimensiune')
+            fetchAllRows('documente_contract', 'id, link_drive, dimensiune'),
+            fetchAllRows('documente_r2', 'id, public_url, dimensiune'),
+            fetchAllRows('liste_fisiere', 'id, public_url, dimensiune'),
+            fetchAllRows('documente_proiect', 'id, public_url, dimensiune')
         ]);
         const lista1 = (d1 || [])
             .filter(r => r.sters === false && r.tip === 'fisier' && r.dimensiune == null)
@@ -3942,7 +3991,16 @@ async function recalculeazaDimensiuni(btn) {
         const lista2 = (d2 || [])
             .filter(r => r.dimensiune == null)
             .map(r => ({ id: r.id, url: r.link_drive, tabel: 'documente_contract' }));
-        const fara = [...lista1, ...lista2];
+        const lista3 = (d3 || [])
+            .filter(r => r.dimensiune == null)
+            .map(r => ({ id: r.id, url: r.public_url, tabel: 'documente_r2' }));
+        const lista4 = (d4 || [])
+            .filter(r => r.dimensiune == null)
+            .map(r => ({ id: r.id, url: r.public_url, tabel: 'liste_fisiere' }));
+        const lista5 = (d5 || [])
+            .filter(r => r.dimensiune == null)
+            .map(r => ({ id: r.id, url: r.public_url, tabel: 'documente_proiect' }));
+        const fara = [...lista1, ...lista2, ...lista3, ...lista4, ...lista5];
 
         if (!fara.length) { alert('Toate fișierele au deja dimensiunea calculată.'); return; }
         alert(`⚠️ Se vor descărca efectiv ${fara.length} fișiere ca să le măsoare mărimea (poate dura minute bune — sunt fișiere mari). NU închide sau naviga în altă parte cât timp rulează. Poți relua oricând apăsând din nou — reia doar de unde a rămas.`);
