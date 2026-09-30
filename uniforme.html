@@ -81,6 +81,8 @@ let clasaSel = null;
 
 const $ = s => document.querySelector(s);
 const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const avansOf = id => Number((D.clase.find(c=>c.id===id)||{}).avans||0);
+const avansTxt = id => { const a=avansOf(id); return a? String(a).replace('.',',') : ''; };
 const fmt = n => Number(n).toLocaleString('ro-RO',{minimumFractionDigits:2,maximumFractionDigits:2});
 const key = (c,p,m) => c+'|'+p+'|'+m;
 
@@ -183,7 +185,12 @@ function viewIntro(){
         <div class="grow"><select id="selClasa">${opts}</select></div>
         <button class="ghost" id="next">&rarr;</button>
       </div>
-      <div class="stat"><div>Bucăți în clasă<b id="stB">0</b></div><div>Valoare<b id="stV">–</b></div></div>
+      <div class="stat">
+        <div>Bucăți în clasă<b id="stB">0</b></div>
+        <div>Valoare<b id="stV">–</b></div>
+        <div>Avans (lei)<br><input type="text" id="avans" inputmode="decimal" placeholder="0,00" style="width:130px;margin-top:4px" value="${avansTxt(clasaSel)}"></div>
+        <div>Sumă rămasă<b id="stR">–</b></div>
+      </div>
       <p class="muted noprint">Scrie numărul de bucăți în căsuța piesei și mărimii. Se salvează automat. Căsuțele gri nu există pentru piesa respectivă.</p>
       <div class="tw"><table>
         <thead><tr><th>Piesă</th>${sizes.map(m=>`<th>${m}</th>`).join('')}<th>Total</th></tr></thead>
@@ -203,6 +210,7 @@ function viewIntro(){
   $('#prev').onclick = () => { const i=idx(); if(i>0){ clasaSel=D.clase[i-1].id; viewIntro(); } };
   $('#next').onclick = () => { const i=idx(); if(i<D.clase.length-1){ clasaSel=D.clase[i+1].id; viewIntro(); } };
   document.querySelectorAll('td input').forEach(inp => inp.addEventListener('change', saveCell));
+  $('#avans').addEventListener('change', saveAvans);
 }
 function updClassTotals(){
   const sizes = marimiAll(); let all=0, val=0, priced=true;
@@ -213,7 +221,21 @@ function updClassTotals(){
   });
   sizes.forEach(m=>{ let s=0; D.piese.forEach(p=>{ s+=qty(clasaSel,p.id,m); }); const el=$('#ct'+m); if(el) el.textContent=s; });
   $('#gt').textContent=all; $('#stB').textContent=all;
+  $('#stR').textContent = fmt(val-avansOf(clasaSel))+' lei';
   $('#stV').textContent = priced ? fmt(val)+' lei' : fmt(val)+' lei (lipsesc prețuri)';
+}
+async function saveAvans(e){
+  const inp=e.target, c=clasaSel;
+  const raw = inp.value.trim().replace(',','.');
+  const v = raw==='' ? 0 : Number(raw);
+  inp.classList.remove('saved','fail');
+  if(isNaN(v)||v<0){ inp.classList.add('fail'); toast('Avans invalid', true); return; }
+  try{
+    await rpc('uniforme_salveaza_avans',{p_cod:cod,p_clasa_id:c,p_avans:v});
+    const cl = D.clase.find(x=>x.id===c); if(cl) cl.avans = v;
+    inp.value = v ? String(v).replace('.',',') : '';
+    inp.classList.add('saved'); updClassTotals();
+  }catch(err){ inp.classList.add('fail'); toast('Nu s-a salvat avansul: '+err.message, true); }
 }
 async function saveCell(e){
   const inp=e.target, p=+inp.dataset.p, m=inp.dataset.m, c=clasaSel;
@@ -229,11 +251,11 @@ async function saveCell(e){
 
 /* ---------- 2. Centralizator pe clase ---------- */
 function viewClase(){
-  const P = D.piese; let rows='', G = P.map(()=>0), GV=0, GT=0, missing=false;
+  const P = D.piese; let rows='', G = P.map(()=>0), GV=0, GT=0, GA=0, missing=false;
   ['Centru','Munteni','Tansa'].forEach(u=>{
     const cl = D.clase.filter(c=>c.unitate===u); if(!cl.length) return;
-    let S = P.map(()=>0), SV=0, ST=0;
-    rows += `<tr class="unit"><td colspan="${P.length+3}">${u}</td></tr>`;
+    let S = P.map(()=>0), SV=0, ST=0, SA=0;
+    rows += `<tr class="unit"><td colspan="${P.length+5}">${u}</td></tr>`;
     cl.forEach(c=>{
       let t=0, v=0;
       const cells = P.map((p,i)=>{
@@ -241,21 +263,21 @@ function viewClase(){
         t+=s; S[i]+=s; const pr=priceOf(p,1); if(pr===null){ if(s>0) missing=true; } else v+=s*pr;
         return `<td class="num ${s?'':'zero'}">${s||'–'}</td>`;
       }).join('');
-      SV+=v; ST+=t;
-      rows += `<tr><td>${esc(c.denumire)}</td>${cells}<td class="num"><b>${t||'–'}</b></td><td class="num">${t?fmt(v):'–'}</td></tr>`;
+      SV+=v; ST+=t; const av=Number(c.avans||0); SA+=av;
+      rows += `<tr><td>${esc(c.denumire)}</td>${cells}<td class="num"><b>${t||'–'}</b></td><td class="num">${t?fmt(v):'–'}</td><td class="num">${av?fmt(av):'–'}</td><td class="num">${t||av?fmt(v-av):'–'}</td></tr>`;
     });
-    rows += `<tr class="tot"><td>Total ${u}</td>${S.map(s=>`<td class="num">${s}</td>`).join('')}<td class="num">${ST}</td><td class="num">${fmt(SV)}</td></tr>`;
-    S.forEach((s,i)=>G[i]+=s); GV+=SV; GT+=ST;
+    rows += `<tr class="tot"><td>Total ${u}</td>${S.map(s=>`<td class="num">${s}</td>`).join('')}<td class="num">${ST}</td><td class="num">${fmt(SV)}</td><td class="num">${fmt(SA)}</td><td class="num">${fmt(SV-SA)}</td></tr>`;
+    S.forEach((s,i)=>G[i]+=s); GV+=SV; GT+=ST; GA+=SA;
   });
   $('#view').innerHTML = `
     <div class="card">
       <div class="row noprint"><button class="ghost" onclick="window.print()">Tipărește</button></div>
-      <div class="stat"><div>Total bucăți<b>${GT}</b></div><div>Valoare totală<b>${fmt(GV)} lei</b></div></div>
+      <div class="stat"><div>Total bucăți<b>${GT}</b></div><div>Valoare totală<b>${fmt(GV)} lei</b></div><div>Avans total<b>${fmt(GA)} lei</b></div><div>Sumă rămasă<b>${fmt(GV-GA)} lei</b></div></div>
       ${missing?'<p class="err-msg">Unele piese comandate nu au preț; valoarea e incompletă.</p>':''}
       <div class="tw"><table>
-        <thead><tr><th>Clasa / grupa</th>${P.map(p=>`<th>${esc(p.denumire)}</th>`).join('')}<th>Total buc.</th><th>Valoare (lei)</th></tr></thead>
+        <thead><tr><th>Clasa / grupa</th>${P.map(p=>`<th>${esc(p.denumire)}</th>`).join('')}<th>Total buc.</th><th>Valoare (lei)</th><th>Avans (lei)</th><th>Sumă rămasă (lei)</th></tr></thead>
         <tbody>${rows}
-        <tr class="tot"><td>TOTAL GENERAL</td>${G.map(s=>`<td class="num">${s}</td>`).join('')}<td class="num">${GT}</td><td class="num">${fmt(GV)}</td></tr>
+        <tr class="tot"><td>TOTAL GENERAL</td>${G.map(s=>`<td class="num">${s}</td>`).join('')}<td class="num">${GT}</td><td class="num">${fmt(GV)}</td><td class="num">${fmt(GA)}</td><td class="num">${fmt(GV-GA)}</td></tr>
         </tbody></table></div>
     </div>`;
 }
