@@ -118,7 +118,9 @@ const qty = (c,p,m) => Q.get(key(c,p,m)) || 0;
 const marimiAll = () => [...new Set(D.piese.flatMap(p=>p.marimi))].sort((a,b)=>Number(a)-Number(b));
 const pieceQty = (clase, p) => { let s=0; Q.forEach((v,k)=>{ const [c,pp]=k.split('|'); if(+pp===p.id && clase.has(+c)) s+=v; }); return s; };
 const unitIds = unit => new Set(D.clase.filter(c=>unit==='Toate'||c.unitate===unit).map(c=>c.id));
-const priceOf = p => p.pret_unitar===null||p.pret_unitar===undefined ? null : Number(p.pret_unitar);
+const priceOf = (p,k) => { const v = p['pret_'+k]; return v===null||v===undefined ? null : Number(v); };
+const role = () => D ? D.nivel : null;
+const ROLE_NAME = {admin:'Administrator', diriginti:'Diriginte', furnizor:'Furnizor'};
 
 /* ---------- ecran login ---------- */
 function showLogin(msg){
@@ -144,16 +146,22 @@ function showLogin(msg){
 
 /* ---------- schelet ---------- */
 function start(){
-  $('#who').textContent = isAdmin() ? 'Administrator' : 'Diriginte';
+  $('#who').textContent = ROLE_NAME[role()] || '';
   $('#btnOut').style.display='';
-  if(tab==='pret' && !isAdmin()) tab='intro';
+  const allowed = tabsFor().map(t=>t[0]);
+  if(!allowed.includes(tab)) tab = allowed[0];
   render();
 }
 $('#btnOut').onclick = () => { cod=null; D=null; store('uf_cod',null); showLogin(); };
 
+function tabsFor(){
+  if(role()==='furnizor') return [['furn','Centralizator școală']];
+  const t = [['intro','Introducere pe clasă'],['clase','Centralizator clase']];
+  if(isAdmin()){ t.push(['furn','Comandă furnizor']); t.push(['pret','Prețuri și mărimi']); }
+  return t;
+}
 function render(){
-  const tabs = [['intro','Introducere pe clasă'],['clase','Centralizator clase'],['furn','Comandă furnizor']];
-  if(isAdmin()) tabs.push(['pret','Prețuri și mărimi']);
+  const tabs = tabsFor();
   $('#app').innerHTML = `<div class="tabs">${tabs.map(([k,t])=>`<button data-t="${k}" class="${k===tab?'on':''}">${t}</button>`).join('')}</div><div id="view"></div>`;
   document.querySelectorAll('.tabs button').forEach(b => b.onclick = async () => {
     tab = b.dataset.t;
@@ -201,7 +209,7 @@ function updClassTotals(){
   D.piese.forEach(p=>{
     let s=0; sizes.forEach(m=>{ s+=qty(clasaSel,p.id,m); });
     const el=$('#rt'+p.id); if(el) el.textContent=s;
-    all+=s; const pr=priceOf(p); if(pr===null){ if(s>0) priced=false; } else val+=s*pr;
+    all+=s; const pr=priceOf(p,1); if(pr===null){ if(s>0) priced=false; } else val+=s*pr;
   });
   sizes.forEach(m=>{ let s=0; D.piese.forEach(p=>{ s+=qty(clasaSel,p.id,m); }); const el=$('#ct'+m); if(el) el.textContent=s; });
   $('#gt').textContent=all; $('#stB').textContent=all;
@@ -230,7 +238,7 @@ function viewClase(){
       let t=0, v=0;
       const cells = P.map((p,i)=>{
         let s=0; p.marimi.forEach(m=>{ s+=qty(c.id,p.id,m); });
-        t+=s; S[i]+=s; const pr=priceOf(p); if(pr===null){ if(s>0) missing=true; } else v+=s*pr;
+        t+=s; S[i]+=s; const pr=priceOf(p,1); if(pr===null){ if(s>0) missing=true; } else v+=s*pr;
         return `<td class="num ${s?'':'zero'}">${s||'–'}</td>`;
       }).join('');
       SV+=v; ST+=t;
@@ -255,7 +263,8 @@ function viewClase(){
 /* ---------- 3. Comandă furnizor ---------- */
 let furnUnit = 'Toate';
 function viewFurn(){
-  const ids = unitIds(furnUnit);
+  const isF = role()==='furnizor';
+  const ids = isF ? new Set([0]) : unitIds(furnUnit);   // furnizorul primește doar totaluri pe școală (clasa_id 0)
   const sizesAll = marimiAll();
   const colTot = {}; sizesAll.forEach(m=>{ colTot[m]=0; });
   const data = D.piese.map(p=>{
@@ -264,66 +273,81 @@ function viewFurn(){
     return {p,r,t};
   });
   const sizes = sizesAll.filter(m=>colTot[m]>0);
+  const showP = role()!=='diriginti';   // Prețul 2 îl văd doar furnizorul și administratorul
   let GT=0, GV=0, missing=false;
   const body = data.map(({p,r,t})=>{
-    const pr=priceOf(p); if(pr===null && t>0) missing=true;
+    const pr=showP?priceOf(p,2):null; if(showP && pr===null && t>0) missing=true;
     const v = pr===null?0:t*pr; GT+=t; GV+=v;
     return `<tr><td>${esc(p.denumire)}</td>${sizes.map(m=>`<td class="num ${r[m]?'':'zero'}">${r[m]||'–'}</td>`).join('')}
-      <td class="num"><b>${t}</b></td><td class="num">${pr===null?'—':fmt(pr)}</td><td class="num">${t&&pr!==null?fmt(v):'–'}</td></tr>`;
+      <td class="num"><b>${t}</b></td>${showP?`<td class="num">${pr===null?'—':fmt(pr)}</td><td class="num">${t&&pr!==null?fmt(v):'–'}</td>`:''}</tr>`;
   }).join('');
   $('#view').innerHTML = `
     <div class="card">
       <div class="row noprint">
-        <div><select id="fu">${['Toate','Centru','Munteni','Tansa'].map(u=>`<option ${u===furnUnit?'selected':''}>${u}</option>`).join('')}</select></div>
+        <div ${isF?'style="display:none"':''}><select id="fu">${['Toate','Centru','Munteni','Tansa'].map(u=>`<option ${u===furnUnit?'selected':''}>${u}</option>`).join('')}</select></div>
         <button class="ghost" onclick="window.print()">Tipărește</button>
         <button class="ghost" id="csv">Descarcă CSV</button>
       </div>
-      <h3 style="margin:4px 0 10px">Comandă către furnizor — ${esc(furnUnit)}</h3>
-      <div class="stat"><div>Total bucăți<b>${GT}</b></div><div>Valoare<b>${fmt(GV)} lei</b></div></div>
+      <h3 style="margin:4px 0 10px">${isF?'Centralizator comandă — toată școala':'Comandă către furnizor — '+esc(furnUnit)}</h3>
+      <div class="stat"><div>Total bucăți<b>${GT}</b></div>${showP?`<div>Valoare<b>${fmt(GV)} lei</b></div>`:''}</div>
       ${missing?'<p class="err-msg">Unele piese comandate nu au preț.</p>':''}
       ${GT===0?'<p class="muted">Nu există încă cantități introduse.</p>':`
       <div class="tw"><table>
-        <thead><tr><th>Piesă \\ Mărime</th>${sizes.map(m=>`<th>${m}</th>`).join('')}<th>Total</th><th>Preț (lei)</th><th>Valoare (lei)</th></tr></thead>
+        <thead><tr><th>Piesă \\ Mărime</th>${sizes.map(m=>`<th>${m}</th>`).join('')}<th>Total</th>${showP?'<th>Preț (lei)</th><th>Valoare (lei)</th>':''}</tr></thead>
         <tbody>${body}
-        <tr class="tot"><td>Total</td>${sizes.map(m=>`<td class="num">${colTot[m]}</td>`).join('')}<td class="num">${GT}</td><td></td><td class="num">${fmt(GV)}</td></tr>
+        <tr class="tot"><td>Total</td>${sizes.map(m=>`<td class="num">${colTot[m]}</td>`).join('')}<td class="num">${GT}</td>${showP?`<td></td><td class="num">${fmt(GV)}</td>`:''}</tr>
         </tbody></table></div>`}
     </div>`;
   $('#fu').onchange = e => { furnUnit=e.target.value; viewFurn(); };
   $('#csv').onclick = () => {
-    const head = ['Piesa',...sizes,'Total','Pret','Valoare'];
-    const lines = [head, ...data.map(({p,r,t})=>{ const pr=priceOf(p); return [p.denumire,...sizes.map(m=>r[m]||0),t,pr===null?'':pr,pr===null?'':(t*pr).toFixed(2)]; })];
+    const head = ['Piesa',...sizes,'Total',...(showP?['Pret','Valoare']:[])];
+    const lines = [head, ...data.map(({p,r,t})=>{ const pr=showP?priceOf(p,2):null; return [p.denumire,...sizes.map(m=>r[m]||0),t,...(showP?[pr===null?'':pr,pr===null?'':(t*pr).toFixed(2)]:[])]; })];
     const csv = '﻿'+lines.map(l=>l.map(x=>`"${String(x).replace(/"/g,'""')}"`).join(';')).join('\r\n');
     const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));
     a.download='comanda_uniforme_'+furnUnit.toLowerCase()+'.csv'; a.click();
   };
 }
 
-/* ---------- 4. Prețuri și mărimi (admin) ---------- */
+/* ---------- 4. Prețuri ---------- */
+const fp = v => v===null||v===undefined ? '' : String(v).replace('.',',');
 function viewPret(){
+  if(!isAdmin()){
+    // diriginți: doar Preț 1; furnizor: doar Preț 2 (serverul trimite fiecăruia doar lista lui)
+    const k = role()==='furnizor' ? 2 : 1;
+    $('#view').innerHTML = `
+      <div class="card">
+        <div class="tw"><table>
+          <thead><tr><th>Piesă</th><th>${k===2?'Preț furnizor':'Preț școală'} (lei)</th></tr></thead>
+          <tbody>${D.piese.map(p=>`<tr><td>${esc(p.denumire)}</td><td class="num">${priceOf(p,k)===null?'—':fmt(priceOf(p,k))}</td></tr>`).join('')}</tbody>
+        </table></div>
+      </div>`;
+    return;
+  }
   $('#view').innerHTML = `
     <div class="card pret">
-      <p class="muted">Prețul unitar, în lei (cu virgulă sau punct). Mărimile se scriu separate prin virgulă. O mărime scoasă din listă nu mai apare la introducere; cantitățile deja salvate pentru ea rămân în baza de date.</p>
+      <p class="muted"><b>Preț furnizor</b> îl vede doar furnizorul (valoarea comenzii către el). <b>Preț școală</b> îl văd diriginții (valoarea pe clasă). Se scriu în lei, cu virgulă sau punct. Mărimile se scriu separate prin virgulă; o mărime scoasă din listă nu mai apare la introducere, dar cantitățile deja salvate rămân în baza de date.</p>
       <div class="tw"><table>
-        <thead><tr><th>Piesă</th><th>Preț unitar (lei)</th><th>Mărimi disponibile</th><th></th></tr></thead>
+        <thead><tr><th>Piesă</th><th>Preț furnizor (lei)</th><th>Preț școală (lei)</th><th>Mărimi disponibile</th><th></th></tr></thead>
         <tbody>${D.piese.map(p=>`<tr data-id="${p.id}">
           <td>${esc(p.denumire)}</td>
-          <td><input type="text" class="pr" inputmode="decimal" value="${p.pret_unitar===null?'':String(p.pret_unitar).replace('.',',')}" placeholder="0,00"></td>
+          <td><input type="text" class="p2" inputmode="decimal" value="${fp(p.pret_2)}" placeholder="0,00"></td>
+          <td><input type="text" class="p1" inputmode="decimal" value="${fp(p.pret_1)}" placeholder="0,00"></td>
           <td><input type="text" class="mar" value="${esc(p.marimi.join(', '))}"></td>
           <td><button class="primary sv">Salvează</button></td></tr>`).join('')}
         </tbody></table></div>
       <p class="err-msg" id="perr"></p>
     </div>`;
+  const parse = t => { const r=t.trim().replace(',','.'); if(r==='') return null; const n=Number(r); return isNaN(n)||n<0 ? NaN : n; };
   document.querySelectorAll('button.sv').forEach(btn => btn.onclick = async () => {
     const tr = btn.closest('tr'), id = +tr.dataset.id, p = D.piese.find(x=>x.id===id);
-    const raw = tr.querySelector('.pr').value.trim().replace(',','.');
-    const pret = raw==='' ? null : Number(raw);
+    const p1 = parse(tr.querySelector('.p1').value), p2 = parse(tr.querySelector('.p2').value);
     const mar = tr.querySelector('.mar').value.split(',').map(s=>s.trim()).filter(Boolean);
     $('#perr').textContent='';
-    if(pret!==null && (isNaN(pret)||pret<0)){ $('#perr').textContent='Preț invalid la '+p.denumire; return; }
+    if(Number.isNaN(p1)||Number.isNaN(p2)){ $('#perr').textContent='Preț invalid la '+p.denumire; return; }
     if(!mar.length || mar.some(m=>!/^\d+$/.test(m))){ $('#perr').textContent='Mărimile trebuie să fie numere separate prin virgulă ('+p.denumire+').'; return; }
     btn.disabled=true;
     try{
-      await rpc('uniforme_seteaza_pret',{p_cod:cod,p_piesa_id:id,p_pret:pret});
+      await rpc('uniforme_seteaza_preturi',{p_cod:cod,p_piesa_id:id,p_pret_1:p1,p_pret_2:p2});
       await rpc('uniforme_seteaza_marimi',{p_cod:cod,p_piesa_id:id,p_marimi:[...new Set(mar)]});
       await reload(); toast('Salvat: '+p.denumire); viewPret();
     }catch(err){ $('#perr').textContent=err.message; btn.disabled=false; }
