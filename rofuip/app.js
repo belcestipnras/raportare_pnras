@@ -254,6 +254,13 @@ function renderQuestion() {
   });
 }
 
+function explanationText(question) {
+  const wrongWithReason = question.options.filter((option) => !option.isCorrect && option.why);
+  if (!wrongWithReason.length) return question.explanation;
+  const lines = wrongWithReason.map((option) => `${option.id}. ${option.why}`);
+  return `${question.explanation}\n\nDe ce celelalte variante nu sunt corecte:\n${lines.join("\n")}`;
+}
+
 function selectOption(optionId) {
   const session = state.session;
   if (!session || session.locked) return;
@@ -292,7 +299,7 @@ function submitCurrentAnswer(showFeedback) {
     elements.feedback.hidden = false;
     elements.feedback.classList.toggle("is-wrong", !isCorrect);
     elements.feedbackTitle.textContent = isCorrect ? "Corect" : "De revăzut";
-    elements.feedbackText.textContent = `${question.explanation}\n\nRăspunsul tău: ${selectedOption.text}\nRăspunsul corect: ${correctOption.text}`;
+    elements.feedbackText.textContent = `${explanationText(question)}\n\nRăspunsul tău: ${selectedOption.text}\nRăspunsul corect: ${correctOption.text}`;
     elements.sourceLink.href = question.legalSource.url;
   }
 }
@@ -365,7 +372,7 @@ function renderResults(session, percent) {
     const summary = document.createElement("summary");
     summary.textContent = "Explicație și sursă";
     const explanation = document.createElement("p");
-    explanation.textContent = question.explanation;
+    explanation.textContent = explanationText(question);
     details.append(summary, explanation);
     card.append(title, status, response, key, details);
     elements.reviewList.append(card);

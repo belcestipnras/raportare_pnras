@@ -324,6 +324,7 @@ select:focus { outline: 3px solid rgba(22, 132, 106, .18); border-color: var(--g
 .review-card h3 { margin: 0 0 .7rem; color: var(--navy); font-size: 1rem; line-height: 1.45; }
 .review-card p { margin-bottom: .45rem; color: #526176; font-size: .9rem; }
 .review-card details { margin-top: .65rem; }
+.review-card details p { white-space: pre-line; }
 .review-card summary { color: var(--green); cursor: pointer; font-weight: 800; }
 
 .module-stats, .data-tools { padding: 2rem; }
