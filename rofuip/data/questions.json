@@ -7,7 +7,7 @@
     "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
     "method": "itemi situaționali redactați manual și verificați pe fragmentele exacte ale formei consolidate"
   },
-  "count": 175,
+  "count": 191,
   "questions": [
     {
       "id": "RF-A-001",
@@ -8046,6 +8046,774 @@
         "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
         "reference": "articolul 60 alineatul (6)",
         "excerpt": "În unitatile de învățământ preuniversitar care au obținut acreditare Erasmus+ sau, în lipsa acreditării, în unitățile de învățământ în care se derulează mai mult de trei proiecte din cadrul unor programe ale UE în domeniul educației sau formării profesionale, directorul poate numi, după consultarea consiliului profesoral, în baza hotărârii consiliului de administrație, un coordonator pentru proiecte educationale europene.",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-176",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Titlul V. Organisme funcționale și responsabilități ale cadrelor didactice",
+      "annex": "",
+      "title": "Titlul V. Organisme funcționale și responsabilități ale cadrelor didactice",
+      "chapter": "Capitolul II. Responsabilități ale personalului didactic în unitatea de învățământ",
+      "section": "Secţiunea a 2-a. Profesorul diriginte",
+      "article": 67,
+      "paragraph": "(1)",
+      "prompt": "Dirigintele crede că este suficient să organizeze părinților o singură ședință pe an, la începutul anului școlar. Ce prevede regulamentul?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Dirigintele stabilește, în acord cu părinții, câte o întâlnire în fiecare interval de cursuri.",
+          "isCorrect": true
+        },
+        {
+          "id": "B",
+          "text": "O singură ședință pe an este suficientă dacă participă toți părinții.",
+          "isCorrect": false,
+          "why": "Regulamentul cere o întâlnire în fiecare interval de cursuri."
+        },
+        {
+          "id": "C",
+          "text": "Întâlnirile se stabilesc doar la inițiativa părinților, când apar probleme.",
+          "isCorrect": false,
+          "why": "Dirigintele are obligația să stabilească întâlnirea, în acord cu părinții, pentru comunicare constantă."
+        },
+        {
+          "id": "D",
+          "text": "Întâlnirile se țin lunar, fără acordul părinților.",
+          "isCorrect": false,
+          "why": "Frecvența prevăzută este o întâlnire în fiecare interval de cursuri, stabilită în acord cu părinții."
+        }
+      ],
+      "correctOptionId": "A",
+      "explanation": "Regula: Profesorul diriginte stabilește, în acord cu părinții, câte o întâlnire în fiecare interval de cursuri, pentru prezentarea situației școlare și discutarea problemelor educaționale sau comportamentale. Planificarea orelor se comunică și se afișează la avizier sau pe site-ul unității (alineatul (2)).\n\nIntervalul de cursuri este reperul, deci întâlnirile se repetă de mai multe ori pe an.\n\nTemei: articolul 67 alineatul (1), coroborat cu alineatul (2). Textul relevant: „Pentru realizarea unei comunicări constante cu părinții/reprezentanții legali, profesorul diriginte stabilește, în acord cu aceștia, pe perioada fiecărui interval de cursuri, o întâlnire pentru prezentarea situației școlare a beneficiarilor primari, pentru discutarea problemelor educaționale sau comportamentale specifice ale acestora.”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "articolul 67 alineatul (1), coroborat cu alineatul (2)",
+        "excerpt": "Pentru realizarea unei comunicări constante cu părinții/reprezentanții legali, profesorul diriginte stabilește, în acord cu aceștia, pe perioada fiecărui interval de cursuri, o întâlnire pentru prezentarea situației școlare a beneficiarilor primari, pentru discutarea problemelor educaționale sau comportamentale specifice ale acestora.",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-177",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Titlul V. Organisme funcționale și responsabilități ale cadrelor didactice",
+      "annex": "",
+      "title": "Titlul V. Organisme funcționale și responsabilități ale cadrelor didactice",
+      "chapter": "Capitolul II. Responsabilități ale personalului didactic în unitatea de învățământ",
+      "section": "Secţiunea a 2-a. Profesorul diriginte",
+      "article": 67,
+      "paragraph": "(3)",
+      "prompt": "Dirigintele organizează întâlnirea cu părinții ca ședință colectivă în sala de clasă, discutând situația fiecărui elev în fața tuturor. Ce recomandă regulamentul?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Întâlnirea trebuie să fie colectivă, iar prezența elevului este interzisă.",
+          "isCorrect": false,
+          "why": "Regulamentul recomandă întâlnirea individuală, iar elevul poate participa la solicitare."
+        },
+        {
+          "id": "B",
+          "text": "Întâlnirea se recomandă a fi individuală, pe baza unei programări prealabile, iar elevul poate participa la solicitarea părintelui sau a dirigintelui.",
+          "isCorrect": true
+        },
+        {
+          "id": "C",
+          "text": "Întâlnirea este individuală, iar elevul participă obligatoriu.",
+          "isCorrect": false,
+          "why": "Elevul poate participa la solicitarea părintelui sau a dirigintelui, nu obligatoriu."
+        },
+        {
+          "id": "D",
+          "text": "Forma întâlnirii nu este reglementată, fiecare diriginte decide.",
+          "isCorrect": false,
+          "why": "Regulamentul recomandă forma individuală, cu programare stabilită în prealabil."
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Regula: Întâlnirea cu părinții se recomandă a fi individuală, pe baza unei programări stabilite în prealabil. Elevul poate participa la solicitarea părintelui sau a dirigintelui.\n\nFormula individuală protejează confidențialitatea situației fiecărui elev, iar participarea elevului depinde de o solicitare.\n\nTemei: articolul 67 alineatul (3). Textul relevant: „Întâlnirea cu părinții/reprezentanții legali se recomandă a fi individuală, în conformitate cu o programare stabilită în prealabil. La această întâlnire, la solicitarea părintelui/reprezentantului legal sau a dirigintelui, poate participa și elevul.”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "articolul 67 alineatul (3)",
+        "excerpt": "Întâlnirea cu părinții/reprezentanții legali se recomandă a fi individuală, în conformitate cu o programare stabilită în prealabil. La această întâlnire, la solicitarea părintelui/reprezentantului legal sau a dirigintelui, poate participa și elevul.",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-178",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Titlul V. Organisme funcționale și responsabilități ale cadrelor didactice",
+      "annex": "",
+      "title": "Titlul V. Organisme funcționale și responsabilități ale cadrelor didactice",
+      "chapter": "Capitolul II. Responsabilități ale personalului didactic în unitatea de învățământ",
+      "section": "Secţiunea a 2-a. Profesorul diriginte",
+      "article": 68,
+      "paragraph": "(4)",
+      "prompt": "Un elev acumulează absențe nemotivate, iar dirigintele îi anunță pe părinți doar verbal, când îi întâlnește. Ce cere regulamentul?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Verbal este suficient, deoarece regulamentul nu cere forma scrisă.",
+          "isCorrect": false,
+          "why": "Regulamentul prevede expres că informarea se face în scris."
+        },
+        {
+          "id": "B",
+          "text": "Numărul de absențe este fixat prin regulamentul-cadru, la cinci absențe nemotivate.",
+          "isCorrect": false,
+          "why": "Numărul de absențe se stabilește prin regulamentul de organizare și funcționare al fiecărei unități."
+        },
+        {
+          "id": "C",
+          "text": "Informarea se face în scris, iar numărul de absențe nemotivate de la care se informează se stabilește prin regulamentul de organizare și funcționare al fiecărei unități.",
+          "isCorrect": true
+        },
+        {
+          "id": "D",
+          "text": "Informarea se face numai la sfârșitul semestrului, prin carnetul de elev.",
+          "isCorrect": false,
+          "why": "Informarea se face în scris când elevul înregistrează absențe nemotivate, nu doar la sfârșit de semestru."
+        }
+      ],
+      "correctOptionId": "C",
+      "explanation": "Regula: Dirigintele informează părinții în scris când elevul înregistrează absențe nemotivate. Numărul de absențe de la care se informează se stabilește prin regulamentul de organizare și funcționare al fiecărei unități.\n\nForma scrisă este obligatorie, iar pragul este stabilit la nivelul unității, nu fixat central.\n\nTemei: articolul 68 alineatul (4) punctul d). Textul relevant: „părinții sau reprezentanții legali, în cazul în care elevul înregistrează absențe nemotivate; informarea se face în scris; numărul absențelor se stabilește prin regulamentul de organizare și funcționare a fiecărei unități de învățământ”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "articolul 68 alineatul (4) punctul d)",
+        "excerpt": "părinții sau reprezentanții legali, în cazul în care elevul înregistrează absențe nemotivate; informarea se face în scris; numărul absențelor se stabilește prin regulamentul de organizare și funcționare a fiecărei unități de învățământ",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-179",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Titlul V. Organisme funcționale și responsabilități ale cadrelor didactice",
+      "annex": "",
+      "title": "Titlul V. Organisme funcționale și responsabilități ale cadrelor didactice",
+      "chapter": "Capitolul II. Responsabilități ale personalului didactic în unitatea de învățământ",
+      "section": "Secţiunea a 2-a. Profesorul diriginte",
+      "article": 68,
+      "paragraph": "(4)",
+      "prompt": "Un elev rămâne corigent la o disciplină. Dirigintele îi anunță pe părinți prin telefon și consideră că și-a îndeplinit obligația. Este corect?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Da, telefonul este suficient, iar informarea scrisă se cere doar pentru repetenție.",
+          "isCorrect": false,
+          "why": "Informarea scrisă se cere și pentru corigență, sancționări disciplinare și neîncheierea situației școlare."
+        },
+        {
+          "id": "B",
+          "text": "Da, deoarece informarea în caz de corigență revine secretariatului.",
+          "isCorrect": false,
+          "why": "Obligația de informare în scris este atribuție a profesorului diriginte."
+        },
+        {
+          "id": "C",
+          "text": "Nu, deoarece informarea se face prin anunț afișat la avizier.",
+          "isCorrect": false,
+          "why": "Informarea se face în scris către părinții sau reprezentanții legali ai elevului, nu prin afișare publică."
+        },
+        {
+          "id": "D",
+          "text": "Nu, deoarece părinții trebuie informați în scris despre corigență, ca și despre sancționările disciplinare, neîncheierea situației școlare sau repetenție.",
+          "isCorrect": true
+        }
+      ],
+      "correctOptionId": "D",
+      "explanation": "Regula: Dirigintele informează în scris părinții despre sancționările disciplinare, neîncheierea situației școlare, corigență sau repetenție.\n\nInformarea scrisă este formă obligatorie pentru toate aceste situații, nu doar pentru repetenție.\n\nTemei: articolul 68 alineatul (4) punctul e). Textul relevant: „părinții sau reprezentanții legali, în scris, referitor la sancționările disciplinare, neîncheierea situației școlare, situațiile de corigență sau repetenție”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "articolul 68 alineatul (4) punctul e)",
+        "excerpt": "părinții sau reprezentanții legali, în scris, referitor la sancționările disciplinare, neîncheierea situației școlare, situațiile de corigență sau repetenție",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-180",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Titlul V. Organisme funcționale și responsabilități ale cadrelor didactice",
+      "annex": "",
+      "title": "Titlul V. Organisme funcționale și responsabilități ale cadrelor didactice",
+      "chapter": "Capitolul II. Responsabilități ale personalului didactic în unitatea de învățământ",
+      "section": "Secţiunea a 2-a. Profesorul diriginte",
+      "article": 69,
+      "paragraph": "d)",
+      "prompt": "Consiliul clasei a propus sancționarea unui elev pentru o abatere disciplinară. Cum se parcurge propunerea până la aprobare?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Dirigintele aduce sancțiunea propusă de consiliul clasei la cunoștința consiliului profesoral, pentru aprobare.",
+          "isCorrect": true
+        },
+        {
+          "id": "B",
+          "text": "Consiliul clasei o aplică direct, fără altă aprobare.",
+          "isCorrect": false,
+          "why": "Sancțiunile propuse de consiliul clasei se aprobă de consiliul profesoral."
+        },
+        {
+          "id": "C",
+          "text": "Dirigintele o transmite inspectoratului școlar pentru aprobare.",
+          "isCorrect": false,
+          "why": "Aprobarea se face în unitate, de consiliul profesoral, nu de inspectoratul școlar."
+        },
+        {
+          "id": "D",
+          "text": "Directorul o aprobă prin decizie, fără consiliul profesoral.",
+          "isCorrect": false,
+          "why": "Aprobarea aparține consiliului profesoral, nu directorului prin decizie proprie."
+        }
+      ],
+      "correctOptionId": "A",
+      "explanation": "Regula: Dirigintele aduce la cunoștința consiliului profesoral, pentru aprobare, sancțiunile elevilor propuse de consiliul clasei. Aprobarea sancțiunilor disciplinare este atribuție a consiliului profesoral (articolul 55 litera j).\n\nConsiliul clasei propune, dirigintele face legătura, iar consiliul profesoral aprobă.\n\nTemei: articolul 69 litera d), coroborat cu articolul 55 litera j). Textul relevant: „aduce la cunoștința consiliului profesoral, pentru aprobare, sancțiunile beneficiarilor primari propuse de către consiliul clasei”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "articolul 69 litera d), coroborat cu articolul 55 litera j)",
+        "excerpt": "aduce la cunoștința consiliului profesoral, pentru aprobare, sancțiunile beneficiarilor primari propuse de către consiliul clasei",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-181",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Titlul V. Organisme funcționale și responsabilități ale cadrelor didactice",
+      "annex": "",
+      "title": "Titlul V. Organisme funcționale și responsabilități ale cadrelor didactice",
+      "chapter": "Capitolul II. Responsabilități ale personalului didactic în unitatea de învățământ",
+      "section": "Secţiunea a 2-a. Profesorul diriginte",
+      "article": 69,
+      "paragraph": "k)",
+      "prompt": "La finalul clasei a VIII-a, directorul vrea să impună unui elev liceul pe baza recomandării dirigintelui. Ce natură are recomandarea?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Este o decizie obligatorie, emisă de diriginte împreună cu directorul.",
+          "isCorrect": false,
+          "why": "Recomandarea este consultativă, nu obligatorie, și este emisă de profesorul consilier școlar și de diriginte."
+        },
+        {
+          "id": "B",
+          "text": "Profesorul consilier școlar și dirigintele emit câte o recomandare consultativă, cu caracter de orientare școlară pentru fiecare elev.",
+          "isCorrect": true
+        },
+        {
+          "id": "C",
+          "text": "Este emisă numai de profesorul consilier școlar, fără diriginte.",
+          "isCorrect": false,
+          "why": "Atât profesorul consilier școlar, cât și dirigintele emit câte o recomandare."
+        },
+        {
+          "id": "D",
+          "text": "Este emisă de consiliul de administrație și are caracter obligatoriu.",
+          "isCorrect": false,
+          "why": "Recomandarea este emisă de profesorul consilier școlar și de diriginte și are caracter consultativ."
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Regula: La finalizarea gimnaziului și liceului, profesorul consilier școlar și dirigintele emit câte o recomandare consultativă de încadrare într-o formă de învățământ de nivel superior, cu caracter de orientare școlară.\n\nRecomandarea orientează elevul, nu îl obligă să urmeze o anumită formă de învățământ.\n\nTemei: articolul 69 litera k). Textul relevant: „la finalizarea învățământului gimnazial și liceal, profesorul consilier școlar și dirigintele emit câte o recomandare consultativă de încadrare într-o formă de învățământ de nivel superior, având caracter de orientare școlară pentru fiecare elev în parte.”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "articolul 69 litera k)",
+        "excerpt": "la finalizarea învățământului gimnazial și liceal, profesorul consilier școlar și dirigintele emit câte o recomandare consultativă de încadrare într-o formă de învățământ de nivel superior, având caracter de orientare școlară pentru fiecare elev în parte.",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-182",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Titlul V. Organisme funcționale și responsabilități ale cadrelor didactice",
+      "annex": "",
+      "title": "Titlul V. Organisme funcționale și responsabilități ale cadrelor didactice",
+      "chapter": "Capitolul II. Responsabilități ale personalului didactic în unitatea de învățământ",
+      "section": "Secţiunea a 2-a. Profesorul diriginte",
+      "article": 69,
+      "paragraph": "l)",
+      "prompt": "Pentru alegerea cursurilor opționale din anul următor, cine centralizează opțiunile elevilor și ale părinților la nivelul fiecărei clase?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Secretariatul unității.",
+          "isCorrect": false,
+          "why": "Centralizarea la nivelul clasei este atribuția dirigintelui, nu a secretariatului."
+        },
+        {
+          "id": "B",
+          "text": "Responsabilul comisiei pentru curriculum, direct de la fiecare elev.",
+          "isCorrect": false,
+          "why": "Responsabilul comisiei pentru curriculum centralizează cursurile opționale propuse de catedre, nu opțiunile fiecărui elev. Opțiunile pe clasă le centralizează dirigintele."
+        },
+        {
+          "id": "C",
+          "text": "Profesorul diriginte.",
+          "isCorrect": true
+        },
+        {
+          "id": "D",
+          "text": "Consiliul reprezentativ al părinților.",
+          "isCorrect": false,
+          "why": "Regulamentul atribuie centralizarea opțiunilor la nivelul clasei dirigintelui."
+        }
+      ],
+      "correctOptionId": "C",
+      "explanation": "Regula: Dirigintele centralizează opțiunile pentru curriculumul la decizia elevului, exprimate de elevi și de părinți, la nivelul fiecărei clase.\n\nOpțiunile se adună la clasă, de diriginte. Pe baza lor se stabilește apoi lista de opționale, în care consiliul profesoral ține cont de numărul și ordinea opțiunilor (articolul 55 litera n).\n\nTemei: articolul 69 litera l). Textul relevant: „centralizează opțiunile pentru CDEOȘ exprimate de către elevi și părinți/reprezentanții legali ai acestora la nivelul fiecărei clase”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "articolul 69 litera l)",
+        "excerpt": "centralizează opțiunile pentru CDEOȘ exprimate de către elevi și părinți/reprezentanții legali ai acestora la nivelul fiecărei clase",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-183",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Titlul V. Organisme funcționale și responsabilități ale cadrelor didactice",
+      "annex": "",
+      "title": "Titlul V. Organisme funcționale și responsabilități ale cadrelor didactice",
+      "chapter": "Capitolul II. Responsabilități ale personalului didactic în unitatea de învățământ",
+      "section": "Secţiunea a 2-a. Profesorul diriginte",
+      "article": 70,
+      "paragraph": "",
+      "prompt": "La grădiniță și la clasele primare nu există profesor diriginte. Se aplică totuși regulile privind atribuțiile dirigintelui?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Nu, atribuțiile dirigintelui se aplică exclusiv în gimnaziu și liceu.",
+          "isCorrect": false,
+          "why": "Articolul 70 extinde aplicarea la învățământul preșcolar și primar."
+        },
+        {
+          "id": "B",
+          "text": "Da, dar numai pentru clasele primare, nu și pentru grădiniță.",
+          "isCorrect": false,
+          "why": "Textul se referă atât la învățământul preșcolar, cât și la cel primar."
+        },
+        {
+          "id": "C",
+          "text": "Nu, fiecare unitate stabilește liber atribuțiile educatorilor și învățătorilor.",
+          "isCorrect": false,
+          "why": "Regulamentul impune adaptarea și aplicarea corespunzătoare a articolelor 66–69, nu o libertate totală a unității."
+        },
+        {
+          "id": "D",
+          "text": "Da, dispozițiile articolelor 66–69 se adaptează și se aplică în mod corespunzător personalului didactic din învățământul preșcolar și primar.",
+          "isCorrect": true
+        }
+      ],
+      "correctOptionId": "D",
+      "explanation": "Regula: Dispozițiile articolelor 66–69, privind profesorul diriginte, se adaptează și se aplică în mod corespunzător și personalului didactic din învățământul preșcolar și primar.\n\nEducatorii și învățătorii preiau, în forma adaptată nivelului lor, atribuțiile dirigintelui.\n\nTemei: articolul 70. Textul relevant: „Dispozițiile art. 66 - 69 se adaptează și aplică în mod corespunzător și personalului didactic din învățământul preșcolar și primar.”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "articolul 70",
+        "excerpt": "Dispozițiile art. 66 - 69 se adaptează și aplică în mod corespunzător și personalului didactic din învățământul preșcolar și primar.",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-184",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Titlul V. Organisme funcționale și responsabilități ale cadrelor didactice",
+      "annex": "",
+      "title": "Titlul V. Organisme funcționale și responsabilități ale cadrelor didactice",
+      "chapter": "Capitolul II. Responsabilități ale personalului didactic în unitatea de învățământ",
+      "section": "Secţiunea a 2-a. Profesorul diriginte",
+      "article": 71,
+      "paragraph": "(2)",
+      "prompt": "Directorul pregătește deciziile de constituire a comisiilor pentru noul an școlar. Care set cuprinde numai comisii cu caracter permanent prevăzute de regulament?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Comisia pentru curriculum, comisia de evaluare și asigurare a calității și comisia de securitate și sănătate în muncă și pentru situații de urgență.",
+          "isCorrect": true
+        },
+        {
+          "id": "B",
+          "text": "Comisia pentru orar, comisia pentru curriculum și comisia de evaluare și asigurare a calității.",
+          "isCorrect": false,
+          "why": "Comisia pentru orar nu figurează în lista comisiilor permanente. Comisiile temporare și ocazionale se stabilesc prin regulamentul de organizare și funcționare al unității."
+        },
+        {
+          "id": "C",
+          "text": "Comisia pentru burse, comisia pentru controlul managerial intern și comisia pentru curriculum.",
+          "isCorrect": false,
+          "why": "Comisia pentru burse nu figurează în lista comisiilor permanente."
+        },
+        {
+          "id": "D",
+          "text": "Comisia pentru achiziții publice, comisia de securitate și sănătate în muncă și comisia pentru formare și dezvoltare în cariera didactică.",
+          "isCorrect": false,
+          "why": "Comisia pentru achiziții publice nu figurează în lista comisiilor permanente din articolul 71 alineatul (2)."
+        }
+      ],
+      "correctOptionId": "A",
+      "explanation": "Regula: Comisiile cu caracter permanent sunt șase: curriculum; evaluare și asigurare a calității; securitate și sănătate în muncă și situații de urgență; controlul managerial intern (numai în unitățile de stat); prevenirea și combaterea violenței, corupției și discriminării; formare și dezvoltare în cariera didactică.\n\nToate trei figurează în lista celor șase comisii permanente.\n\nTemei: articolul 71 alineatul (2). Textul relevant: „Comisiile cu caracter permanent sunt: a)comisia pentru curriculum; b)comisia de evaluare și asigurare a calității; c)comisia de securitate și sănătate în muncă și pentru situații de urgență; d)comisia pentru controlul managerial intern, numai pentru unitățile de învățământ de stat; e)comisia pentru prevenirea și combaterea violenței, a faptelor de corupție și discriminării în mediul școlar și promovarea interculturalității; f)comisia pentru formare și dezvoltare în cariera didactică.”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "articolul 71 alineatul (2)",
+        "excerpt": "Comisiile cu caracter permanent sunt: a)comisia pentru curriculum; b)comisia de evaluare și asigurare a calității; c)comisia de securitate și sănătate în muncă și pentru situații de urgență; d)comisia pentru controlul managerial intern, numai pentru unitățile de învățământ de stat; e)comisia pentru prevenirea și combaterea violenței, a faptelor de corupție și discriminării în mediul școlar și promovarea interculturalității; f)comisia pentru formare și dezvoltare în cariera didactică.",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-185",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Titlul V. Organisme funcționale și responsabilități ale cadrelor didactice",
+      "annex": "",
+      "title": "Titlul V. Organisme funcționale și responsabilități ale cadrelor didactice",
+      "chapter": "Capitolul II. Responsabilități ale personalului didactic în unitatea de învățământ",
+      "section": "Secţiunea a 2-a. Profesorul diriginte",
+      "article": 71,
+      "paragraph": "(4)",
+      "prompt": "Unitatea trebuie să constituie o comisie pentru organizarea unui eveniment de o zi. Cum se stabilesc comisiile cu caracter temporar sau ocazional?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Prin ordin al ministrului educației, valabil pentru toate unitățile.",
+          "isCorrect": false,
+          "why": "Doar comisiile permanente sunt enumerate la nivel național. Cele temporare și ocazionale se stabilesc la nivelul unității."
+        },
+        {
+          "id": "B",
+          "text": "De fiecare unitate de învățământ, prin regulamentul de organizare și funcționare al unității.",
+          "isCorrect": true
+        },
+        {
+          "id": "C",
+          "text": "Prin hotărâre a consiliului local.",
+          "isCorrect": false,
+          "why": "Regulamentul atribuie stabilirea comisiilor temporare și ocazionale unității, prin regulamentul ei de organizare și funcționare."
+        },
+        {
+          "id": "D",
+          "text": "Prin decizia inspectorului școlar general.",
+          "isCorrect": false,
+          "why": "Stabilirea comisiilor temporare și ocazionale este la nivelul unității de învățământ."
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Regula: Comisiile cu caracter temporar și ocazional se stabilesc de fiecare unitate, prin regulamentul de organizare și funcționare al unității.\n\nSpre deosebire de comisiile permanente, enumerate de regulamentul-cadru, cele temporare și ocazionale rămân la aprecierea unității, prin regulamentul ei.\n\nTemei: articolul 71 alineatul (4). Textul relevant: „Comisiile cu caracter temporar și ocazional vor fi stabilite de fiecare unitate de învățământ, prin regulamentul de organizare și funcționare a unității de învățământ.”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "articolul 71 alineatul (4)",
+        "excerpt": "Comisiile cu caracter temporar și ocazional vor fi stabilite de fiecare unitate de învățământ, prin regulamentul de organizare și funcționare a unității de învățământ.",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-186",
+      "kind": "aplicare",
+      "difficulty": "expert",
+      "module": "Titlul V. Organisme funcționale și responsabilități ale cadrelor didactice",
+      "annex": "",
+      "title": "Titlul V. Organisme funcționale și responsabilități ale cadrelor didactice",
+      "chapter": "Capitolul II. Responsabilități ale personalului didactic în unitatea de învățământ",
+      "section": "Secţiunea a 2-a. Profesorul diriginte",
+      "article": 72,
+      "paragraph": "(1)",
+      "prompt": "Directorul constituie comisia de evaluare și asigurare a calității doar din cadre didactice, fără reprezentanți ai elevilor sau ai părinților. Este conform?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Da, comisiile din unitate sunt formate numai din personalul unității.",
+          "isCorrect": false,
+          "why": "Pentru comisia de evaluare și asigurare a calității și pentru cea de prevenire a violenței regulamentul cuprinde reprezentanți ai elevilor și părinților."
+        },
+        {
+          "id": "B",
+          "text": "Da, dacă directorul consideră că elevii și părinții nu sunt necesari.",
+          "isCorrect": false,
+          "why": "Prezența reprezentanților elevilor și părinților este prevăzută de regulament, nu depinde de aprecierea directorului."
+        },
+        {
+          "id": "C",
+          "text": "Nu, deoarece în aceste comisii sunt cuprinși reprezentanți ai elevilor și ai părinților, nominalizați de consiliul școlar al elevilor și de consiliul reprezentativ al părinților.",
+          "isCorrect": true
+        },
+        {
+          "id": "D",
+          "text": "Nu, dar reprezentanții elevilor sunt întotdeauna membri cu drept de vot, indiferent de nivel.",
+          "isCorrect": false,
+          "why": "La gimnaziu reprezentanții elevilor au statut de observatori. Statutul de membru se aplică la liceu și postliceal."
+        }
+      ],
+      "correctOptionId": "C",
+      "explanation": "Regula: În comisiile de evaluare și asigurare a calității și de prevenire a violenței sunt cuprinși reprezentanți ai elevilor (observatori în gimnaziu, membri în liceu și postliceal) și reprezentanți ai părinților, nominalizați de consiliul școlar al elevilor și de consiliul reprezentativ al părinților.\n\nComisia are o componență mixtă. La gimnaziu elevii sunt observatori, iar la liceu și postliceal sunt membri.\n\nTemei: articolul 72 alineatul (1). Textul relevant: „În cadrul comisiilor prevăzute la art. 71 alin. (2) lit. b) și e) sunt cuprinși: reprezentanți ai beneficiarilor primari din învățământul gimnazial cu statut de observatori/reprezentanți ai beneficiarilor primari din învățământul liceal și postliceal cu statut de membru, reprezentanți ai părinților/reprezentanților legali, nominalizați de consiliul școlar al elevilor, respectiv consiliul reprezentativ al părinților/reprezentanților legali și asociația de părinți, acolo unde există.”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "articolul 72 alineatul (1)",
+        "excerpt": "În cadrul comisiilor prevăzute la art. 71 alin. (2) lit. b) și e) sunt cuprinși: reprezentanți ai beneficiarilor primari din învățământul gimnazial cu statut de observatori/reprezentanți ai beneficiarilor primari din învățământul liceal și postliceal cu statut de membru, reprezentanți ai părinților/reprezentanților legali, nominalizați de consiliul școlar al elevilor, respectiv consiliul reprezentativ al părinților/reprezentanților legali și asociația de părinți, acolo unde există.",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-187",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Titlul V. Organisme funcționale și responsabilități ale cadrelor didactice",
+      "annex": "",
+      "title": "Titlul V. Organisme funcționale și responsabilități ale cadrelor didactice",
+      "chapter": "Capitolul II. Responsabilități ale personalului didactic în unitatea de învățământ",
+      "section": "Secţiunea a 2-a. Profesorul diriginte",
+      "article": 72,
+      "paragraph": "(6)",
+      "prompt": "Consiliul profesoral a propus prin vot un cadru didactic titular, cu rezultate deosebite, ca responsabil al comisiei pentru curriculum. Cum se face numirea?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Prin hotărâre a consiliului profesoral, fără alte acte.",
+          "isCorrect": false,
+          "why": "Consiliul profesoral doar propune. Numirea se face prin decizia directorului, în baza hotărârii consiliului de administrație."
+        },
+        {
+          "id": "B",
+          "text": "Prin decizie a directorului, fără hotărârea consiliului de administrație.",
+          "isCorrect": false,
+          "why": "Decizia directorului se emite în baza unei hotărâri a consiliului de administrație."
+        },
+        {
+          "id": "C",
+          "text": "Prin decizia inspectorului școlar general, la propunerea directorului.",
+          "isCorrect": false,
+          "why": "Numirea se face în unitate, prin decizia directorului, nu a inspectorului școlar general."
+        },
+        {
+          "id": "D",
+          "text": "Prin decizie a directorului, emisă în baza unei hotărâri a consiliului de administrație, în urma propunerii consiliului profesoral.",
+          "isCorrect": true
+        }
+      ],
+      "correctOptionId": "D",
+      "explanation": "Regula: Responsabilul comisiei pentru curriculum este propus prin vot de consiliul profesoral, din rândul personalului didactic de predare titular cu rezultate deosebite (alineatul (5)). Numirea se face prin decizie a directorului, emisă în baza hotărârii consiliului de administrație.\n\nLanțul este: consiliul profesoral propune, consiliul de administrație hotărăște, iar directorul emite decizia.\n\nTemei: articolul 72 alineatul (6), coroborat cu alineatul (5). Textul relevant: „Numirea responsabilului comisiei pentru curriculum se face prin decizie a directorului, emisă în baza unei hotărâri a consiliului de administrație, în urma propunerii primite din partea consiliului profesoral.”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "articolul 72 alineatul (6), coroborat cu alineatul (5)",
+        "excerpt": "Numirea responsabilului comisiei pentru curriculum se face prin decizie a directorului, emisă în baza unei hotărâri a consiliului de administrație, în urma propunerii primite din partea consiliului profesoral.",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-188",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Titlul V. Organisme funcționale și responsabilități ale cadrelor didactice",
+      "annex": "",
+      "title": "Titlul V. Organisme funcționale și responsabilități ale cadrelor didactice",
+      "chapter": "Capitolul II. Responsabilități ale personalului didactic în unitatea de învățământ",
+      "section": "Secţiunea a 2-a. Profesorul diriginte",
+      "article": 72,
+      "paragraph": "(7)",
+      "prompt": "Trei profesori de matematică și fizică dintr-o școală gimnazială vor să constituie o catedră. Este permis?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Nu, deoarece catedrele sau comisiile metodice se constituie din cel puțin 4 cadre didactice din unitate, pe arii curriculare, discipline de studiu sau discipline înrudite.",
+          "isCorrect": true
+        },
+        {
+          "id": "B",
+          "text": "Da, trei cadre didactice sunt suficiente la orice nivel.",
+          "isCorrect": false,
+          "why": "Pragul este de cel puțin 4 cadre didactice. Excepția cu 2 sau 3 este limitată la educația timpurie și învățământul primar."
+        },
+        {
+          "id": "C",
+          "text": "Da, dacă directorul aprobă prin decizie.",
+          "isCorrect": false,
+          "why": "Decizia directorului nu poate reduce pragul de 4 cadre didactice stabilit de regulament."
+        },
+        {
+          "id": "D",
+          "text": "Nu, deoarece sunt necesare cel puțin 6 cadre didactice.",
+          "isCorrect": false,
+          "why": "Pragul prevăzut este de cel puțin 4 cadre didactice."
+        }
+      ],
+      "correctOptionId": "A",
+      "explanation": "Regula: Catedrele sau comisiile metodice se constituie din cel puțin 4 cadre didactice care lucrează în unitate, pe arii curriculare, discipline de studiu sau discipline înrudite. În educația timpurie și în învățământul primar, unitățile cu număr mic de cadre didactice pot constitui comisii cu 2 sau 3 cadre didactice (alineatul (8)).\n\nExcepția cu 2 sau 3 cadre didactice privește educația timpurie și învățământul primar, nu gimnaziul.\n\nTemei: articolul 72 alineatul (7), coroborat cu alineatul (8). Textul relevant: „În cadrul aceleiași unități de învățământ catedrele/comisiile metodice de la nivelul Comisiei pentru curriculum se constituie din cel puțin 4 cadre didactice care își desfășoară activitatea în unitatea de învățământ, după caz, pe arii curriculare, pe discipline de studiu sau pe discipline înrudite.”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "articolul 72 alineatul (7), coroborat cu alineatul (8)",
+        "excerpt": "În cadrul aceleiași unități de învățământ catedrele/comisiile metodice de la nivelul Comisiei pentru curriculum se constituie din cel puțin 4 cadre didactice care își desfășoară activitatea în unitatea de învățământ, după caz, pe arii curriculare, pe discipline de studiu sau pe discipline înrudite.",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-189",
+      "kind": "aplicare",
+      "difficulty": "expert",
+      "module": "Titlul V. Organisme funcționale și responsabilități ale cadrelor didactice",
+      "annex": "",
+      "title": "Titlul V. Organisme funcționale și responsabilități ale cadrelor didactice",
+      "chapter": "Capitolul II. Responsabilități ale personalului didactic în unitatea de învățământ",
+      "section": "Secţiunea a 2-a. Profesorul diriginte",
+      "article": 72,
+      "paragraph": "(12)",
+      "prompt": "Consiliul profesoral alege prin vot secret responsabilul comisiei pentru formare și dezvoltare în cariera didactică și propune un director adjunct, titular și apreciat de colegi. Este permis?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Da, deoarece este cadru didactic titular ales prin vot secret.",
+          "isCorrect": false,
+          "why": "Condițiile de titularizare și de vot nu înlătură restricția: responsabilul nu poate fi director sau director adjunct."
+        },
+        {
+          "id": "B",
+          "text": "Nu, deoarece responsabilul comisiei nu poate ocupa funcția de director sau director adjunct.",
+          "isCorrect": true
+        },
+        {
+          "id": "C",
+          "text": "Da, dacă directorul unității își dă acordul.",
+          "isCorrect": false,
+          "why": "Acordul directorului nu poate permite ceea ce regulamentul interzice."
+        },
+        {
+          "id": "D",
+          "text": "Nu, deoarece responsabilul poate fi numai directorul.",
+          "isCorrect": false,
+          "why": "Regulamentul interzice tocmai ca responsabilul să fie director sau director adjunct."
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Regula: Membrii și responsabilii comisiei pentru formare și dezvoltare în cariera didactică se aleg din personalul didactic de predare titular, prin vot secret, de consiliul profesoral. Responsabilul nu poate ocupa funcția de director sau director adjunct.\n\nVotul secret și calitatea de titular nu sunt suficiente. Funcțiile de conducere sunt incompatibile cu cea de responsabil al comisiei.\n\nTemei: articolul 72 alineatul (12). Textul relevant: „Membrii și responsabilii Comisiei pentru formare și dezvoltare în cariera didactică se aleg din rândul personalului didactic de predare titular, prin vot secret, de către consiliul profesoral. Responsabilul nu poate ocupa funcția de director sau director adjunct.”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "articolul 72 alineatul (12)",
+        "excerpt": "Membrii și responsabilii Comisiei pentru formare și dezvoltare în cariera didactică se aleg din rândul personalului didactic de predare titular, prin vot secret, de către consiliul profesoral. Responsabilul nu poate ocupa funcția de director sau director adjunct.",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-190",
+      "kind": "aplicare",
+      "difficulty": "expert",
+      "module": "Titlul V. Organisme funcționale și responsabilități ale cadrelor didactice",
+      "annex": "",
+      "title": "Titlul V. Organisme funcționale și responsabilități ale cadrelor didactice",
+      "chapter": "Capitolul II. Responsabilități ale personalului didactic în unitatea de învățământ",
+      "section": "Secţiunea a 2-a. Profesorul diriginte",
+      "article": 72,
+      "paragraph": "(16)",
+      "prompt": "Directorul constituie comisia pentru prevenirea și combaterea violenței, a faptelor de corupție și discriminării în mediul școlar. Care componență respectă regulamentul?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Directorul ca președinte, 7–9 cadre didactice, un părinte și un elev, fără reprezentanți ai autorităților locale.",
+          "isCorrect": false,
+          "why": "Regulamentul prevede un director adjunct sau coordonatorul pentru proiecte, 4–6 cadre didactice, iar reprezentanții primarului și ai consiliului local sunt invitați."
+        },
+        {
+          "id": "B",
+          "text": "Un director adjunct, 4–6 cadre didactice, 1–3 părinți, 1–3 elevi, iar reprezentantul primarului este membru cu drept de vot.",
+          "isCorrect": false,
+          "why": "Reprezentantul primarului și cel al consiliului local au statut de invitați, nu de membri cu drept de vot."
+        },
+        {
+          "id": "C",
+          "text": "Un director adjunct sau coordonatorul pentru proiecte educative, 4–6 cadre didactice desemnate de consiliul profesoral, 1–3 părinți, 1–3 elevi, iar reprezentanții primarului și consiliului local participă ca invitați.",
+          "isCorrect": true
+        },
+        {
+          "id": "D",
+          "text": "Numai cadre didactice desemnate de directorul unității, fără părinți și elevi.",
+          "isCorrect": false,
+          "why": "Comisia cuprinde și reprezentanți ai părinților și elevi, desemnați de consiliul reprezentativ al părinților și de consiliul școlar al elevilor."
+        }
+      ],
+      "correctOptionId": "C",
+      "explanation": "Regula: Comisia cuprinde un director adjunct sau coordonatorul pentru proiecte educative, 4–6 cadre didactice desemnate de consiliul profesoral, 1–3 părinți, 1–3 elevi, reprezentanții primarului și consiliului local cu statut de invitați și, după caz, consilierul școlar și mediatorul școlar. Directorul emite decizia de constituire (alineatul (17)).\n\nComponența este mixtă și are numere stabilite: 4–6 cadre didactice, 1–3 părinți și 1–3 elevi.\n\nTemei: articolul 72 alineatul (16). Textul relevant: „Comisia este formată din: - un director adjunct sau, după caz, coordonatorul pentru proiecte și programe educative școlare și extrașcolare; - 4-6 reprezentanți ai cadrelor didactice, desemnați de Consiliul profesoral; - 1-3 reprezentanți ai părinților/reprezentanților legali desemnați de consiliul reprezentativ al părinților/reprezentanților legali și asociația de părinți, acolo unde există; - 1-3 elevi desemnați de Consiliul școlar al elevilor; - 1 reprezentant al primarului și 1 reprezentant al consiliului local, membri în Consiliul de administrație al unității de învățământ, cu statut de invitați; - profesorul-consilier școlar și mediatorul școlar, după caz.”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "articolul 72 alineatul (16)",
+        "excerpt": "Comisia este formată din: - un director adjunct sau, după caz, coordonatorul pentru proiecte și programe educative școlare și extrașcolare; - 4-6 reprezentanți ai cadrelor didactice, desemnați de Consiliul profesoral; - 1-3 reprezentanți ai părinților/reprezentanților legali desemnați de consiliul reprezentativ al părinților/reprezentanților legali și asociația de părinți, acolo unde există; - 1-3 elevi desemnați de Consiliul școlar al elevilor; - 1 reprezentant al primarului și 1 reprezentant al consiliului local, membri în Consiliul de administrație al unității de învățământ, cu statut de invitați; - profesorul-consilier școlar și mediatorul școlar, după caz.",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-191",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Titlul V. Organisme funcționale și responsabilități ale cadrelor didactice",
+      "annex": "",
+      "title": "Titlul V. Organisme funcționale și responsabilități ale cadrelor didactice",
+      "chapter": "Capitolul II. Responsabilități ale personalului didactic în unitatea de învățământ",
+      "section": "Secţiunea a 2-a. Profesorul diriginte",
+      "article": 72,
+      "paragraph": "(21)",
+      "prompt": "În școală a avut loc un caz de violență între elevi. Care este obligația comisiei privind evidența cazului?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Comunicarea cazului doar părinților implicați, fără raportare.",
+          "isCorrect": false,
+          "why": "Comisia are obligația de a înregistra cazul și de a-l raporta la inspectoratul școlar."
+        },
+        {
+          "id": "B",
+          "text": "Raportarea numai dacă a intervenit poliția.",
+          "isCorrect": false,
+          "why": "Regulamentul nu condiționează raportarea de intervenția poliției."
+        },
+        {
+          "id": "C",
+          "text": "Raportarea la primărie, nu la inspectoratul școlar.",
+          "isCorrect": false,
+          "why": "Raportarea se face la inspectoratul școlar județean sau al municipiului București."
+        },
+        {
+          "id": "D",
+          "text": "Înregistrarea și raportarea la inspectoratul școlar a cazurilor de violență săvârșite în mediul școlar.",
+          "isCorrect": true
+        }
+      ],
+      "correctOptionId": "D",
+      "explanation": "Regula: Printre atribuțiile comisiei pentru prevenirea și combaterea violenței se numără înregistrarea și raportarea la inspectoratul școlar a cazurilor de violență săvârșite în mediul școlar.\n\nObligația privește orice caz de violență în mediul școlar, nu doar pe cele grave sau cu intervenția poliției.\n\nTemei: articolul 72 alineatul (21) litera a). Textul relevant: „înregistrarea și raportarea la Inspectoratul Școlar Județean/al Municipiului București a cazurilor de violență săvârșite în mediul școlar”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "articolul 72 alineatul (21) litera a)",
+        "excerpt": "înregistrarea și raportarea la Inspectoratul Școlar Județean/al Municipiului București a cazurilor de violență săvârșite în mediul școlar",
         "verification": "fragment-exact-din-sursa-consolidata"
       }
     }
