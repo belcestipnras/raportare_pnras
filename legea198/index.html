@@ -1,0 +1,284 @@
+<!doctype html>
+<html lang="ro">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#12253f">
+  <meta name="description" content="Aplicație de învățare Legea 198/2023 cu itemi situaționali verificați în forma consolidată.">
+  <title>Legea 198/2023 · Concurs</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <a class="skip-link" href="#continut">Sari la conținut</a>
+
+  <header class="site-header">
+    <div class="header-inner">
+      <a class="brand" href="../concurs/" aria-label="Înapoi la modulele pentru concurs">
+        <span class="brand-mark" aria-hidden="true">R</span>
+        <span>
+          <strong>Legea 198/2023</strong>
+          <small>Învață din întrebări, nu doar din lectură</small>
+        </span>
+      </a>
+      <nav class="top-nav" aria-label="Navigare principală">
+        <button type="button" class="nav-button is-active" data-view="home">Acasă</button>
+        <button type="button" class="nav-button" data-view="setup">Învățare</button>
+        <button type="button" class="nav-button" data-action="contest">Test Legea 198 – 20</button>
+        <button type="button" class="nav-button" data-action="mistakes">Greșeli</button>
+        <button type="button" class="nav-button" data-view="stats">Statistici</button>
+      </nav>
+    </div>
+  </header>
+
+  <main id="continut" class="app-shell">
+    <div id="status" class="status-message" role="status" aria-live="polite">
+      Se încarcă banca de itemi…
+    </div>
+
+    <section id="home-view" class="view" data-view-panel="home" hidden>
+      <div class="hero panel">
+        <div class="hero-copy">
+          <span class="eyebrow">Formă consolidată la 2 septembrie 2026</span>
+          <h1>Legea învățământului preuniversitar, aplicată în situații reale de școală</h1>
+          <p>
+            Itemii verifică decizii manageriale, proceduri, atribuții și termene.
+            Articolul și textul oficial apar în explicație, după ce răspunzi.
+          </p>
+          <div class="hero-actions">
+            <button type="button" class="button primary" data-view="setup">Începe învățarea</button>
+            <button type="button" class="button secondary" data-action="contest">Test cu 20 de întrebări din Legea 198/2023</button>
+          </div>
+        </div>
+        <div class="hero-score" aria-label="Progres general">
+          <div class="score-ring" id="mastery-ring">
+            <span id="mastery-value">0%</span>
+            <small>acuratețe</small>
+          </div>
+        </div>
+      </div>
+
+      <div class="stat-grid" aria-label="Rezumat progres">
+        <article class="stat-card">
+          <span>Itemi disponibili</span>
+          <strong id="bank-count">—</strong>
+          <small>spețe juridice verificate</small>
+        </article>
+        <article class="stat-card">
+          <span>Itemi parcurși</span>
+          <strong id="seen-count">0</strong>
+          <small id="seen-detail">0% din bancă</small>
+        </article>
+        <article class="stat-card">
+          <span>Răspunsuri corecte</span>
+          <strong id="correct-count">0</strong>
+          <small id="correct-detail">din 0 răspunsuri</small>
+        </article>
+        <article class="stat-card accent">
+          <span>De reîncercat</span>
+          <strong id="mistake-count">0</strong>
+          <small>itemi cu ultimul răspuns greșit</small>
+        </article>
+      </div>
+
+      <div class="home-grid">
+        <section class="panel action-panel">
+          <div>
+            <span class="eyebrow">Exersare ghidată</span>
+            <h2>Învață pe titluri și anexe</h2>
+            <p>Alege materia, dificultatea și numărul de spețe. Primești imediat explicația și temeiul juridic.</p>
+          </div>
+          <button type="button" class="button primary" data-view="setup">Configurează sesiunea</button>
+        </section>
+        <section class="panel action-panel dark">
+          <div>
+            <span class="eyebrow">Test tematic Legea 198/2023</span>
+            <h2>20 de întrebări numai din Legea 198/2023</h2>
+            <p>Nu este simularea generală. Rezultatul și explicațiile sunt afișate la final.</p>
+          </div>
+          <button type="button" class="button light" data-action="contest">Pornește testul</button>
+        </section>
+      </div>
+
+      <aside class="local-notice panel" aria-labelledby="local-title">
+        <div class="notice-icon" aria-hidden="true">↻</div>
+        <div>
+          <h2 id="local-title">Progresul se salvează automat în acest browser</h2>
+          <p>
+            Nu se transmite în cloud și nu se sincronizează automat cu alte dispozitive.
+            Pentru mutare sau copie de siguranță, exportă progresul și importă fișierul pe celălalt dispozitiv.
+          </p>
+        </div>
+        <div class="notice-actions">
+          <button type="button" class="text-button" data-action="export">Exportă progresul</button>
+          <label class="text-button file-label">
+            Importă progresul
+            <input id="import-file" type="file" accept="application/json,.json">
+          </label>
+        </div>
+      </aside>
+    </section>
+
+    <section id="setup-view" class="view" data-view-panel="setup" hidden>
+      <div class="section-heading">
+        <div>
+          <span class="eyebrow">Sesiune personalizată</span>
+          <h1>Alege materia pe care vrei să o fixezi</h1>
+        </div>
+        <button type="button" class="button ghost" data-view="home">Înapoi</button>
+      </div>
+
+      <form id="study-form" class="panel setup-form">
+        <div class="field-grid">
+          <label>
+            Titlu sau anexă
+            <select id="module-filter" name="module">
+              <option value="">Toată materia</option>
+            </select>
+          </label>
+          <label>
+            Capitol
+            <select id="chapter-filter" name="chapter">
+              <option value="">Toate capitolele</option>
+            </select>
+          </label>
+          <label>
+            Dificultate
+            <select id="difficulty-filter" name="difficulty">
+              <option value="">Toate nivelurile</option>
+              <option value="avansat">Avansat</option>
+              <option value="expert">Expert</option>
+            </select>
+          </label>
+          <label>
+            Număr de întrebări
+            <select id="question-count" name="count">
+              <option value="10">10 întrebări</option>
+              <option value="20" selected>20 de întrebări</option>
+              <option value="50">50 de întrebări</option>
+              <option value="100">100 de întrebări</option>
+            </select>
+          </label>
+        </div>
+        <div class="setup-summary">
+          <p id="filter-result">Se calculează itemii disponibili…</p>
+          <button type="submit" class="button primary">Începe sesiunea</button>
+        </div>
+      </form>
+
+      <section class="panel methodology">
+        <h2>Cum sunt construiți itemii</h2>
+        <ol>
+          <li>Întrebarea pornește de la o situație care poate apărea într-o școală.</li>
+          <li>Variantele cer alegerea unei decizii, proceduri, atribuții sau limite corecte.</li>
+          <li>Niciun item nu cere memorarea numărului articolului.</li>
+          <li>După răspuns, explicația oferă temeiul și textul oficial relevant.</li>
+        </ol>
+      </section>
+    </section>
+
+    <section id="quiz-view" class="view" data-view-panel="quiz" hidden>
+      <div class="quiz-topbar">
+        <button type="button" class="button ghost compact" data-action="quit">Închide sesiunea</button>
+        <div class="quiz-progress-wrap">
+          <div class="quiz-progress-copy">
+            <span id="session-mode">Învățare</span>
+            <strong id="question-position">1 / 20</strong>
+          </div>
+          <div class="progress-track" aria-hidden="true"><span id="progress-bar"></span></div>
+        </div>
+        <div class="session-score" id="session-score">0 corecte</div>
+      </div>
+
+      <article class="question-card panel" aria-labelledby="question-title">
+        <div class="question-meta">
+          <span id="question-module" class="meta-pill">Legea 198/2023</span>
+          <span id="question-difficulty" class="meta-pill subtle">Avansat</span>
+          <span id="question-reference" class="meta-reference"></span>
+        </div>
+        <h1 id="question-title">Întrebare</h1>
+        <div id="options" class="options" role="group" aria-label="Variante de răspuns"></div>
+        <div id="feedback" class="feedback" role="status" aria-live="polite" hidden>
+          <h2 id="feedback-title"></h2>
+          <p id="feedback-text"></p>
+          <a id="source-link" href="https://legislatie.just.ro/" target="_blank" rel="noopener">Deschide forma consolidată</a>
+        </div>
+        <div class="question-actions">
+          <button id="next-question" type="button" class="button primary" disabled>Continuă</button>
+        </div>
+      </article>
+    </section>
+
+    <section id="results-view" class="view" data-view-panel="results" hidden>
+      <div class="results-hero panel">
+        <span class="eyebrow">Sesiune încheiată</span>
+        <h1 id="result-title">Rezultatul tău</h1>
+        <div class="result-score"><strong id="result-score">0/20</strong><span id="result-percent">0%</span></div>
+        <p id="result-message"></p>
+        <div class="hero-actions">
+          <button type="button" class="button primary" data-action="repeat-session">Repetă setul</button>
+          <button type="button" class="button secondary" data-view="home">Pagina principală</button>
+        </div>
+      </div>
+      <section class="review-section">
+        <div class="section-heading compact-heading">
+          <div>
+            <span class="eyebrow">Barem explicat</span>
+            <h2>Revizuirea răspunsurilor</h2>
+          </div>
+        </div>
+        <div id="review-list" class="review-list"></div>
+      </section>
+    </section>
+
+    <section id="stats-view" class="view" data-view-panel="stats" hidden>
+      <div class="section-heading">
+        <div>
+          <span class="eyebrow">Progres local</span>
+          <h1>Statistici și stăpânirea materiei</h1>
+        </div>
+        <button type="button" class="button ghost" data-view="home">Înapoi</button>
+      </div>
+      <div id="stats-summary" class="stat-grid"></div>
+      <section class="panel module-stats">
+        <h2>Rezultate pe titluri și anexe</h2>
+        <div id="module-bars" class="bar-list"></div>
+      </section>
+      <section class="panel data-tools">
+        <div>
+          <h2>Datele tale</h2>
+          <p>Fișierul exportat poate fi păstrat ca rezervă sau importat într-un alt browser.</p>
+        </div>
+        <div class="data-actions">
+          <button type="button" class="button secondary" data-action="export">Exportă</button>
+          <label class="button secondary file-label">
+            Importă
+            <input class="import-file-secondary" type="file" accept="application/json,.json">
+          </label>
+          <button type="button" class="button danger" data-action="reset">Șterge progresul</button>
+        </div>
+      </section>
+    </section>
+
+    <section id="error-view" class="view panel error-panel" data-view-panel="error" hidden>
+      <h1>Aplicația nu a putut încărca banca de itemi</h1>
+      <p id="error-text">Reîncarcă pagina sau verifică conexiunea.</p>
+      <button type="button" class="button primary" onclick="location.reload()">Reîncarcă</button>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p>Instrument de învățare. Pentru aplicarea într-un caz concret, verifică întotdeauna forma oficială în vigoare.</p>
+    <div>
+      <a href="../concurs/">Înapoi la modulele Concurs</a>
+      <a href="../index.html">Portalul PNRAS</a>
+      <a href="https://legislatie.just.ro/" target="_blank" rel="noopener">Legislație oficială</a>
+    </div>
+  </footer>
+
+  <script src="app.js" defer></script>
+</body>
+</html>
+
+
+
