@@ -7,7 +7,7 @@
     "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
     "method": "itemi situaționali redactați manual și verificați pe fragmentele exacte ale formei consolidate"
   },
-  "count": 161,
+  "count": 175,
   "questions": [
     {
       "id": "RF-A-001",
@@ -7374,6 +7374,678 @@
         "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
         "reference": "articolul 99 alineatul (5)",
         "excerpt": "Organizarea activităților educaționale extrașcolare de către unitățile de învățământ preuniversitar/comitetele de părinți/asociațiile de părinți în parteneriat cu autorități publice locale, organizații neguvernamentale și alți parteneri educaționali, sub forma excursiilor, taberelor, expedițiilor și a altor activități de timp liber care necesită deplasarea din localitatea de domiciliu se face în conformitate cu regulamentul aprobat prin ordin al ministrului educației.",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-162",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Titlul V. Organisme funcționale și responsabilități ale cadrelor didactice",
+      "annex": "",
+      "title": "Titlul V. Organisme funcționale și responsabilități ale cadrelor didactice",
+      "chapter": "Capitolul I. Organisme funcționale la nivelul unității de învățământ",
+      "section": "Secţiunea 1. Consiliul profesoral",
+      "article": 54,
+      "paragraph": "(3)",
+      "prompt": "Un profesor are norma de bază în unitatea A și își completează orele în unitatea B. Lipsește nemotivat de la ședințele consiliului profesoral din unitatea A. Cum se apreciază situația?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Absența nemotivată de la ședințele din unitatea în care are norma de bază este abatere disciplinară și se sancționează conform legii.",
+          "isCorrect": true
+        },
+        {
+          "id": "B",
+          "text": "Nu este abatere, deoarece participarea la ședințele consiliului profesoral este doar un drept.",
+          "isCorrect": false,
+          "why": "Este un drept în toate unitățile în care lucrează, dar o obligație în unitatea în care are norma de bază."
+        },
+        {
+          "id": "C",
+          "text": "Este abatere disciplinară numai dacă directorul i-a transmis în scris o somație.",
+          "isCorrect": false,
+          "why": "Regulamentul consideră abatere disciplinară orice absență nemotivată de la ședințele din unitatea cu norma de bază, fără o somație prealabilă."
+        },
+        {
+          "id": "D",
+          "text": "Obligația de participare se aplică în unitatea B, deoarece acolo își completează norma.",
+          "isCorrect": false,
+          "why": "Obligația există în unitatea în care profesorul declară în scris că are norma de bază, nu în cea în care își completează orele."
+        }
+      ],
+      "correctOptionId": "A",
+      "explanation": "Regula: Cadrele didactice au dreptul să participe la ședințele consiliului profesoral din toate unitățile în care lucrează, dar au obligația să participe în unitatea în care declară în scris, la începutul anului școlar, că au norma de bază. Absența nemotivată de acolo este abatere disciplinară.\n\nUnitatea A este cea în care profesorul a declarat în scris norma de bază, deci participarea este obligatorie acolo. În unitatea B are doar dreptul să participe.\n\nTemei: articolul 54 alineatul (3). Textul relevant: „Cadrele didactice au dreptul să participe la toate ședințele consiliilor profesorale din unitățile de învățământ unde își desfășoară activitatea și au obligația de a participa la ședințele consiliului profesoral din unitatea de învățământ unde declară, în scris, la începutul fiecărui an școlar, că au norma de bază. Absența nemotivată de la ședințele consiliului profesoral din unitatea de învățământ unde are norma de bază se consideră abatere disciplinară și se sancționează conform legii.”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "articolul 54 alineatul (3)",
+        "excerpt": "Cadrele didactice au dreptul să participe la toate ședințele consiliilor profesorale din unitățile de învățământ unde își desfășoară activitatea și au obligația de a participa la ședințele consiliului profesoral din unitatea de învățământ unde declară, în scris, la începutul fiecărui an școlar, că au norma de bază. Absența nemotivată de la ședințele consiliului profesoral din unitatea de învățământ unde are norma de bază se consideră abatere disciplinară și se sancționează conform legii.",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-163",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Titlul V. Organisme funcționale și responsabilități ale cadrelor didactice",
+      "annex": "",
+      "title": "Titlul V. Organisme funcționale și responsabilități ale cadrelor didactice",
+      "chapter": "Capitolul I. Organisme funcționale la nivelul unității de învățământ",
+      "section": "Secţiunea 1. Consiliul profesoral",
+      "article": 54,
+      "paragraph": "(6)",
+      "prompt": "La începutul anului școlar, directorul vrea să stabilească atât componența consiliului profesoral, cât și persoana care va redacta procesele-verbale. Cum procedează?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Alege singur secretarul dintre cadrele didactice și îl numește prin decizie.",
+          "isCorrect": false,
+          "why": "Secretarul este ales de consiliul profesoral, nu de director."
+        },
+        {
+          "id": "B",
+          "text": "Emite decizia de numire a componenței consiliului profesoral și a secretarului, care este ales de consiliul profesoral.",
+          "isCorrect": true
+        },
+        {
+          "id": "C",
+          "text": "Componența și secretarul se stabilesc prin hotărârea consiliului de administrație.",
+          "isCorrect": false,
+          "why": "Numirea se face prin decizia directorului, nu prin hotărârea consiliului de administrație."
+        },
+        {
+          "id": "D",
+          "text": "Secretarul este desemnat de inspectoratul școlar, iar directorul numește doar componența.",
+          "isCorrect": false,
+          "why": "Secretarul este ales de consiliul profesoral, iar decizia directorului privește atât componența, cât și secretarul."
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Regula: Directorul numește prin decizie componența consiliului profesoral și secretarul acestuia. Secretarul este ales de consiliul profesoral.\n\nAlegerea secretarului aparține consiliului profesoral, iar directorul formalizează numirea prin decizie, împreună cu componența.\n\nTemei: articolul 54 alineatul (6). Textul relevant: „Directorul unității de învățământ numește, prin decizie, atât componența consiliului profesoral, cât și secretarul acestuia, ales de consiliul profesoral.”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "articolul 54 alineatul (6)",
+        "excerpt": "Directorul unității de învățământ numește, prin decizie, atât componența consiliului profesoral, cât și secretarul acestuia, ales de consiliul profesoral.",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-164",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Titlul V. Organisme funcționale și responsabilități ale cadrelor didactice",
+      "annex": "",
+      "title": "Titlul V. Organisme funcționale și responsabilități ale cadrelor didactice",
+      "chapter": "Capitolul I. Organisme funcționale la nivelul unității de învățământ",
+      "section": "Secţiunea 1. Consiliul profesoral",
+      "article": 54,
+      "paragraph": "(8)",
+      "prompt": "La un control, procesul-verbal al unei ședințe a consiliului profesoral consemnează doar hotărârea adoptată. Ce elemente lipsesc?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Nimic, deoarece este suficientă hotărârea adoptată, semnată de președinte.",
+          "isCorrect": false,
+          "why": "Regulamentul enumeră mai multe elemente care trebuie consemnate obligatoriu."
+        },
+        {
+          "id": "B",
+          "text": "Doar prezența și ordinea de zi, deoarece votul și intervențiile se consemnează în registrul directorului.",
+          "isCorrect": false,
+          "why": "Rezultatul votului și intervențiile se consemnează în procesul-verbal al ședinței."
+        },
+        {
+          "id": "C",
+          "text": "Rezultatul votului (pentru, împotrivă, abțineri), intervențiile membrilor și ale invitaților și asigurarea cvorumului, alături de prezență și ordinea de zi.",
+          "isCorrect": true
+        },
+        {
+          "id": "D",
+          "text": "Doar intervențiile membrilor, deoarece votul rezultă din hotărâre.",
+          "isCorrect": false,
+          "why": "Regulamentul cere consemnarea rezultatului votului prin numărul de voturi pentru, împotrivă și abțineri."
+        }
+      ],
+      "correctOptionId": "C",
+      "explanation": "Regula: Procesul-verbal consemnează prezența membrilor, ordinea de zi, rezultatul votului (voturi pentru, împotrivă și abțineri), intervențiile membrilor și ale invitaților și asigurarea cvorumului.\n\nProcesul-verbal trebuie să arate cum s-a ajuns la hotărâre, nu doar rezultatul final.\n\nTemei: articolul 54 alineatul (8) literele c), d) și e). Textul relevant: „c)rezultatul votului privind aprobarea/respingerea celor propuse, prin indicarea numărului de voturi \"pentru\", numărului de voturi \"împotrivă\" și a numărului de abțineri; d)intervențiile pe care le au membrii consiliului profesoral și invitații în timpul ședinței respective; e)asigurarea cvorumului.”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "articolul 54 alineatul (8) literele c), d) și e)",
+        "excerpt": "c)rezultatul votului privind aprobarea/respingerea celor propuse, prin indicarea numărului de voturi \"pentru\", numărului de voturi \"împotrivă\" și a numărului de abțineri; d)intervențiile pe care le au membrii consiliului profesoral și invitații în timpul ședinței respective; e)asigurarea cvorumului.",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-165",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Titlul V. Organisme funcționale și responsabilități ale cadrelor didactice",
+      "annex": "",
+      "title": "Titlul V. Organisme funcționale și responsabilități ale cadrelor didactice",
+      "chapter": "Capitolul I. Organisme funcționale la nivelul unității de învățământ",
+      "section": "Secţiunea 1. Consiliul profesoral",
+      "article": 54,
+      "paragraph": "(10)",
+      "prompt": "Directorul verifică registrul de procese-verbale al consiliului profesoral și constată că paginile nu sunt numerotate și registrul nu este înregistrat. Ce cere regulamentul?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Este suficient ca secretarul să numeroteze paginile, fără înregistrare.",
+          "isCorrect": false,
+          "why": "Regulamentul cere atât numerotarea pe fiecare pagină, cât și înregistrarea registrului."
+        },
+        {
+          "id": "B",
+          "text": "Pe ultima pagină semnează secretarul consiliului profesoral și aplică sigiliul inspectoratului.",
+          "isCorrect": false,
+          "why": "Pe ultima pagină semnează directorul și aplică sigiliul unității de învățământ."
+        },
+        {
+          "id": "C",
+          "text": "Registrul se numerotează doar pe coperte, iar certificarea o face inspectoratul școlar.",
+          "isCorrect": false,
+          "why": "Numerotarea se face pe fiecare pagină, iar certificarea o face directorul unității."
+        },
+        {
+          "id": "D",
+          "text": "Registrul se numerotează pe fiecare pagină și se înregistrează, iar pe ultima pagină directorul semnează pentru certificarea numărului de pagini și aplică sigiliul unității.",
+          "isCorrect": true
+        }
+      ],
+      "correctOptionId": "D",
+      "explanation": "Regula: Registrul de procese-verbale se numerotează pe fiecare pagină și se înregistrează. Pe ultima pagină, directorul semnează pentru certificarea numărului de pagini și aplică sigiliul unității.\n\nNumerotarea, înregistrarea și certificarea de către director sunt cerințe cumulative.\n\nTemei: articolul 54 alineatul (10). Textul relevant: „Procesele-verbale se scriu în registrul de procese-verbale al consiliului profesoral. Registrul de procese-verbale se numerotează pe fiecare pagină și se înregistrează. Pe ultima pagină, directorul unității de învățământ semnează pentru certificarea numărului paginilor registrului și aplică sigiliul unității de învățământ.”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "articolul 54 alineatul (10)",
+        "excerpt": "Procesele-verbale se scriu în registrul de procese-verbale al consiliului profesoral. Registrul de procese-verbale se numerotează pe fiecare pagină și se înregistrează. Pe ultima pagină, directorul unității de învățământ semnează pentru certificarea numărului paginilor registrului și aplică sigiliul unității de învățământ.",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-166",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Titlul V. Organisme funcționale și responsabilități ale cadrelor didactice",
+      "annex": "",
+      "title": "Titlul V. Organisme funcționale și responsabilități ale cadrelor didactice",
+      "chapter": "Capitolul I. Organisme funcționale la nivelul unității de învățământ",
+      "section": "Secţiunea 1. Consiliul profesoral",
+      "article": 54,
+      "paragraph": "(11)",
+      "prompt": "Registrul de procese-verbale al consiliului profesoral este păstrat într-un sertar nesecurizat din cancelarie, iar anexele ședințelor sunt împrăștiate. Ce cere regulamentul?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Un dosar cu anexele numerotate și îndosariate pentru fiecare ședință, păstrat împreună cu registrul într-un fișet securizat, cu cheile la secretar și la directorul unității.",
+          "isCorrect": true
+        },
+        {
+          "id": "B",
+          "text": "Registrul se păstrează în cancelarie, la îndemâna tuturor cadrelor didactice.",
+          "isCorrect": false,
+          "why": "Registrul și dosarul se păstrează într-un fișet securizat, nu într-un spațiu accesibil tuturor."
+        },
+        {
+          "id": "C",
+          "text": "Cheile fișetului se găsesc numai la director.",
+          "isCorrect": false,
+          "why": "Cheile se găsesc la secretar și la directorul unității, nu numai la director."
+        },
+        {
+          "id": "D",
+          "text": "Anexele nu se păstrează, fiind suficiente procesele-verbale.",
+          "isCorrect": false,
+          "why": "Registrul este însoțit de un dosar cu anexele proceselor-verbale: rapoarte, programe, informări, tabele, liste, solicitări, memorii și sesizări."
+        }
+      ],
+      "correctOptionId": "A",
+      "explanation": "Regula: Registrul este însoțit de un dosar cu anexele proceselor-verbale, numerotate și îndosariate pentru fiecare ședință. Ambele se păstrează într-un fișet securizat, ale cărui chei se găsesc la secretar și la directorul unității.\n\nRegulamentul protejează registrul și anexele prin păstrare securizată și acces limitat la două persoane.\n\nTemei: articolul 54 alineatul (11). Textul relevant: „Registrul de procese-verbale al consiliului profesoral este însoțit de un dosar care conține anexele proceselor-verbale (rapoarte, programe, informări, tabele, liste, solicitări, memorii, sesizări etc.), numerotate și îndosariate pentru fiecare ședință. Registrul și dosarul se păstrează într-un fișet securizat, ale cărui chei se găsesc la secretarul și la directorul unității de învățământ.”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "articolul 54 alineatul (11)",
+        "excerpt": "Registrul de procese-verbale al consiliului profesoral este însoțit de un dosar care conține anexele proceselor-verbale (rapoarte, programe, informări, tabele, liste, solicitări, memorii, sesizări etc.), numerotate și îndosariate pentru fiecare ședință. Registrul și dosarul se păstrează într-un fișet securizat, ale cărui chei se găsesc la secretarul și la directorul unității de învățământ.",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-167",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Titlul V. Organisme funcționale și responsabilități ale cadrelor didactice",
+      "annex": "",
+      "title": "Titlul V. Organisme funcționale și responsabilități ale cadrelor didactice",
+      "chapter": "Capitolul I. Organisme funcționale la nivelul unității de învățământ",
+      "section": "Secţiunea 1. Consiliul profesoral",
+      "article": 55,
+      "paragraph": "b)",
+      "prompt": "Directorul propune să desemneze personal reprezentanții cadrelor didactice în consiliul de administrație. Este conform?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Da, directorul îi desemnează, iar consiliul profesoral doar ia act.",
+          "isCorrect": false,
+          "why": "Alegerea reprezentanților este atribuția consiliului profesoral, nu a directorului."
+        },
+        {
+          "id": "B",
+          "text": "Nu, deoarece reprezentanții personalului didactic în consiliul de administrație sunt aleși de consiliul profesoral, prin vot secret.",
+          "isCorrect": true
+        },
+        {
+          "id": "C",
+          "text": "Nu, sunt aleși de consiliul profesoral prin vot deschis, pentru transparență.",
+          "isCorrect": false,
+          "why": "Regulamentul prevede vot secret, nu vot deschis."
+        },
+        {
+          "id": "D",
+          "text": "Nu, sunt desemnați de inspectoratul școlar, la propunerea sindicatului.",
+          "isCorrect": false,
+          "why": "Reprezentanții sunt aleși de consiliul profesoral, nu desemnați de inspectoratul școlar."
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Regula: Reprezentanții personalului didactic în consiliul de administrație sunt aleși de consiliul profesoral, prin vot secret.\n\nAlegerea este o atribuție a consiliului profesoral, iar modalitatea de vot este secretă, nu deschisă.\n\nTemei: articolul 55 litera b). Textul relevant: „alege, prin vot secret, reprezentanții personalului didactic în consiliul de administrație”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "articolul 55 litera b)",
+        "excerpt": "alege, prin vot secret, reprezentanții personalului didactic în consiliul de administrație",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-168",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Titlul V. Organisme funcționale și responsabilități ale cadrelor didactice",
+      "annex": "",
+      "title": "Titlul V. Organisme funcționale și responsabilități ale cadrelor didactice",
+      "chapter": "Capitolul I. Organisme funcționale la nivelul unității de învățământ",
+      "section": "Secţiunea 1. Consiliul profesoral",
+      "article": 55,
+      "paragraph": "p)",
+      "prompt": "Directorul vrea să stabilească calificativele anuale ale personalului didactic pe baza fișelor de autoevaluare, fără altă etapă. Ce rol are consiliul profesoral?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Consiliul profesoral nu are niciun rol în evaluarea personalului didactic.",
+          "isCorrect": false,
+          "why": "Validarea fișelor de autoevaluare este atribuția consiliului profesoral."
+        },
+        {
+          "id": "B",
+          "text": "Validează calificativele finale ale personalului administrativ, în luna ianuarie.",
+          "isCorrect": false,
+          "why": "Validarea privește fișele personalului didactic și didactic auxiliar. Personalul administrativ are o perioadă proprie de evaluare (articolul 51 alineatul (2))."
+        },
+        {
+          "id": "C",
+          "text": "Validează, la începutul anului școlar, fișele de autoevaluare ale personalului didactic și didactic auxiliar, în baza cărora se stabilește calificativul anual.",
+          "isCorrect": true
+        },
+        {
+          "id": "D",
+          "text": "Aprobă salariile personalului pe baza fișelor de autoevaluare.",
+          "isCorrect": false,
+          "why": "Regulamentul nu atribuie consiliului profesoral stabilirea salariilor, ci validarea fișelor în baza cărora se stabilește calificativul anual."
+        }
+      ],
+      "correctOptionId": "C",
+      "explanation": "Regula: Consiliul profesoral validează, la începutul anului școlar, fișele de autoevaluare ale personalului didactic și didactic auxiliar, în baza cărora se stabilește calificativul anual.\n\nValidarea fișelor este o atribuție distinctă a consiliului profesoral, care precede stabilirea calificativului anual.\n\nTemei: articolul 55 litera p). Textul relevant: „validează, la începutul anului școlar, fișele de autoevaluare ale personalului didactic și didactic auxiliar din unitatea de învățământ, în baza cărora se stabilește calificativul anual”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "articolul 55 litera p)",
+        "excerpt": "validează, la începutul anului școlar, fișele de autoevaluare ale personalului didactic și didactic auxiliar din unitatea de învățământ, în baza cărora se stabilește calificativul anual",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-169",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Titlul V. Organisme funcționale și responsabilități ale cadrelor didactice",
+      "annex": "",
+      "title": "Titlul V. Organisme funcționale și responsabilități ale cadrelor didactice",
+      "chapter": "Capitolul I. Organisme funcționale la nivelul unității de învățământ",
+      "section": "Secţiunea 1. Consiliul profesoral",
+      "article": 55,
+      "paragraph": "a)",
+      "prompt": "Unitatea întocmește raportul privind calitatea învățământului. Cine îl analizează, îl dezbate și îl validează, și ce se întâmplă cu el după aceea?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Directorul îl validează, iar raportul rămâne document intern.",
+          "isCorrect": false,
+          "why": "Validarea aparține consiliului profesoral, iar raportul se face public."
+        },
+        {
+          "id": "B",
+          "text": "Consiliul de administrație îl validează, iar inspectoratul îl publică.",
+          "isCorrect": false,
+          "why": "Consiliul profesoral validează raportul, iar publicarea nu este atribuită inspectoratului."
+        },
+        {
+          "id": "C",
+          "text": "Consiliul profesoral îl validează, dar raportul se transmite doar inspectoratului școlar.",
+          "isCorrect": false,
+          "why": "Raportul se face public, nu se transmite exclusiv inspectoratului."
+        },
+        {
+          "id": "D",
+          "text": "Consiliul profesoral îl analizează, îl dezbate și îl validează, iar raportul se face public.",
+          "isCorrect": true
+        }
+      ],
+      "correctOptionId": "D",
+      "explanation": "Regula: Consiliul profesoral analizează, dezbate și validează raportul privind calitatea învățământului din unitate, iar raportul se face public.\n\nValidarea aparține consiliului profesoral, iar publicitatea raportului face parte din regula respectivă.\n\nTemei: articolul 55 litera a). Textul relevant: „analizează, dezbate și validează raportul privind calitatea învățământului din unitatea de învățământ, care se face public”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "articolul 55 litera a)",
+        "excerpt": "analizează, dezbate și validează raportul privind calitatea învățământului din unitatea de învățământ, care se face public",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-170",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Titlul V. Organisme funcționale și responsabilități ale cadrelor didactice",
+      "annex": "",
+      "title": "Titlul V. Organisme funcționale și responsabilități ale cadrelor didactice",
+      "chapter": "Capitolul I. Organisme funcționale la nivelul unității de învățământ",
+      "section": "Secţiunea 1. Consiliul profesoral",
+      "article": 55,
+      "paragraph": "i)",
+      "prompt": "Un diriginte prezintă situația școlară anuală a clasei, iar directorul vrea să o aprobe prin decizie proprie. Cine aprobă raportul privind situația școlară anuală?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Consiliul profesoral, atât pentru situația școlară anuală, cât și pentru situația de după sesiunile de amânări, diferențe și corigențe.",
+          "isCorrect": true
+        },
+        {
+          "id": "B",
+          "text": "Directorul, prin decizie, fără altă etapă.",
+          "isCorrect": false,
+          "why": "Aprobarea situației școlare anuale aparține consiliului profesoral."
+        },
+        {
+          "id": "C",
+          "text": "Consiliul clasei, în mod definitiv.",
+          "isCorrect": false,
+          "why": "Consiliul clasei lucrează la nivelul clasei. Situația școlară anuală este aprobată de consiliul profesoral."
+        },
+        {
+          "id": "D",
+          "text": "Consiliul de administrație, la propunerea directorului.",
+          "isCorrect": false,
+          "why": "Regulamentul atribuie această aprobare consiliului profesoral, nu consiliului de administrație."
+        }
+      ],
+      "correctOptionId": "A",
+      "explanation": "Regula: Consiliul profesoral aprobă raportul privind situația școlară anuală prezentată de fiecare învățător, institutor, profesor pentru învățământul primar sau profesor-diriginte, precum și situația școlară după sesiunile de amânări, diferențe și corigențe.\n\nAprobarea este o atribuție a consiliului profesoral, nu a directorului.\n\nTemei: articolul 55 litera i). Textul relevant: „aprobă raportul privind situația școlară anuală prezentată de fiecare învățător/institutor/profesor pentru învățământ primar/profesor-diriginte, precum și situația școlară după încheierea sesiunilor de amânări, diferențe și corigențe”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "articolul 55 litera i)",
+        "excerpt": "aprobă raportul privind situația școlară anuală prezentată de fiecare învățător/institutor/profesor pentru învățământ primar/profesor-diriginte, precum și situația școlară după încheierea sesiunilor de amânări, diferențe și corigențe",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-171",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Titlul V. Organisme funcționale și responsabilități ale cadrelor didactice",
+      "annex": "",
+      "title": "Titlul V. Organisme funcționale și responsabilități ale cadrelor didactice",
+      "chapter": "Capitolul I. Organisme funcționale la nivelul unității de învățământ",
+      "section": "Secţiunea 1. Consiliul profesoral",
+      "article": 56,
+      "paragraph": "",
+      "prompt": "La un control se verifică dosarul consiliului profesoral. Care sunt documentele consiliului profesoral prevăzute de regulament?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Doar registrul de procese-verbale, convocarea putând fi făcută verbal.",
+          "isCorrect": false,
+          "why": "Regulamentul cere și tematica cu graficul ședințelor, precum și convocatoarele sau dovezile convocării."
+        },
+        {
+          "id": "B",
+          "text": "Tematica și graficul ședințelor, convocatoarele sau dovezile convocării prin mijloace electronice și registrul de procese-verbale însoțit de dosarul cu anexe.",
+          "isCorrect": true
+        },
+        {
+          "id": "C",
+          "text": "Tematica ședințelor și deciziile directorului privind componența consiliului, fără registru.",
+          "isCorrect": false,
+          "why": "Registrul de procese-verbale, însoțit de dosarul cu anexe, este document obligatoriu al consiliului profesoral."
+        },
+        {
+          "id": "D",
+          "text": "Registrul de procese-verbale și planul de școlarizare.",
+          "isCorrect": false,
+          "why": "Planul de școlarizare nu figurează printre documentele consiliului profesoral enumerate în articolul 56."
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Regula: Documentele consiliului profesoral sunt tematica și graficul ședințelor, convocatoarele sau dovezile convocării prin mijloace electronice și registrul de procese-verbale, însoțit de dosarul cu anexe.\n\nLista este formată din trei categorii de documente, care acoperă planificarea, convocarea și consemnarea ședințelor.\n\nTemei: articolul 56. Textul relevant: „Documentele consiliului profesoral sunt: a)tematica și graficul ședințelor consiliului profesoral; b)convocatoarele consiliului profesoral/dovezi ale convocării prin mijloace electronice; c)registrul de procese-verbale al consiliului profesoral, însoțit de dosarul cu anexele proceselor- verbale.”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "articolul 56",
+        "excerpt": "Documentele consiliului profesoral sunt: a)tematica și graficul ședințelor consiliului profesoral; b)convocatoarele consiliului profesoral/dovezi ale convocării prin mijloace electronice; c)registrul de procese-verbale al consiliului profesoral, însoțit de dosarul cu anexele proceselor- verbale.",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-172",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Titlul V. Organisme funcționale și responsabilități ale cadrelor didactice",
+      "annex": "",
+      "title": "Titlul V. Organisme funcționale și responsabilități ale cadrelor didactice",
+      "chapter": "Capitolul I. Organisme funcționale la nivelul unității de învățământ",
+      "section": "Secţiunea a 2-a. Consiliul clasei",
+      "article": 58,
+      "paragraph": "c)",
+      "prompt": "Consiliul clasei stabilește pentru un elev de gimnaziu media 6 la purtare. Este această medie definitivă?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Da, consiliul clasei stabilește definitiv toate mediile la purtare.",
+          "isCorrect": false,
+          "why": "Pentru mediile mai mici de 7, consiliul clasei propune validarea consiliului profesoral."
+        },
+        {
+          "id": "B",
+          "text": "Nu, trebuie aprobată de consiliul de administrație.",
+          "isCorrect": false,
+          "why": "Validarea mediilor la purtare mai mici de 7 aparține consiliului profesoral, nu consiliului de administrație."
+        },
+        {
+          "id": "C",
+          "text": "Nu, deoarece consiliul clasei propune consiliului profesoral validarea mediilor la purtare mai mici de 7.",
+          "isCorrect": true
+        },
+        {
+          "id": "D",
+          "text": "Nu, trebuie validată de director, prin decizie.",
+          "isCorrect": false,
+          "why": "Validarea aparține consiliului profesoral. Directorul nu o poate face prin decizie proprie."
+        }
+      ],
+      "correctOptionId": "C",
+      "explanation": "Regula: Consiliul clasei stabilește mediile la purtare, dar propune consiliului profesoral validarea mediilor mai mici de 7 (mai mici de 8 la unitățile cu profil pedagogic, teologic și militar) și a calificativelor mai mici de „bine” la învățământul primar.\n\nMedia 6 este sub pragul de 7, deci are nevoie de validarea consiliului profesoral. Consiliul clasei doar o stabilește și o propune spre validare.\n\nTemei: articolul 58 litera c), coroborat cu articolul 55 litera m). Textul relevant: „stabilește notele/calificativele, respectiv mediile la purtare pentru fiecare elev al clasei, în funcție de frecvența și comportamentul acestora în activitatea școlară și extrașcolară; propune consiliului profesoral validarea notelor mai mici de 7, respectiv mai mici de 8, pentru unitățile de învățământ cu profil pedagogic, teologic și militar, sau a calificativelor mai mici de \"bine\", pentru învățământul primar”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "articolul 58 litera c), coroborat cu articolul 55 litera m)",
+        "excerpt": "stabilește notele/calificativele, respectiv mediile la purtare pentru fiecare elev al clasei, în funcție de frecvența și comportamentul acestora în activitatea școlară și extrașcolară; propune consiliului profesoral validarea notelor mai mici de 7, respectiv mai mici de 8, pentru unitățile de învățământ cu profil pedagogic, teologic și militar, sau a calificativelor mai mici de \"bine\", pentru învățământul primar",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-173",
+      "kind": "aplicare",
+      "difficulty": "expert",
+      "module": "Titlul V. Organisme funcționale și responsabilități ale cadrelor didactice",
+      "annex": "",
+      "title": "Titlul V. Organisme funcționale și responsabilități ale cadrelor didactice",
+      "chapter": "Capitolul I. Organisme funcționale la nivelul unității de învățământ",
+      "section": "Secţiunea a 2-a. Consiliul clasei",
+      "article": 59,
+      "paragraph": "(1)",
+      "prompt": "Consiliul unei clase are 12 membri. La ședință participă 8, iar o propunere primește 6 voturi pentru și 2 împotrivă. Ce rezultă?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Ședința nu are cvorum, deoarece sunt necesari cel puțin 9 membri.",
+          "isCorrect": false,
+          "why": "Două treimi din 12 înseamnă 8 membri, deci cvorumul este îndeplinit."
+        },
+        {
+          "id": "B",
+          "text": "Propunerea este adoptată, deoarece 6 voturi reprezintă majoritatea celor 8 prezenți.",
+          "isCorrect": false,
+          "why": "Majoritatea se raportează la totalul membrilor consiliului, nu la cei prezenți."
+        },
+        {
+          "id": "C",
+          "text": "Propunerea este adoptată, deoarece cele 6 voturi pentru depășesc cele 2 voturi împotrivă.",
+          "isCorrect": false,
+          "why": "Nu se compară voturile pentru cu cele împotrivă. Hotărârea cere jumătate plus unu din totalul membrilor."
+        },
+        {
+          "id": "D",
+          "text": "Ședința are cvorum, dar propunerea nu este adoptată, deoarece sunt necesare 7 voturi: jumătate plus unu din totalul membrilor.",
+          "isCorrect": true
+        }
+      ],
+      "correctOptionId": "D",
+      "explanation": "Regula: Consiliul clasei se întrunește în prezența a cel puțin două treimi din membri și adoptă hotărâri cu votul a jumătate plus unu din totalul membrilor.\n\nCvorumul este de două treimi din 12, adică 8, îndeplinit exact. Pentru hotărâre, majoritatea se calculează din totalul membrilor, nu din cei prezenți.\n\nTemei: articolul 59 alineatul (1). Textul relevant: „Consiliul clasei se întrunește în prezența a cel puțin 2/3 din totalul membrilor și adoptă hotărâri cu votul a jumătate plus unu din totalul membrilor săi.”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "articolul 59 alineatul (1)",
+        "excerpt": "Consiliul clasei se întrunește în prezența a cel puțin 2/3 din totalul membrilor și adoptă hotărâri cu votul a jumătate plus unu din totalul membrilor săi.",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-174",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Titlul V. Organisme funcționale și responsabilități ale cadrelor didactice",
+      "annex": "",
+      "title": "Titlul V. Organisme funcționale și responsabilități ale cadrelor didactice",
+      "chapter": "Capitolul II. Responsabilități ale personalului didactic în unitatea de învățământ",
+      "section": "Secţiunea 1. Coordonatorul pentru proiecte educative și coordonatorul pentru proiecte europene",
+      "article": 60,
+      "paragraph": "(1)",
+      "prompt": "Directorul vrea să numească direct, prin decizie, coordonatorul pentru proiecte și programe educative școlare și extrașcolare. Cum se desemnează acest coordonator?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Este, de regulă, un cadru didactic titular, propus de consiliul profesoral și aprobat de consiliul de administrație, pe baza unor criterii specifice aprobate de consiliul de administrație.",
+          "isCorrect": true
+        },
+        {
+          "id": "B",
+          "text": "Directorul îl numește singur, fără propunerea consiliului profesoral.",
+          "isCorrect": false,
+          "why": "Propunerea vine de la consiliul profesoral, iar aprobarea aparține consiliului de administrație."
+        },
+        {
+          "id": "C",
+          "text": "Este ales de elevi, prin vot secret.",
+          "isCorrect": false,
+          "why": "Regulamentul nu prevede alegerea coordonatorului de către elevi."
+        },
+        {
+          "id": "D",
+          "text": "Este numit de inspectoratul școlar, de regulă dintre cadrele didactice suplinitoare.",
+          "isCorrect": false,
+          "why": "Numirea nu se face de inspectoratul școlar, iar regula este ca persoana să fie, de regulă, cadru didactic titular."
+        }
+      ],
+      "correctOptionId": "A",
+      "explanation": "Regula: Coordonatorul este, de regulă, un cadru didactic titular, propus de consiliul profesoral și aprobat de consiliul de administrație, pe baza unor criterii specifice aprobate de consiliul de administrație. Atribuțiile lui le stabilește directorul, în funcție de prioritățile și specificul unității (alineatul (4)).\n\nProcedura implică două organisme: consiliul profesoral propune, iar consiliul de administrație aprobă, după criterii stabilite în prealabil.\n\nTemei: articolul 60 alineatul (1). Textul relevant: „Coordonatorul pentru proiecte și programe educative școlare și extrașcolare este, de regulă, un cadru didactic titular, propus de consiliul profesoral și aprobat de către consiliul de administrație, în baza unor criterii specifice aprobate de către consiliul de administrație al unității de învățământ.”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "articolul 60 alineatul (1)",
+        "excerpt": "Coordonatorul pentru proiecte și programe educative școlare și extrașcolare este, de regulă, un cadru didactic titular, propus de consiliul profesoral și aprobat de către consiliul de administrație, în baza unor criterii specifice aprobate de către consiliul de administrație al unității de învățământ.",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-175",
+      "kind": "aplicare",
+      "difficulty": "expert",
+      "module": "Titlul V. Organisme funcționale și responsabilități ale cadrelor didactice",
+      "annex": "",
+      "title": "Titlul V. Organisme funcționale și responsabilități ale cadrelor didactice",
+      "chapter": "Capitolul II. Responsabilități ale personalului didactic în unitatea de învățământ",
+      "section": "Secţiunea 1. Coordonatorul pentru proiecte educative și coordonatorul pentru proiecte europene",
+      "article": 60,
+      "paragraph": "(6)",
+      "prompt": "O unitate fără acreditare Erasmus+ derulează cinci proiecte din programe europene în educație. Directorul vrea un coordonator pentru proiecte educaționale europene. Cum procedează?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Nu poate, deoarece funcția există doar în unitățile acreditate Erasmus+.",
+          "isCorrect": false,
+          "why": "Acreditarea este una dintre două căi. În lipsa ei, funcția se poate numi dacă unitatea derulează mai mult de trei proiecte europene."
+        },
+        {
+          "id": "B",
+          "text": "Poate numi coordonatorul după consultarea consiliului profesoral, în baza hotărârii consiliului de administrație.",
+          "isCorrect": true
+        },
+        {
+          "id": "C",
+          "text": "Îl numește singur, fără consultarea consiliului profesoral și fără hotărârea consiliului de administrație.",
+          "isCorrect": false,
+          "why": "Numirea cere consultarea consiliului profesoral și hotărârea consiliului de administrație."
+        },
+        {
+          "id": "D",
+          "text": "Atribuțiile sunt îndeplinite obligatoriu de coordonatorul pentru proiecte educative, indiferent de numărul proiectelor.",
+          "isCorrect": false,
+          "why": "Coordonatorul pentru proiecte educative preia aceste atribuții doar când unitatea nu este acreditată sau derulează mai puține proiecte."
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Regula: Directorul poate numi un coordonator pentru proiecte educaționale europene dacă unitatea are acreditare Erasmus+ sau, în lipsa acreditării, derulează mai mult de trei proiecte din programe europene în educație sau formare profesională. Numirea se face după consultarea consiliului profesoral, în baza hotărârii consiliului de administrație.\n\nUnitatea derulează mai mult de trei proiecte europene, deci este în situația în care directorul poate numi coordonatorul, chiar fără acreditare Erasmus+.\n\nTemei: articolul 60 alineatul (6). Textul relevant: „În unitatile de învățământ preuniversitar care au obținut acreditare Erasmus+ sau, în lipsa acreditării, în unitățile de învățământ în care se derulează mai mult de trei proiecte din cadrul unor programe ale UE în domeniul educației sau formării profesionale, directorul poate numi, după consultarea consiliului profesoral, în baza hotărârii consiliului de administrație, un coordonator pentru proiecte educationale europene.”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "articolul 60 alineatul (6)",
+        "excerpt": "În unitatile de învățământ preuniversitar care au obținut acreditare Erasmus+ sau, în lipsa acreditării, în unitățile de învățământ în care se derulează mai mult de trei proiecte din cadrul unor programe ale UE în domeniul educației sau formării profesionale, directorul poate numi, după consultarea consiliului profesoral, în baza hotărârii consiliului de administrație, un coordonator pentru proiecte educationale europene.",
         "verification": "fragment-exact-din-sursa-consolidata"
       }
     }
