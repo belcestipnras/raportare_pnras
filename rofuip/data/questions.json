@@ -7,7 +7,7 @@
     "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
     "method": "itemi situaționali redactați manual și verificați pe fragmentele exacte ale formei consolidate"
   },
-  "count": 232,
+  "count": 255,
   "questions": [
     {
       "id": "RF-A-001",
@@ -10782,6 +10782,1110 @@
         "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
         "reference": "articolul 151 alineatele (2)-(4)",
         "excerpt": "Inspectoratul școlar sprijină coordonarea, prin metoda managementului de caz, a activității de monitorizare integrată realizată de către Direcția Generală de Asistență și Protecția Copilului.",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-233",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Titlul IX. Partenerii educaționali",
+      "annex": "",
+      "title": "Titlul IX. Partenerii educaționali",
+      "chapter": "Capitolul I. Drepturile părinților/reprezentanților legali",
+      "section": "",
+      "article": 154,
+      "paragraph": "(2)",
+      "prompt": "Un părinte intră în școală fără să fi fost programat sau solicitat, ca să „vadă cum merge treaba”. Portarul îl oprește. Cine trebuie să fi stabilit regulile de acces?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Directorul, prin decizie, fără hotărârea consiliului de administrație.",
+          "isCorrect": false,
+          "why": "Obligația de a stabili procedura revine consiliului de administrație."
+        },
+        {
+          "id": "B",
+          "text": "Consiliul de administrație, care are obligația de a stabili procedura de acces a părinților.",
+          "isCorrect": true
+        },
+        {
+          "id": "C",
+          "text": "Consiliul reprezentativ al părinților, prin regulament propriu.",
+          "isCorrect": false,
+          "why": "Procedura de acces este stabilită de consiliul de administrație, nu de consiliul părinților."
+        },
+        {
+          "id": "D",
+          "text": "Inspectoratul școlar, printr-o procedură unică pentru toate unitățile.",
+          "isCorrect": false,
+          "why": "Regulamentul pune în sarcina consiliului de administrație al fiecărei unități stabilirea procedurii."
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Regula: Părintele are acces în incinta unității în concordanță cu procedura de acces, în situații precum discuții programate, depunerea de documente la secretariat sau participarea la acțiunile asociației de părinți. Consiliul de administrație are obligația să stabilească procedura de acces.\n\nAccesul nu este liber, ci condiționat de situațiile din articolul 154 și de procedura adoptată de consiliul de administrație.\n\nTemei: articolul 154 alineatele (1) și (2). Textul relevant: „Consiliul de administrație are obligația stabilirii procedurii de acces al părinților/reprezentanților legali în unitățile de învățământ.”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "articolul 154 alineatele (1) și (2)",
+        "excerpt": "Consiliul de administrație are obligația stabilirii procedurii de acces al părinților/reprezentanților legali în unitățile de învățământ.",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-234",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Titlul IX. Partenerii educaționali",
+      "annex": "",
+      "title": "Titlul IX. Partenerii educaționali",
+      "chapter": "Capitolul I. Drepturile părinților/reprezentanților legali",
+      "section": "",
+      "article": 156,
+      "paragraph": "(1)",
+      "prompt": "Un părinte are un conflict cu un profesor în legătură cu nota fiului său și scrie direct inspectoratului școlar. Care este calea prevăzută de regulament?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Direct la inspectoratul școlar, care mediază oricând.",
+          "isCorrect": false,
+          "why": "Inspectoratul intervine după ce starea conflictuală nu a fost rezolvată la nivelul unității."
+        },
+        {
+          "id": "B",
+          "text": "Direct la consiliul de administrație, fără discuții prealabile.",
+          "isCorrect": false,
+          "why": "Se începe cu discuții amiabile cu salariatul implicat."
+        },
+        {
+          "id": "C",
+          "text": "Nu există o procedură prevăzută, părintele alege liber.",
+          "isCorrect": false,
+          "why": "Regulamentul stabilește treptele de rezolvare a conflictului."
+        },
+        {
+          "id": "D",
+          "text": "Discuție amiabilă cu salariatul, apoi cerere scrisă către conducerea unității, iar abia apoi cerere scrisă către inspectoratul școlar.",
+          "isCorrect": true
+        }
+      ],
+      "correctOptionId": "D",
+      "explanation": "Regula: Mai întâi, discuții amiabile cu salariatul implicat, la care poate participa și reprezentantul părinților. Apoi, cerere scrisă către conducerea unității. Dacă starea conflictuală nu e rezolvată la nivelul unității, părintele se poate adresa în scris inspectoratului școlar.\n\nOrdinea treptelor contează: se începe la nivelul unității, iar inspectoratul intervine doar dacă acolo conflictul nu a fost rezolvat.\n\nTemei: articolul 156 alineatele (1) și (2). Textul relevant: „În situația în care discuțiile amiabile nu conduc la rezolvarea conflictului, părintele/reprezentantul legal are dreptul de a se adresa conducerii unității de învățământ, printr-o cerere scrisă, în vederea rezolvării problemei.”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "articolul 156 alineatele (1) și (2)",
+        "excerpt": "În situația în care discuțiile amiabile nu conduc la rezolvarea conflictului, părintele/reprezentantul legal are dreptul de a se adresa conducerii unității de învățământ, printr-o cerere scrisă, în vederea rezolvării problemei.",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-235",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Titlul IX. Partenerii educaționali",
+      "annex": "",
+      "title": "Titlul IX. Partenerii educaționali",
+      "chapter": "Capitolul II. Îndatoririle părinților/reprezentanților legali",
+      "section": "",
+      "article": 157,
+      "paragraph": "(4)",
+      "prompt": "Un diriginte vrea să afle cât de des trebuie să ia legătura un părinte cu el, și cum se consemnează prezența părintelui. Ce prevede regulamentul?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Minimum o dată pe lună; prezența se consemnează în caietul dirigintelui, cu nume, dată și semnătură.",
+          "isCorrect": true
+        },
+        {
+          "id": "B",
+          "text": "O dată pe semestru; prezența se consemnează doar în catalog.",
+          "isCorrect": false,
+          "why": "Obligația este de minimum o dată pe lună, iar consemnarea se face în caietul dirigintelui."
+        },
+        {
+          "id": "C",
+          "text": "O dată pe an; prezența nu se consemnează.",
+          "isCorrect": false,
+          "why": "Frecvența și consemnarea sunt prevăzute expres."
+        },
+        {
+          "id": "D",
+          "text": "Doar la solicitarea dirigintelui; nu există obligația părintelui.",
+          "isCorrect": false,
+          "why": "Obligația de contact lunar este a părintelui."
+        }
+      ],
+      "correctOptionId": "A",
+      "explanation": "Regula: Părintele are obligația ca, minimum o dată pe lună, să ia legătura cu dirigintele, prin mijloace stabilite de comun acord. Prezența se consemnează în caietul dirigintelui, cu nume, dată și semnătură.\n\nObligația părintelui are un prag lunar, iar consemnarea în caiet servește ca dovadă a colaborării.\n\nTemei: articolul 157 alineatul (4). Textul relevant: „Părintele/reprezentantul legal are obligația ca, minimum o dată pe lună, să ia legătura cu profesorul pentru învățământul antepreșcolar/preșcolar/învățătorul/institutorul/profesorul pentru învățământul primar/profesorul diriginte pentru a cunoaște evoluția copilului/elevului, prin mijloace stabilite de comun acord.”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "articolul 157 alineatul (4)",
+        "excerpt": "Părintele/reprezentantul legal are obligația ca, minimum o dată pe lună, să ia legătura cu profesorul pentru învățământul antepreșcolar/preșcolar/învățătorul/institutorul/profesorul pentru învățământul primar/profesorul diriginte pentru a cunoaște evoluția copilului/elevului, prin mijloace stabilite de comun acord.",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-236",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Titlul IX. Partenerii educaționali",
+      "annex": "",
+      "title": "Titlul IX. Partenerii educaționali",
+      "chapter": "Capitolul II. Îndatoririle părinților/reprezentanților legali",
+      "section": "",
+      "article": 157,
+      "paragraph": "(6)",
+      "prompt": "Un copil din clasa a II-a este lăsat de părinte la poartă și intră singur. Cine trebuie să-l preia la sfârșitul orelor și există excepții?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Elevul, singur, dacă are peste 7 ani.",
+          "isCorrect": false,
+          "why": "Elevul din învățământul primar trebuie preluat de părinte sau de un adult împuternicit."
+        },
+        {
+          "id": "B",
+          "text": "Cadrul didactic de serviciu, în toate cazurile.",
+          "isCorrect": false,
+          "why": "Obligația de preluare este a părintelui sau a adultului împuternicit."
+        },
+        {
+          "id": "C",
+          "text": "Părintele sau un adult împuternicit; excepție la transportul cu microbuze școlare.",
+          "isCorrect": true
+        },
+        {
+          "id": "D",
+          "text": "Directorul, prin decizie, în orice situație.",
+          "isCorrect": false,
+          "why": "Regulamentul nu pune această obligație în sarcina directorului."
+        }
+      ],
+      "correctOptionId": "C",
+      "explanation": "Regula: Părintele elevului din învățământul primar are obligația să-l însoțească până la intrarea în unitate și să-l preia la sfârșitul orelor, sau să împuternicească un alt adult. Regula nu se aplică la transportul cu microbuze școlare, iar securitatea la venire și plecare se stabilește prin regulamentul intern.\n\nObligația privește antepreșcolarii, preșcolarii și elevii din învățământul primar, nu pe cei din gimnaziu.\n\nTemei: articolul 157 alineatele (6) și (8). Textul relevant: „Părintele/reprezentantul legal al antepreșcolarului/preșcolarului sau al elevului din învățământul primar are obligația să îl însoțească până la intrarea în unitatea de învățământ, iar la terminarea activităților educative/orelor de curs să îl preia. În cazul în care părintele/reprezentantul legal nu poate să desfășoare o astfel de activitate, împuternicește un alt adult.”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "articolul 157 alineatele (6) și (8)",
+        "excerpt": "Părintele/reprezentantul legal al antepreșcolarului/preșcolarului sau al elevului din învățământul primar are obligația să îl însoțească până la intrarea în unitatea de învățământ, iar la terminarea activităților educative/orelor de curs să îl preia. În cazul în care părintele/reprezentantul legal nu poate să desfășoare o astfel de activitate, împuternicește un alt adult.",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-237",
+      "kind": "aplicare",
+      "difficulty": "expert",
+      "module": "Titlul IX. Partenerii educaționali",
+      "annex": "",
+      "title": "Titlul IX. Partenerii educaționali",
+      "chapter": "Capitolul II. Îndatoririle părinților/reprezentanților legali",
+      "section": "",
+      "article": 157,
+      "paragraph": "(12)",
+      "prompt": "La o grădiniță cu program prelungit, un părinte contestă contribuția lunară de hrană, deși copilul a lipsit 8 zile. Cum se stabilește contribuția?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Contribuția este fixă, indiferent de absențe.",
+          "isCorrect": false,
+          "why": "Contribuția se stabilește după numărul efectiv de zile de prezență."
+        },
+        {
+          "id": "B",
+          "text": "Contribuția se anulează complet dacă lipsesc peste 5 zile.",
+          "isCorrect": false,
+          "why": "Regulamentul nu prevede un prag de anulare de 5 zile."
+        },
+        {
+          "id": "C",
+          "text": "Contribuția se returnează integral la sfârșitul anului școlar.",
+          "isCorrect": false,
+          "why": "Se reportează pentru luna următoare, iar returnarea apare la retragerea copilului, pe bază de cerere scrisă."
+        },
+        {
+          "id": "D",
+          "text": "În funcție de numărul efectiv de zile de prezență, cu raportarea sumei pentru zilele absentate în luna următoare.",
+          "isCorrect": true
+        }
+      ],
+      "correctOptionId": "D",
+      "explanation": "Regula: Contribuția lunară de hrană se stabilește în funcție de numărul efectiv de zile de prezență. Prezența este monitorizată prin registrul completat de cadrele didactice. Dacă părintele a plătit în avans, zilele de absență se reportează pentru luna următoare.\n\nRegistrul de prezență este baza de calcul, iar plata în avans este compensată prin report.\n\nTemei: articolul 157 alineatele (12)-(16). Textul relevant: „Contribuția lunară de hrană pentru copiii înscriși în unitățile de educație timpurie se stabilește în funcție de numărul efectiv de zile de prezență a copilului la programul zilnic.”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "articolul 157 alineatele (12)-(16)",
+        "excerpt": "Contribuția lunară de hrană pentru copiii înscriși în unitățile de educație timpurie se stabilește în funcție de numărul efectiv de zile de prezență a copilului la programul zilnic.",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-238",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Titlul IX. Partenerii educaționali",
+      "annex": "",
+      "title": "Titlul IX. Partenerii educaționali",
+      "chapter": "Capitolul III. Adunarea generală a părinților/reprezentanților legali",
+      "section": "",
+      "article": 160,
+      "paragraph": "(3)",
+      "prompt": "La adunarea generală a părinților, un părinte cere să se discute pe larg situația școlară slabă a unui elev anume. Cum se procedează?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Se discută în adunare, dacă majoritatea părinților sunt de acord.",
+          "isCorrect": false,
+          "why": "Votul nu poate schimba regula: situația unui elev se discută individual."
+        },
+        {
+          "id": "B",
+          "text": "Nu se discută în adunarea generală; situația unui elev se discută individual, numai cu părintele acestuia.",
+          "isCorrect": true
+        },
+        {
+          "id": "C",
+          "text": "Se discută în adunare, dar fără a menționa numele elevului.",
+          "isCorrect": false,
+          "why": "Regulamentul impune discuția individuală, nu o formă anonimizată în adunare."
+        },
+        {
+          "id": "D",
+          "text": "Se discută doar în prezența dirigintelui și a președintelui comitetului de părinți.",
+          "isCorrect": false,
+          "why": "Situația se discută individual, numai în prezența părintelui elevului respectiv."
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Regula: În adunarea generală se discută problemele generale ale colectivului, nu situația concretă a unui elev. Situația unui elev se discută individual, numai în prezența părintelui acelui elev.\n\nConfidențialitatea situației concrete a elevului este protejată prin discuția individuală.\n\nTemei: articolul 160 alineatul (3). Textul relevant: „În adunarea generală a părinților/reprezentanților legali se discută problemele generale ale colectivului de beneficiari primari, și nu situația concretă a unui beneficiar primar. Situația unui beneficiar primar se discută individual, numai în prezența părintelui/reprezentantului legal al beneficiarului primar respectiv.”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "articolul 160 alineatul (3)",
+        "excerpt": "În adunarea generală a părinților/reprezentanților legali se discută problemele generale ale colectivului de beneficiari primari, și nu situația concretă a unui beneficiar primar. Situația unui beneficiar primar se discută individual, numai în prezența părintelui/reprezentantului legal al beneficiarului primar respectiv.",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-239",
+      "kind": "aplicare",
+      "difficulty": "expert",
+      "module": "Titlul IX. Partenerii educaționali",
+      "annex": "",
+      "title": "Titlul IX. Partenerii educaționali",
+      "chapter": "Capitolul III. Adunarea generală a părinților/reprezentanților legali",
+      "section": "",
+      "article": 161,
+      "paragraph": "(2)",
+      "prompt": "La o clasă sunt 30 de părinți. La adunarea generală se prezintă 15. Este adunarea valabil întrunită și câți voturi sunt necesare pentru o hotărâre?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Nu este valabil întrunită, pentru că 15 este sub jumătate plus unu din 30 (adică 16).",
+          "isCorrect": true
+        },
+        {
+          "id": "B",
+          "text": "Este valabil întrunită, iar hotărârile se iau cu 8 voturi.",
+          "isCorrect": false,
+          "why": "Cvorumul necesar este 16 părinți, nu 15."
+        },
+        {
+          "id": "C",
+          "text": "Este valabil întrunită, deoarece prezența este de exact jumătate.",
+          "isCorrect": false,
+          "why": "Jumătate nu este suficient: este nevoie de jumătate plus unu."
+        },
+        {
+          "id": "D",
+          "text": "Nu este valabil întrunită, deoarece este necesară prezența a două treimi.",
+          "isCorrect": false,
+          "why": "Cerința pentru adunarea generală este jumătate plus unu, nu două treimi."
+        }
+      ],
+      "correctOptionId": "A",
+      "explanation": "Regula: Adunarea este valabil întrunită în prezența a jumătate plus unu din totalul părinților (la 30 de părinți, 16). Hotărârile se adoptă cu votul a jumătate plus unu din cei prezenți.\n\nCvorumul se calculează față de totalul părinților, iar votul față de cei prezenți.\n\nTemei: articolul 161 alineatul (2). Textul relevant: „Adunarea generală a părinților/reprezentanților legali se convoacă ori de câte ori este nevoie, este valabil întrunită în prezența a jumătate plus unu din totalul părinților/reprezentanților legali ai copiilor/beneficiarilor primari din grupa/clasa respectivă și adoptă hotărâri cu votul a jumătate plus unu din cei prezenți.”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "articolul 161 alineatul (2)",
+        "excerpt": "Adunarea generală a părinților/reprezentanților legali se convoacă ori de câte ori este nevoie, este valabil întrunită în prezența a jumătate plus unu din totalul părinților/reprezentanților legali ai copiilor/beneficiarilor primari din grupa/clasa respectivă și adoptă hotărâri cu votul a jumătate plus unu din cei prezenți.",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-240",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Titlul IX. Partenerii educaționali",
+      "annex": "",
+      "title": "Titlul IX. Partenerii educaționali",
+      "chapter": "Capitolul IV. Comitetul de părinți",
+      "section": "",
+      "article": 162,
+      "paragraph": "(3)",
+      "prompt": "Până când trebuie convocată adunarea generală pentru alegerea comitetului de părinți al clasei și din câți membri este alcătuit comitetul?",
+      "options": [
+        {
+          "id": "A",
+          "text": "În primele 30 de zile; comitetul are 5 persoane.",
+          "isCorrect": false,
+          "why": "Termenul este de 15 zile calendaristice, iar comitetul are 3 membri."
+        },
+        {
+          "id": "B",
+          "text": "Până la sfârșitul semestrului I; comitetul are 3 persoane.",
+          "isCorrect": false,
+          "why": "Convocarea trebuie făcută în primele 15 zile de la începerea cursurilor."
+        },
+        {
+          "id": "C",
+          "text": "În primele 15 zile calendaristice de la începerea cursurilor; comitetul are 3 persoane.",
+          "isCorrect": true
+        },
+        {
+          "id": "D",
+          "text": "În primele 15 zile; comitetul are un singur reprezentant.",
+          "isCorrect": false,
+          "why": "Comitetul se compune din 3 persoane: președinte și 2 membri."
+        }
+      ],
+      "correctOptionId": "C",
+      "explanation": "Regula: Convocarea are loc în primele 15 zile calendaristice de la începerea cursurilor. Comitetul are 3 persoane: un președinte și 2 membri, aleși prin majoritate simplă în fiecare an.\n\nComitetul se alege anual, iar alegerea se face în adunarea generală convocată și prezidată de diriginte.\n\nTemei: articolul 162 alineatele (2)-(4). Textul relevant: „Convocarea adunării generale pentru alegerea comitetului de părinți are loc în primele 15 zile calendaristice de la începerea cursurilor anului școlar.”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "articolul 162 alineatele (2)-(4)",
+        "excerpt": "Convocarea adunării generale pentru alegerea comitetului de părinți are loc în primele 15 zile calendaristice de la începerea cursurilor anului școlar.",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-241",
+      "kind": "aplicare",
+      "difficulty": "expert",
+      "module": "Titlul IX. Partenerii educaționali",
+      "annex": "",
+      "title": "Titlul IX. Partenerii educaționali",
+      "chapter": "Capitolul IV. Comitetul de părinți",
+      "section": "",
+      "article": 165,
+      "paragraph": "(3)",
+      "prompt": "Un diriginte îi cere unui elev să strângă banii pentru excursie și să-i țină într-o cutie la catedră. Ce spune regulamentul?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Este permis, dacă dirigintele supraveghează cutia.",
+          "isCorrect": false,
+          "why": "Interdicția nu depinde de supravegherea dirigintelui."
+        },
+        {
+          "id": "B",
+          "text": "Este permis, dacă există acordul scris al directorului.",
+          "isCorrect": false,
+          "why": "Acordul directorului nu poate legitima o practică interzisă."
+        },
+        {
+          "id": "C",
+          "text": "Este permis, dacă suma strânsă este mai mică de un anumit plafon.",
+          "isCorrect": false,
+          "why": "Regulamentul nu prevede niciun plafon: interdicția este generală."
+        },
+        {
+          "id": "D",
+          "text": "Este interzisă implicarea copiilor în strângerea și gestionarea fondurilor și constituie abatere disciplinară.",
+          "isCorrect": true
+        }
+      ],
+      "correctOptionId": "D",
+      "explanation": "Regula: Este interzisă și constituie abatere disciplinară implicarea copiilor sau a personalului unității în strângerea și/sau gestionarea fondurilor.\n\nFondurile se gestionează prin asociația de părinți, cu respectarea legislației financiare, nu prin elevi sau personalul unității.\n\nTemei: articolul 165 alineatul (3). Textul relevant: „Este interzisă și constituie abatere disciplinară implicarea copiilor/beneficiarilor primari sau a personalului din unitatea de învățământ în strângerea și/sau gestionarea fondurilor.”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "articolul 165 alineatul (3)",
+        "excerpt": "Este interzisă și constituie abatere disciplinară implicarea copiilor/beneficiarilor primari sau a personalului din unitatea de învățământ în strângerea și/sau gestionarea fondurilor.",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-242",
+      "kind": "aplicare",
+      "difficulty": "expert",
+      "module": "Titlul IX. Partenerii educaționali",
+      "annex": "",
+      "title": "Titlul IX. Partenerii educaționali",
+      "chapter": "Capitolul V. Consiliul reprezentativ al părinților/reprezentanților legali. Asociația de părinți",
+      "section": "",
+      "article": 166,
+      "paragraph": "(3)",
+      "prompt": "Consiliul reprezentativ al părinților din școală vrea să deschidă un cont bancar și să colecteze cotizații pentru a cumpăra echipamente. Este posibil?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Nu, pentru că nu are personalitate juridică și nu are dreptul de a colecta cotizații sau de a primi finanțări.",
+          "isCorrect": true
+        },
+        {
+          "id": "B",
+          "text": "Da, dacă hotărârea este votată de adunarea generală a președinților comitetelor.",
+          "isCorrect": false,
+          "why": "Votul nu îi conferă personalitate juridică și dreptul de a colecta fonduri."
+        },
+        {
+          "id": "C",
+          "text": "Da, dacă directorul semnează aprobarea.",
+          "isCorrect": false,
+          "why": "Aprobarea directorului nu schimbă natura juridică a consiliului."
+        },
+        {
+          "id": "D",
+          "text": "Da, dar numai pentru sume mici.",
+          "isCorrect": false,
+          "why": "Interdicția de a colecta cotizații și donații nu depinde de valoarea sumelor."
+        }
+      ],
+      "correctOptionId": "A",
+      "explanation": "Regula: Consiliul reprezentativ este o structură fără personalitate juridică, fără patrimoniu și buget, fără dreptul de a colecta cotizații, donații sau finanțări. Pentru bani se poate constitui asociația de părinți, cu personalitate juridică.\n\nPentru colectarea și gestionarea fondurilor există asociația de părinți, nu consiliul reprezentativ.\n\nTemei: articolul 166 alineatele (3) și (4). Textul relevant: „Consiliul reprezentativ al părinților/reprezentanților legali este o structură fără personalitate juridică a cărei activitate este reglementată printr-un regulament adoptat prin hotărârea adunării generale a președinților comitetelor de părinți pe grupă/clasă din unitatea de învățământ, care nu are patrimoniu, nu are buget de venituri și cheltuieli, nu are dreptul de a colecta cotizații, donații și a primi finanțări de orice fel de la persoane fizice sau juridice.”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "articolul 166 alineatele (3) și (4)",
+        "excerpt": "Consiliul reprezentativ al părinților/reprezentanților legali este o structură fără personalitate juridică a cărei activitate este reglementată printr-un regulament adoptat prin hotărârea adunării generale a președinților comitetelor de părinți pe grupă/clasă din unitatea de învățământ, care nu are patrimoniu, nu are buget de venituri și cheltuieli, nu are dreptul de a colecta cotizații, donații și a primi finanțări de orice fel de la persoane fizice sau juridice.",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-243",
+      "kind": "aplicare",
+      "difficulty": "expert",
+      "module": "Titlul IX. Partenerii educaționali",
+      "annex": "",
+      "title": "Titlul IX. Partenerii educaționali",
+      "chapter": "Capitolul V. Consiliul reprezentativ al părinților/reprezentanților legali. Asociația de părinți",
+      "section": "",
+      "article": 167,
+      "paragraph": "(4)",
+      "prompt": "Consiliul reprezentativ are 18 membri. La prima convocare se prezintă 11. Este ședința statutară? Dar la a doua convocare?",
+      "options": [
+        {
+          "id": "A",
+          "text": "La prima convocare da, iar la reconvocare nu.",
+          "isCorrect": false,
+          "why": "Cvorumul la prima convocare este de două treimi, care nu este atins cu 11 din 18."
+        },
+        {
+          "id": "B",
+          "text": "La prima convocare nu (11 < 12), dar la reconvocare da (11 ≥ 10).",
+          "isCorrect": true
+        },
+        {
+          "id": "C",
+          "text": "Nici la prima convocare, nici la reconvocare.",
+          "isCorrect": false,
+          "why": "La reconvocare cvorumul este de jumătate plus unu (10), iar 11 îl depășește."
+        },
+        {
+          "id": "D",
+          "text": "Da, în ambele cazuri, pentru că 11 reprezintă majoritatea.",
+          "isCorrect": false,
+          "why": "La prima convocare sunt necesare două treimi (12), deci 11 nu este suficient."
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Regula: Consiliul este întrunit statutar în prezența a două treimi din total (12 din 18). Dacă nu se întrunește cvorumul, ședința se reconvoacă și este statutară în prezența a jumătate plus unu din total (10 din 18).\n\nCvorumul scade la reconvocare, pentru a evita blocarea activității consiliului.\n\nTemei: articolul 167 alineatul (4). Textul relevant: „Consiliul reprezentativ al părinților/reprezentanților legali este întrunit statutar în prezența a două treimi din numărul total al membrilor, iar hotărârile se adoptă prin vot deschis, cu majoritatea simplă a voturilor celor prezenți. În situația în care nu se întrunește cvorumul, ședința se reconvoacă pentru o dată ulterioară, fiind statutară în prezența a jumătate plus 1 din totalul membrilor.”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "articolul 167 alineatul (4)",
+        "excerpt": "Consiliul reprezentativ al părinților/reprezentanților legali este întrunit statutar în prezența a două treimi din numărul total al membrilor, iar hotărârile se adoptă prin vot deschis, cu majoritatea simplă a voturilor celor prezenți. În situația în care nu se întrunește cvorumul, ședința se reconvoacă pentru o dată ulterioară, fiind statutară în prezența a jumătate plus 1 din totalul membrilor.",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-244",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Titlul IX. Partenerii educaționali",
+      "annex": "",
+      "title": "Titlul IX. Partenerii educaționali",
+      "chapter": "Capitolul V. Consiliul reprezentativ al părinților/reprezentanților legali. Asociația de părinți",
+      "section": "",
+      "article": 169,
+      "paragraph": "(1)",
+      "prompt": "Consiliul reprezentativ atrage o donație dintr-o firmă pentru școală. Cine gestionează banii și pentru ce pot fi folosiți?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Consiliul gestionează banii în contul propriu și îi folosește oricum dorește.",
+          "isCorrect": false,
+          "why": "Consiliul nu are patrimoniu sau buget; resursele sunt gestionate de unitate."
+        },
+        {
+          "id": "B",
+          "text": "Banii sunt gestionați de președintele consiliului și folosiți doar pentru excursii.",
+          "isCorrect": false,
+          "why": "Resursele sunt gestionate de unitate și au destinații mai largi."
+        },
+        {
+          "id": "C",
+          "text": "Banii sunt gestionați de unitatea de învățământ și pot fi folosiți, printre altele, pentru modernizarea bazei materiale, premii și sprijin pentru copiii din familii nevoiașe.",
+          "isCorrect": true
+        },
+        {
+          "id": "D",
+          "text": "Donațiile sunt interzise, iar firma trebuie să sponsorizeze doar prin asociația de părinți.",
+          "isCorrect": false,
+          "why": "Consiliul poate face demersuri pentru donații, iar resursele sunt gestionate de unitate."
+        }
+      ],
+      "correctOptionId": "C",
+      "explanation": "Regula: Consiliul poate face demersuri pentru atragerea de resurse financiare, care vor fi gestionate de unitatea de învățământ și folosite pentru modernizarea bazei materiale, premii și burse, activități extrașcolare, sprijin pentru copii din familii cu situație materială precară și alte activități aprobate de adunarea generală.\n\nConsiliul atrage resursele, dar nu le gestionează: gestionarea revine unității.\n\nTemei: articolul 169 alineatul (1). Textul relevant: „Consiliul reprezentativ al părinților/reprezentanților legali din unitatea de învățământ poate face demersuri privind atragerea de resurse financiare, care vor fi gestionate de către unitatea de învățământ, constând în contribuții, donații, sponsorizări etc. din partea unor persoane fizice sau juridice din țară și din străinătate”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "articolul 169 alineatul (1)",
+        "excerpt": "Consiliul reprezentativ al părinților/reprezentanților legali din unitatea de învățământ poate face demersuri privind atragerea de resurse financiare, care vor fi gestionate de către unitatea de învățământ, constând în contribuții, donații, sponsorizări etc. din partea unor persoane fizice sau juridice din țară și din străinătate",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-245",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Titlul IX. Partenerii educaționali",
+      "annex": "",
+      "title": "Titlul IX. Partenerii educaționali",
+      "chapter": "Capitolul VI. Contractul educațional",
+      "section": "",
+      "article": 170,
+      "paragraph": "(1)",
+      "prompt": "Când se încheie contractul educațional și ce caracter juridic are?",
+      "options": [
+        {
+          "id": "A",
+          "text": "La începutul fiecărui an școlar; este un contract negociabil.",
+          "isCorrect": false,
+          "why": "Se încheie la înscrierea în registrul unic matricol și este un contract de adeziune."
+        },
+        {
+          "id": "B",
+          "text": "La finalul anului școlar; este un contract de prestări servicii.",
+          "isCorrect": false,
+          "why": "Momentul este înscrierea; natura juridică este de adeziune."
+        },
+        {
+          "id": "C",
+          "text": "Doar la cererea părintelui; este un contract facultativ.",
+          "isCorrect": false,
+          "why": "Unitățile au obligația să încheie contractul educațional."
+        },
+        {
+          "id": "D",
+          "text": "La înscrierea în registrul unic matricol; este un contract de adeziune.",
+          "isCorrect": true
+        }
+      ],
+      "correctOptionId": "D",
+      "explanation": "Regula: Contractul educațional se încheie cu părinții sau reprezentanții legali (sau elevul major) în momentul înscrierii beneficiarilor primari în registrul unic matricol și are caracterul juridic al unui contract de adeziune.\n\nFiind contract de adeziune, clauzele standard nu se negociază, dar se pot adăuga clauze prin hotărâre a consiliului de administrație.\n\nTemei: articolul 170 alineatul (1). Textul relevant: „Unitățile de învățământ încheie cu părinții sau reprezentanții legali/elevii majori, în momentul înscrierii beneficiarilor primari în registrul unic matricol, un contract educațional, în care sunt înscrise drepturile și obligațiile reciproce ale părților, conform prevederilor legale în vigoare. Contractul educațional are caracterul juridic al unui contract de adeziune.”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "articolul 170 alineatul (1)",
+        "excerpt": "Unitățile de învățământ încheie cu părinții sau reprezentanții legali/elevii majori, în momentul înscrierii beneficiarilor primari în registrul unic matricol, un contract educațional, în care sunt înscrise drepturile și obligațiile reciproce ale părților, conform prevederilor legale în vigoare. Contractul educațional are caracterul juridic al unui contract de adeziune.",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-246",
+      "kind": "aplicare",
+      "difficulty": "expert",
+      "module": "Titlul IX. Partenerii educaționali",
+      "annex": "",
+      "title": "Titlul IX. Partenerii educaționali",
+      "chapter": "Capitolul VI. Contractul educațional",
+      "section": "",
+      "article": 171,
+      "paragraph": "(2)",
+      "prompt": "Un elev încheie clasa a VIII-a și pleacă din școală. Cât timp păstrează unitatea contractul educațional și în câte exemplare s-a încheiat?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Pe toată perioada de școlarizare și încă doi ani după plecarea elevului; contractul are două exemplare originale.",
+          "isCorrect": true
+        },
+        {
+          "id": "B",
+          "text": "Doar pe perioada școlarizării; contractul are un singur exemplar.",
+          "isCorrect": false,
+          "why": "Arhivarea continuă încă doi ani, iar contractul are două exemplare originale."
+        },
+        {
+          "id": "C",
+          "text": "Un an după plecare; contractul are trei exemplare.",
+          "isCorrect": false,
+          "why": "Termenul după plecare este de doi ani, iar exemplarele sunt două."
+        },
+        {
+          "id": "D",
+          "text": "Până la finalul anului școlar curent; contractul are două exemplare.",
+          "isCorrect": false,
+          "why": "Arhivarea se face pe perioada școlarizării și încă doi ani."
+        }
+      ],
+      "correctOptionId": "A",
+      "explanation": "Regula: Contractul se încheie în două exemplare originale, unul pentru părinte/elev major și altul pentru unitate. Unitatea îl arhivează pe toată perioada de școlarizare și încă doi ani de la plecarea elevului.\n\nPerioada de arhivare se extinde cu doi ani după plecarea elevului.\n\nTemei: articolul 171 alineatul (2). Textul relevant: „Unitatea de învățământ arhivează exemplarul contractului educațional pe toată perioada de școlarizare a elevului și pentru încă doi ani din momentul în care elevul părăsește unitatea de învățământ.”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "articolul 171 alineatul (2)",
+        "excerpt": "Unitatea de învățământ arhivează exemplarul contractului educațional pe toată perioada de școlarizare a elevului și pentru încă doi ani din momentul în care elevul părăsește unitatea de învățământ.",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-247",
+      "kind": "aplicare",
+      "difficulty": "expert",
+      "module": "Titlul IX. Partenerii educaționali",
+      "annex": "",
+      "title": "Titlul IX. Partenerii educaționali",
+      "chapter": "Capitolul VI. Contractul educațional",
+      "section": "",
+      "article": 172,
+      "paragraph": "(1)",
+      "prompt": "Un părinte refuză să semneze contractul educațional. Ce consecință prevede regulamentul?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Copilul nu este înscris în școală.",
+          "isCorrect": false,
+          "why": "Regulamentul prevede sancțiune contravențională, nu refuzul înscrierii."
+        },
+        {
+          "id": "B",
+          "text": "Contravenție sancționată cu amendă de la 1.000 la 5.000 de lei.",
+          "isCorrect": true
+        },
+        {
+          "id": "C",
+          "text": "Nicio consecință, deoarece contractul este facultativ.",
+          "isCorrect": false,
+          "why": "Refuzul semnării este contravenție."
+        },
+        {
+          "id": "D",
+          "text": "Părintele este declarat în conflict cu școala, fără sancțiune.",
+          "isCorrect": false,
+          "why": "Sancțiunea este amenda contravențională."
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Regula: Refuzul de a semna contractul educațional de către părinte este contravenție, sancționată cu amendă de la 1.000 la 5.000 de lei. Aceeași amendă (sau prestarea unei activități în folosul comunității) se aplică directorului care refuză semnarea.\n\nObligația de a semna există pentru ambele părți, iar directorul riscă amenda sau o activitate în folosul comunității.\n\nTemei: articolul 172 alineatul (1) litera a). Textul relevant: „refuzul semnării contractului educațional de către părinte sau reprezentantul legal, se sancționează cu amendă de la 1.000 de lei la 5.000 de lei;”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "articolul 172 alineatul (1) litera a)",
+        "excerpt": "refuzul semnării contractului educațional de către părinte sau reprezentantul legal, se sancționează cu amendă de la 1.000 de lei la 5.000 de lei;",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-248",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Titlul IX. Partenerii educaționali",
+      "annex": "",
+      "title": "Titlul IX. Partenerii educaționali",
+      "chapter": "Capitolul VII. Școala și comunitatea. Parteneriate și protocoale",
+      "section": "",
+      "article": 178,
+      "paragraph": "(2)",
+      "prompt": "O școală încheie un parteneriat cu o firmă, iar firma ar dori să facă publicitate produselor sale în timpul activităților cu elevii. Este permis?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Da, dacă firma sponsorizează activitatea.",
+          "isCorrect": false,
+          "why": "Sponsorizarea nu transformă activitatea într-un cadru de publicitate."
+        },
+        {
+          "id": "B",
+          "text": "Da, dar numai la finalul activității.",
+          "isCorrect": false,
+          "why": "Interdicția nu depinde de momentul publicității."
+        },
+        {
+          "id": "C",
+          "text": "Nu, în parteneriatele cu agenții economici nu se poate face publicitate la produsele sau serviciile lor.",
+          "isCorrect": true
+        },
+        {
+          "id": "D",
+          "text": "Da, cu acordul dirigintelui.",
+          "isCorrect": false,
+          "why": "Acordul dirigintelui nu poate permite ceea ce este interzis."
+        }
+      ],
+      "correctOptionId": "C",
+      "explanation": "Regula: Activitățile derulate în parteneriat nu pot avea conotații politice, propagandă electorală sau prozelitism religios și nu pot fi contrare moralei sau legilor, iar în parteneriatele cu agenții economici nu se poate face publicitate la produsele sau serviciile acestora.\n\nParteneriatul urmărește obiective educaționale, nu promovarea comercială.\n\nTemei: articolul 178 alineatul (2). Textul relevant: „Activitățile derulate în parteneriat nu pot avea conotații politice, de propagandă electorală, de prozelitism religios, nu pot fi contrare moralei sau legilor statului, iar în cazul parteneriatelor cu agenții economici nu se poate face publicitate la produsele sau serviciile acestora.”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "articolul 178 alineatul (2)",
+        "excerpt": "Activitățile derulate în parteneriat nu pot avea conotații politice, de propagandă electorală, de prozelitism religios, nu pot fi contrare moralei sau legilor statului, iar în cazul parteneriatelor cu agenții economici nu se poate face publicitate la produsele sau serviciile acestora.",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-249",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Titlul IX. Partenerii educaționali",
+      "annex": "",
+      "title": "Titlul IX. Partenerii educaționali",
+      "chapter": "Capitolul VII. Școala și comunitatea. Parteneriate și protocoale",
+      "section": "",
+      "article": 180,
+      "paragraph": "(3)",
+      "prompt": "Școala semnează un protocol cu o organizație pentru o excursie la un muzeu din alt oraș. Ce trebuie să precizeze neapărat protocolul, în plus față de responsabilitățile părților?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Doar bugetul total al activității.",
+          "isCorrect": false,
+          "why": "Regulamentul cere precizarea responsabilității pentru securitatea copiilor."
+        },
+        {
+          "id": "B",
+          "text": "Doar numele coordonatorului din partea organizației.",
+          "isCorrect": false,
+          "why": "Elementul obligatoriu este responsabilitatea pentru securitate."
+        },
+        {
+          "id": "C",
+          "text": "Doar durata exactă a deplasării.",
+          "isCorrect": false,
+          "why": "Durata nu înlocuiește precizarea părții responsabile pentru securitate."
+        },
+        {
+          "id": "D",
+          "text": "Cărei părți îi revine responsabilitatea asigurării securității copiilor.",
+          "isCorrect": true
+        }
+      ],
+      "correctOptionId": "D",
+      "explanation": "Regula: Dacă activitățile se desfășoară în afara perimetrului unității, protocolul specifică concret cărei părți îi revine responsabilitatea asigurării securității copiilor. Rezultatul activităților se face public prin afișare, site, comunicate de presă etc.\n\nFără o clauză clară despre securitate, răspunderea pentru elevi rămâne neprecizată.\n\nTemei: articolul 180 alineatul (3). Textul relevant: „În cazul derulării unor activități în afara perimetrului unității de învățământ, în protocol se va specifica concret cărei părți îi revine responsabilitatea asigurării securității copiilor/beneficiarilor primari.”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "articolul 180 alineatul (3)",
+        "excerpt": "În cazul derulării unor activități în afara perimetrului unității de învățământ, în protocol se va specifica concret cărei părți îi revine responsabilitatea asigurării securității copiilor/beneficiarilor primari.",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-250",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Titlul X. Dispoziții tranzitorii și finale",
+      "annex": "",
+      "title": "Titlul X. Dispoziții tranzitorii și finale",
+      "chapter": "Dispoziții tranzitorii și finale",
+      "section": "",
+      "article": 181,
+      "paragraph": "",
+      "prompt": "Un director propune ca părinții să contribuie cu o sumă pentru un „fond de protocol” destinat organizării evaluărilor naționale în școală. Ce spune regulamentul?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Este interzisă constituirea unor astfel de fonduri.",
+          "isCorrect": true
+        },
+        {
+          "id": "B",
+          "text": "Este permis dacă adunarea generală a părinților votează.",
+          "isCorrect": false,
+          "why": "Votul nu poate legitima un fond interzis."
+        },
+        {
+          "id": "C",
+          "text": "Este permis, dar suma trebuie să fie mică.",
+          "isCorrect": false,
+          "why": "Interdicția nu depinde de valoare."
+        },
+        {
+          "id": "D",
+          "text": "Este permis, doar prin asociația de părinți.",
+          "isCorrect": false,
+          "why": "Interdicția acoperă orice fond destinat examenelor sau evaluărilor naționale."
+        }
+      ],
+      "correctOptionId": "A",
+      "explanation": "Regula: Se interzice constituirea de fonduri de protocol sau a oricărui alt fond destinat derulării examenelor sau evaluărilor naționale.\n\nInterdicția este absolută și protejează transparența examenelor naționale.\n\nTemei: articolul 181. Textul relevant: „Se interzice constituirea de fonduri de protocol sau a oricărui alt fond destinat derulării examenelor/evaluărilor naționale.”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "articolul 181",
+        "excerpt": "Se interzice constituirea de fonduri de protocol sau a oricărui alt fond destinat derulării examenelor/evaluărilor naționale.",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-251",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Titlul X. Dispoziții tranzitorii și finale",
+      "annex": "",
+      "title": "Titlul X. Dispoziții tranzitorii și finale",
+      "chapter": "Dispoziții tranzitorii și finale",
+      "section": "",
+      "article": 182,
+      "paragraph": "(5)",
+      "prompt": "Un director vrea să monteze în școală un automat care vinde băuturi energizante, cu un profit pentru fondul școlii. Este permis?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Da, dacă automatul este amplasat în afara clădirii școlii.",
+          "isCorrect": false,
+          "why": "Interdicția vizează unitatea de învățământ; automatul din incintă nu este permis."
+        },
+        {
+          "id": "B",
+          "text": "Da, dacă sunt vândute doar elevilor din liceu.",
+          "isCorrect": false,
+          "why": "Nu există excepție pentru anumite categorii de elevi."
+        },
+        {
+          "id": "C",
+          "text": "Nu, comercializarea și oferirea gratuită a băuturilor energizante, inclusiv prin automate, sunt interzise.",
+          "isCorrect": true
+        },
+        {
+          "id": "D",
+          "text": "Da, cu acordul consiliului de administrație.",
+          "isCorrect": false,
+          "why": "Acordul consiliului de administrație nu poate institui o excepție."
+        }
+      ],
+      "correctOptionId": "C",
+      "explanation": "Regula: În unitățile de învățământ comercializarea sau oferirea gratuită de băuturi energizante, inclusiv prin automate comerciale, este interzisă.\n\nInterdicția acoperă atât vânzarea, cât și oferirea gratuită, inclusiv prin automate comerciale.\n\nTemei: articolul 182 alineatul (5). Textul relevant: „În unitățile de învățământ comercializarea sau oferirea cu titlu gratuit, inclusiv prin automate comerciale, a băuturilor energizante sunt interzise”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "articolul 182 alineatul (5)",
+        "excerpt": "În unitățile de învățământ comercializarea sau oferirea cu titlu gratuit, inclusiv prin automate comerciale, a băuturilor energizante sunt interzise",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-252",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Titlul X. Dispoziții tranzitorii și finale",
+      "annex": "",
+      "title": "Titlul X. Dispoziții tranzitorii și finale",
+      "chapter": "Dispoziții tranzitorii și finale",
+      "section": "",
+      "article": 182,
+      "paragraph": "(6)",
+      "prompt": "Un profesor vrea ca elevii să folosească telefoanele pentru un exercițiu la clasă. Un elev folosește telefonul fără permisiune. Ce spune regulamentul despre utilizare și despre ce se poate face cu echipamentul?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Utilizarea este liberă în pauze și în ore; echipamentul nu poate fi preluat.",
+          "isCorrect": false,
+          "why": "În timpul orelor utilizarea este permisă doar la solicitarea cadrului didactic."
+        },
+        {
+          "id": "B",
+          "text": "Utilizarea este permisă numai la solicitarea cadrului didactic; nerespectarea poate duce la preluarea echipamentului pentru predare părinților sau elevului major.",
+          "isCorrect": true
+        },
+        {
+          "id": "C",
+          "text": "Utilizarea este interzisă total; echipamentul se confiscă definitiv.",
+          "isCorrect": false,
+          "why": "Nu este interzisă total, iar echipamentul se predă părinților sau elevului major, nu se confiscă definitiv."
+        },
+        {
+          "id": "D",
+          "text": "Utilizarea este permisă dacă directorul a aprobat în scris.",
+          "isCorrect": false,
+          "why": "Condiția este solicitarea cadrului didactic pentru procesul educativ."
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Regula: În timpul orelor, telefonul poate fi folosit numai la solicitarea cadrului didactic, când este folosit în procesul educativ. Nerespectarea poate duce la preluarea echipamentului de personalul unității, în vederea predării către părinți sau elevul major, conform regulamentului intern. Excepție pentru echipamentele autorizate ale elevilor cu CES.\n\nPreluarea echipamentului este urmată de predare, nu de păstrare, iar modalitatea este stabilită prin regulamentul de organizare și funcționare al unității.\n\nTemei: articolul 182 alineatele (6) și (7). Textul relevant: „utilizarea acestora în timpul orelor de curs se poate face numai la solicitarea cadrului didactic, în situația folosirii lor în procesul educativ.”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "articolul 182 alineatele (6) și (7)",
+        "excerpt": "utilizarea acestora în timpul orelor de curs se poate face numai la solicitarea cadrului didactic, în situația folosirii lor în procesul educativ.",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-253",
+      "kind": "aplicare",
+      "difficulty": "expert",
+      "module": "Titlul X. Dispoziții tranzitorii și finale",
+      "annex": "",
+      "title": "Titlul X. Dispoziții tranzitorii și finale",
+      "chapter": "Dispoziții tranzitorii și finale",
+      "section": "",
+      "article": 183,
+      "paragraph": "(2)",
+      "prompt": "Un diriginte hotărăște că elevii care nu poartă uniforma școlii vor face serviciu pe școală sau nu vor fi primiți la ore. Este legal?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Da, dacă măsura este aprobată de consiliul clasei.",
+          "isCorrect": false,
+          "why": "Aprobarea consiliului clasei nu poate legitima o măsură interzisă."
+        },
+        {
+          "id": "B",
+          "text": "Da, dar doar o dată pe semestru.",
+          "isCorrect": false,
+          "why": "Nu există limită permisă: măsurile sunt interzise."
+        },
+        {
+          "id": "C",
+          "text": "Da, dacă părinții au semnat contractul educațional.",
+          "isCorrect": false,
+          "why": "Contractul educațional nu poate permite măsuri care limitează accesul la educație."
+        },
+        {
+          "id": "D",
+          "text": "Nu, sunt interzise măsurile care limitează accesul la educație, inclusiv sancționarea elevilor care nu poartă uniforma.",
+          "isCorrect": true
+        }
+      ],
+      "correctOptionId": "D",
+      "explanation": "Regula: Sunt interzise măsurile care limitează accesul la educație, cum ar fi serviciul pe școală, interzicerea participării la cursuri sau sancționarea elevilor care nu poartă uniforma.\n\nDreptul la educație nu poate fi condiționat de uniformă, iar serviciul pe școală ca sancțiune este interzis.\n\nTemei: articolul 183 alineatul (2). Textul relevant: „În unitățile de învățământ sunt interzise măsurile care pot limita accesul la educație al beneficiarilor primari, cum ar fi, de exemplu, efectuarea de către aceștia a serviciului pe școală, interzicerea participării la cursuri sau sancționarea beneficiarilor primari care nu poartă uniforma unității de învățământ sau altele asemenea.”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "articolul 183 alineatul (2)",
+        "excerpt": "În unitățile de învățământ sunt interzise măsurile care pot limita accesul la educație al beneficiarilor primari, cum ar fi, de exemplu, efectuarea de către aceștia a serviciului pe școală, interzicerea participării la cursuri sau sancționarea beneficiarilor primari care nu poartă uniforma unității de învățământ sau altele asemenea.",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-254",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Titlul X. Dispoziții tranzitorii și finale",
+      "annex": "",
+      "title": "Titlul X. Dispoziții tranzitorii și finale",
+      "chapter": "Dispoziții tranzitorii și finale",
+      "section": "",
+      "article": 184,
+      "paragraph": "(1)",
+      "prompt": "Ce documente trebuie să publice pe site-ul propriu orice unitate de învățământ preuniversitar, pentru fiecare clădire?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Autorizația de securitate la incendiu pentru fiecare clădire și autorizația sanitară de funcționare.",
+          "isCorrect": true
+        },
+        {
+          "id": "B",
+          "text": "Doar planul de școlarizare și organigrama.",
+          "isCorrect": false,
+          "why": "Obligația privește autorizația de securitate la incendiu și autorizația sanitară."
+        },
+        {
+          "id": "C",
+          "text": "Doar bugetul anual și raportul de activitate.",
+          "isCorrect": false,
+          "why": "Aceste documente nu sunt cele prevăzute de articolul 184."
+        },
+        {
+          "id": "D",
+          "text": "Doar regulamentul de ordine interioară.",
+          "isCorrect": false,
+          "why": "Regulamentul intern nu înlocuiește publicarea autorizațiilor."
+        }
+      ],
+      "correctOptionId": "A",
+      "explanation": "Regula: Unitățile au obligația să publice pe site-urile proprii și prin orice formă de comunicare publică autorizația de securitate la incendiu pentru fiecare clădire și autorizația sanitară de funcționare. Dacă lipsesc, trebuie să informeze public dacă se impune obținerea lor.\n\nDacă documentele lipsesc, unitatea are obligația să informeze public acest fapt, inclusiv dacă se impune obținerea lor.\n\nTemei: articolul 184 alineatele (1)-(3). Textul relevant: „Unitățile de învățământ preuniversitar și unitățile de educație extrașcolară au obligația publicării pe site-urile proprii și prin orice altă formă de comunicare publică existentă la nivelul unității școlare, a autorizației de securitate la incendiu pentru fiecare clădire de învățământ, precum și a autorizației sanitare de funcționare.”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "articolul 184 alineatele (1)-(3)",
+        "excerpt": "Unitățile de învățământ preuniversitar și unitățile de educație extrașcolară au obligația publicării pe site-urile proprii și prin orice altă formă de comunicare publică existentă la nivelul unității școlare, a autorizației de securitate la incendiu pentru fiecare clădire de învățământ, precum și a autorizației sanitare de funcționare.",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-255",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Titlul X. Dispoziții tranzitorii și finale",
+      "annex": "",
+      "title": "Titlul X. Dispoziții tranzitorii și finale",
+      "chapter": "Dispoziții tranzitorii și finale",
+      "section": "",
+      "article": 186,
+      "paragraph": "",
+      "prompt": "Cine aprobă regulamentul de organizare și funcționare al unității și ce alt act trebuie respectat la elaborarea lui, în afară de regulamentul-cadru?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Consiliul profesoral; se respectă și contractul colectiv de muncă.",
+          "isCorrect": false,
+          "why": "Aprobarea este a consiliului de administrație, iar actul cerut este Statutul elevului."
+        },
+        {
+          "id": "B",
+          "text": "Consiliul de administrație; se respectă și Statutul elevului.",
+          "isCorrect": true
+        },
+        {
+          "id": "C",
+          "text": "Directorul, singur; se respectă doar regulamentul-cadru.",
+          "isCorrect": false,
+          "why": "Aprobarea este a consiliului de administrație, iar Statutul elevului trebuie respectat."
+        },
+        {
+          "id": "D",
+          "text": "Inspectoratul școlar; se respectă și metodologia de mobilitate.",
+          "isCorrect": false,
+          "why": "Regulamentul intern este aprobat de consiliul de administrație al unității."
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Regula: Consiliul de administrație aprobă propriul regulament de organizare și funcționare pe baza regulamentului-cadru. La elaborarea regulamentului de organizare și funcționare și a regulamentului de ordine interioară se respectă și Statutul elevului.\n\nRegulamentul intern nu poate contrazice nici regulamentul-cadru, nici Statutul elevului.\n\nTemei: articolul 186 alineatele (1) și (2). Textul relevant: „La elaborarea regulamentului de organizare și funcționare și a regulamentului de ordine interioară se respectă și prevederile din Statutul elevului, aprobat prin ordin al ministrului educației.”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "articolul 186 alineatele (1) și (2)",
+        "excerpt": "La elaborarea regulamentului de organizare și funcționare și a regulamentului de ordine interioară se respectă și prevederile din Statutul elevului, aprobat prin ordin al ministrului educației.",
         "verification": "fragment-exact-din-sursa-consolidata"
       }
     }
