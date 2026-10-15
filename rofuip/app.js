@@ -1,7 +1,7 @@
 "use strict";
 
-const STORAGE_KEY = "concurs-rofuip-progress-v1";
-const PROGRESS_VERSION = 1;
+const STORAGE_KEY = "concurs-rofuip-progress-v2";
+const PROGRESS_VERSION = 2;
 
 const state = {
   bank: [],
@@ -88,8 +88,8 @@ function bindEvents() {
 }
 
 function validateBank(payload) {
-  if (!payload || !Array.isArray(payload.questions) || payload.questions.length !== 1000) {
-    throw new Error("Banca nu conține exact 1000 de itemi.");
+  if (!payload || !Array.isArray(payload.questions) || payload.questions.length < 20) {
+    throw new Error("Banca nu conține minimum 20 de itemi verificați.");
   }
   const ids = new Set();
   for (const question of payload.questions) {
@@ -532,10 +532,10 @@ function shuffle(items) {
 }
 
 function resultMessage(percent) {
-  if (percent >= 90) return "Nivel foarte bun. Revizuiește totuși explicațiile pentru a fixa diferențele fine dintre articole.";
-  if (percent >= 75) return "Bază solidă. Reia itemii greșiți și urmărește mai ales competența, termenul și excepția.";
-  if (percent >= 50) return "Progres bun, dar unele formulări apropiate încă se confundă. Folosește modul Greșeli.";
-  return "Continuă pe capitole scurte. Explicațiile și reîncercarea greșelilor vor consolida treptat materia.";
+  if (percent >= 90) return "Nivel foarte bun. Revizuiește explicațiile pentru a fixa traseul decizional și excepțiile.";
+  if (percent >= 75) return "Bază solidă. Reia spețele greșite și urmărește cine propune, cine aprobă și în ce termen.";
+  if (percent >= 50) return "Progres bun. Folosește modul Greșeli pentru procedurile și limitele care încă se confundă.";
+  return "Continuă cu sesiuni scurte. Spețele și explicațiile juridice vor consolida treptat materia.";
 }
 
 function announce(message) {
