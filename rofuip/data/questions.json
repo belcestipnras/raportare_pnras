@@ -7,7 +7,7 @@
     "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
     "method": "itemi situaționali redactați manual și verificați pe fragmentele exacte ale formei consolidate"
   },
-  "count": 135,
+  "count": 148,
   "questions": [
     {
       "id": "RF-A-001",
@@ -6126,6 +6126,630 @@
         "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
         "reference": "articolul 27 alineatele (1) și (2)",
         "excerpt": "Perioada concediului anual de odihnă al directorului adjunct se aprobă de către directorul unității de învățământ. (2)Rechemarea din concediu a directorului adjunct se poate realiza de către directorul unității de învățământ sau de către inspectorul școlar general al ISJ/ISMB, cu respectarea obligațiilor legale de către angajator.",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-136",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Titlul III. Managementul unităților de învățământ",
+      "annex": "",
+      "title": "Titlul III. Managementul unităților de învățământ",
+      "chapter": "Capitolul I. Dispoziții generale",
+      "section": "",
+      "article": 17,
+      "paragraph": "(1)",
+      "prompt": "Unitatea de învățământ de stat este chemată în judecată într-un litigiu. Directorul consideră că problema este a inspectoratului școlar și nu se ocupă de ea. Este corect?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Nu, deoarece directorul, în calitate de reprezentant legal, este obligat să asigure dreptul la apărare și reprezentarea unității, iar nerespectarea obligației este abatere disciplinară.",
+          "isCorrect": true
+        },
+        {
+          "id": "B",
+          "text": "Da, deoarece reprezentarea unității în instanță revine inspectoratului școlar, prin consilierul juridic.",
+          "isCorrect": false,
+          "why": "Inspectoratul asigură, prin consilierul juridic, doar consultanță de specialitate, la solicitarea scrisă a directorului. Reprezentarea unității rămâne la director."
+        },
+        {
+          "id": "C",
+          "text": "Da, dacă litigiul privește un salariat și nu unitatea ca atare.",
+          "isCorrect": false,
+          "why": "Obligația se aplică pentru toate litigiile în care este implicată unitatea, fără o excepție legată de obiectul litigiului."
+        },
+        {
+          "id": "D",
+          "text": "Nu, dar numai dacă pretențiile depășesc o valoare stabilită de consiliul de administrație.",
+          "isCorrect": false,
+          "why": "Regulamentul nu prevede un prag valoric. Obligația există pentru toate litigiile."
+        }
+      ],
+      "correctOptionId": "A",
+      "explanation": "Regula: Pentru toate litigiile în care este implicată unitatea de stat, directorul, ca reprezentant legal, este obligat să asigure dreptul la apărare și reprezentarea unității. Nerespectarea acestei obligații este abatere disciplinară (alineatul (3)).\n\nObligația aparține directorului pentru toate litigiile unității de stat. Inspectoratul poate doar să ofere consultanță juridică, la cerere (alineatul (2)).\n\nTemei: articolul 17 alineatul (1), coroborat cu alineatul (3). Textul relevant: „Pentru toate litigiile în care este implicată unitatea de învățământ de stat, directorul, în calitate de reprezentant legal, este obligat să asigure dreptul la apărare și reprezentarea unității în fața instanțelor de judecată sau a altor organe de specialitate.”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "articolul 17 alineatul (1), coroborat cu alineatul (3)",
+        "excerpt": "Pentru toate litigiile în care este implicată unitatea de învățământ de stat, directorul, în calitate de reprezentant legal, este obligat să asigure dreptul la apărare și reprezentarea unității în fața instanțelor de judecată sau a altor organe de specialitate.",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-137",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Titlul III. Managementul unităților de învățământ",
+      "annex": "",
+      "title": "Titlul III. Managementul unităților de învățământ",
+      "chapter": "Capitolul I. Dispoziții generale",
+      "section": "",
+      "article": 17,
+      "paragraph": "(2)",
+      "prompt": "Directorul primește o notificare cu termen scurt și are nevoie de sprijin juridic pentru analiza documentelor și redactarea răspunsului. Ce poate face?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Poate cere inspectoratului școlar ca, prin consilierul juridic, să redacteze și să semneze răspunsul în numele unității.",
+          "isCorrect": false,
+          "why": "Consultanța constă în analiză, explicarea legislației, evaluarea riscurilor și îndrumare în redactare. Reprezentarea unității rămâne la director (articolul 17 alineatul (1))."
+        },
+        {
+          "id": "B",
+          "text": "Poate cere în scris inspectoratului școlar consultanță de specialitate, asigurată prin consilierul juridic: analiza documentelor, evaluarea riscurilor și îndrumare în redactare.",
+          "isCorrect": true
+        },
+        {
+          "id": "C",
+          "text": "Poate cere consultanță juridică numai după o hotărâre a consiliului de administrație.",
+          "isCorrect": false,
+          "why": "Regulamentul cere o solicitare scrisă a directorului, nu o hotărâre a consiliului de administrație."
+        },
+        {
+          "id": "D",
+          "text": "Nu poate cere nimic, deoarece inspectoratul oferă consultanță juridică numai din proprie inițiativă.",
+          "isCorrect": false,
+          "why": "Consultanța se asigură la solicitarea scrisă a directorului."
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Regula: La solicitarea scrisă a directorului, inspectoratele școlare asigură, prin consilierul juridic, consultanță de specialitate pentru unitățile de stat.\n\nSolicitarea scrisă a directorului este condiția. Consultanța acoperă exact nevoia din situație: analiza documentelor și îndrumarea în redactarea răspunsului.\n\nTemei: articolul 17 alineatul (2). Textul relevant: „La solicitarea scrisă a directorului, inspectoratele școlare asigură, prin consilierul juridic, consultanță de specialitate pentru unitățile de învățământ de stat. Aceasta constă în analiza documentelor, explicarea legislației și a procedurilor, evaluarea riscurilor și oferirea de soluții punctuale, precum și îndrumare în redactarea cererilor, notificărilor, întâmpinărilor sau a altor documente cu specific juridic.”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "articolul 17 alineatul (2)",
+        "excerpt": "La solicitarea scrisă a directorului, inspectoratele școlare asigură, prin consilierul juridic, consultanță de specialitate pentru unitățile de învățământ de stat. Aceasta constă în analiza documentelor, explicarea legislației și a procedurilor, evaluarea riscurilor și oferirea de soluții punctuale, precum și îndrumare în redactarea cererilor, notificărilor, întâmpinărilor sau a altor documente cu specific juridic.",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-138",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Titlul III. Managementul unităților de învățământ",
+      "annex": "",
+      "title": "Titlul III. Managementul unităților de învățământ",
+      "chapter": "Capitolul I. Dispoziții generale",
+      "section": "",
+      "article": 16,
+      "paragraph": "(3)",
+      "prompt": "Directorul unui liceu tehnologic pregătește o decizie care afectează desfășurarea instruirii practice a elevilor. Cu cine trebuie să se consulte, după caz?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Numai cu consiliul profesoral, deoarece este singurul organism cu atribuții în organizarea instruirii practice.",
+          "isCorrect": false,
+          "why": "Alineatul (3) enumeră mai multe organisme, nu doar consiliul profesoral: elevii, părinții, autoritățile locale, sindicatele și operatorii economici."
+        },
+        {
+          "id": "B",
+          "text": "Cu operatorii economici numai dacă unitatea este particulară sau confesională.",
+          "isCorrect": false,
+          "why": "Consultarea operatorilor economici este prevăzută în alineatul (3), pentru conducerea unităților în general. Alineatul (4) privește altceva: structura consiliului de administrație în unitățile particulare și confesionale."
+        },
+        {
+          "id": "C",
+          "text": "Cu organismele interesate din lista regulamentului, între care consiliul școlar al elevilor, consiliul reprezentativ al părinților și reprezentanții operatorilor economici implicați în instruirea practică a elevilor.",
+          "isCorrect": true
+        },
+        {
+          "id": "D",
+          "text": "Cu orice operator economic din localitate, obligatoriu, înainte de fiecare decizie.",
+          "isCorrect": false,
+          "why": "Consultarea se face după caz și privește operatorii implicați în susținerea învățământului profesional și tehnic sau în instruirea practică, nu pe oricare."
+        }
+      ],
+      "correctOptionId": "C",
+      "explanation": "Regula: Consiliile de administrație și directorii se consultă, după caz, cu toate organismele interesate, inclusiv cu reprezentanții operatorilor economici implicați în învățământul profesional și tehnic sau în instruirea practică a elevilor.\n\nAlineatul (3) enumeră larg organismele de consultat, după caz. Instruirea practică privește operatorii economici implicați, elevii și părinții.\n\nTemei: articolul 16 alineatul (3). Textul relevant: „consiliul școlar al elevilor, consiliul reprezentativ al părinților/reprezentanților legali și asociația de părinți, acolo unde există, cu autoritățile administrației publice locale și organizațiile sindicale afiliate federațiilor sindicale reprezentative la nivel de sector de negociere colectivă învățământ preuniversitar, precum și cu reprezentanții operatorilor economici implicați în susținerea învățământului profesional și tehnic, inclusiv dual, respectiv a învățământului tehnologic în sistem dual și/sau în desfășurarea instruirii practice a elevilor.”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "articolul 16 alineatul (3)",
+        "excerpt": "consiliul școlar al elevilor, consiliul reprezentativ al părinților/reprezentanților legali și asociația de părinți, acolo unde există, cu autoritățile administrației publice locale și organizațiile sindicale afiliate federațiilor sindicale reprezentative la nivel de sector de negociere colectivă învățământ preuniversitar, precum și cu reprezentanții operatorilor economici implicați în susținerea învățământului profesional și tehnic, inclusiv dual, respectiv a învățământului tehnologic în sistem dual și/sau în desfășurarea instruirii practice a elevilor.",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-139",
+      "kind": "aplicare",
+      "difficulty": "expert",
+      "module": "Titlul IV. Personalul unităților de învățământ",
+      "annex": "",
+      "title": "Titlul IV. Personalul unităților de învățământ",
+      "chapter": "Capitolul III. Personalul administrativ",
+      "section": "",
+      "article": 48,
+      "paragraph": "(2)-(3)",
+      "prompt": "Se organizează concurs pentru un post de îngrijitor în unitate. Cum se împart rolurile între director și consiliul de administrație?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Inspectoratul școlar coordonează concursul, iar directorul validează rezultatele.",
+          "isCorrect": false,
+          "why": "Concursul pentru posturile administrative este coordonat de director, nu de inspectoratul școlar, iar rezultatele le validează consiliul de administrație."
+        },
+        {
+          "id": "B",
+          "text": "Consiliul de administrație organizează concursul și semnează contractul de muncă, iar directorul participă doar ca membru.",
+          "isCorrect": false,
+          "why": "Coordonarea concursului și încheierea contractului individual de muncă revin directorului, cu aprobarea consiliului de administrație."
+        },
+        {
+          "id": "C",
+          "text": "Directorul numește comisia și validează rezultatele, iar consiliul de administrație este doar informat.",
+          "isCorrect": false,
+          "why": "Comisiile se aprobă și rezultatele se validează de consiliul de administrație. Consiliul nu este doar informat."
+        },
+        {
+          "id": "D",
+          "text": "Directorul coordonează concursul, consiliul de administrație aprobă comisiile și validează rezultatele, iar directorul încheie contractul individual de muncă, cu aprobarea consiliului de administrație.",
+          "isCorrect": true
+        }
+      ],
+      "correctOptionId": "D",
+      "explanation": "Regula: Concursul pentru posturile administrative este coordonat de director. Consiliul de administrație aprobă comisiile de concurs și validează rezultatele, iar directorul angajează cu aprobarea consiliului de administrație.\n\nDirectorul conduce procesul, iar consiliul de administrație controlează etapele-cheie: comisiile, rezultatele și angajarea.\n\nTemei: articolul 48 alineatele (2) și (3). Textul relevant: „Organizarea și desfășurarea concursului de ocupare a posturilor administrative dintr-o unitate de învățământ sunt coordonate de director. Consiliul de administrație al unității de învățământ aprobă comisiile de concurs și validează rezultatele concursului. (3)Angajarea personalului administrativ în unitățile de învățământ cu personalitate juridică se face de către director, cu aprobarea consiliului de administrație, prin încheierea contractului individual de muncă.”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "articolul 48 alineatele (2) și (3)",
+        "excerpt": "Organizarea și desfășurarea concursului de ocupare a posturilor administrative dintr-o unitate de învățământ sunt coordonate de director. Consiliul de administrație al unității de învățământ aprobă comisiile de concurs și validează rezultatele concursului. (3)Angajarea personalului administrativ în unitățile de învățământ cu personalitate juridică se face de către director, cu aprobarea consiliului de administrație, prin încheierea contractului individual de muncă.",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-140",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Titlul IV. Personalul unităților de învățământ",
+      "annex": "",
+      "title": "Titlul IV. Personalul unităților de învățământ",
+      "chapter": "Capitolul I. Dispoziții generale",
+      "section": "",
+      "article": 40,
+      "paragraph": "(3)",
+      "prompt": "La începutul anului școlar, directorul vrea să schimbe structura comisiilor și a compartimentelor din unitate. Cum se procedează cu organigrama?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Directorul propune organigrama, consiliul de administrație o aprobă, iar ea se înregistrează la secretariatul unității.",
+          "isCorrect": true
+        },
+        {
+          "id": "B",
+          "text": "Directorul o aprobă prin decizie proprie, iar consiliul de administrație este doar informat.",
+          "isCorrect": false,
+          "why": "Aprobarea aparține consiliului de administrație, nu directorului."
+        },
+        {
+          "id": "C",
+          "text": "Consiliul profesoral o aprobă, la propunerea directorului.",
+          "isCorrect": false,
+          "why": "Aprobarea aparține consiliului de administrație, nu consiliului profesoral."
+        },
+        {
+          "id": "D",
+          "text": "Inspectoratul școlar o aprobă, la propunerea directorului, iar unitatea o înregistrează.",
+          "isCorrect": false,
+          "why": "Regulamentul nu atribuie aprobarea inspectoratului. Organigrama se aprobă de consiliul de administrație al unității."
+        }
+      ],
+      "correctOptionId": "A",
+      "explanation": "Regula: Organigrama se propune de director la începutul fiecărui an școlar, se aprobă de consiliul de administrație și se înregistrează la secretariatul unității. Prin ea se stabilesc, printre altele, structura de conducere, comisiile și compartimentele (alineatul (2)).\n\nComisiile și compartimentele se stabilesc prin organigramă, deci orice schimbare a lor trece prin această procedură.\n\nTemei: articolul 40 alineatul (3). Textul relevant: „Organigrama se propune de către director la începutul fiecărui an școlar, se aprobă de către consiliul de administrație și se înregistrează la secretariatul unității de învățământ.”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "articolul 40 alineatul (3)",
+        "excerpt": "Organigrama se propune de către director la începutul fiecărui an școlar, se aprobă de către consiliul de administrație și se înregistrează la secretariatul unității de învățământ.",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-141",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Titlul IV. Personalul unităților de învățământ",
+      "annex": "",
+      "title": "Titlul IV. Personalul unităților de învățământ",
+      "chapter": "Capitolul I. Dispoziții generale",
+      "section": "",
+      "article": 41,
+      "paragraph": "",
+      "prompt": "Unitatea are mai multe structuri, iar directorul vrea să numească un coordonator pentru una dintre ele. Cum se face numirea?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Prin decizia directorului, fără hotărârea consiliului de administrație.",
+          "isCorrect": false,
+          "why": "Numirea se face prin hotărâre a consiliului de administrație, la propunerea directorului."
+        },
+        {
+          "id": "B",
+          "text": "Prin hotărâre a consiliului de administrație, la propunerea directorului, de regulă dintre cadrele didactice titulare.",
+          "isCorrect": true
+        },
+        {
+          "id": "C",
+          "text": "Prin hotărârea consiliului profesoral, la propunerea inspectoratului școlar.",
+          "isCorrect": false,
+          "why": "Propunerea vine de la director, iar hotărârea o ia consiliul de administrație."
+        },
+        {
+          "id": "D",
+          "text": "Prin decizia inspectorului școlar general, dintre cadrele didactice suplinitoare.",
+          "isCorrect": false,
+          "why": "Numirea nu se face prin decizia inspectorului școlar general, iar regula este ca persoana să fie, de regulă, cadru didactic titular."
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Regula: Coordonatorul activității structurilor se numește, de regulă dintre cadrele didactice titulare, prin hotărâre a consiliului de administrație, la propunerea directorului.\n\nDirectorul propune, consiliul de administrație hotărăște, iar alegerea se face de regulă dintre cadrele didactice titulare.\n\nTemei: articolul 41. Textul relevant: „Coordonarea activității structurilor unităților de învățământ se realizează de către un coordonator numit, de regulă, dintre cadrele didactice titulare, prin hotărâre a consiliului de administrație, la propunerea directorului.”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "articolul 41",
+        "excerpt": "Coordonarea activității structurilor unităților de învățământ se realizează de către un coordonator numit, de regulă, dintre cadrele didactice titulare, prin hotărâre a consiliului de administrație, la propunerea directorului.",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-142",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Titlul IV. Personalul unităților de învățământ",
+      "annex": "",
+      "title": "Titlul IV. Personalul unităților de învățământ",
+      "chapter": "Capitolul II. Personalul didactic",
+      "section": "",
+      "article": 45,
+      "paragraph": "",
+      "prompt": "O profesoară titulară de zece ani în unitate a prezentat actele la angajare. Directorul consideră că nu i se mai poate cere nimic. Este corect?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Da, documentele se cer o singură dată, la încadrare.",
+          "isCorrect": false,
+          "why": "Textul vorbește despre încadrare și menținere în funcție."
+        },
+        {
+          "id": "B",
+          "text": "Parțial: certificatul medical se cere periodic, iar cazierul și certificatul de integritate doar la încadrare.",
+          "isCorrect": false,
+          "why": "Toate cele trei documente sunt cerute pentru încadrare și pentru menținere în funcție."
+        },
+        {
+          "id": "C",
+          "text": "Nu, deoarece documentele se cer pentru încadrare și pentru menținerea în funcție.",
+          "isCorrect": true
+        },
+        {
+          "id": "D",
+          "text": "Nu se aplică personalului didactic, ci doar personalului administrativ.",
+          "isCorrect": false,
+          "why": "Articolul 45 privește personalul didactic. Pentru personalul administrativ există o regulă similară în articolul 48 alineatul (4)."
+        }
+      ],
+      "correctOptionId": "C",
+      "explanation": "Regula: Personalul didactic prezintă certificat medical de medicina muncii, cazier judiciar și certificat de integritate comportamentală atât pentru încadrare, cât și pentru menținere în funcție.\n\nRegulamentul leagă cele trei documente de ambele momente, deci obligația nu se epuizează la angajare.\n\nTemei: articolul 45. Textul relevant: „Pentru încadrarea și menținerea în funcție, personalul didactic are obligația să prezinte un certificat medical, eliberat de medicul specializat de medicina muncii, care atestă că este apt pentru prestarea activității în învățământ, precum și cazierul judiciar și certificatul de integritate comportamentală.”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "articolul 45",
+        "excerpt": "Pentru încadrarea și menținerea în funcție, personalul didactic are obligația să prezinte un certificat medical, eliberat de medicul specializat de medicina muncii, care atestă că este apt pentru prestarea activității în învățământ, precum și cazierul judiciar și certificatul de integritate comportamentală.",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-143",
+      "kind": "aplicare",
+      "difficulty": "expert",
+      "module": "Titlul IV. Personalul unităților de învățământ",
+      "annex": "",
+      "title": "Titlul IV. Personalul unităților de învățământ",
+      "chapter": "Capitolul I. Dispoziții generale",
+      "section": "",
+      "article": 39,
+      "paragraph": "(6)",
+      "prompt": "Un profesor de matematică este încadrat în anul școlar curent la clasa a VIII-a A. Părinții unui elev din această clasă îi propun meditații contracost, în afara orelor de curs. Poate accepta?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Da, dacă are acordul directorului.",
+          "isCorrect": false,
+          "why": "Acordul directorului nu poate permite o activitate interzisă de regulament."
+        },
+        {
+          "id": "B",
+          "text": "Da, dacă meditațiile se desfășoară în afara incintei unității.",
+          "isCorrect": false,
+          "why": "Regulamentul nu face o excepție pentru locul meditațiilor. Criteriul este încadrarea profesorului la clasa elevului."
+        },
+        {
+          "id": "C",
+          "text": "Da, dacă activitatea este declarată în declarația de interese.",
+          "isCorrect": false,
+          "why": "Declarația de interese este procedura de raportare, nu o autorizare. Ea nu transformă o activitate interzisă în una permisă."
+        },
+        {
+          "id": "D",
+          "text": "Nu, deoarece îi este interzis să desfășoare meditații contracost cu elevii de la clasa sau clasele la care este încadrat în anul școlar în curs.",
+          "isCorrect": true
+        }
+      ],
+      "correctOptionId": "D",
+      "explanation": "Regula: Personalul didactic de predare nu poate desfășura meditații contracost cu elevii de la clasele la care este încadrat în anul școlar în curs.\n\nElevul face parte dintr-o clasă la care profesorul este încadrat în acest an școlar, deci situația intră în interdicție.\n\nTemei: articolul 39 alineatul (6). Textul relevant: „Personalului didactic de predare din învățământul preuniversitar îi este interzis să desfășoare activități de pregătire suplimentară/meditații contracost cu beneficiarii primari de la clasa/clasele la care este încadrat în anul școlar în curs, conform procedurii pentru completarea declarațiilor de interese de către personalul didactic de predare, aprobată prin ordin al ministrului educației.”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "articolul 39 alineatul (6)",
+        "excerpt": "Personalului didactic de predare din învățământul preuniversitar îi este interzis să desfășoare activități de pregătire suplimentară/meditații contracost cu beneficiarii primari de la clasa/clasele la care este încadrat în anul școlar în curs, conform procedurii pentru completarea declarațiilor de interese de către personalul didactic de predare, aprobată prin ordin al ministrului educației.",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-144",
+      "kind": "aplicare",
+      "difficulty": "expert",
+      "module": "Titlul IV. Personalul unităților de învățământ",
+      "annex": "",
+      "title": "Titlul IV. Personalul unităților de învățământ",
+      "chapter": "Capitolul I. Dispoziții generale",
+      "section": "",
+      "article": 39,
+      "paragraph": "(8)",
+      "prompt": "Un diriginte observă la un elev semne repetate de neglijare și de umilire în familie. Se gândește să discute doar cu părinții și să aștepte. Ce obligație are?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Are obligația să sesizeze, după caz, instituțiile publice competente, inclusiv direcția generală de asistență socială și protecția copilului.",
+          "isCorrect": true
+        },
+        {
+          "id": "B",
+          "text": "Informează directorul și așteaptă decizia acestuia, fără să sesizeze el însuși vreo instituție.",
+          "isCorrect": false,
+          "why": "Obligația de a sesiza instituțiile aparține personalului din învățământ. Informarea conducerii unității nu o înlocuiește."
+        },
+        {
+          "id": "C",
+          "text": "Sesizează numai dacă a verificat în prealabil și a obținut acordul părinților.",
+          "isCorrect": false,
+          "why": "Regulamentul nu condiționează sesizarea de acordul părinților."
+        },
+        {
+          "id": "D",
+          "text": "Sesizează numai încălcările fizice, iar cele emoționale se rezolvă în unitate.",
+          "isCorrect": false,
+          "why": "Obligația privește orice încălcare a drepturilor, inclusiv cele care afectează demnitatea, integritatea fizică și psihică."
+        }
+      ],
+      "correctOptionId": "A",
+      "explanation": "Regula: Personalul din învățământul preuniversitar are obligația să sesizeze, după caz, instituțiile publice competente, inclusiv direcția generală de asistență socială și protecția copilului, în legătură cu orice încălcare a drepturilor elevilor.\n\nObligația de sesizare aparține fiecărui membru al personalului și privește orice încălcare a drepturilor elevului, inclusiv cele care îi afectează demnitatea sau integritatea psihică.\n\nTemei: articolul 39 alineatul (8). Textul relevant: „Personalul din învățământul preuniversitar are obligația să sesizeze, după caz, instituțiile publice de asistență socială/educațională specializată, direcția generală de asistență socială și protecția copilului în legătură cu orice încălcări ale drepturilor beneficiarilor primari, inclusiv în legătură cu aspecte care le afectează demnitatea, integritatea fizică și psihică.”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "articolul 39 alineatul (8)",
+        "excerpt": "Personalul din învățământul preuniversitar are obligația să sesizeze, după caz, instituțiile publice de asistență socială/educațională specializată, direcția generală de asistență socială și protecția copilului în legătură cu orice încălcări ale drepturilor beneficiarilor primari, inclusiv în legătură cu aspecte care le afectează demnitatea, integritatea fizică și psihică.",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-145",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Titlul IV. Personalul unităților de învățământ",
+      "annex": "",
+      "title": "Titlul IV. Personalul unităților de învățământ",
+      "chapter": "Capitolul II. Personalul didactic",
+      "section": "",
+      "article": 47,
+      "paragraph": "(2)",
+      "prompt": "Un profesor își desfășoară activitatea în două unități de învățământ. Ambele îl programează la serviciul pe școală. Cum se procedează?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Efectuează serviciul pe școală în ambele unități, proporțional cu norma.",
+          "isCorrect": false,
+          "why": "Regula este un singur loc: serviciul pe școală se efectuează într-o singură unitate."
+        },
+        {
+          "id": "B",
+          "text": "Efectuează serviciul pe școală într-o singură unitate, la alegerea sa, cu acordul conducerii acelei unități.",
+          "isCorrect": true
+        },
+        {
+          "id": "C",
+          "text": "Îl efectuează în unitatea în care are norma de bază, fără alt acord.",
+          "isCorrect": false,
+          "why": "Textul lasă alegerea profesorului, dar cere acordul conducerii unității alese. Nu leagă serviciul de norma de bază."
+        },
+        {
+          "id": "D",
+          "text": "Unitatea în care efectuează serviciul este desemnată de inspectoratul școlar.",
+          "isCorrect": false,
+          "why": "Alegerea aparține profesorului, cu acordul conducerii unității, nu inspectoratului școlar."
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Regula: Cadrul didactic care lucrează în mai multe unități efectuează serviciul pe școală într-o singură unitate, la alegere, cu acordul conducerii acesteia.\n\nAlegerea aparține profesorului, dar are nevoie de acordul conducerii unității alese.\n\nTemei: articolul 47 alineatul (2). Textul relevant: „În cazul în care un cadru didactic își desfășoară activitatea în mai multe unități de învățământ, acesta va efectua serviciul pe școală într-o singură unitate de învățământ, la alegere, cu acordul conducerii acesteia.”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "articolul 47 alineatul (2)",
+        "excerpt": "În cazul în care un cadru didactic își desfășoară activitatea în mai multe unități de învățământ, acesta va efectua serviciul pe școală într-o singură unitate de învățământ, la alegere, cu acordul conducerii acesteia.",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-146",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Titlul IV. Personalul unităților de învățământ",
+      "annex": "",
+      "title": "Titlul IV. Personalul unităților de învățământ",
+      "chapter": "Capitolul IV. Evaluarea personalului din unitățile de învățământ",
+      "section": "",
+      "article": 51,
+      "paragraph": "(2)-(3)",
+      "prompt": "Directorul vrea să evalueze personalul administrativ în iunie, odată cu încheierea anului școlar. Este în regulă?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Da, evaluarea se face la sfârșitul anului școlar, pentru toate categoriile de personal.",
+          "isCorrect": false,
+          "why": "Personalul administrativ are o perioadă proprie, 1–31 ianuarie. Anul școlar este reperul pentru fișele personalului didactic și didactic auxiliar."
+        },
+        {
+          "id": "B",
+          "text": "Nu, se evaluează în decembrie, pentru anul calendaristic în curs.",
+          "isCorrect": false,
+          "why": "Perioada este 1–31 ianuarie, iar evaluarea privește anul calendaristic anterior, nu pe cel în curs."
+        },
+        {
+          "id": "C",
+          "text": "Nu, deoarece evaluarea personalului administrativ se face în perioada 1–31 ianuarie, pentru anul calendaristic anterior, iar rezultatul se comunică în scris.",
+          "isCorrect": true
+        },
+        {
+          "id": "D",
+          "text": "Da, directorul stabilește liber data, deoarece regulamentul nu prevede o perioadă.",
+          "isCorrect": false,
+          "why": "Regulamentul prevede o perioadă fixă pentru personalul administrativ: 1–31 ianuarie."
+        }
+      ],
+      "correctOptionId": "C",
+      "explanation": "Regula: Personalul administrativ se evaluează în perioada 1–31 ianuarie a fiecărui an, pentru anul calendaristic anterior, iar rezultatul se comunică în scris.\n\nEvaluarea personalului administrativ urmează anul calendaristic, nu anul școlar. Personalul didactic și didactic auxiliar se evaluează pe baza fișelor aduse la cunoștință la începutul anului școlar (alineatul (1)).\n\nTemei: articolul 51 alineatele (2) și (3). Textul relevant: „Evaluarea personalului administrativ se realizează în perioada 1 - 31 ianuarie a fiecărui an, pentru anul calendaristic anterior. (3)Conducerea unității de învățământ va comunica în scris personalului didactic/didactic auxiliar/administrativ rezultatul evaluării conform fișei specifice.”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "articolul 51 alineatele (2) și (3)",
+        "excerpt": "Evaluarea personalului administrativ se realizează în perioada 1 - 31 ianuarie a fiecărui an, pentru anul calendaristic anterior. (3)Conducerea unității de învățământ va comunica în scris personalului didactic/didactic auxiliar/administrativ rezultatul evaluării conform fișei specifice.",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-147",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Titlul IV. Personalul unităților de învățământ",
+      "annex": "",
+      "title": "Titlul IV. Personalul unităților de învățământ",
+      "chapter": "Capitolul III. Personalul administrativ",
+      "section": "",
+      "article": 49,
+      "paragraph": "(3)",
+      "prompt": "Directorul constată că un sector al unității este curățat insuficient și vrea să mute personalul de îngrijire. Cum procedează?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Stabilește direct sectoarele prin decizie, administratorul fiind doar executant.",
+          "isCorrect": false,
+          "why": "Sectoarele le stabilește administratorul de patrimoniu. Directorul poate solicita schimbarea lor."
+        },
+        {
+          "id": "B",
+          "text": "Cere hotărârea consiliului de administrație, singurul care poate muta personalul de îngrijire.",
+          "isCorrect": false,
+          "why": "Textul prevede o solicitare a directorului către administratorul de patrimoniu, nu o hotărâre a consiliului de administrație."
+        },
+        {
+          "id": "C",
+          "text": "Nu poate interveni, deoarece sectoarele rămân neschimbate pe tot anul școlar.",
+          "isCorrect": false,
+          "why": "Directorul poate solicita schimbarea în funcție de nevoile unității. Regulamentul nu prevede sectoare fixe pe tot anul."
+        },
+        {
+          "id": "D",
+          "text": "Solicită administratorului de patrimoniu schimbarea sectoarelor de lucru, deoarece acestea sunt stabilite de administrator.",
+          "isCorrect": true
+        }
+      ],
+      "correctOptionId": "D",
+      "explanation": "Regula: Sectoarele de lucru ale personalului de îngrijire le stabilește administratorul de patrimoniu. În funcție de nevoile unității, directorul poate solicita administratorului schimbarea lor.\n\nDirectorul poate cere schimbarea în funcție de nevoile unității, dar sectoarele le stabilește administratorul de patrimoniu.\n\nTemei: articolul 49 alineatul (3). Textul relevant: „Administratorul de patrimoniu stabilește sectoarele de lucru ale personalului de îngrijire. În funcție de nevoile unității, directorul poate solicita administratorului de patrimoniu schimbarea acestor sectoare.”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "articolul 49 alineatul (3)",
+        "excerpt": "Administratorul de patrimoniu stabilește sectoarele de lucru ale personalului de îngrijire. În funcție de nevoile unității, directorul poate solicita administratorului de patrimoniu schimbarea acestor sectoare.",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-148",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Titlul IV. Personalul unităților de învățământ",
+      "annex": "",
+      "title": "Titlul IV. Personalul unităților de învățământ",
+      "chapter": "Capitolul V. Răspunderea disciplinară a personalului din unitatea de învățământ",
+      "section": "",
+      "article": 53,
+      "paragraph": "",
+      "prompt": "Un angajat al compartimentului administrativ a încălcat repetat programul de lucru. Ce reglementare se aplică pentru răspunderea lui disciplinară?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Codul muncii (Legea numărul 53/2003).",
+          "isCorrect": true
+        },
+        {
+          "id": "B",
+          "text": "Doar regulamentul intern al unității, fără trimitere la o lege.",
+          "isCorrect": false,
+          "why": "Răspunderea disciplinară a personalului administrativ este reglementată prin Codul muncii. Regulamentul intern nu o poate înlocui."
+        },
+        {
+          "id": "C",
+          "text": "Aceeași procedură ca la personalul didactic, stabilită prin legea învățământului preuniversitar.",
+          "isCorrect": false,
+          "why": "Articolele 52 și 53 tratează separat cele două categorii. Personalul administrativ are trimitere expresă la Codul muncii."
+        },
+        {
+          "id": "D",
+          "text": "Statutul funcționarilor publici, deoarece unitatea este o instituție publică.",
+          "isCorrect": false,
+          "why": "Regulamentul nu trimite la statutul funcționarilor publici, ci la Codul muncii."
+        }
+      ],
+      "correctOptionId": "A",
+      "explanation": "Regula: Personalul administrativ răspunde disciplinar potrivit Codului muncii, adică Legii numărul 53/2003.\n\nPentru personalul administrativ regulamentul trimite direct la Codul muncii. Pentru personalul didactic se aplică regula din articolul 52: răspunde disciplinar conform legii.\n\nTemei: articolul 53. Textul relevant: „Personalul administrativ răspunde disciplinar în conformitate cu prevederile Legii nr. 53/2003 - Codul muncii, republicată, cu modificările și completările ulterioare.”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "articolul 53",
+        "excerpt": "Personalul administrativ răspunde disciplinar în conformitate cu prevederile Legii nr. 53/2003 - Codul muncii, republicată, cu modificările și completările ulterioare.",
         "verification": "fragment-exact-din-sursa-consolidata"
       }
     }
