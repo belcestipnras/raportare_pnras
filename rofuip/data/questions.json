@@ -7,7 +7,7 @@
     "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
     "method": "itemi situaționali redactați manual și verificați pe fragmentele exacte ale formei consolidate"
   },
-  "count": 217,
+  "count": 232,
   "questions": [
     {
       "id": "RF-A-001",
@@ -10062,6 +10062,726 @@
         "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
         "reference": "articolul 127 alineatul (2)",
         "excerpt": "Situația școlară a beneficiarilor primari corigenți, amânați, repetenți sau în situație de abandon școlar se comunică în scris părinților sau reprezentanților legali sau, după caz, beneficiarilor primari majori de către învățător/institutor/profesorul pentru învățământul primar/profesorul diriginte, în cel mult 7 zile de la încheierea cursurilor.",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-218",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Titlul VII. Beneficiarii primari ai educației",
+      "annex": "",
+      "title": "Titlul VII. Beneficiarii primari ai educației",
+      "chapter": "Capitolul III. Evaluarea copiilor/elevilor",
+      "section": "Secţiunea a 2-a. Examenele organizate la nivelul unităţilor de învăţământ",
+      "article": 128,
+      "paragraph": "(3)",
+      "prompt": "Un director vrea să organizeze un test de admitere pentru copiii care se înscriu în clasa pregătitoare la o școală generală obișnuită. Este permis?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Da, dacă numărul de candidați depășește numărul de locuri.",
+          "isCorrect": false,
+          "why": "Depășirea numărului de locuri permite testarea doar în unitățile cu predare în limbile minorităților naționale."
+        },
+        {
+          "id": "B",
+          "text": "Nu, pentru că organizarea unor examinări la înscrierea în clasa pregătitoare este interzisă, cu excepțiile prevăzute de regulament.",
+          "isCorrect": true
+        },
+        {
+          "id": "C",
+          "text": "Da, dacă testul este aprobat de consiliul de administrație.",
+          "isCorrect": false,
+          "why": "Aprobarea consiliului de administrație nu poate institui o examinare interzisă prin regulament."
+        },
+        {
+          "id": "D",
+          "text": "Da, dar numai un test de cunoștințe de citit și scris.",
+          "isCorrect": false,
+          "why": "Nu există o variantă permisă a examinării la înscrierea în clasa pregătitoare pentru școlile obișnuite."
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Regula: Este interzisă organizarea de examinări pentru înscrierea în prima clasă a învățământului primar. Excepțiile sunt limitate: unitățile cu predare în limbile minorităților (testarea limbii, dacă sunt mai mulți candidați decât locuri) și unitățile cu profil artistic sau sportiv (aptitudini).\n\nȘcoala obișnuită nu se încadrează în nicio excepție, deci orice test de admitere la clasa pregătitoare ar fi nelegal.\n\nTemei: articolul 128 alineatul (3), coroborat cu alineatele (4) și (5). Textul relevant: „Se interzice organizarea unor examinări în vederea înscrierii beneficiarilor primari în prima clasă a învățământului primar.”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "articolul 128 alineatul (3), coroborat cu alineatele (4) și (5)",
+        "excerpt": "Se interzice organizarea unor examinări în vederea înscrierii beneficiarilor primari în prima clasă a învățământului primar.",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-219",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Titlul VII. Beneficiarii primari ai educației",
+      "annex": "",
+      "title": "Titlul VII. Beneficiarii primari ai educației",
+      "chapter": "Capitolul III. Evaluarea copiilor/elevilor",
+      "section": "Secţiunea a 2-a. Examenele organizate la nivelul unităţilor de învăţământ",
+      "article": 128,
+      "paragraph": "(3)",
+      "prompt": "Un copil împlinește 6 ani în noiembrie, iar anul școlar începe în septembrie. Părinții cer înscrierea în clasa pregătitoare. Ce condiții se aplică?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Nu poate fi înscris în nicio situație, pentru că nu a împlinit 6 ani la începutul anului școlar.",
+          "isCorrect": false,
+          "why": "Regulamentul permite înscrierea copiilor care împlinesc 6 ani până la sfârșitul anului calendaristic."
+        },
+        {
+          "id": "B",
+          "text": "Poate fi înscris automat, fără solicitare scrisă.",
+          "isCorrect": false,
+          "why": "Este necesară solicitarea scrisă a părinților."
+        },
+        {
+          "id": "C",
+          "text": "Poate fi înscris numai după un test de maturitate organizat de școală.",
+          "isCorrect": false,
+          "why": "Testele de înscriere sunt interzise; condiția este dezvoltarea psihosomatică corespunzătoare."
+        },
+        {
+          "id": "D",
+          "text": "Poate fi înscris la solicitarea scrisă a părinților, dacă dezvoltarea sa psihosomatică este corespunzătoare.",
+          "isCorrect": true
+        }
+      ],
+      "correctOptionId": "D",
+      "explanation": "Regula: În clasa pregătitoare sunt înscriși copiii care au împlinit 6 ani până la începerea anului școlar. Cei care împlinesc 6 ani până la sfârșitul anului calendaristic pot fi înscriși la solicitarea scrisă a părinților, dacă dezvoltarea psihosomatică este corespunzătoare.\n\nCondiția de dezvoltare psihosomatică corespunzătoare este esențială: este o excepție, nu un drept necondiționat.\n\nTemei: articolul 128 alineatul (3). Textul relevant: „La solicitarea scrisă a părinților/reprezentanților legali, pot fi înscriși în clasa pregătitoare și copiii care împlinesc vârsta de 6 ani până la sfârșitul anului calendaristic, dacă dezvoltarea lor psihosomatică este corespunzătoare.”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "articolul 128 alineatul (3)",
+        "excerpt": "La solicitarea scrisă a părinților/reprezentanților legali, pot fi înscriși în clasa pregătitoare și copiii care împlinesc vârsta de 6 ani până la sfârșitul anului calendaristic, dacă dezvoltarea lor psihosomatică este corespunzătoare.",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-220",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Titlul VII. Beneficiarii primari ai educației",
+      "annex": "",
+      "title": "Titlul VII. Beneficiarii primari ai educației",
+      "chapter": "Capitolul III. Evaluarea copiilor/elevilor",
+      "section": "Secţiunea a 2-a. Examenele organizate la nivelul unităţilor de învăţământ",
+      "article": 129,
+      "paragraph": "",
+      "prompt": "Când se desfășoară, de regulă, examenele de diferență, iar elevii transferați pot cere reexaminare dacă pică?",
+      "options": [
+        {
+          "id": "A",
+          "text": "De regulă în vacanțele școlare; elevii care solicită transferul nu au drept la reexaminare.",
+          "isCorrect": true
+        },
+        {
+          "id": "B",
+          "text": "În timpul orelor de curs; reexaminarea se acordă o singură dată.",
+          "isCorrect": false,
+          "why": "Regula este vacanța școlară, iar reexaminarea nu se acordă la diferențele pentru transfer."
+        },
+        {
+          "id": "C",
+          "text": "În primele două săptămâni ale anului școlar; reexaminarea se acordă la cerere.",
+          "isCorrect": false,
+          "why": "Perioada de regulă este vacanța, iar reexaminarea nu este admisă."
+        },
+        {
+          "id": "D",
+          "text": "Oricând, la cererea elevului; reexaminarea se acordă o singură dată pe an.",
+          "isCorrect": false,
+          "why": "Dreptul la reexaminare din articolul 122 nu se aplică examenelor de diferență pentru transfer."
+        }
+      ],
+      "correctOptionId": "A",
+      "explanation": "Regula: Examenele de diferență se desfășoară, de regulă, în vacanțele școlare, iar la examenele de diferență pentru elevii care solicită transferul nu se acordă reexaminare.\n\nSpre deosebire de corigență, la examenul de diferență pentru transfer nu există drept la reexaminare.\n\nTemei: articolul 129 și articolul 130. Textul relevant: „La examenele de diferență pentru elevii care solicită transferul de la o unitate de învățământ la alta nu se acordă reexaminare.”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "articolul 129 și articolul 130",
+        "excerpt": "La examenele de diferență pentru elevii care solicită transferul de la o unitate de învățământ la alta nu se acordă reexaminare.",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-221",
+      "kind": "aplicare",
+      "difficulty": "expert",
+      "module": "Titlul VII. Beneficiarii primari ai educației",
+      "annex": "",
+      "title": "Titlul VII. Beneficiarii primari ai educației",
+      "chapter": "Capitolul III. Evaluarea copiilor/elevilor",
+      "section": "Secţiunea a 2-a. Examenele organizate la nivelul unităţilor de învăţământ",
+      "article": 131,
+      "paragraph": "(4)",
+      "prompt": "Cine stabilește componența comisiei de corigențe și cum este alcătuită comisia?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Consiliul profesoral, prin vot; comisia are un singur examinator pe disciplină.",
+          "isCorrect": false,
+          "why": "Componența este stabilită prin decizia directorului, iar fiecare comisie are doi examinatori."
+        },
+        {
+          "id": "B",
+          "text": "Inspectoratul școlar, prin decizie; comisia are cinci membri.",
+          "isCorrect": false,
+          "why": "Comisia este numită prin decizia directorului, în baza hotărârii consiliului de administrație."
+        },
+        {
+          "id": "C",
+          "text": "Directorul, prin decizie, pe baza hotărârii consiliului de administrație; comisia are un președinte și doi examinatori pe disciplină.",
+          "isCorrect": true
+        },
+        {
+          "id": "D",
+          "text": "Directorul adjunct, fără hotărârea consiliului de administrație; comisia are un președinte și un examinator.",
+          "isCorrect": false,
+          "why": "Este nevoie de hotărârea consiliului de administrație, iar comisia are doi examinatori."
+        }
+      ],
+      "correctOptionId": "C",
+      "explanation": "Regula: Directorul stabilește prin decizie, în baza hotărârii consiliului de administrație, componența comisiilor și datele examenelor. Comisia are un președinte și câte doi examinatori pentru fiecare disciplină și răspunde de realizarea subiectelor.\n\nCombinația hotărâre a consiliului de administrație și decizie a directorului este tipică pentru actele cu efecte asupra situației școlare.\n\nTemei: articolul 131 alineatul (4). Textul relevant: „Directorul unității de învățământ stabilește, prin decizie, în baza hotărârii consiliului de administrație, componența comisiilor și datele de desfășurare a examenelor. Comisia de corigențe are în componență un președinte și câte două cadre didactice examinatoare pentru fiecare comisie pe disciplină.”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "articolul 131 alineatul (4)",
+        "excerpt": "Directorul unității de învățământ stabilește, prin decizie, în baza hotărârii consiliului de administrație, componența comisiilor și datele de desfășurare a examenelor. Comisia de corigențe are în componență un președinte și câte două cadre didactice examinatoare pentru fiecare comisie pe disciplină.",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-222",
+      "kind": "aplicare",
+      "difficulty": "expert",
+      "module": "Titlul VII. Beneficiarii primari ai educației",
+      "annex": "",
+      "title": "Titlul VII. Beneficiarii primari ai educației",
+      "chapter": "Capitolul III. Evaluarea copiilor/elevilor",
+      "section": "Secţiunea a 2-a. Examenele organizate la nivelul unităţilor de învăţământ",
+      "article": 131,
+      "paragraph": "(6)",
+      "prompt": "Elevul corigent are un conflict cu profesorul care i-a predat disciplina. Poate profesorul face parte din comisie?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Da, el trebuie să facă parte din comisie în toate situațiile.",
+          "isCorrect": false,
+          "why": "Regula este valabilă fără excepție doar în lipsa unui conflict."
+        },
+        {
+          "id": "B",
+          "text": "Da, dar nota lui nu se mai ia în calcul.",
+          "isCorrect": false,
+          "why": "Dacă există conflict, el nu mai este numit în comisie."
+        },
+        {
+          "id": "C",
+          "text": "Examenul se amână până când conflictul este rezolvat.",
+          "isCorrect": false,
+          "why": "Examenul nu se amână; se numește un alt cadru didactic."
+        },
+        {
+          "id": "D",
+          "text": "Nu, în comisie se numește un alt cadru didactic de aceeași specialitate sau din aceeași arie curriculară.",
+          "isCorrect": true
+        }
+      ],
+      "correctOptionId": "D",
+      "explanation": "Regula: Pentru elevii corigenți, unul dintre examinatori este, de regulă, profesorul care a predat disciplina. Excepțional, dacă există un conflict care ar putea vicia rezultatul, este numit un alt cadru didactic de aceeași specialitate sau înrudită din aceeași arie curriculară.\n\nExcepția de la regula profesorului titular este tocmai conflictul care ar putea vicia rezultatul.\n\nTemei: articolul 131 alineatul (6). Textul relevant: „În mod excepțional, în situația în care între elev și profesor există un conflict care ar putea vicia rezultatul evaluării, în comisia de examen este numit un alt cadru didactic de aceeași specialitate sau, după caz, de specialități înrudite din aceeași arie curriculară.”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "articolul 131 alineatul (6)",
+        "excerpt": "În mod excepțional, în situația în care între elev și profesor există un conflict care ar putea vicia rezultatul evaluării, în comisia de examen este numit un alt cadru didactic de aceeași specialitate sau, după caz, de specialități înrudite din aceeași arie curriculară.",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-223",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Titlul VII. Beneficiarii primari ai educației",
+      "annex": "",
+      "title": "Titlul VII. Beneficiarii primari ai educației",
+      "chapter": "Capitolul III. Evaluarea copiilor/elevilor",
+      "section": "Secţiunea a 2-a. Examenele organizate la nivelul unităţilor de învăţământ",
+      "article": 132,
+      "paragraph": "(1)",
+      "prompt": "Cât durează proba scrisă a examenului de corigență în gimnaziu și câte variante de subiecte are?",
+      "options": [
+        {
+          "id": "A",
+          "text": "90 de minute, cu două variante de subiecte, din care elevul alege una.",
+          "isCorrect": true
+        },
+        {
+          "id": "B",
+          "text": "45 de minute, cu o singură variantă de subiecte.",
+          "isCorrect": false,
+          "why": "45 de minute este durata pentru învățământul primar, iar sunt două variante."
+        },
+        {
+          "id": "C",
+          "text": "120 de minute, cu trei variante de subiecte.",
+          "isCorrect": false,
+          "why": "Durata este de 90 de minute, cu două variante."
+        },
+        {
+          "id": "D",
+          "text": "90 de minute, cu două variante la care răspunde elevul obligatoriu.",
+          "isCorrect": false,
+          "why": "Elevul tratează o singură variantă, la alegere."
+        }
+      ],
+      "correctOptionId": "A",
+      "explanation": "Regula: Proba scrisă are 45 de minute în învățământul primar și 90 de minute în secundar și postliceal, cu două variante de subiecte, din care elevul tratează una, la alegere.\n\nDurata se numără de la primirea subiectelor, iar alegerea variantei aparține elevului.\n\nTemei: articolul 132 alineatul (1). Textul relevant: „Proba scrisă a examenelor are o durată de 45 de minute pentru învățământul primar și de 90 de minute pentru învățământul secundar și postliceal, din momentul primirii subiectelor de către elev. Proba scrisă conține două variante de subiecte, dintre care elevul tratează o singură variantă, la alegere.”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "articolul 132 alineatul (1)",
+        "excerpt": "Proba scrisă a examenelor are o durată de 45 de minute pentru învățământul primar și de 90 de minute pentru învățământul secundar și postliceal, din momentul primirii subiectelor de către elev. Proba scrisă conține două variante de subiecte, dintre care elevul tratează o singură variantă, la alegere.",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-224",
+      "kind": "aplicare",
+      "difficulty": "expert",
+      "module": "Titlul VII. Beneficiarii primari ai educației",
+      "annex": "",
+      "title": "Titlul VII. Beneficiarii primari ai educației",
+      "chapter": "Capitolul III. Evaluarea copiilor/elevilor",
+      "section": "Secţiunea a 2-a. Examenele organizate la nivelul unităţilor de învăţământ",
+      "article": 132,
+      "paragraph": "(4)",
+      "prompt": "La corigență, un examinator dă 9 și celălalt 7. Ce se întâmplă cu media finală?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Media finală este 8, calculată fără altă intervenție.",
+          "isCorrect": false,
+          "why": "Diferența depășește un punct, deci nu se calculează direct media."
+        },
+        {
+          "id": "B",
+          "text": "Examenul se repetă cu alți examinatori.",
+          "isCorrect": false,
+          "why": "Regulamentul prevede medierea de către președintele comisiei, nu repetarea examenului."
+        },
+        {
+          "id": "C",
+          "text": "Diferența este de 2 puncte, deci medierea o face președintele comisiei de examen.",
+          "isCorrect": true
+        },
+        {
+          "id": "D",
+          "text": "Se ia nota cea mai mare, în favoarea elevului.",
+          "isCorrect": false,
+          "why": "Nu se alege nota cea mai mare, ci intervine președintele comisiei pentru mediere."
+        }
+      ],
+      "correctOptionId": "C",
+      "explanation": "Regula: Media examenului este media aritmetică, cu două zecimale, fără rotunjire, a notelor finale ale celor doi examinatori. Între ele nu se acceptă diferență mai mare de un punct, altfel medierea o face președintele comisiei.\n\nLimita de un punct protejează elevul de aprecieri prea diferite, iar președintele asigură armonizarea.\n\nTemei: articolul 132 alineatul (4). Textul relevant: „Între notele finale acordate de cei doi examinatori nu se acceptă o diferență mai mare de un punct. În caz contrar, medierea o face președintele comisiei de examen.”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "articolul 132 alineatul (4)",
+        "excerpt": "Între notele finale acordate de cei doi examinatori nu se acceptă o diferență mai mare de un punct. În caz contrar, medierea o face președintele comisiei de examen.",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-225",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Titlul VII. Beneficiarii primari ai educației",
+      "annex": "",
+      "title": "Titlul VII. Beneficiarii primari ai educației",
+      "chapter": "Capitolul III. Evaluarea copiilor/elevilor",
+      "section": "Secţiunea a 2-a. Examenele organizate la nivelul unităţilor de învăţământ",
+      "article": 134,
+      "paragraph": "(1)",
+      "prompt": "Un elev corigent nu se poate prezenta la examen din cauza unei boli. În ce termen depune actele și când poate fi examinat?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Depune actele în 24 de ore, iar directorul stabilește singur data.",
+          "isCorrect": false,
+          "why": "Termenul este de 7 zile lucrătoare, iar data este stabilită de consiliul de administrație."
+        },
+        {
+          "id": "B",
+          "text": "Depune actele în cel mult 7 zile lucrătoare, iar consiliul de administrație stabilește o dată ulterioară, nu mai târziu de începerea cursurilor.",
+          "isCorrect": true
+        },
+        {
+          "id": "C",
+          "text": "Depune actele în 30 de zile, iar examenul se ține în anul următor.",
+          "isCorrect": false,
+          "why": "Examenul nu poate depăși începerea noului an școlar, decât excepțional prin decizia inspectoratului."
+        },
+        {
+          "id": "D",
+          "text": "Nu mai poate fi examinat și rămâne repetent.",
+          "isCorrect": false,
+          "why": "Motivele temeinice dovedite permit examinarea la o dată ulterioară."
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Regula: Elevii care nu se pot prezenta din motive temeinice, dovedite cu acte depuse în cel mult 7 zile lucrătoare de la data examenului, sunt examinați la o dată ulterioară stabilită de consiliul de administrație, nu mai târziu de începerea noului an școlar.\n\nTermenul de 7 zile lucrătoare decide dacă motivul este luat în considerare.\n\nTemei: articolul 134 alineatul (1). Textul relevant: „Elevii corigenți sau amânați care nu se pot prezenta la examene din motive temeinice, dovedite cu acte, depuse în cel mult 7 zile lucrătoare de la data examenului, sunt examinați la o dată ulterioară, stabilită de consiliul de administrație, dar nu mai târziu de începerea cursurilor noului an școlar.”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "articolul 134 alineatul (1)",
+        "excerpt": "Elevii corigenți sau amânați care nu se pot prezenta la examene din motive temeinice, dovedite cu acte, depuse în cel mult 7 zile lucrătoare de la data examenului, sunt examinați la o dată ulterioară, stabilită de consiliul de administrație, dar nu mai târziu de începerea cursurilor noului an școlar.",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-226",
+      "kind": "aplicare",
+      "difficulty": "expert",
+      "module": "Titlul VII. Beneficiarii primari ai educației",
+      "annex": "",
+      "title": "Titlul VII. Beneficiarii primari ai educației",
+      "chapter": "Capitolul III. Evaluarea copiilor/elevilor",
+      "section": "Secţiunea a 2-a. Examenele organizate la nivelul unităţilor de învăţământ",
+      "article": 135,
+      "paragraph": "(5)",
+      "prompt": "Cât timp păstrează unitatea lucrările scrise și foile cu însemnările de la proba orală ale examenelor de corigență?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Trei luni, apoi se distrug.",
+          "isCorrect": false,
+          "why": "Termenul prevăzut este de un an."
+        },
+        {
+          "id": "B",
+          "text": "Cinci ani, ca documentele financiare.",
+          "isCorrect": false,
+          "why": "Pentru aceste lucrări termenul este de un an."
+        },
+        {
+          "id": "C",
+          "text": "Până la finalul semestrului următor.",
+          "isCorrect": false,
+          "why": "Termenul este de un an în arhiva unității."
+        },
+        {
+          "id": "D",
+          "text": "Un an, în arhiva unității de învățământ.",
+          "isCorrect": true
+        }
+      ],
+      "correctOptionId": "D",
+      "explanation": "Regula: Lucrările scrise și foile cu însemnările elevului la proba orală se păstrează în arhiva unității timp de un an. Președintele comisiei le predă secretarului imediat după examen, dar nu mai târziu de începerea cursurilor.\n\nTermenul scurt de un an este specific lucrărilor de examen, spre deosebire de documentele permanente.\n\nTemei: articolul 135 alineatul (5). Textul relevant: „Lucrările scrise și foile cu însemnările elevului la proba orală a examenului se păstrează în arhiva unității de învățământ timp de un an.”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "articolul 135 alineatul (5)",
+        "excerpt": "Lucrările scrise și foile cu însemnările elevului la proba orală a examenului se păstrează în arhiva unității de învățământ timp de un an.",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-227",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Titlul VII. Beneficiarii primari ai educației",
+      "annex": "",
+      "title": "Titlul VII. Beneficiarii primari ai educației",
+      "chapter": "Capitolul III. Evaluarea copiilor/elevilor",
+      "section": "Secţiunea a 2-a. Examenele organizate la nivelul unităţilor de învăţământ",
+      "article": 135,
+      "paragraph": "(6)",
+      "prompt": "Când și cum se afișează rezultatele la examenele de corigență?",
+      "options": [
+        {
+          "id": "A",
+          "text": "A doua zi după încheierea sesiunii, la loc vizibil, cu respectarea protecției datelor personale, și apoi în procesul-verbal al consiliului profesoral.",
+          "isCorrect": true
+        },
+        {
+          "id": "B",
+          "text": "În aceeași zi cu examenul, pe site, cu numele complet și CNP-ul.",
+          "isCorrect": false,
+          "why": "Afișarea se face a doua zi după sesiune, iar datele personale trebuie protejate."
+        },
+        {
+          "id": "C",
+          "text": "După o săptămână, doar în cataloage.",
+          "isCorrect": false,
+          "why": "Afișarea este în ziua următoare încheierii sesiunii."
+        },
+        {
+          "id": "D",
+          "text": "Doar părinții primesc rezultatele, fără afișare.",
+          "isCorrect": false,
+          "why": "Rezultatele se afișează la loc vizibil, cu respectarea protecției datelor."
+        }
+      ],
+      "correctOptionId": "A",
+      "explanation": "Regula: Rezultatele se afișează la loc vizibil, a doua zi după încheierea sesiunii, cu respectarea legislației privind protecția datelor, și se consemnează în procesul-verbal al primei ședințe a consiliului profesoral.\n\nAfișarea trebuie să respecte protecția datelor personale, iar consemnarea în procesul-verbal asigură trasabilitatea.\n\nTemei: articolul 135 alineatul (6). Textul relevant: „Rezultatul la examenele de corigență și la examenele de încheiere a situației pentru elevii amânați, precum și situația școlară anuală a beneficiarilor primari se afișează, la loc vizibil, a doua zi după încheierea sesiunii de examen, cu respectarea legislației în vigoare privind protecția datelor cu caracter personal, și se consemnează în procesul-verbal al primei ședințe a consiliului profesoral.”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "articolul 135 alineatul (6)",
+        "excerpt": "Rezultatul la examenele de corigență și la examenele de încheiere a situației pentru elevii amânați, precum și situația școlară anuală a beneficiarilor primari se afișează, la loc vizibil, a doua zi după încheierea sesiunii de examen, cu respectarea legislației în vigoare privind protecția datelor cu caracter personal, și se consemnează în procesul-verbal al primei ședințe a consiliului profesoral.",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-228",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Titlul VII. Beneficiarii primari ai educației",
+      "annex": "",
+      "title": "Titlul VII. Beneficiarii primari ai educației",
+      "chapter": "Capitolul IV. Transferul beneficiarilor primari",
+      "section": "",
+      "article": 138,
+      "paragraph": "(1)",
+      "prompt": "Un elev vrea să se transfere. Consiliul de administrație al școlii de la care pleacă dă aviz negativ. Mai poate fi transferat?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Nu, pentru că avizul negativ blochează transferul.",
+          "isCorrect": false,
+          "why": "Avizul unității de la care pleacă este doar consultativ."
+        },
+        {
+          "id": "B",
+          "text": "Nu, deoarece decide inspectoratul școlar în orice caz.",
+          "isCorrect": false,
+          "why": "Decizia aparține consiliului de administrație al unității primitoare."
+        },
+        {
+          "id": "C",
+          "text": "Da, pentru că avizul unității de la care pleacă este doar consultativ, decizia aparținând unității primitoare.",
+          "isCorrect": true
+        },
+        {
+          "id": "D",
+          "text": "Da, dar doar cu acordul directorului unității de plecare.",
+          "isCorrect": false,
+          "why": "Acordul directorului unității de plecare nu este condiția: contează acordul unității primitoare."
+        }
+      ],
+      "correctOptionId": "C",
+      "explanation": "Regula: Transferul se face cu acordul consiliului de administrație al unității primitoare și cu avizul consultativ al celui al unității de la care se transferă. Refuzul unității primitoare trebuie motivat în scris.\n\nAcordul care contează este al unității primitoare; refuzul ei trebuie motivat în scris.\n\nTemei: articolul 138 alineatul (1). Textul relevant: „Transferul beneficiarilor primari ai educației se face cu acordul consiliului de administrație al unității de învățământ primitoare și cu avizul consultativ al consiliului de administrație al unității de învățământ de la care se transferă. Consiliul de administrație al unității de învățământ la care se solicită transferul motivează, în scris, refuzul de aprobare a cererii.”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "articolul 138 alineatul (1)",
+        "excerpt": "Transferul beneficiarilor primari ai educației se face cu acordul consiliului de administrație al unității de învățământ primitoare și cu avizul consultativ al consiliului de administrație al unității de învățământ de la care se transferă. Consiliul de administrație al unității de învățământ la care se solicită transferul motivează, în scris, refuzul de aprobare a cererii.",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-229",
+      "kind": "aplicare",
+      "difficulty": "expert",
+      "module": "Titlul VII. Beneficiarii primari ai educației",
+      "annex": "",
+      "title": "Titlul VII. Beneficiarii primari ai educației",
+      "chapter": "Capitolul IV. Transferul beneficiarilor primari",
+      "section": "",
+      "article": 139,
+      "paragraph": "(3)",
+      "prompt": "O formație de studiu este plină, iar pentru un transfer motivat se cere depășirea efectivului cu 3 elevi. Cine aprobă?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Inspectoratul școlar județean, pe baza justificării consiliului de administrație.",
+          "isCorrect": false,
+          "why": "Inspectoratul aprobă doar depășiri de cel mult 2 beneficiari."
+        },
+        {
+          "id": "B",
+          "text": "Ministerul Educației, pentru că se depășește cu peste 2 beneficiari efectivul maxim.",
+          "isCorrect": true
+        },
+        {
+          "id": "C",
+          "text": "Directorul unității, prin decizie proprie.",
+          "isCorrect": false,
+          "why": "Directorul nu poate depăși efectivul maxim fără aprobarea prevăzută de regulament."
+        },
+        {
+          "id": "D",
+          "text": "Consiliul profesoral, cu majoritate de voturi.",
+          "isCorrect": false,
+          "why": "Consiliul profesoral nu are această competență."
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Regula: Inspectoratul școlar aprobă depășirea efectivului maxim cu cel mult 2 beneficiari, pe baza justificării consiliului de administrație. Pentru depășiri de peste 2, aprobarea este dată de Ministerul Educației, conform metodologiei.\n\nPragul de 2 elevi separă competența inspectoratului de cea a ministerului.\n\nTemei: articolul 139 alineatul (3). Textul relevant: „Pentru situațiile excepționale în care se solicită depășirea cu peste 2 beneficiari primari a numărului maxim de antepreșcolari/preșcolari/elevi la grupă/formațiunea de studiu, aprobarea va fi dată de Ministerul Educației, conform metodologiei în vigoare.”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "articolul 139 alineatul (3)",
+        "excerpt": "Pentru situațiile excepționale în care se solicită depășirea cu peste 2 beneficiari primari a numărului maxim de antepreșcolari/preșcolari/elevi la grupă/formațiunea de studiu, aprobarea va fi dată de Ministerul Educației, conform metodologiei în vigoare.",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-230",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Titlul VII. Beneficiarii primari ai educației",
+      "annex": "",
+      "title": "Titlul VII. Beneficiarii primari ai educației",
+      "chapter": "Capitolul IV. Transferul beneficiarilor primari",
+      "section": "",
+      "article": 144,
+      "paragraph": "(1)",
+      "prompt": "Un părinte cere transferul copilului de la grădiniță în luna noiembrie. Când se pot face transferurile și ce excepție există pentru învățământul timpuriu?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Doar în vacanța de vară.",
+          "isCorrect": false,
+          "why": "Excepția permite transferul oricând pentru antepreșcolar și preșcolar."
+        },
+        {
+          "id": "B",
+          "text": "Doar cu aprobarea ministerului.",
+          "isCorrect": false,
+          "why": "Aprobarea ministerului nu este condiția pentru acest transfer."
+        },
+        {
+          "id": "C",
+          "text": "Nu este permis în timpul anului școlar.",
+          "isCorrect": false,
+          "why": "Regulamentul îl permite oricând, în limita locurilor."
+        },
+        {
+          "id": "D",
+          "text": "Se poate face oricând în timpul anului școlar, în limita locurilor și ținând cont de interesul superior al copilului.",
+          "isCorrect": true
+        }
+      ],
+      "correctOptionId": "D",
+      "explanation": "Regula: Transferurile în care se păstrează forma, filiera, profilul și specializarea se fac, de regulă, în vacanțele școlare. Excepție: transferurile de la nivelurile antepreșcolar și preșcolar se pot face oricând în anul școlar, în limita locurilor și cu interesul superior al copilului.\n\nTransferurile la nivelul antepreșcolar și preșcolar sunt exceptate de la regula vacanțelor.\n\nTemei: articolul 144 alineatul (1). Textul relevant: „Prin excepție, transferurile de la nivelurile antepreșcolar și preșcolar se pot face oricând în timpul anului școlar, în limita numărului de locuri și ținând cont de interesul superior al copilului.”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "articolul 144 alineatul (1)",
+        "excerpt": "Prin excepție, transferurile de la nivelurile antepreșcolar și preșcolar se pot face oricând în timpul anului școlar, în limita numărului de locuri și ținând cont de interesul superior al copilului.",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-231",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Titlul VII. Beneficiarii primari ai educației",
+      "annex": "",
+      "title": "Titlul VII. Beneficiarii primari ai educației",
+      "chapter": "Capitolul IV. Transferul beneficiarilor primari",
+      "section": "",
+      "article": 150,
+      "paragraph": "",
+      "prompt": "După aprobarea transferului unui elev, în ce termene se cer și se trimit actele școlare, iar elevul cu ce statut participă la cursuri până la primirea lor?",
+      "options": [
+        {
+          "id": "A",
+          "text": "5 zile lucrătoare pentru solicitare, 10 zile lucrătoare pentru trimitere; elevul este audient până la primirea situației.",
+          "isCorrect": true
+        },
+        {
+          "id": "B",
+          "text": "10 zile pentru solicitare, 5 zile pentru trimitere; elevul este elev cu drepturi depline.",
+          "isCorrect": false,
+          "why": "Termenele sunt inversate, iar statutul pe perioada așteptării este de audient."
+        },
+        {
+          "id": "C",
+          "text": "30 de zile pentru ambele etape; elevul așteaptă acasă.",
+          "isCorrect": false,
+          "why": "Termenele sunt de 5 și 10 zile lucrătoare, iar elevul frecventează ca audient."
+        },
+        {
+          "id": "D",
+          "text": "Nu există termene, iar elevul este înscris provizoriu.",
+          "isCorrect": false,
+          "why": "Regulamentul impune termene exprese și statut de audient."
+        }
+      ],
+      "correctOptionId": "A",
+      "explanation": "Regula: Unitatea primitoare solicită situația școlară în 5 zile lucrătoare, unitatea de plecare o trimite în 10 zile lucrătoare de la solicitare, iar elevul participă la cursuri ca audient până la primirea situației.\n\nStatutul de audient evită ruptura în frecventarea cursurilor în timp ce actele circulă.\n\nTemei: articolul 150. Textul relevant: „După aprobarea transferului, unitatea de învățământ primitoare este obligată să solicite situația școlară a elevului în termen de 5 zile lucrătoare. Unitatea de învățământ de la care se transferă elevul este obligată să trimită la unitatea de învățământ primitoare situația școlară a celui transferat, în termen de 10 zile lucrătoare de la primirea solicitării. Până la primirea situației școlare de către unitatea de învățământ la care s-a transferat, elevul transferat participă la cursuri în calitate de audient.”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "articolul 150",
+        "excerpt": "După aprobarea transferului, unitatea de învățământ primitoare este obligată să solicite situația școlară a elevului în termen de 5 zile lucrătoare. Unitatea de învățământ de la care se transferă elevul este obligată să trimită la unitatea de învățământ primitoare situația școlară a celui transferat, în termen de 10 zile lucrătoare de la primirea solicitării. Până la primirea situației școlare de către unitatea de învățământ la care s-a transferat, elevul transferat participă la cursuri în calitate de audient.",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-232",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Titlul VII. Beneficiarii primari ai educației",
+      "annex": "",
+      "title": "Titlul VII. Beneficiarii primari ai educației",
+      "chapter": "Capitolul V. Managementul de caz și monitorizarea integrată a elevelor gravide și a beneficiarilor primari părinți",
+      "section": "",
+      "article": 151,
+      "paragraph": "(2)",
+      "prompt": "Cine coordonează, prin metoda managementului de caz, monitorizarea integrată a elevelor gravide și a elevilor părinți?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Directorul unității, singur, prin decizie internă.",
+          "isCorrect": false,
+          "why": "Monitorizarea este integrată și realizată prin DGASPC, cu sprijinul inspectoratului școlar."
+        },
+        {
+          "id": "B",
+          "text": "Consiliul de administrație al unității, prin hotărâre.",
+          "isCorrect": false,
+          "why": "Metoda managementului de caz implică mai mulți specialiști și instituții, nu doar consiliul de administrație."
+        },
+        {
+          "id": "C",
+          "text": "Inspectoratul școlar sprijină coordonarea monitorizării integrate realizate de Direcția Generală de Asistență și Protecția Copilului.",
+          "isCorrect": true
+        },
+        {
+          "id": "D",
+          "text": "Ministerul Educației, direct, la nivelul fiecărei unități.",
+          "isCorrect": false,
+          "why": "Coordonarea este sprijinită la nivel de inspectorat, nu direct de minister."
+        }
+      ],
+      "correctOptionId": "C",
+      "explanation": "Regula: Inspectoratul școlar sprijină coordonarea, prin metoda managementului de caz, a monitorizării integrate realizate de Direcția Generală de Asistență și Protecția Copilului. În echipă intră un cadru didactic din CJRAE/CMBRAE, un inspector școlar și mediatorii școlar și sanitar.\n\nȘcoala nu este singură: monitorizarea este integrată, iar echipa implică mai multe instituții și specialiști.\n\nTemei: articolul 151 alineatele (2)-(4). Textul relevant: „Inspectoratul școlar sprijină coordonarea, prin metoda managementului de caz, a activității de monitorizare integrată realizată de către Direcția Generală de Asistență și Protecția Copilului.”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "articolul 151 alineatele (2)-(4)",
+        "excerpt": "Inspectoratul școlar sprijină coordonarea, prin metoda managementului de caz, a activității de monitorizare integrată realizată de către Direcția Generală de Asistență și Protecția Copilului.",
         "verification": "fragment-exact-din-sursa-consolidata"
       }
     }
