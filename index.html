@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Portal PNRAS</title>
+    <link rel="icon" href="data:,">
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
 </head>
@@ -76,6 +77,11 @@
 <button class="menu-card" onclick="location.href='uniforme.html'">
         <div class="icon">👕</div>
         <span>Uniforme</span>
+    </button>
+
+<button class="menu-card" onclick="verificaParolaConcurs()">
+        <div class="icon">🎓</div>
+        <span>Concurs</span>
     </button>
 </main>
 
@@ -155,7 +161,17 @@ function verificaParolaGrafic() {
 function verificaParolaAudit() {
     window.location.href = 'audit.html';
 }
+
+function verificaParolaConcurs() {
+    const parolaConcurs = prompt("Introduceți parola pentru acces la secțiunea Concurs:");
+    if (parolaConcurs === "Concurs123") {
+        window.location.href = 'rofuip/';
+    } else if (parolaConcurs !== null) {
+        alert("Parolă incorectă! Accesul a fost refuzat.");
+    }
+}
 </script>
 
 </body>
 </html>
+
