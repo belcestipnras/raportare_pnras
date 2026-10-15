@@ -148,6 +148,88 @@ h1 {
   padding: 1.25rem 0 3rem;
 }
 
+.simulation-section {
+  padding: 0.25rem 0 1.5rem;
+}
+
+.simulation-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 1.5rem;
+  align-items: center;
+  padding: clamp(1.5rem, 4vw, 2.4rem);
+  color: white;
+  background: linear-gradient(135deg, #08735d, var(--green));
+  border-radius: 1.4rem;
+  box-shadow: var(--shadow);
+}
+
+.simulation-card .eyebrow {
+  color: #b8ffec;
+}
+
+.simulation-card h2 {
+  margin-bottom: 0.75rem;
+}
+
+.simulation-card p {
+  max-width: 760px;
+  margin-bottom: 1.2rem;
+  color: #e0fff7;
+  line-height: 1.65;
+}
+
+.distribution {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+}
+
+.distribution span {
+  padding: 0.42rem 0.65rem;
+  color: #effffb;
+  font-size: 0.78rem;
+  font-weight: 700;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 999px;
+}
+
+.distribution strong {
+  margin-right: 0.2rem;
+  color: white;
+}
+
+.module-card .distribution span {
+  color: var(--green);
+  background: var(--mint);
+  border-color: #bfe8dc;
+}
+
+.module-card .distribution strong {
+  color: var(--navy);
+}
+
+.simulation-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.2rem;
+  min-width: 13rem;
+  padding: 1rem 1.1rem;
+  color: var(--green);
+  font-weight: 900;
+  text-decoration: none;
+  background: white;
+  border-radius: 0.9rem;
+}
+
+.simulation-button:hover,
+.simulation-button:focus-visible {
+  color: var(--navy);
+  transform: translateY(-1px);
+}
+
 .section-heading {
   display: flex;
   align-items: end;
@@ -314,6 +396,14 @@ footer p {
     grid-template-columns: 1fr;
   }
 
+  .simulation-card {
+    grid-template-columns: 1fr;
+  }
+
+  .simulation-button {
+    width: 100%;
+  }
+
   .module-card {
     grid-template-columns: 1fr;
   }
@@ -323,4 +413,5 @@ footer p {
     height: 3.4rem;
   }
 }
+
 
