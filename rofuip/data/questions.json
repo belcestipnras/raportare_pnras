@@ -7,7 +7,7 @@
     "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
     "method": "itemi situaționali redactați manual și verificați pe fragmentele exacte ale formei consolidate"
   },
-  "count": 60,
+  "count": 120,
   "questions": [
     {
       "id": "RF-A-001",
@@ -2706,6 +2706,2706 @@
         "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
         "reference": "art. 145",
         "excerpt": "Gemenii, tripleții etc. se pot transfera în clasa celui cu media mai mare sau invers, la cererea părintelui/reprezentantului legal sau la cererea beneficiarilor primari, dacă aceștia sunt majori, cu aprobarea consiliului de administrație al unității de învățământ",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-061",
+      "kind": "aplicare",
+      "difficulty": "expert",
+      "module": "Titlul II. Organizarea unităților de învățământ",
+      "annex": "",
+      "title": "Titlul II. Organizarea unităților de învățământ",
+      "chapter": "Capitolul II. Organizarea programului școlar",
+      "section": "",
+      "article": 9,
+      "paragraph": "(4) d)",
+      "prompt": "O situație excepțională impune suspendarea prezenței fizice pentru două clase. Directorul vrea să decidă singur și să informeze ulterior inspectoratul. Care este traseul corect?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Directorul formulează cererea în baza hotărârii consiliului de administrație, cu informarea ISJ/ISMB și aprobarea inspectorului școlar general.",
+          "isCorrect": true
+        },
+        {
+          "id": "B",
+          "text": "Directorul suspendă cursurile prin decizie proprie, iar consiliul de administrație ratifică ulterior.",
+          "isCorrect": false
+        },
+        {
+          "id": "C",
+          "text": "Consiliul profesoral aprobă suspendarea, iar directorul informează autoritatea locală.",
+          "isCorrect": false
+        },
+        {
+          "id": "D",
+          "text": "Inspectoratul aprobă suspendarea numai la cererea autorității publice locale.",
+          "isCorrect": false
+        }
+      ],
+      "correctOptionId": "A",
+      "explanation": "Pentru una sau mai multe formațiuni de studiu, hotărârea consiliului de administrație fundamentează cererea directorului, iar aprobarea aparține inspectorului școlar general.\n\nTemei: art. 9 alin. (4) lit. d). Textul relevant: „la nivelul unor formațiuni de studiu - grupe/clase din cadrul unității de învățământ, precum și la nivelul unității de învățământ - la cererea directorului, în baza hotărârii consiliului de administrație al unității, cu informarea ISJ/ISMB, respectiv cu aprobarea inspectorului școlar general și informarea Ministerului Educației;”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "art. 9 alin. (4) lit. d)",
+        "excerpt": "la nivelul unor formațiuni de studiu - grupe/clase din cadrul unității de învățământ, precum și la nivelul unității de învățământ - la cererea directorului, în baza hotărârii consiliului de administrație al unității, cu informarea ISJ/ISMB, respectiv cu aprobarea inspectorului școlar general și informarea Ministerului Educației;",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-062",
+      "kind": "aplicare",
+      "difficulty": "expert",
+      "module": "Titlul II. Organizarea unităților de învățământ",
+      "annex": "",
+      "title": "Titlul II. Organizarea unităților de învățământ",
+      "chapter": "Capitolul II. Organizarea programului școlar",
+      "section": "",
+      "article": 9,
+      "paragraph": "(5)",
+      "prompt": "Părintele unui elev cu afecțiune cronică solicită suspendarea prezenței fizice și prezintă recomandarea medicului. Este suficientă simpla aprobare verbală a directorului?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Da. Recomandarea medicului înlocuiește orice aviz al școlii.",
+          "isCorrect": false
+        },
+        {
+          "id": "B",
+          "text": "Nu. Este necesar avizul motivat în scris al consiliului de administrație.",
+          "isCorrect": true
+        },
+        {
+          "id": "C",
+          "text": "Nu. Este necesară aprobarea consiliului profesoral, consemnată în proces-verbal.",
+          "isCorrect": false
+        },
+        {
+          "id": "D",
+          "text": "Nu. Este necesară aprobarea inspectorului școlar general pentru fiecare caz individual.",
+          "isCorrect": false
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Suspendarea individuală pentru situațiile medicale și pentru elevele gravide sau elevii părinți presupune un aviz motivat, în scris, al consiliului de administrație.\n\nTemei: art. 9 alin. (5). Textul relevant: „Suspendarea cursurilor cu prezență fizică la nivel individual, conform alin. (4) lit.a) și lit.b) , se realizează cu avizul, motivat în scris, al consiliului de administrație al unității de învățământ. Suspendarea cursurilor cu prezență fizică în cazul elevelor gravide și a beneficiarilor primari părinți, precum și revenirea acestora cu prezență fizică în unitatea de învățământ se va realiza cu informarea ISJ/ISMB.”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "art. 9 alin. (5)",
+        "excerpt": "Suspendarea cursurilor cu prezență fizică la nivel individual, conform alin. (4) lit.a) și lit.b) , se realizează cu avizul, motivat în scris, al consiliului de administrație al unității de învățământ. Suspendarea cursurilor cu prezență fizică în cazul elevelor gravide și a beneficiarilor primari părinți, precum și revenirea acestora cu prezență fizică în unitatea de învățământ se va realiza cu informarea ISJ/ISMB.",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-063",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Titlul II. Organizarea unităților de învățământ",
+      "annex": "",
+      "title": "Titlul II. Organizarea unităților de învățământ",
+      "chapter": "Capitolul II. Organizarea programului școlar",
+      "section": "",
+      "article": 9,
+      "paragraph": "(7)",
+      "prompt": "În perioada suspendării cursurilor nu s-au putut desfășura activități online sau hibride. Cine stabilește modalitățile alternative pentru parcurgerea integrală a programei?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Fiecare profesor, fără o decizie la nivelul unității.",
+          "isCorrect": false
+        },
+        {
+          "id": "B",
+          "text": "Consiliul profesoral, prin votul a două treimi dintre membri.",
+          "isCorrect": false
+        },
+        {
+          "id": "C",
+          "text": "Consiliul de administrație al unității de învățământ.",
+          "isCorrect": true
+        },
+        {
+          "id": "D",
+          "text": "Inspectoratul școlar, printr-un plan unic obligatoriu pentru toate unitățile.",
+          "isCorrect": false
+        }
+      ],
+      "correctOptionId": "C",
+      "explanation": "Când activitatea nu a putut continua online sau hibrid, consiliul de administrație stabilește modalitățile alternative de recuperare a programei.\n\nTemei: art. 9 alin. (7). Textul relevant: „În situațiile prevăzute la alin. (4) în care activitatea nu s-a putut desfășura în format online sau hibrid, suspendarea cursurilor este urmată de măsuri privind parcurgerea integrală a programei școlare prin modalități alternative stabilite de consiliul de administrație al unității de învățământ.”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "art. 9 alin. (7)",
+        "excerpt": "În situațiile prevăzute la alin. (4) în care activitatea nu s-a putut desfășura în format online sau hibrid, suspendarea cursurilor este urmată de măsuri privind parcurgerea integrală a programei școlare prin modalități alternative stabilite de consiliul de administrație al unității de învățământ.",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-064",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Titlul II. Organizarea unităților de învățământ",
+      "annex": "",
+      "title": "Titlul II. Organizarea unităților de învățământ",
+      "chapter": "Capitolul II. Organizarea programului școlar",
+      "section": "",
+      "article": 10,
+      "paragraph": "(5)",
+      "prompt": "O grădiniță își modifică programul de funcționare doar prin decizia directorului, invocând nevoile cartierului. Ce etapă lipsește?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Avizul obligatoriu al consiliului profesoral și aprobarea inspectoratului.",
+          "isCorrect": false
+        },
+        {
+          "id": "B",
+          "text": "Consultarea salariaților și aprobarea programului de către primar.",
+          "isCorrect": false
+        },
+        {
+          "id": "C",
+          "text": "Doar publicarea programului cu 30 de zile înainte, fără altă aprobare.",
+          "isCorrect": false
+        },
+        {
+          "id": "D",
+          "text": "Consultarea părinților și aprobarea programului prin hotărârea consiliului de administrație.",
+          "isCorrect": true
+        }
+      ],
+      "correctOptionId": "D",
+      "explanation": "Programul se particularizează la nevoile beneficiarilor și ale zonei, dar se aprobă de consiliul de administrație pe baza consultării părinților.\n\nTemei: art. 10 alin. (5). Textul relevant: „Programul de funcționare al unității de educație timpurie, particularizat la nevoile beneficiarilor primari și/sau ale zonei în care se află unitatea, se stabilește pornind de la prevederile din Curriculumul pentru educație timpurie în vigoare și se aprobă prin hotărâre a consiliului de administrație, în baza rezultatului consultărilor părinților/reprezentanților legali ai copiilor.”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "art. 10 alin. (5)",
+        "excerpt": "Programul de funcționare al unității de educație timpurie, particularizat la nevoile beneficiarilor primari și/sau ale zonei în care se află unitatea, se stabilește pornind de la prevederile din Curriculumul pentru educație timpurie în vigoare și se aprobă prin hotărâre a consiliului de administrație, în baza rezultatului consultărilor părinților/reprezentanților legali ai copiilor.",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-065",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Titlul II. Organizarea unităților de învățământ",
+      "annex": "",
+      "title": "Titlul II. Organizarea unităților de învățământ",
+      "chapter": "Capitolul II. Organizarea programului școlar",
+      "section": "",
+      "article": 10,
+      "paragraph": "(6)",
+      "prompt": "În vacanță, nouă copii înscriși la program prelungit au părinți care solicită activități educativ-recreative. Poate unitatea organiza programul numai pentru ei?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Nu. Pentru organizare sunt necesari minimum 10 copii înscriși la program prelungit.",
+          "isCorrect": true
+        },
+        {
+          "id": "B",
+          "text": "Da. Nu există un prag minim dacă toți părinții formulează cereri scrise.",
+          "isCorrect": false
+        },
+        {
+          "id": "C",
+          "text": "Da, dacă activitatea se desfășoară în asociere cu o altă unitate.",
+          "isCorrect": false
+        },
+        {
+          "id": "D",
+          "text": "Nu. Pragul minim este de 15 copii, indiferent de tipul programului.",
+          "isCorrect": false
+        }
+      ],
+      "correctOptionId": "A",
+      "explanation": "Regulamentul permite programul de vacanță la nivelul unității sau în asociere, dar stabilește pragul de minimum 10 copii eligibili.\n\nTemei: art. 10 alin. (6). Textul relevant: „În perioada vacanțelor, în unitățile de învățământ cu nivel antepreșcolar și preșcolar se pot organiza, la nivelul unității sau în asociere cu alte unități, activități educativ-recreative cu copiii. Activitățile se pot organiza cu minimum 10 copii înscriși la program prelungit, ai căror părinți au solicitat acest tip de program.”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "art. 10 alin. (6)",
+        "excerpt": "În perioada vacanțelor, în unitățile de învățământ cu nivel antepreșcolar și preșcolar se pot organiza, la nivelul unității sau în asociere cu alte unități, activități educativ-recreative cu copiii. Activitățile se pot organiza cu minimum 10 copii înscriși la program prelungit, ai căror părinți au solicitat acest tip de program.",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-066",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Titlul II. Organizarea unităților de învățământ",
+      "annex": "",
+      "title": "Titlul II. Organizarea unităților de învățământ",
+      "chapter": "Capitolul II. Organizarea programului școlar",
+      "section": "",
+      "article": 10,
+      "paragraph": "(8)",
+      "prompt": "Părinții au înscris copiii la activitățile educativ-recreative organizate de grădiniță în vacanță. Ce document trebuie încheiat pentru perioada respectivă?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Un act adițional la contractul individual de muncă al educatorului.",
+          "isCorrect": false
+        },
+        {
+          "id": "B",
+          "text": "Un contract educațional între părinți și unitatea de învățământ.",
+          "isCorrect": true
+        },
+        {
+          "id": "C",
+          "text": "Un protocol între comitetul de părinți și consiliul profesoral.",
+          "isCorrect": false
+        },
+        {
+          "id": "D",
+          "text": "O declarație unilaterală a părintelui, fără semnătura unității.",
+          "isCorrect": false
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Participarea la programul educativ-recreativ din vacanță este formalizată printr-un contract educațional pentru acea perioadă.\n\nTemei: art. 10 alin. (8). Textul relevant: „În vederea participării la activitățile educativ-recreative menționate la alin. (6) , părinții și unitatea de învățământ încheie pentru perioada respectivă contract educațional, conform reglementărilor legale în vigoare.”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "art. 10 alin. (8)",
+        "excerpt": "În vederea participării la activitățile educativ-recreative menționate la alin. (6) , părinții și unitatea de învățământ încheie pentru perioada respectivă contract educațional, conform reglementărilor legale în vigoare.",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-067",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Titlul II. Organizarea unităților de învățământ",
+      "annex": "",
+      "title": "Titlul II. Organizarea unităților de învățământ",
+      "chapter": "Capitolul II. Organizarea programului școlar",
+      "section": "",
+      "article": 11,
+      "paragraph": "(2)",
+      "prompt": "O unitate funcționează în două schimburi și trebuie să stabilească programul claselor primare. Cine ia decizia?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Directorul, după consultarea informală a învățătorilor.",
+          "isCorrect": false
+        },
+        {
+          "id": "B",
+          "text": "Consiliul profesoral, prin majoritatea celor prezenți.",
+          "isCorrect": false
+        },
+        {
+          "id": "C",
+          "text": "Consiliul de administrație al unității de învățământ.",
+          "isCorrect": true
+        },
+        {
+          "id": "D",
+          "text": "Inspectoratul școlar, la propunerea comitetului de părinți.",
+          "isCorrect": false
+        }
+      ],
+      "correctOptionId": "C",
+      "explanation": "Învățământul primar funcționează de regulă dimineața; în unitățile cu cel puțin două schimburi, programul este stabilit de consiliul de administrație.\n\nTemei: art. 11 alin. (2). Textul relevant: „Învățământul primar funcționează, de regulă, în programul de dimineață. Pentru unitățile de învățământ care funcționează în cel puțin două schimburi, programul este stabilit de consiliul de administrație al unității de învățământ.”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "art. 11 alin. (2)",
+        "excerpt": "Învățământul primar funcționează, de regulă, în programul de dimineață. Pentru unitățile de învățământ care funcționează în cel puțin două schimburi, programul este stabilit de consiliul de administrație al unității de învățământ.",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-068",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Titlul II. Organizarea unităților de învățământ",
+      "annex": "",
+      "title": "Titlul II. Organizarea unităților de învățământ",
+      "chapter": "Capitolul II. Organizarea programului școlar",
+      "section": "",
+      "article": 11,
+      "paragraph": "(3)",
+      "prompt": "Orarul clasei I prevede cursuri între 7:30 și 13:30. Este compatibil cu ROFUIP?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Da. Este respectată limita de final, iar ora de început poate fi stabilită de consiliul de administrație.",
+          "isCorrect": false
+        },
+        {
+          "id": "B",
+          "text": "Da, dacă părinții clasei au aprobat programul în unanimitate.",
+          "isCorrect": false
+        },
+        {
+          "id": "C",
+          "text": "Nu. Pentru clasa I cursurile trebuie să se desfășoare exclusiv între 9:00 și 13:00.",
+          "isCorrect": false
+        },
+        {
+          "id": "D",
+          "text": "Nu. Cursurile nu pot începe înainte de ora 8:00, chiar dacă se termină înainte de 14:00.",
+          "isCorrect": true
+        }
+      ],
+      "correctOptionId": "D",
+      "explanation": "Pentru clasa pregătitoare și clasele I-II sunt stabilite cumulativ o limită minimă pentru început și una maximă pentru final.\n\nTemei: art. 11 alin. (3). Textul relevant: „Cursurile pentru elevii din clasa pregătitoare și din clasele I și a II-a nu vor începe înainte de ora 8.00 și nu se vor termina mai târziu de ora 14.00.”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "art. 11 alin. (3)",
+        "excerpt": "Cursurile pentru elevii din clasa pregătitoare și din clasele I și a II-a nu vor începe înainte de ora 8.00 și nu se vor termina mai târziu de ora 14.00.",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-069",
+      "kind": "aplicare",
+      "difficulty": "expert",
+      "module": "Titlul II. Organizarea unităților de învățământ",
+      "annex": "",
+      "title": "Titlul II. Organizarea unităților de învățământ",
+      "chapter": "Capitolul II. Organizarea programului școlar",
+      "section": "",
+      "article": 11,
+      "paragraph": "(9)",
+      "prompt": "Din cauza unor intemperii, directorul propune reducerea temporară a duratei orelor și pauzelor. Ce aprobări sunt necesare?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Hotărârea consiliului de administrație și aprobarea inspectoratului școlar, pe baza propunerii motivate a directorului.",
+          "isCorrect": true
+        },
+        {
+          "id": "B",
+          "text": "Doar hotărârea consiliului profesoral, dacă măsura durează mai puțin de o săptămână.",
+          "isCorrect": false
+        },
+        {
+          "id": "C",
+          "text": "Doar aprobarea consiliului de administrație, fără implicarea inspectoratului.",
+          "isCorrect": false
+        },
+        {
+          "id": "D",
+          "text": "Aprobarea autorității locale, după avizul comitetului de părinți.",
+          "isCorrect": false
+        }
+      ],
+      "correctOptionId": "A",
+      "explanation": "Modificarea temporară în situații speciale pornește de la propunerea motivată a directorului, se bazează pe hotărârea consiliului de administrație și necesită aprobarea inspectoratului.\n\nTemei: art. 11 alin. (9). Textul relevant: „În situații speciale, cum ar fi epidemii, intemperii, calamități, alte situații excepționale, pe o perioadă determinată, durata orelor de curs și a pauzelor poate fi modificată, la propunerea motivată a directorului, în baza hotărârii consiliului de administrație al unității de învățământ, cu aprobarea inspectoratului școlar.”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "art. 11 alin. (9)",
+        "excerpt": "În situații speciale, cum ar fi epidemii, intemperii, calamități, alte situații excepționale, pe o perioadă determinată, durata orelor de curs și a pauzelor poate fi modificată, la propunerea motivată a directorului, în baza hotărârii consiliului de administrație al unității de învățământ, cu aprobarea inspectoratului școlar.",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-070",
+      "kind": "aplicare",
+      "difficulty": "expert",
+      "module": "Titlul II. Organizarea unităților de învățământ",
+      "annex": "",
+      "title": "Titlul II. Organizarea unităților de învățământ",
+      "chapter": "Capitolul II. Organizarea programului școlar",
+      "section": "",
+      "article": 11,
+      "paragraph": "(10)",
+      "prompt": "Pentru o elevă gravidă, dirigintele stabilește singur un orar redus. Care este procedura corectă pentru programul flexibil?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Programul este stabilit exclusiv de diriginte și aprobat ulterior de consiliul clasei.",
+          "isCorrect": false
+        },
+        {
+          "id": "B",
+          "text": "Programul este stabilit de o comisie care include consilierul școlar, cu consultarea părintelui dacă eleva este minoră.",
+          "isCorrect": true
+        },
+        {
+          "id": "C",
+          "text": "Programul este stabilit de consiliul de administrație, fără o comisie de specialitate.",
+          "isCorrect": false
+        },
+        {
+          "id": "D",
+          "text": "Programul este stabilit de medicul școlar și devine obligatoriu fără consultarea familiei.",
+          "isCorrect": false
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Programul flexibil poate include plan individualizat și orar adaptat, dar este construit de o comisie din care face parte consilierul școlar.\n\nTemei: art. 11 alin. (10). Textul relevant: „Elevele gravide și elevii părinți pot beneficia de un program școlar flexibil, în vederea prevenirii și combaterii abandonului școlar. Programul flexibil se stabilește, prin consultare cu părinții/tutorii/reprezentanții legali ai beneficiarilor primari minori, de către o comisie care include și consilierul școlar. Programul poată să prevadă atât un plan individualizat de învățare, cât și un orar școlar adaptat nevoilor acestora, precum și alte măsuri stabilite de către comisie.”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "art. 11 alin. (10)",
+        "excerpt": "Elevele gravide și elevii părinți pot beneficia de un program școlar flexibil, în vederea prevenirii și combaterii abandonului școlar. Programul flexibil se stabilește, prin consultare cu părinții/tutorii/reprezentanții legali ai beneficiarilor primari minori, de către o comisie care include și consilierul școlar. Programul poată să prevadă atât un plan individualizat de învățare, cât și un orar școlar adaptat nevoilor acestora, precum și alte măsuri stabilite de către comisie.",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-071",
+      "kind": "aplicare",
+      "difficulty": "expert",
+      "module": "Titlul II. Organizarea unităților de învățământ",
+      "annex": "",
+      "title": "Titlul II. Organizarea unităților de învățământ",
+      "chapter": "Capitolul II. Organizarea programului școlar",
+      "section": "",
+      "article": 11,
+      "paragraph": "(12)",
+      "prompt": "Elevi din clase diferite aleg același opțional CDEOȘ, dar orarele lor nu permit participarea comună. Ce soluție trebuie luată în calcul la stabilirea opționalelor?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Înscrierea elevilor numai la opționalele disponibile în propria clasă.",
+          "isCorrect": false
+        },
+        {
+          "id": "B",
+          "text": "Mutarea opționalului în afara programului școlar, fără modificarea orarelor.",
+          "isCorrect": false
+        },
+        {
+          "id": "C",
+          "text": "Organizarea unui bloc orar CDEOȘ pentru elevii de la același nivel de studiu.",
+          "isCorrect": true
+        },
+        {
+          "id": "D",
+          "text": "Formarea unei clase noi permanente numai pentru disciplina opțională.",
+          "isCorrect": false
+        }
+      ],
+      "correctOptionId": "C",
+      "explanation": "Pentru respectarea opțiunilor exprimate, lista și orarul trebuie să ia în calcul un bloc comun care permite participarea elevilor din clase diferite.\n\nTemei: art. 11 alin. (12). Textul relevant: „În vederea respectării opțiunilor pentru Curriculum la decizia elevului din oferta școlii (CDEOȘ) exprimate de elevi/părinți, stabilirea listei de opționale va lua în calcul inclusiv posibilitatea de organizare a unui bloc orar pentru CDEOȘ, care să permită participarea la un opțional comun a beneficiarilor primari din clase diferite, de la același nivel de studiu.”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "art. 11 alin. (12)",
+        "excerpt": "În vederea respectării opțiunilor pentru Curriculum la decizia elevului din oferta școlii (CDEOȘ) exprimate de elevi/părinți, stabilirea listei de opționale va lua în calcul inclusiv posibilitatea de organizare a unui bloc orar pentru CDEOȘ, care să permită participarea la un opțional comun a beneficiarilor primari din clase diferite, de la același nivel de studiu.",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-072",
+      "kind": "aplicare",
+      "difficulty": "expert",
+      "module": "Titlul II. Organizarea unităților de învățământ",
+      "annex": "",
+      "title": "Titlul II. Organizarea unităților de învățământ",
+      "chapter": "Capitolul II. Organizarea programului școlar",
+      "section": "",
+      "article": 12,
+      "paragraph": "(2)",
+      "prompt": "Școala dorește să deschidă programul «Școala după școală» fără să analizeze nevoile și resursele disponibile. Este suficientă o simplă decizie a directorului?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Da. Directorul poate decide programul dacă nu solicită finanțare suplimentară.",
+          "isCorrect": false
+        },
+        {
+          "id": "B",
+          "text": "Nu. Programul poate fi decis numai de consiliul profesoral și finanțat de părinți.",
+          "isCorrect": false
+        },
+        {
+          "id": "C",
+          "text": "Nu. Este necesar exclusiv avizul autorității publice locale.",
+          "isCorrect": false
+        },
+        {
+          "id": "D",
+          "text": "Nu. Este necesară analiza de nevoi și resurse, urmată de decizia consiliului de administrație și, după caz, avizul inspectoratului.",
+          "isCorrect": true
+        }
+      ],
+      "correctOptionId": "D",
+      "explanation": "Organizarea programelor pentru creșterea calității educației pornește de la analiza nevoilor și a resurselor și este decisă de consiliul de administrație.\n\nTemei: art. 12 alin. (2). Textul relevant: „În urma analizei de nevoi întreprinse la nivelul unității de învățământ în funcție de resursele existente (umane, financiare și materiale), prin decizia consiliului de administrație al unității de învățământ și, după caz, cu avizul inspectoratului școlar, se pot organiza programe care au drept scop creșterea calității educației oferite tuturor beneficiarilor primari sau se pot întreprinde demersuri pentru dobândirea unui statut special, precum:”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "art. 12 alin. (2)",
+        "excerpt": "În urma analizei de nevoi întreprinse la nivelul unității de învățământ în funcție de resursele existente (umane, financiare și materiale), prin decizia consiliului de administrație al unității de învățământ și, după caz, cu avizul inspectoratului școlar, se pot organiza programe care au drept scop creșterea calității educației oferite tuturor beneficiarilor primari sau se pot întreprinde demersuri pentru dobândirea unui statut special, precum:",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-073",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Titlul II. Organizarea unităților de învățământ",
+      "annex": "",
+      "title": "Titlul II. Organizarea unităților de învățământ",
+      "chapter": "Capitolul III. Formațiunile de studiu",
+      "section": "",
+      "article": 13,
+      "paragraph": "(1)",
+      "prompt": "La începutul anului, secretariatul stabilește componența claselor și o transmite directorului pentru semnare. Cine trebuie să propună și cine trebuie să hotărască formarea lor?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Directorul propune, iar consiliul de administrație hotărăște.",
+          "isCorrect": true
+        },
+        {
+          "id": "B",
+          "text": "Secretariatul propune, iar directorul aprobă prin decizie proprie.",
+          "isCorrect": false
+        },
+        {
+          "id": "C",
+          "text": "Consiliul profesoral propune, iar inspectoratul școlar aprobă fiecare clasă.",
+          "isCorrect": false
+        },
+        {
+          "id": "D",
+          "text": "Comisia pentru curriculum propune, iar consiliul profesoral hotărăște.",
+          "isCorrect": false
+        }
+      ],
+      "correctOptionId": "A",
+      "explanation": "Constituirea formațiunilor de studiu separă inițiativa directorului de hotărârea consiliului de administrație.\n\nTemei: art. 13 alin. (1). Textul relevant: „În unitățile de învățământ, formațiunile de studiu cuprind grupe, clase sau ani de studiu și se constituie în conformitate cu prevederile Art. 23 alin. (1) , (2) , (3) și Art. 248 alin. (16) din Legea învățământului preuniversitar nr. 198/2023 , cu modificările și completările ulterioare, la propunerea directorului, prin hotărâre a consiliului de administrație.”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "art. 13 alin. (1)",
+        "excerpt": "În unitățile de învățământ, formațiunile de studiu cuprind grupe, clase sau ani de studiu și se constituie în conformitate cu prevederile Art. 23 alin. (1) , (2) , (3) și Art. 248 alin. (16) din Legea învățământului preuniversitar nr. 198/2023 , cu modificările și completările ulterioare, la propunerea directorului, prin hotărâre a consiliului de administrație.",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-074",
+      "kind": "aplicare",
+      "difficulty": "expert",
+      "module": "Titlul II. Organizarea unităților de învățământ",
+      "annex": "",
+      "title": "Titlul II. Organizarea unităților de învățământ",
+      "chapter": "Capitolul III. Formațiunile de studiu",
+      "section": "",
+      "article": 13,
+      "paragraph": "(4)",
+      "prompt": "O clasă ar urma să depășească efectivul maxim legal cu patru elevi, într-o situație excepțională. Ce este necesar pentru funcționare?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Doar hotărârea consiliului de administrație, deoarece depășirea este de cel mult patru elevi.",
+          "isCorrect": false
+        },
+        {
+          "id": "B",
+          "text": "Aprobarea inspectoratului școlar, pe baza justificării consiliului de administrație al unității.",
+          "isCorrect": true
+        },
+        {
+          "id": "C",
+          "text": "Aprobarea consiliului profesoral și acordul tuturor părinților clasei.",
+          "isCorrect": false
+        },
+        {
+          "id": "D",
+          "text": "Aprobarea ministerului, indiferent de mărimea depășirii.",
+          "isCorrect": false
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Toleranța excepțională de cel mult patru peste maxim nu operează automat; inspectoratul aprobă pe baza justificării consiliului de administrație.\n\nTemei: art. 13 alin. (4). Textul relevant: „În situații excepționale, formațiunile de antepreșcolari, preșcolari sau de elevi pot funcționa cu cel mult 2 beneficiari sub efectivul minim și, respectiv, cu cel mult 4 beneficiari peste efectivul maxim prevăzut la art. 23 alin. (1) din Legea învățământului preuniversitar nr. 198/2023 , cu modificările și completările ulterioare, după caz, cu aprobarea inspectoratului școlar, pe baza unei justificări din partea consiliului de administrație al unității de învățământ care solicită exceptarea de la prevederile alin. (1) .”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "art. 13 alin. (4)",
+        "excerpt": "În situații excepționale, formațiunile de antepreșcolari, preșcolari sau de elevi pot funcționa cu cel mult 2 beneficiari sub efectivul minim și, respectiv, cu cel mult 4 beneficiari peste efectivul maxim prevăzut la art. 23 alin. (1) din Legea învățământului preuniversitar nr. 198/2023 , cu modificările și completările ulterioare, după caz, cu aprobarea inspectoratului școlar, pe baza unei justificări din partea consiliului de administrație al unității de învățământ care solicită exceptarea de la prevederile alin. (1) .",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-075",
+      "kind": "aplicare",
+      "difficulty": "expert",
+      "module": "Titlul II. Organizarea unităților de învățământ",
+      "annex": "",
+      "title": "Titlul II. Organizarea unităților de învățământ",
+      "chapter": "Capitolul III. Formațiunile de studiu",
+      "section": "",
+      "article": 13,
+      "paragraph": "(10)",
+      "prompt": "Un liceu vrea să organizeze o clasă cu dublă specializare deoarece efectivele sunt insuficiente. Care este traseul decizional?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Hotărârea consiliului profesoral, urmată de aprobarea inspectoratului.",
+          "isCorrect": false
+        },
+        {
+          "id": "B",
+          "text": "Decizia directorului, cu informarea ministerului după constituirea clasei.",
+          "isCorrect": false
+        },
+        {
+          "id": "C",
+          "text": "Solicitarea consiliului de administrație, avizul inspectoratului școlar și aprobarea ministerului.",
+          "isCorrect": true
+        },
+        {
+          "id": "D",
+          "text": "Solicitarea autorității locale și aprobarea consiliului de administrație al școlii.",
+          "isCorrect": false
+        }
+      ],
+      "correctOptionId": "C",
+      "explanation": "Clasele cu dublu profil sau dublă specializare au un traseu în trei trepte: solicitare la nivelul școlii, aviz județean și aprobare ministerială.\n\nTemei: art. 13 alin. (10). Textul relevant: „Clasele menționate la alin. (9) se organizează pentru profiluri/domenii de pregătire profesională/specializări/calificări la care disciplinele generale sunt comune, la solicitarea consiliului de administrație al unității de învățământ, cu avizul inspectoratului școlar și aprobarea ministerului.”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "art. 13 alin. (10)",
+        "excerpt": "Clasele menționate la alin. (9) se organizează pentru profiluri/domenii de pregătire profesională/specializări/calificări la care disciplinele generale sunt comune, la solicitarea consiliului de administrație al unității de învățământ, cu avizul inspectoratului școlar și aprobarea ministerului.",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-076",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Titlul II. Organizarea unităților de învățământ",
+      "annex": "",
+      "title": "Titlul II. Organizarea unităților de învățământ",
+      "chapter": "Capitolul III. Formațiunile de studiu",
+      "section": "",
+      "article": 13,
+      "paragraph": "(12)",
+      "prompt": "Elevi din mai multe clase aleg aceeași disciplină opțională. Poate școala constitui o grupă comună?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Da, prin simpla decizie a profesorului care predă opționalul.",
+          "isCorrect": false
+        },
+        {
+          "id": "B",
+          "text": "Nu. Opționalele se pot organiza numai în interiorul aceleiași clase.",
+          "isCorrect": false
+        },
+        {
+          "id": "C",
+          "text": "Da, numai cu aprobarea ministerului și fără limită privind normele.",
+          "isCorrect": false
+        },
+        {
+          "id": "D",
+          "text": "Da, prin decizia consiliului de administrație și cu încadrarea în numărul de norme aprobat.",
+          "isCorrect": true
+        }
+      ],
+      "correctOptionId": "D",
+      "explanation": "Consiliul de administrație poate grupa elevi din formațiuni diferite pentru același opțional, dar numai în limitele normelor aprobate.\n\nTemei: art. 13 alin. (12). Textul relevant: „Consiliul de administrație poate decide constituirea de grupe pentru elevi din formațiuni de studiu diferite care aleg să studieze aceleași discipline opționale, în conformitate cu prevederile statutului elevului, cu încadrarea în numărul de norme aprobat.”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "art. 13 alin. (12)",
+        "excerpt": "Consiliul de administrație poate decide constituirea de grupe pentru elevi din formațiuni de studiu diferite care aleg să studieze aceleași discipline opționale, în conformitate cu prevederile statutului elevului, cu încadrarea în numărul de norme aprobat.",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-077",
+      "kind": "aplicare",
+      "difficulty": "expert",
+      "module": "Titlul II. Organizarea unităților de învățământ",
+      "annex": "",
+      "title": "Titlul II. Organizarea unităților de învățământ",
+      "chapter": "Capitolul III. Formațiunile de studiu",
+      "section": "",
+      "article": 13,
+      "paragraph": "(13)",
+      "prompt": "La începutul unui nivel de învățământ există trei clase paralele. Conducerea vrea să repartizeze elevii după rezultatele anterioare. Ce regulă se aplică?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Elevii se distribuie aleatoriu, potrivit procedurii în vigoare, pentru desegregare și combaterea discriminării.",
+          "isCorrect": true
+        },
+        {
+          "id": "B",
+          "text": "Elevii se repartizează valoric, dacă părinții sunt informați înainte.",
+          "isCorrect": false
+        },
+        {
+          "id": "C",
+          "text": "Directorul poate alege orice criteriu obiectiv aprobat de consiliul profesoral.",
+          "isCorrect": false
+        },
+        {
+          "id": "D",
+          "text": "Elevii se repartizează în ordinea înscrierii, aceasta înlocuind distribuția aleatorie.",
+          "isCorrect": false
+        }
+      ],
+      "correctOptionId": "A",
+      "explanation": "Când există mai multe clase la începutul nivelului, regula este distribuția aleatorie, tocmai pentru a preveni segregarea.\n\nTemei: art. 13 alin. (13). Textul relevant: „În vederea asigurării și respectării principiului desegregării școlare și al combaterii oricăror forme de discriminare asumat la nivelul sistemului național de învățământ, la începutul nivelului de învățământ, formațiunile de studiu se constituie prin distribuția aleatorie a beneficiarilor primari, acolo unde există mai multe clase pe an de studiu, conform procedurii în vigoare, aprobate prin ordin al ministrului educației.”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "art. 13 alin. (13)",
+        "excerpt": "În vederea asigurării și respectării principiului desegregării școlare și al combaterii oricăror forme de discriminare asumat la nivelul sistemului național de învățământ, la începutul nivelului de învățământ, formațiunile de studiu se constituie prin distribuția aleatorie a beneficiarilor primari, acolo unde există mai multe clase pe an de studiu, conform procedurii în vigoare, aprobate prin ordin al ministrului educației.",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-078",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Titlul II. Organizarea unităților de învățământ",
+      "annex": "",
+      "title": "Titlul II. Organizarea unităților de învățământ",
+      "chapter": "Capitolul III. Formațiunile de studiu",
+      "section": "",
+      "article": 15,
+      "paragraph": "(3)",
+      "prompt": "Elevii unei clase studiază limbi moderne diferite și nu pot fi redistribuiți în formațiuni omogene. Ce obligație are conducerea?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Să impună tuturor elevilor limba modernă studiată de majoritate.",
+          "isCorrect": false
+        },
+        {
+          "id": "B",
+          "text": "Să asigure în program un interval care permite asocierea elevilor pentru studiul limbilor moderne.",
+          "isCorrect": true
+        },
+        {
+          "id": "C",
+          "text": "Să mute orele de limbă exclusiv în afara programului obligatoriu.",
+          "isCorrect": false
+        },
+        {
+          "id": "D",
+          "text": "Să solicite transferul elevilor care au o altă opțiune lingvistică.",
+          "isCorrect": false
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Dacă formațiunile nu pot fi constituite omogen, problema se rezolvă printr-un interval orar comun care permite regruparea elevilor.\n\nTemei: art. 15 alin. (3). Textul relevant: „În unitățile de învățământ în care constituirea formațiunilor de studiu nu se poate face cu respectarea prevederilor alin. (2) , conducerile unităților de învățământ asigură în program un interval orar care să permită asocierea beneficiarilor primari pentru studiul limbilor moderne.”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "art. 15 alin. (3)",
+        "excerpt": "În unitățile de învățământ în care constituirea formațiunilor de studiu nu se poate face cu respectarea prevederilor alin. (2) , conducerile unităților de învățământ asigură în program un interval orar care să permită asocierea beneficiarilor primari pentru studiul limbilor moderne.",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-079",
+      "kind": "aplicare",
+      "difficulty": "expert",
+      "module": "Titlul II. Organizarea unităților de învățământ",
+      "annex": "",
+      "title": "Titlul II. Organizarea unităților de învățământ",
+      "chapter": "Capitolul III. Formațiunile de studiu",
+      "section": "",
+      "article": 15,
+      "paragraph": "(4)",
+      "prompt": "Un elev major cere în scris, din motive temeinice, schimbarea limbii moderne studiate. Cine poate hotărî?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Profesorul de limbă modernă, prin acord scris cu elevul.",
+          "isCorrect": false
+        },
+        {
+          "id": "B",
+          "text": "Consiliul clasei, cu avizul consultativ al directorului.",
+          "isCorrect": false
+        },
+        {
+          "id": "C",
+          "text": "Consiliul de administrație al unității de învățământ.",
+          "isCorrect": true
+        },
+        {
+          "id": "D",
+          "text": "Inspectoratul școlar, fără o hotărâre la nivelul unității.",
+          "isCorrect": false
+        }
+      ],
+      "correctOptionId": "C",
+      "explanation": "În situații temeinic motivate și pe baza solicitării scrise, ordinea sau schimbarea limbilor moderne poate fi hotărâtă de consiliul de administrație.\n\nTemei: art. 15 alin. (4). Textul relevant: „În situații temeinic motivate, la solicitarea scrisă a părinților/reprezentanților legali sau a beneficiarilor primari majori, consiliul de administrație poate hotărî ordinea studierii limbilor moderne sau schimbarea lor.”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "art. 15 alin. (4)",
+        "excerpt": "În situații temeinic motivate, la solicitarea scrisă a părinților/reprezentanților legali sau a beneficiarilor primari majori, consiliul de administrație poate hotărî ordinea studierii limbilor moderne sau schimbarea lor.",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-080",
+      "kind": "aplicare",
+      "difficulty": "expert",
+      "module": "Titlul II. Organizarea unităților de învățământ",
+      "annex": "",
+      "title": "Titlul II. Organizarea unităților de învățământ",
+      "chapter": "Capitolul III. Formațiunile de studiu",
+      "section": "",
+      "article": 15,
+      "paragraph": "(5)",
+      "prompt": "După schimbarea limbii moderne, un elev este mult în urma colegilor. Ce măsură poate lua conducerea, în interesul său superior?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Trebuie să anuleze schimbarea, indiferent de motivele aprobate.",
+          "isCorrect": false
+        },
+        {
+          "id": "B",
+          "text": "Poate obliga familia să finanțeze meditații oferite de școală.",
+          "isCorrect": false
+        },
+        {
+          "id": "C",
+          "text": "Poate reduce standardele de evaluare numai pentru acel elev, fără program de sprijin.",
+          "isCorrect": false
+        },
+        {
+          "id": "D",
+          "text": "Poate asigura un program de sprijin, cu încadrarea în bugetul unității.",
+          "isCorrect": true
+        }
+      ],
+      "correctOptionId": "D",
+      "explanation": "Regulamentul permite un program de sprijin pentru recuperarea diferențelor, însă măsura trebuie să se încadreze în buget.\n\nTemei: art. 15 alin. (5). Textul relevant: „În cazurile menționate la alin. (4) , conducerea unității de învățământ, în interesul superior al elevului, poate să asigure un program de sprijin pentru elevii care nu au studiat limba modernă respectivă sau nu se află la același nivel de studiu cu ceilalți elevi din clasă/grupă, cu încadrarea în bugetul unității de învățământ.”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "art. 15 alin. (5)",
+        "excerpt": "În cazurile menționate la alin. (4) , conducerea unității de învățământ, în interesul superior al elevului, poate să asigure un program de sprijin pentru elevii care nu au studiat limba modernă respectivă sau nu se află la același nivel de studiu cu ceilalți elevi din clasă/grupă, cu încadrarea în bugetul unității de învățământ.",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-081",
+      "kind": "aplicare",
+      "difficulty": "expert",
+      "module": "Titlul III. Managementul unităților de învățământ",
+      "annex": "",
+      "title": "Titlul III. Managementul unităților de învățământ",
+      "chapter": "Capitolul III. Directorul",
+      "section": "",
+      "article": 20,
+      "paragraph": "(4)",
+      "prompt": "După concurs, inspectorul și directorul convin verbal să modifice o obligație din contractul de management educațional. Produce efecte această înțelegere?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Nu. Contractul poate fi modificat exclusiv prin act adițional, cu acordul ambelor părți semnatare.",
+          "isCorrect": true
+        },
+        {
+          "id": "B",
+          "text": "Da, dacă înțelegerea este consemnată în procesul-verbal al consiliului de administrație.",
+          "isCorrect": false
+        },
+        {
+          "id": "C",
+          "text": "Da, deoarece inspectorul școlar general este una dintre părțile contractului.",
+          "isCorrect": false
+        },
+        {
+          "id": "D",
+          "text": "Nu, deoarece contractul de management nu poate fi modificat în timpul mandatului.",
+          "isCorrect": false
+        }
+      ],
+      "correctOptionId": "A",
+      "explanation": "Modificarea este posibilă, dar numai prin act adițional și numai cu acordul părților care au semnat contractul.\n\nTemei: art. 20 alin. (4). Textul relevant: „Directorul, după promovarea concursului, încheie contract de management educațional cu inspectorul școlar general al ISJ/ISMB. Modelul contractului de management educațional este aprobat prin ordin al ministrului educației. Contractul de management educațional poate fi modificat exclusiv prin act adițional, cu acordul părților semnatare.”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "art. 20 alin. (4)",
+        "excerpt": "Directorul, după promovarea concursului, încheie contract de management educațional cu inspectorul școlar general al ISJ/ISMB. Modelul contractului de management educațional este aprobat prin ordin al ministrului educației. Contractul de management educațional poate fi modificat exclusiv prin act adițional, cu acordul părților semnatare.",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-082",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Titlul III. Managementul unităților de învățământ",
+      "annex": "",
+      "title": "Titlul III. Managementul unităților de învățământ",
+      "chapter": "Capitolul III. Directorul",
+      "section": "",
+      "article": 20,
+      "paragraph": "(5)",
+      "prompt": "Un candidat a promovat concursul de director, dar nu a prezentat evaluarea medicală privind aptitudinea pentru funcție. Poate încheia contractul de management educațional?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Da, cu obligația de a prezenta evaluarea în primele 30 de zile de mandat.",
+          "isCorrect": false
+        },
+        {
+          "id": "B",
+          "text": "Nu. Contractul poate fi încheiat numai după prezentarea evaluării medicale de aptitudine.",
+          "isCorrect": true
+        },
+        {
+          "id": "C",
+          "text": "Da, dacă declară pe propria răspundere că este apt pentru funcție.",
+          "isCorrect": false
+        },
+        {
+          "id": "D",
+          "text": "Nu, decât dacă evaluarea este aprobată și de consiliul de administrație al școlii.",
+          "isCorrect": false
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Promovarea concursului nu înlocuiește condiția medicală prealabilă încheierii contractului.\n\nTemei: art. 20 alin. (5). Textul relevant: „Contractul de management educațional poate fi încheiat numai după prezentarea unei evaluări medicale care atestă faptul că persoana este aptă pentru funcția vizată.”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "art. 20 alin. (5)",
+        "excerpt": "Contractul de management educațional poate fi încheiat numai după prezentarea unei evaluări medicale care atestă faptul că persoana este aptă pentru funcția vizată.",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-083",
+      "kind": "aplicare",
+      "difficulty": "expert",
+      "module": "Titlul III. Managementul unităților de învățământ",
+      "annex": "",
+      "title": "Titlul III. Managementul unităților de învățământ",
+      "chapter": "Capitolul III. Directorul",
+      "section": "",
+      "article": 20,
+      "paragraph": "(6)",
+      "prompt": "Cu cine încheie directorul contractul de management administrativ-financiar pentru o școală de masă?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Cu inspectorul școlar general, împreună cu contractul de management educațional.",
+          "isCorrect": false
+        },
+        {
+          "id": "B",
+          "text": "Cu președintele consiliului județean, pentru toate unitățile de stat.",
+          "isCorrect": false
+        },
+        {
+          "id": "C",
+          "text": "Cu primarul unității administrativ-teritoriale în raza căreia se află școala.",
+          "isCorrect": true
+        },
+        {
+          "id": "D",
+          "text": "Cu președintele consiliului de administrație al unității de învățământ.",
+          "isCorrect": false
+        }
+      ],
+      "correctOptionId": "C",
+      "explanation": "Pentru școlile de masă, partenerul contractual este primarul; președintele consiliului județean intervine pentru învățământul special și special integrat.\n\nTemei: art. 20 alin. (6). Textul relevant: „Pentru asigurarea finanțării de bază, a finanțării complementare și a finanțării suplimentare, după promovarea concursului, directorul încheie contract de management administrativ-financiar cu primarul unității administrativ-teritoriale în a cărei rază teritorială se află unitatea de învățământ, respectiv cu președintele consiliului județean, pentru unitățile de învățământ special și special integrat. Modelul contractului de management administrativ-financiar este aprobat prin ordin al ministrului educației. Contractul de management administrativ-financiar poate fi modificat exclusiv prin act adițional, cu acordul părților semnatare.”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "art. 20 alin. (6)",
+        "excerpt": "Pentru asigurarea finanțării de bază, a finanțării complementare și a finanțării suplimentare, după promovarea concursului, directorul încheie contract de management administrativ-financiar cu primarul unității administrativ-teritoriale în a cărei rază teritorială se află unitatea de învățământ, respectiv cu președintele consiliului județean, pentru unitățile de învățământ special și special integrat. Modelul contractului de management administrativ-financiar este aprobat prin ordin al ministrului educației. Contractul de management administrativ-financiar poate fi modificat exclusiv prin act adițional, cu acordul părților semnatare.",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-084",
+      "kind": "aplicare",
+      "difficulty": "expert",
+      "module": "Titlul III. Managementul unităților de învățământ",
+      "annex": "",
+      "title": "Titlul III. Managementul unităților de învățământ",
+      "chapter": "Capitolul III. Directorul",
+      "section": "",
+      "article": 20,
+      "paragraph": "(7)",
+      "prompt": "În timpul mandatului, un director este ales vicepreședinte al unei organizații sindicale. Poate păstra ambele funcții?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Da, dacă organizația sindicală nu are membri în unitatea pe care o conduce.",
+          "isCorrect": false
+        },
+        {
+          "id": "B",
+          "text": "Da, cu aprobarea inspectorului școlar general.",
+          "isCorrect": false
+        },
+        {
+          "id": "C",
+          "text": "Nu, dar numai funcția de președinte sindical este incompatibilă, nu și cea de vicepreședinte.",
+          "isCorrect": false
+        },
+        {
+          "id": "D",
+          "text": "Nu. Funcția de conducere într-o organizație sindicală este incompatibilă cu mandatul de director.",
+          "isCorrect": true
+        }
+      ],
+      "correctOptionId": "D",
+      "explanation": "Interdicția acoperă orice funcție de conducere în organizațiile sindicale pe perioada mandatului.\n\nTemei: art. 20 alin. (7). Textul relevant: „Pe perioada exercitării mandatului, directorul nu poate deține, conform legii, funcția de președinte sau vicepreședinte în structurile de conducere ale partidelor politice, la nivel local, județean/al municipiului București sau național, funcția de primar, viceprimar, președinte sau vicepreședinte de consiliu județean/al Consiliului General al Municipiului București sau orice funcție de conducere în organizațiile sindicale.”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "art. 20 alin. (7)",
+        "excerpt": "Pe perioada exercitării mandatului, directorul nu poate deține, conform legii, funcția de președinte sau vicepreședinte în structurile de conducere ale partidelor politice, la nivel local, județean/al municipiului București sau național, funcția de primar, viceprimar, președinte sau vicepreședinte de consiliu județean/al Consiliului General al Municipiului București sau orice funcție de conducere în organizațiile sindicale.",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-085",
+      "kind": "aplicare",
+      "difficulty": "expert",
+      "module": "Titlul III. Managementul unităților de învățământ",
+      "annex": "",
+      "title": "Titlul III. Managementul unităților de învățământ",
+      "chapter": "Capitolul III. Directorul",
+      "section": "",
+      "article": 20,
+      "paragraph": "(12) b)",
+      "prompt": "Două treimi dintre membrii consiliului de administrație propun motivat eliberarea directorului. Ce urmează înaintea deciziei finale?",
+      "options": [
+        {
+          "id": "A",
+          "text": "O comisie constituită la nivelul ISJ/ISMB realizează raportul de evaluare, iar decizia finală aparține consiliului de administrație al inspectoratului.",
+          "isCorrect": true
+        },
+        {
+          "id": "B",
+          "text": "Directorul este eliberat automat la data adoptării propunerii de către consiliul școlii.",
+          "isCorrect": false
+        },
+        {
+          "id": "C",
+          "text": "Consiliul profesoral realizează auditul, iar inspectorul emite obligatoriu decizia.",
+          "isCorrect": false
+        },
+        {
+          "id": "D",
+          "text": "Autoritatea locală realizează evaluarea și adoptă decizia finală.",
+          "isCorrect": false
+        }
+      ],
+      "correctOptionId": "A",
+      "explanation": "Propunerea calificată a consiliului școlii declanșează evaluarea la nivelul inspectoratului; nu produce direct eliberarea.\n\nTemei: art. 20 alin. (12) lit. b). Textul relevant: „la propunerea motivată a 2/3 dintre membrii consiliului de administrație al unității de învățământ, urmată de un raport de evaluare a activității directorului, realizat de către o comisie constituită la nivelul ISJ/ISMB, decizia finală aparținând consiliului de administrație al inspectoratului școlar;”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "art. 20 alin. (12) lit. b)",
+        "excerpt": "la propunerea motivată a 2/3 dintre membrii consiliului de administrație al unității de învățământ, urmată de un raport de evaluare a activității directorului, realizat de către o comisie constituită la nivelul ISJ/ISMB, decizia finală aparținând consiliului de administrație al inspectoratului școlar;",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-086",
+      "kind": "aplicare",
+      "difficulty": "expert",
+      "module": "Titlul III. Managementul unităților de învățământ",
+      "annex": "",
+      "title": "Titlul III. Managementul unităților de învățământ",
+      "chapter": "Capitolul III. Directorul",
+      "section": "",
+      "article": 20,
+      "paragraph": "(14)",
+      "prompt": "Funcția de director a rămas vacantă. Care este soluția principală pentru conducerea interimară până la concurs?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Directorul adjunct preia automat funcția până la următorul concurs, fără act de numire.",
+          "isCorrect": false
+        },
+        {
+          "id": "B",
+          "text": "Un cadru didactic titular este numit prin detașare în interesul învățământului, cu acordul său scris și avizul CA al ISJ/ISMB.",
+          "isCorrect": true
+        },
+        {
+          "id": "C",
+          "text": "Consiliul profesoral alege un titular prin vot secret pentru întregul an școlar.",
+          "isCorrect": false
+        },
+        {
+          "id": "D",
+          "text": "Primarul numește un cadru didactic, cu avizul consiliului de administrație al școlii.",
+          "isCorrect": false
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Regula pentru interimat este detașarea în interesul învățământului, dispusă de inspectorul școlar general, în condițiile expres prevăzute.\n\nTemei: art. 20 alin. (14). Textul relevant: „În funcțiile de director rămase vacante în urma organizării concursului sau în cazul vacantării funcției de director din unitățile de învățământ preuniversitar de stat, conducerea interimară este asigurată, până la organizarea concursului, dar nu mai târziu de sfârșitul anului școlar, de un cadru didactic titular, numit prin detașare în interesul învățământului, prin decizia inspectorului școlar general, cu avizul consiliului de administrație al ISJ/ISMB și cu acordul scris al persoanei solicitate.”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "art. 20 alin. (14)",
+        "excerpt": "În funcțiile de director rămase vacante în urma organizării concursului sau în cazul vacantării funcției de director din unitățile de învățământ preuniversitar de stat, conducerea interimară este asigurată, până la organizarea concursului, dar nu mai târziu de sfârșitul anului școlar, de un cadru didactic titular, numit prin detașare în interesul învățământului, prin decizia inspectorului școlar general, cu avizul consiliului de administrație al ISJ/ISMB și cu acordul scris al persoanei solicitate.",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-087",
+      "kind": "aplicare",
+      "difficulty": "expert",
+      "module": "Titlul III. Managementul unităților de învățământ",
+      "annex": "",
+      "title": "Titlul III. Managementul unităților de învățământ",
+      "chapter": "Capitolul III. Directorul",
+      "section": "",
+      "article": 20,
+      "paragraph": "(16)",
+      "prompt": "Nu se poate asigura conducerea interimară prin detașare. Pentru cât timp pot fi delegate atribuțiile unui cadru didactic membru al consiliului de administrație?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Până la sfârșitul anului școlar, fără o limită exprimată în zile.",
+          "isCorrect": false
+        },
+        {
+          "id": "B",
+          "text": "Cel mult 90 de zile lucrătoare, cu posibilitatea prelungirii de către consiliul profesoral.",
+          "isCorrect": false
+        },
+        {
+          "id": "C",
+          "text": "Până la concurs, dar cel mult 60 de zile calendaristice și fără depășirea sfârșitului anului școlar.",
+          "isCorrect": true
+        },
+        {
+          "id": "D",
+          "text": "Până la ocuparea postului prin concurs, indiferent de durata interimatului.",
+          "isCorrect": false
+        }
+      ],
+      "correctOptionId": "C",
+      "explanation": "Soluția subsidiară de delegare este limitată simultan de termenul de 60 de zile și de sfârșitul anului școlar.\n\nTemei: art. 20 alin. (16). Textul relevant: „În cazul în care nu se poate asigura numirea prin detașare în interesul învățământului, conducerea interimară va fi asigurată de un cadru didactic membru al consiliului de administrație din unitatea de învățământ, cu acordul acestuia, căruia i se deleagă atribuțiile specifice funcției de conducere, până la organizarea concursului, dar nu mai mult de 60 de zile calendaristice și fără a depăși sfârșitul anului școlar. În această ultimă situație, în baza avizului consiliului de administrație al ISJ/ISMB, inspectorul școlar general emite decizie de delegare a atribuțiilor specifice funcției.”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "art. 20 alin. (16)",
+        "excerpt": "În cazul în care nu se poate asigura numirea prin detașare în interesul învățământului, conducerea interimară va fi asigurată de un cadru didactic membru al consiliului de administrație din unitatea de învățământ, cu acordul acestuia, căruia i se deleagă atribuțiile specifice funcției de conducere, până la organizarea concursului, dar nu mai mult de 60 de zile calendaristice și fără a depăși sfârșitul anului școlar. În această ultimă situație, în baza avizului consiliului de administrație al ISJ/ISMB, inspectorul școlar general emite decizie de delegare a atribuțiilor specifice funcției.",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-088",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Titlul III. Managementul unităților de învățământ",
+      "annex": "",
+      "title": "Titlul III. Managementul unităților de învățământ",
+      "chapter": "Capitolul III. Directorul",
+      "section": "",
+      "article": 21,
+      "paragraph": "(3) a^2)",
+      "prompt": "Cine desemnează persoana care introduce datele contractelor de muncă în REGES-online și informațiile specifice în EDUSAL?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Administratorul financiar, prin fișa postului, fără decizie.",
+          "isCorrect": false
+        },
+        {
+          "id": "B",
+          "text": "Consiliul de administrație, prin hotărâre nominală.",
+          "isCorrect": false
+        },
+        {
+          "id": "C",
+          "text": "Inspectoratul școlar, la solicitarea compartimentului secretariat.",
+          "isCorrect": false
+        },
+        {
+          "id": "D",
+          "text": "Directorul, prin decizie scrisă.",
+          "isCorrect": true
+        }
+      ],
+      "correctOptionId": "D",
+      "explanation": "Desemnarea este o atribuție a directorului și trebuie formalizată prin decizie scrisă.\n\nTemei: art. 21 alin. (3) lit. a^2). Textul relevant: „desemnează, prin decizie scrisă, persoana responsabilă de înregistrarea informațiilor din contractele individuale de muncă ale fiecărui angajat în Registrul general de evidență a salariaților (REGES-online), precum și a informațiilor specifice în aplicația informatică de salarizare EDUSAL;”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "art. 21 alin. (3) lit. a^2)",
+        "excerpt": "desemnează, prin decizie scrisă, persoana responsabilă de înregistrarea informațiilor din contractele individuale de muncă ale fiecărui angajat în Registrul general de evidență a salariaților (REGES-online), precum și a informațiilor specifice în aplicația informatică de salarizare EDUSAL;",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-089",
+      "kind": "aplicare",
+      "difficulty": "expert",
+      "module": "Titlul III. Managementul unităților de învățământ",
+      "annex": "",
+      "title": "Titlul III. Managementul unităților de învățământ",
+      "chapter": "Capitolul III. Directorul",
+      "section": "",
+      "article": 21,
+      "paragraph": "(4) a)",
+      "prompt": "Proiectul planului de școlarizare este gata. Care este circuitul corect?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Consiliul de administrație îl avizează, iar directorul îl propune ISJ/ISMB spre aprobare.",
+          "isCorrect": true
+        },
+        {
+          "id": "B",
+          "text": "Consiliul profesoral îl aprobă, iar directorul doar îl transmite inspectoratului.",
+          "isCorrect": false
+        },
+        {
+          "id": "C",
+          "text": "Directorul îl aprobă și informează ulterior consiliul de administrație.",
+          "isCorrect": false
+        },
+        {
+          "id": "D",
+          "text": "Autoritatea locală îl avizează, iar consiliul de administrație al școlii îl aprobă definitiv.",
+          "isCorrect": false
+        }
+      ],
+      "correctOptionId": "A",
+      "explanation": "Avizul aparține consiliului de administrație al școlii, dar aprobarea este solicitată inspectoratului de către director.\n\nTemei: art. 21 alin. (4) lit. a). Textul relevant: „propune ISJ/ISMB, spre aprobare, proiectul planului de școlarizare, avizat de consiliul de administrație;”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "art. 21 alin. (4) lit. a)",
+        "excerpt": "propune ISJ/ISMB, spre aprobare, proiectul planului de școlarizare, avizat de consiliul de administrație;",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-090",
+      "kind": "aplicare",
+      "difficulty": "expert",
+      "module": "Titlul III. Managementul unităților de învățământ",
+      "annex": "",
+      "title": "Titlul III. Managementul unităților de învățământ",
+      "chapter": "Capitolul III. Directorul",
+      "section": "",
+      "article": 21,
+      "paragraph": "(4) d)",
+      "prompt": "Directorul a redactat regulamentul de organizare și funcționare și regulamentul de ordine interioară. Cine le aprobă?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Consiliul profesoral, la propunerea comisiei pentru curriculum.",
+          "isCorrect": false
+        },
+        {
+          "id": "B",
+          "text": "Consiliul de administrație, la propunerea directorului.",
+          "isCorrect": true
+        },
+        {
+          "id": "C",
+          "text": "Directorul, după consultarea consiliului de administrație.",
+          "isCorrect": false
+        },
+        {
+          "id": "D",
+          "text": "Inspectoratul școlar, după avizarea de către consiliul profesoral.",
+          "isCorrect": false
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Directorul are rolul de a propune cele două regulamente, iar consiliul de administrație exercită competența de aprobare.\n\nTemei: art. 21 alin. (4) lit. d). Textul relevant: „propune consiliului de administrație, spre aprobare, regulamentul de ordine interioară și regulamentul de organizare și funcționare a unității de învățământ;”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "art. 21 alin. (4) lit. d)",
+        "excerpt": "propune consiliului de administrație, spre aprobare, regulamentul de ordine interioară și regulamentul de organizare și funcționare a unității de învățământ;",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-091",
+      "kind": "aplicare",
+      "difficulty": "expert",
+      "module": "Titlul III. Managementul unităților de învățământ",
+      "annex": "",
+      "title": "Titlul III. Managementul unităților de învățământ",
+      "chapter": "Capitolul III. Directorul",
+      "section": "",
+      "article": 21,
+      "paragraph": "(4) e)",
+      "prompt": "După hotărârea privind constituirea formațiunilor de studiu, cine stabilește componența nominală a fiecărei clase?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Secretarul-șef, în baza cererilor de înscriere.",
+          "isCorrect": false
+        },
+        {
+          "id": "B",
+          "text": "Consiliul profesoral, prin vot deschis.",
+          "isCorrect": false
+        },
+        {
+          "id": "C",
+          "text": "Directorul, în baza hotărârii consiliului de administrație.",
+          "isCorrect": true
+        },
+        {
+          "id": "D",
+          "text": "Consiliul de administrație, fără un act al directorului.",
+          "isCorrect": false
+        }
+      ],
+      "correctOptionId": "C",
+      "explanation": "Hotărârea consiliului de administrație este baza, iar stabilirea nominală revine directorului.\n\nTemei: art. 21 alin. (4) lit. e). Textul relevant: „stabilește componența nominală a formațiunilor de studiu, în baza hotărârii consiliului de administrație;”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "art. 21 alin. (4) lit. e)",
+        "excerpt": "stabilește componența nominală a formațiunilor de studiu, în baza hotărârii consiliului de administrație;",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-092",
+      "kind": "aplicare",
+      "difficulty": "expert",
+      "module": "Titlul III. Managementul unităților de învățământ",
+      "annex": "",
+      "title": "Titlul III. Managementul unităților de învățământ",
+      "chapter": "Capitolul III. Directorul",
+      "section": "",
+      "article": 21,
+      "paragraph": "(4) f)",
+      "prompt": "Proiectul de încadrare și statul de personal didactic auxiliar și administrativ au fost elaborate. Ce pas urmează?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Directorul le aprobă și le prezintă consiliului profesoral spre informare.",
+          "isCorrect": false
+        },
+        {
+          "id": "B",
+          "text": "Consiliul profesoral le aprobă, iar consiliul de administrație doar ia act.",
+          "isCorrect": false
+        },
+        {
+          "id": "C",
+          "text": "Compartimentul secretariat le transmite direct inspectoratului spre aprobare.",
+          "isCorrect": false
+        },
+        {
+          "id": "D",
+          "text": "Directorul le supune aprobării consiliului de administrație.",
+          "isCorrect": true
+        }
+      ],
+      "correctOptionId": "D",
+      "explanation": "Elaborarea aparține directorului, dar documentele trebuie supuse aprobării consiliului de administrație.\n\nTemei: art. 21 alin. (4) lit. f). Textul relevant: „elaborează proiectul de încadrare cu personal didactic de predare, precum și statul de personal didactic auxiliar și administrativ și le supune, spre aprobare, consiliului de administrație;”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "art. 21 alin. (4) lit. f)",
+        "excerpt": "elaborează proiectul de încadrare cu personal didactic de predare, precum și statul de personal didactic auxiliar și administrativ și le supune, spre aprobare, consiliului de administrație;",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-093",
+      "kind": "aplicare",
+      "difficulty": "expert",
+      "module": "Titlul III. Managementul unităților de învățământ",
+      "annex": "",
+      "title": "Titlul III. Managementul unităților de învățământ",
+      "chapter": "Capitolul III. Directorul",
+      "section": "",
+      "article": 21,
+      "paragraph": "(4) i)",
+      "prompt": "Dirigintele unei clase lipsește o perioadă din motive obiective. Cum se numește cadrul didactic care îi preia atribuțiile?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Directorul emite o decizie în baza hotărârii consiliului de administrație.",
+          "isCorrect": true
+        },
+        {
+          "id": "B",
+          "text": "Consiliul clasei îl alege și numirea produce efecte fără decizia directorului.",
+          "isCorrect": false
+        },
+        {
+          "id": "C",
+          "text": "Consiliul profesoral îl numește prin vot secret.",
+          "isCorrect": false
+        },
+        {
+          "id": "D",
+          "text": "Directorul îl desemnează verbal, urmând să informeze consiliul de administrație.",
+          "isCorrect": false
+        }
+      ],
+      "correctOptionId": "A",
+      "explanation": "Înlocuirea dirigintelui indisponibil este formalizată prin decizia directorului, întemeiată pe hotărârea consiliului de administrație.\n\nTemei: art. 21 alin. (4) lit. i). Textul relevant: „emite, în baza hotărârii consiliului de administrație, decizia de numire a cadrului didactic, membru al consiliului clasei, care preia atribuțiile profesorului diriginte, în situațiile în care acesta este indisponibil pentru o perioadă de timp, din motive obiective;”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "art. 21 alin. (4) lit. i)",
+        "excerpt": "emite, în baza hotărârii consiliului de administrație, decizia de numire a cadrului didactic, membru al consiliului clasei, care preia atribuțiile profesorului diriginte, în situațiile în care acesta este indisponibil pentru o perioadă de timp, din motive obiective;",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-094",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Titlul III. Managementul unităților de învățământ",
+      "annex": "",
+      "title": "Titlul III. Managementul unităților de învățământ",
+      "chapter": "Capitolul III. Directorul",
+      "section": "",
+      "article": 21,
+      "paragraph": "(4) j)",
+      "prompt": "O structură arondată are nevoie de coordonator. Din ce categorie este numit și prin ce act?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Din personalul administrativ, prin hotărârea directă a consiliului de administrație.",
+          "isCorrect": false
+        },
+        {
+          "id": "B",
+          "text": "Din rândul cadrelor didactice, de regulă titulare, prin decizia directorului bazată pe hotărârea consiliului de administrație.",
+          "isCorrect": true
+        },
+        {
+          "id": "C",
+          "text": "Din orice categorie de personal, prin votul consiliului profesoral.",
+          "isCorrect": false
+        },
+        {
+          "id": "D",
+          "text": "Numai dintre membrii consiliului de administrație, prin decizia inspectoratului.",
+          "isCorrect": false
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Regulamentul indică atât categoria persoanei, cât și succesiunea hotărâre a consiliului de administrație - decizie a directorului.\n\nTemei: art. 21 alin. (4) lit. j). Textul relevant: „emite, în baza hotărârii consiliului de administrație, decizia de numire a coordonatorilor structurilor arondate, din rândul cadrelor didactice - de regulă, titulare - care își desfășoară activitatea în structurile respective;”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "art. 21 alin. (4) lit. j)",
+        "excerpt": "emite, în baza hotărârii consiliului de administrație, decizia de numire a coordonatorilor structurilor arondate, din rândul cadrelor didactice - de regulă, titulare - care își desfășoară activitatea în structurile respective;",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-095",
+      "kind": "aplicare",
+      "difficulty": "expert",
+      "module": "Titlul III. Managementul unităților de învățământ",
+      "annex": "",
+      "title": "Titlul III. Managementul unităților de învățământ",
+      "chapter": "Capitolul III. Directorul",
+      "section": "",
+      "article": 21,
+      "paragraph": "(4) n)",
+      "prompt": "Școala introduce un program remedial. Directorul îl aprobă printr-o notă internă, fără hotărârea consiliului de administrație. Este suficient?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Da. Programele remediale țin exclusiv de conducerea executivă.",
+          "isCorrect": false
+        },
+        {
+          "id": "B",
+          "text": "Nu. Programul trebuie aprobat numai de consiliul profesoral.",
+          "isCorrect": false
+        },
+        {
+          "id": "C",
+          "text": "Nu. Directorul emite decizia de aprobare în baza hotărârii consiliului de administrație.",
+          "isCorrect": true
+        },
+        {
+          "id": "D",
+          "text": "Nu. Programul poate fi aprobat exclusiv de inspectoratul școlar.",
+          "isCorrect": false
+        }
+      ],
+      "correctOptionId": "C",
+      "explanation": "Programul remedial și programul «Școala după școală» intră în categoria pentru care decizia directorului trebuie să aibă la bază hotărârea consiliului de administrație.\n\nTemei: art. 21 alin. (4) lit. n). Textul relevant: „emite, în baza hotărârii consiliului de administrație, decizia de aprobare a regulamentelor de funcționare ale cercurilor, asociațiilor științifice, tehnice, sportive și cultural-artistice ale beneficiarilor primari din unitatea de învățământ, precum și a programului activităților remediale și a programului \"Școală după școală\" desfășurat la nivelul unității;”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "art. 21 alin. (4) lit. n)",
+        "excerpt": "emite, în baza hotărârii consiliului de administrație, decizia de aprobare a regulamentelor de funcționare ale cercurilor, asociațiilor științifice, tehnice, sportive și cultural-artistice ale beneficiarilor primari din unitatea de învățământ, precum și a programului activităților remediale și a programului \"Școală după școală\" desfășurat la nivelul unității;",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-096",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Titlul III. Managementul unităților de învățământ",
+      "annex": "",
+      "title": "Titlul III. Managementul unităților de învățământ",
+      "chapter": "Capitolul III. Directorul",
+      "section": "",
+      "article": 21,
+      "paragraph": "(4) o)",
+      "prompt": "Directorul elaborează o fișă internă pentru controlul și evaluarea activităților din școală. O poate aplica imediat?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Da. Orice instrument de control intern este aprobat implicit prin fișa postului directorului.",
+          "isCorrect": false
+        },
+        {
+          "id": "B",
+          "text": "Nu. Instrumentul trebuie aprobat de consiliul profesoral, nu de consiliul de administrație.",
+          "isCorrect": false
+        },
+        {
+          "id": "C",
+          "text": "Da, dacă este aplicat doar personalului didactic.",
+          "isCorrect": false
+        },
+        {
+          "id": "D",
+          "text": "Nu. Instrumentul intern trebuie supus aprobării consiliului de administrație.",
+          "isCorrect": true
+        }
+      ],
+      "correctOptionId": "D",
+      "explanation": "Directorul elaborează instrumentele interne de îndrumare, control și evaluare, iar consiliul de administrație le aprobă.\n\nTemei: art. 21 alin. (4) lit. o). Textul relevant: „elaborează instrumente interne de lucru, utilizate în activitatea de îndrumare, control și evaluare a tuturor activităților care se desfășoară în unitatea de învățământ și le supune spre aprobare consiliului de administrație;”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "art. 21 alin. (4) lit. o)",
+        "excerpt": "elaborează instrumente interne de lucru, utilizate în activitatea de îndrumare, control și evaluare a tuturor activităților care se desfășoară în unitatea de învățământ și le supune spre aprobare consiliului de administrație;",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-097",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Titlul III. Managementul unităților de învățământ",
+      "annex": "",
+      "title": "Titlul III. Managementul unităților de învățământ",
+      "chapter": "Capitolul III. Directorul",
+      "section": "",
+      "article": 21,
+      "paragraph": "(4) t)",
+      "prompt": "Condica de prezență este completată săptămânal, pe baza pontajului, cu absențele personalului. Respectă această practică obligația directorului?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Nu. Directorul trebuie să consemneze zilnic absențele și întârzierile personalului didactic și administrativ.",
+          "isCorrect": true
+        },
+        {
+          "id": "B",
+          "text": "Da. Regulamentul nu stabilește o frecvență pentru consemnare.",
+          "isCorrect": false
+        },
+        {
+          "id": "C",
+          "text": "Da, dacă pontajul săptămânal este aprobat de administratorul financiar.",
+          "isCorrect": false
+        },
+        {
+          "id": "D",
+          "text": "Nu. Consemnarea trebuie făcută lunar de compartimentul secretariat.",
+          "isCorrect": false
+        }
+      ],
+      "correctOptionId": "A",
+      "explanation": "Obligația este expres zilnică și privește atât absențele, cât și întârzierile celor două categorii de personal.\n\nTemei: art. 21 alin. (4) lit. t). Textul relevant: „consemnează zilnic în condica de prezență absențele și întârzierile personalului didactic și administrativ de la programul de lucru;”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "art. 21 alin. (4) lit. t)",
+        "excerpt": "consemnează zilnic în condica de prezență absențele și întârzierile personalului didactic și administrativ de la programul de lucru;",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-098",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Titlul III. Managementul unităților de învățământ",
+      "annex": "",
+      "title": "Titlul III. Managementul unităților de învățământ",
+      "chapter": "Capitolul III. Directorul",
+      "section": "",
+      "article": 21,
+      "paragraph": "(4) w)",
+      "prompt": "Directorul susține că arhivarea documentelor este exclusiv responsabilitatea secretariatului și nu intră în răspunderea sa. Este corect?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Da. Responsabilitatea revine exclusiv secretarului-șef.",
+          "isCorrect": false
+        },
+        {
+          "id": "B",
+          "text": "Nu. Directorul răspunde de arhivarea documentelor unității de învățământ.",
+          "isCorrect": true
+        },
+        {
+          "id": "C",
+          "text": "Da, dacă există o persoană desemnată prin fișa postului.",
+          "isCorrect": false
+        },
+        {
+          "id": "D",
+          "text": "Nu, dar răspunderea revine consiliului de administrație, nu directorului.",
+          "isCorrect": false
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Sarcinile operative pot fi repartizate, însă răspunderea regulamentară pentru arhivarea documentelor este atribuită directorului.\n\nTemei: art. 21 alin. (4) lit. w). Textul relevant: „răspunde de arhivarea documentelor unității de învățământ;”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "art. 21 alin. (4) lit. w)",
+        "excerpt": "răspunde de arhivarea documentelor unității de învățământ;",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-099",
+      "kind": "aplicare",
+      "difficulty": "expert",
+      "module": "Titlul III. Managementul unităților de învățământ",
+      "annex": "",
+      "title": "Titlul III. Managementul unităților de învățământ",
+      "chapter": "Capitolul III. Directorul",
+      "section": "",
+      "article": 21,
+      "paragraph": "(6)",
+      "prompt": "Directorul pregătește o măsură care afectează organizarea muncii și refuză orice dialog cu reprezentanții salariaților. Ce obligație generală ignoră?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Obligația de a obține acordul unanim al tuturor angajaților înaintea oricărei decizii.",
+          "isCorrect": false
+        },
+        {
+          "id": "B",
+          "text": "Obligația de a supune orice măsură aprobării organizației sindicale județene.",
+          "isCorrect": false
+        },
+        {
+          "id": "C",
+          "text": "Obligația de a se consulta cu organizațiile sindicale reprezentative care au membri în unitate sau, după caz, cu reprezentanții salariaților.",
+          "isCorrect": true
+        },
+        {
+          "id": "D",
+          "text": "Obligația de a consulta numai consiliul profesoral, indiferent de natura măsurii.",
+          "isCorrect": false
+        }
+      ],
+      "correctOptionId": "C",
+      "explanation": "Regulamentul impune consultarea reprezentării colective a personalului, în condițiile legii, pentru realizarea atribuțiilor directorului.\n\nTemei: art. 21 alin. (6). Textul relevant: „Pentru realizarea atribuțiilor sale, directorul se consultă cu reprezentanții organizațiilor sindicale reprezentative la nivel de sector de negociere colectivă învățământ preuniversitar care au membri în unitatea de învățământ sau, după caz, cu reprezentanții salariaților din unitatea de învățământ, în conformitate cu prevederile legale.”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "art. 21 alin. (6)",
+        "excerpt": "Pentru realizarea atribuțiilor sale, directorul se consultă cu reprezentanții organizațiilor sindicale reprezentative la nivel de sector de negociere colectivă învățământ preuniversitar care au membri în unitatea de învățământ sau, după caz, cu reprezentanții salariaților din unitatea de învățământ, în conformitate cu prevederile legale.",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-100",
+      "kind": "aplicare",
+      "difficulty": "expert",
+      "module": "Titlul III. Managementul unităților de învățământ",
+      "annex": "",
+      "title": "Titlul III. Managementul unităților de învățământ",
+      "chapter": "Capitolul III. Directorul",
+      "section": "",
+      "article": 21,
+      "paragraph": "(9)",
+      "prompt": "Directorul este parte într-un proces împotriva unității pe care o conduce. Poate continua să reprezinte școala și să semneze actele de procedură?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Da, dacă informează consiliul de administrație despre conflict.",
+          "isCorrect": false
+        },
+        {
+          "id": "B",
+          "text": "Nu. Reprezentarea trece automat la inspectorul școlar general.",
+          "isCorrect": false
+        },
+        {
+          "id": "C",
+          "text": "Da, dar numai pentru actele care nu privesc fondul cauzei.",
+          "isCorrect": false
+        },
+        {
+          "id": "D",
+          "text": "Nu. Delegă atribuțiile directorului adjunct sau unui membru CA, care reprezintă unitatea până la soluționarea definitivă.",
+          "isCorrect": true
+        }
+      ],
+      "correctOptionId": "D",
+      "explanation": "Conflictul procesual impune delegarea reprezentării și a semnării actelor de procedură până la finalizarea definitivă a dosarului.\n\nTemei: art. 21 alin. (9). Textul relevant: „În situațiile în care directorul are calitate procesuală în dosarele aflate pe rolul instanțelor, în contradictoriu cu unitatea la care exercită funcția, acesta își deleagă atribuțiile specifice funcției de conducere directorului adjunct/membrului consiliului de administrație, care asigură reprezentarea intereselor unității de învățământ, precum și semnarea tuturor actelor de procedură necesare, până la finalizarea definitivă a acestor dosare.”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "art. 21 alin. (9)",
+        "excerpt": "În situațiile în care directorul are calitate procesuală în dosarele aflate pe rolul instanțelor, în contradictoriu cu unitatea la care exercită funcția, acesta își deleagă atribuțiile specifice funcției de conducere directorului adjunct/membrului consiliului de administrație, care asigură reprezentarea intereselor unității de învățământ, precum și semnarea tuturor actelor de procedură necesare, până la finalizarea definitivă a acestor dosare.",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-101",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Titlul III. Managementul unităților de învățământ",
+      "annex": "",
+      "title": "Titlul III. Managementul unităților de învățământ",
+      "chapter": "Capitolul V. Tipul și conținutul documentelor manageriale",
+      "section": "",
+      "article": 28,
+      "paragraph": "(2)",
+      "prompt": "Școala păstrează documentele manageriale în format digital. Este obligatoriu ca validarea lor să se facă numai prin semnătură olografă?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Nu. Documentele pot fi validate și prin semnătură electronică.",
+          "isCorrect": true
+        },
+        {
+          "id": "B",
+          "text": "Da. Semnătura electronică este admisă numai pentru documentele financiar-contabile.",
+          "isCorrect": false
+        },
+        {
+          "id": "C",
+          "text": "Nu. Documentele digitale nu necesită nicio formă de validare.",
+          "isCorrect": false
+        },
+        {
+          "id": "D",
+          "text": "Da, dacă documentul a fost elaborat de o comisie, nu de director.",
+          "isCorrect": false
+        }
+      ],
+      "correctOptionId": "A",
+      "explanation": "În funcție de resurse, documentele pot fi stocate digital, iar regulamentul permite expres validarea prin semnătură electronică.\n\nTemei: art. 28 alin. (2). Textul relevant: „În funcție de resursele existente la nivelul unității de învățământ, documentele manageriale menționate la alin. (1) , precum și alte documente elaborate de comisiile constituite la nivelul unității de învățământ vor fi stocate în format digital. Validarea acestor documente se poate face și prin semnătură electronică.”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "art. 28 alin. (2)",
+        "excerpt": "În funcție de resursele existente la nivelul unității de învățământ, documentele manageriale menționate la alin. (1) , precum și alte documente elaborate de comisiile constituite la nivelul unității de învățământ vor fi stocate în format digital. Validarea acestor documente se poate face și prin semnătură electronică.",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-102",
+      "kind": "aplicare",
+      "difficulty": "expert",
+      "module": "Titlul III. Managementul unităților de învățământ",
+      "annex": "",
+      "title": "Titlul III. Managementul unităților de învățământ",
+      "chapter": "Capitolul V. Tipul și conținutul documentelor manageriale",
+      "section": "",
+      "article": 29,
+      "paragraph": "(1)",
+      "prompt": "Echipa managerială clasifică planul managerial drept document de diagnoză. Care dintre următoarele aparține, în schimb, categoriei documentelor de diagnoză?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Planul managerial anual.",
+          "isCorrect": false
+        },
+        {
+          "id": "B",
+          "text": "Raportul anual asupra calității educației.",
+          "isCorrect": true
+        },
+        {
+          "id": "C",
+          "text": "Planul de dezvoltare instituțională.",
+          "isCorrect": false
+        },
+        {
+          "id": "D",
+          "text": "Programul de dezvoltare a sistemului de control intern managerial.",
+          "isCorrect": false
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Rapoartele anuale ale comisiilor, raportul asupra calității și RAEI sunt documente de diagnoză; planurile sunt documente de prognoză sau de acțiune.\n\nTemei: art. 29 alin. (1). Textul relevant: „Documentele de diagnoză ale unității de învățământ sunt:”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "art. 29 alin. (1)",
+        "excerpt": "Documentele de diagnoză ale unității de învățământ sunt:",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-103",
+      "kind": "aplicare",
+      "difficulty": "expert",
+      "module": "Titlul III. Managementul unităților de învățământ",
+      "annex": "",
+      "title": "Titlul III. Managementul unităților de învățământ",
+      "chapter": "Capitolul V. Tipul și conținutul documentelor manageriale",
+      "section": "",
+      "article": 30,
+      "paragraph": "(2)",
+      "prompt": "Raportul anual asupra calității educației este aprobat direct de director în a cincea săptămână de școală. Ce corectare este necesară?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Raportul se aprobă numai de consiliul profesoral, până la sfârșitul primului interval de cursuri.",
+          "isCorrect": false
+        },
+        {
+          "id": "B",
+          "text": "Raportul se aprobă de inspectorat, după avizul consiliului de administrație.",
+          "isCorrect": false
+        },
+        {
+          "id": "C",
+          "text": "Raportul se analizează, dezbate și validează în consiliul profesoral, apoi se aprobă de CA la propunerea directorului, în primele patru săptămâni.",
+          "isCorrect": true
+        },
+        {
+          "id": "D",
+          "text": "Raportul poate fi aprobat direct de director dacă este publicat în primele 30 de zile.",
+          "isCorrect": false
+        }
+      ],
+      "correctOptionId": "C",
+      "explanation": "Sunt obligatorii atât circuitul consiliu profesoral - consiliu de administrație, cât și termenul primelor patru săptămâni.\n\nTemei: art. 30 alin. (2). Textul relevant: „Raportul anual asupra calității educației se analizează, se dezbate și se validează de către consiliul profesoral și se aprobă de către consiliul de administrație, la propunerea directorului, în primele patru săptămâni de la începutul anului școlar.”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "art. 30 alin. (2)",
+        "excerpt": "Raportul anual asupra calității educației se analizează, se dezbate și se validează de către consiliul profesoral și se aprobă de către consiliul de administrație, la propunerea directorului, în primele patru săptămâni de la începutul anului școlar.",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-104",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Titlul III. Managementul unităților de învățământ",
+      "annex": "",
+      "title": "Titlul III. Managementul unităților de învățământ",
+      "chapter": "Capitolul V. Tipul și conținutul documentelor manageriale",
+      "section": "",
+      "article": 31,
+      "paragraph": "",
+      "prompt": "După aprobare, raportul anual asupra calității este trimis inspectoratului, dar nu este făcut public. Este procedura completă?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Da. Comunicarea către inspectorat înlocuiește orice obligație de publicitate.",
+          "isCorrect": false
+        },
+        {
+          "id": "B",
+          "text": "Nu. Raportul trebuie transmis numai părinților, nu autorității locale.",
+          "isCorrect": false
+        },
+        {
+          "id": "C",
+          "text": "Da, dacă raportul conține indicatori interni de performanță.",
+          "isCorrect": false
+        },
+        {
+          "id": "D",
+          "text": "Nu. Raportul trebuie comunicat și autorității locale și publicat pe site și prin formele publice disponibile.",
+          "isCorrect": true
+        }
+      ],
+      "correctOptionId": "D",
+      "explanation": "Raportul este un document de interes public: se comunică autorității locale și inspectoratului și se publică prin mijloacele unității.\n\nTemei: art. 31. Textul relevant: „Raportul anual asupra calității educației este adus la cunoștința autorităților administrației publice locale și a ISJ/ISMB și postat pe site-ul unității de învățământ și prin orice altă formă de comunicare publică existentă la nivelul unității școlare.”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "art. 31",
+        "excerpt": "Raportul anual asupra calității educației este adus la cunoștința autorităților administrației publice locale și a ISJ/ISMB și postat pe site-ul unității de învățământ și prin orice altă formă de comunicare publică existentă la nivelul unității școlare.",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-105",
+      "kind": "aplicare",
+      "difficulty": "expert",
+      "module": "Titlul III. Managementul unităților de învățământ",
+      "annex": "",
+      "title": "Titlul III. Managementul unităților de învățământ",
+      "chapter": "Capitolul V. Tipul și conținutul documentelor manageriale",
+      "section": "",
+      "article": 32,
+      "paragraph": "(1)",
+      "prompt": "Directorul întocmește singur RAEI și îl transmite direct consiliului de administrație. Care este circuitul corect?",
+      "options": [
+        {
+          "id": "A",
+          "text": "CEAC întocmește RAEI; consiliul profesoral îl analizează și validează, iar CA îl aprobă la propunerea coordonatorului CEAC.",
+          "isCorrect": true
+        },
+        {
+          "id": "B",
+          "text": "Directorul întocmește RAEI, consiliul de administrație îl validează, iar inspectoratul îl aprobă.",
+          "isCorrect": false
+        },
+        {
+          "id": "C",
+          "text": "Consiliul profesoral întocmește și aprobă RAEI, iar CEAC îl publică.",
+          "isCorrect": false
+        },
+        {
+          "id": "D",
+          "text": "CEAC întocmește RAEI, iar directorul îl aprobă fără intervenția altor organisme.",
+          "isCorrect": false
+        }
+      ],
+      "correctOptionId": "A",
+      "explanation": "RAEI are un autor instituțional distinct și un circuit propriu de analiză, validare și aprobare.\n\nTemei: art. 32 alin. (1). Textul relevant: „Raportul anual de evaluare internă (RAEI) se întocmește de către comisia pentru evaluarea și asigurarea calității educației, se prezintă, spre analiză și validare consiliului profesoral și se aprobă de către consiliul de administrație, la propunerea coordonatorului comisiei, și se prezintă, spre analiză, consiliului profesoral.”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "art. 32 alin. (1)",
+        "excerpt": "Raportul anual de evaluare internă (RAEI) se întocmește de către comisia pentru evaluarea și asigurarea calității educației, se prezintă, spre analiză și validare consiliului profesoral și se aprobă de către consiliul de administrație, la propunerea coordonatorului comisiei, și se prezintă, spre analiză, consiliului profesoral.",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-106",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Titlul III. Managementul unităților de învățământ",
+      "annex": "",
+      "title": "Titlul III. Managementul unităților de învățământ",
+      "chapter": "Capitolul V. Tipul și conținutul documentelor manageriale",
+      "section": "",
+      "article": 33,
+      "paragraph": "(3)",
+      "prompt": "PDI a fost aprobat, dar conducerea îl păstrează numai în arhiva internă. Ce obligație de transparență există pentru documentele de prognoză?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Se comunică numai inspectoratului, deoarece conțin informații manageriale interne.",
+          "isCorrect": false
+        },
+        {
+          "id": "B",
+          "text": "Se postează pe site și se transmit electronic consiliului reprezentativ al părinților și asociației de părinți, dacă există.",
+          "isCorrect": true
+        },
+        {
+          "id": "C",
+          "text": "Se afișează doar un rezumat la avizier, fără transmitere către părinți.",
+          "isCorrect": false
+        },
+        {
+          "id": "D",
+          "text": "Se trimit individual tuturor elevilor, fără obligația publicării pe site.",
+          "isCorrect": false
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Documentele de prognoză conțin informații de interes public, ceea ce atrage obligații explicite de publicare și transmitere.\n\nTemei: art. 33 alin. (3). Textul relevant: „Documentele de prognoză se postează pe site-ul unității de învățământ și se transmit, în format electronic, consiliului reprezentativ al părinților/reprezentanților legali și conducerii asociației de părinți, acolo unde există, fiind documente care conțin informații de interes public.”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "art. 33 alin. (3)",
+        "excerpt": "Documentele de prognoză se postează pe site-ul unității de învățământ și se transmit, în format electronic, consiliului reprezentativ al părinților/reprezentanților legali și conducerii asociației de părinți, acolo unde există, fiind documente care conțin informații de interes public.",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-107",
+      "kind": "aplicare",
+      "difficulty": "expert",
+      "module": "Titlul III. Managementul unităților de învățământ",
+      "annex": "",
+      "title": "Titlul III. Managementul unităților de învățământ",
+      "chapter": "Capitolul V. Tipul și conținutul documentelor manageriale",
+      "section": "",
+      "article": 34,
+      "paragraph": "(1)",
+      "prompt": "Directorul elaborează singur un PDI pentru următorii doi ani. Care sunt cele două probleme?",
+      "options": [
+        {
+          "id": "A",
+          "text": "PDI trebuie elaborat exclusiv de consiliul profesoral și pentru exact cinci ani.",
+          "isCorrect": false
+        },
+        {
+          "id": "B",
+          "text": "PDI se elaborează de consiliul de administrație și pentru un singur an școlar.",
+          "isCorrect": false
+        },
+        {
+          "id": "C",
+          "text": "PDI se elaborează de o echipă coordonată de director și acoperă o perioadă de 3-5 ani.",
+          "isCorrect": true
+        },
+        {
+          "id": "D",
+          "text": "PDI poate fi elaborat de director, dar trebuie să acopere minimum șase ani.",
+          "isCorrect": false
+        }
+      ],
+      "correctOptionId": "C",
+      "explanation": "PDI este un document strategic de echipă, nu un plan individual al directorului, iar orizontul său legal este de 3-5 ani.\n\nTemei: art. 34 alin. (1). Textul relevant: „Planul de dezvoltare instituțională constituie documentul de prognoză pe termen lung și se elaborează de către o echipă coordonată de către director, pentru o perioadă de 3 - 5 ani. Acesta conține:”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "art. 34 alin. (1)",
+        "excerpt": "Planul de dezvoltare instituțională constituie documentul de prognoză pe termen lung și se elaborează de către o echipă coordonată de către director, pentru o perioadă de 3 - 5 ani. Acesta conține:",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-108",
+      "kind": "aplicare",
+      "difficulty": "expert",
+      "module": "Titlul III. Managementul unităților de învățământ",
+      "annex": "",
+      "title": "Titlul III. Managementul unităților de învățământ",
+      "chapter": "Capitolul V. Tipul și conținutul documentelor manageriale",
+      "section": "",
+      "article": 34,
+      "paragraph": "(4)",
+      "prompt": "Echipa finalizează PDI, iar directorul îl declară adoptat după o simplă prezentare în consiliul profesoral. Ce lipsește?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Doar aprobarea inspectoratului școlar; consiliul de administrație nu intervine.",
+          "isCorrect": false
+        },
+        {
+          "id": "B",
+          "text": "Votul consiliului reprezentativ al părinților, care aprobă definitiv documentul.",
+          "isCorrect": false
+        },
+        {
+          "id": "C",
+          "text": "Decizia autorității locale, după avizul consultativ al directorului.",
+          "isCorrect": false
+        },
+        {
+          "id": "D",
+          "text": "Dezbaterea și avizul consiliului profesoral, urmate de aprobarea consiliului de administrație.",
+          "isCorrect": true
+        }
+      ],
+      "correctOptionId": "D",
+      "explanation": "PDI/PAS parcurge etapa de dezbatere și avizare în consiliul profesoral și etapa de aprobare în consiliul de administrație.\n\nTemei: art. 34 alin. (4). Textul relevant: „Planul de dezvoltare instituțională, respectiv planul de acțiune al școlii se dezbate și se avizează de către consiliul profesoral și se aprobă de către consiliul de administrație. Planificarea strategică, respectiv planul de acțiune al școlii, pentru unitățile de învățământ preuniversitar cu personalitate juridică care școlarizează în învățământ profesional și tehnic/învățământul preuniversitar tehnologic, inclusiv în sistem dual este elaborat, pentru o perioadă de 3 - 5 ani, de către o echipă coordonată de către director, în colaborare cu partenerii unității de învățământ, și se aprobă de către consiliul de administrație.”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "art. 34 alin. (4)",
+        "excerpt": "Planul de dezvoltare instituțională, respectiv planul de acțiune al școlii se dezbate și se avizează de către consiliul profesoral și se aprobă de către consiliul de administrație. Planificarea strategică, respectiv planul de acțiune al școlii, pentru unitățile de învățământ preuniversitar cu personalitate juridică care școlarizează în învățământ profesional și tehnic/învățământul preuniversitar tehnologic, inclusiv în sistem dual este elaborat, pentru o perioadă de 3 - 5 ani, de către o echipă coordonată de către director, în colaborare cu partenerii unității de învățământ, și se aprobă de către consiliul de administrație.",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-109",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Titlul III. Managementul unităților de învățământ",
+      "annex": "",
+      "title": "Titlul III. Managementul unităților de învățământ",
+      "chapter": "Capitolul V. Tipul și conținutul documentelor manageriale",
+      "section": "",
+      "article": 34,
+      "paragraph": "(5)",
+      "prompt": "PDI este în al treilea an de aplicare, iar conducerea consideră că îl va evalua numai la finalul perioadei. Este corect?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Nu. Stadiul atingerii obiectivelor strategice se evaluează anual.",
+          "isCorrect": true
+        },
+        {
+          "id": "B",
+          "text": "Da. Evaluarea intermediară este interzisă pentru documentele pe termen lung.",
+          "isCorrect": false
+        },
+        {
+          "id": "C",
+          "text": "Nu. PDI trebuie reevaluat după fiecare interval de cursuri.",
+          "isCorrect": false
+        },
+        {
+          "id": "D",
+          "text": "Da, dacă indicatorii de performanță nu s-au modificat.",
+          "isCorrect": false
+        }
+      ],
+      "correctOptionId": "A",
+      "explanation": "Caracterul multianual nu înlătură monitorizarea anuală a obiectivelor strategice și posibilitatea de reactualizare.\n\nTemei: art. 34 alin. (5). Textul relevant: „Stadiul atingerii obiectivelor strategice incluse în cadrul documentelor de prognoză pe termen lung (PDI/PAS) este evaluat anual și, după caz, echipa coordonată de către director care a elaborat aceste documente poate propune revizuirea/reactualizarea activităților corespunzătoare acestora;”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "art. 34 alin. (5)",
+        "excerpt": "Stadiul atingerii obiectivelor strategice incluse în cadrul documentelor de prognoză pe termen lung (PDI/PAS) este evaluat anual și, după caz, echipa coordonată de către director care a elaborat aceste documente poate propune revizuirea/reactualizarea activităților corespunzătoare acestora;",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-110",
+      "kind": "aplicare",
+      "difficulty": "expert",
+      "module": "Titlul III. Managementul unităților de învățământ",
+      "annex": "",
+      "title": "Titlul III. Managementul unităților de învățământ",
+      "chapter": "Capitolul V. Tipul și conținutul documentelor manageriale",
+      "section": "",
+      "article": 34,
+      "paragraph": "(7)",
+      "prompt": "Echipa propune revizuirea unor activități din PDI. Cum devine propunerea parte a documentului?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Este semnată de director și înlocuiește integral PDI-ul inițial.",
+          "isCorrect": false
+        },
+        {
+          "id": "B",
+          "text": "Este dezbătută și avizată de consiliul profesoral, aprobată de consiliul de administrație și devine anexă la PDI.",
+          "isCorrect": true
+        },
+        {
+          "id": "C",
+          "text": "Este aprobată de consiliul profesoral și transmisă inspectoratului, fără intervenția CA.",
+          "isCorrect": false
+        },
+        {
+          "id": "D",
+          "text": "Este votată de comisia care a elaborat PDI și aplicată imediat.",
+          "isCorrect": false
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Revizuirea urmează un circuit formal și nu rescrie informal documentul: după avizare și aprobare, ea devine anexă.\n\nTemei: art. 34 alin. (7). Textul relevant: „Propunerea de revizuire se dezbate și se avizează de către consiliul profesoral și se aprobă de către consiliul de administrație, devenind anexă la PDI/PAS.”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "art. 34 alin. (7)",
+        "excerpt": "Propunerea de revizuire se dezbate și se avizează de către consiliul profesoral și se aprobă de către consiliul de administrație, devenind anexă la PDI/PAS.",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-111",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Titlul III. Managementul unităților de învățământ",
+      "annex": "",
+      "title": "Titlul III. Managementul unităților de învățământ",
+      "chapter": "Capitolul V. Tipul și conținutul documentelor manageriale",
+      "section": "",
+      "article": 35,
+      "paragraph": "(1)",
+      "prompt": "Directorul propune un plan managerial pentru întreaga perioadă de patru ani a mandatului. Este aceasta durata regulamentară a planului managerial?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Da. Planul managerial trebuie să coincidă cu durata mandatului.",
+          "isCorrect": false
+        },
+        {
+          "id": "B",
+          "text": "Nu. Planul managerial se elaborează pentru fiecare interval de cursuri.",
+          "isCorrect": false
+        },
+        {
+          "id": "C",
+          "text": "Nu. Planul managerial este document de acțiune pe termen scurt, elaborat pentru un an școlar.",
+          "isCorrect": true
+        },
+        {
+          "id": "D",
+          "text": "Da, dacă este actualizat anual fără o nouă aprobare.",
+          "isCorrect": false
+        }
+      ],
+      "correctOptionId": "C",
+      "explanation": "Planul managerial operationalizează strategia pentru un singur an școlar, spre deosebire de PDI/PAS, care este multianual.\n\nTemei: art. 35 alin. (1). Textul relevant: „Planul managerial constituie documentul de acțiune pe termen scurt și se elaborează de către director pentru o perioadă de un an școlar.”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "art. 35 alin. (1)",
+        "excerpt": "Planul managerial constituie documentul de acțiune pe termen scurt și se elaborează de către director pentru o perioadă de un an școlar.",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-112",
+      "kind": "aplicare",
+      "difficulty": "expert",
+      "module": "Titlul III. Managementul unităților de învățământ",
+      "annex": "",
+      "title": "Titlul III. Managementul unităților de învățământ",
+      "chapter": "Capitolul V. Tipul și conținutul documentelor manageriale",
+      "section": "",
+      "article": 35,
+      "paragraph": "(4)",
+      "prompt": "Directorul aprobă planul managerial prin decizie proprie după ce îl discută informal cu profesorii. Care este procedura?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Planul se aprobă de director și se avizează ulterior de inspectorat.",
+          "isCorrect": false
+        },
+        {
+          "id": "B",
+          "text": "Planul se aprobă exclusiv de consiliul profesoral.",
+          "isCorrect": false
+        },
+        {
+          "id": "C",
+          "text": "Planul se aprobă de autoritatea locală după avizul consiliului de administrație.",
+          "isCorrect": false
+        },
+        {
+          "id": "D",
+          "text": "Planul se dezbate și se avizează în consiliul profesoral, apoi se aprobă de consiliul de administrație.",
+          "isCorrect": true
+        }
+      ],
+      "correctOptionId": "D",
+      "explanation": "Planul managerial nu este un act unilateral al directorului; regulamentul stabilește avizarea în consiliul profesoral și aprobarea în consiliul de administrație.\n\nTemei: art. 35 alin. (4). Textul relevant: „Planul managerial se dezbate și se avizează de către consiliul profesoral și se aprobă de către consiliul de administrație.”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "art. 35 alin. (4)",
+        "excerpt": "Planul managerial se dezbate și se avizează de către consiliul profesoral și se aprobă de către consiliul de administrație.",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-113",
+      "kind": "aplicare",
+      "difficulty": "expert",
+      "module": "Titlul III. Managementul unităților de învățământ",
+      "annex": "",
+      "title": "Titlul III. Managementul unităților de învățământ",
+      "chapter": "Capitolul V. Tipul și conținutul documentelor manageriale",
+      "section": "",
+      "article": 35,
+      "paragraph": "(5)",
+      "prompt": "Directorul adjunct își copiază integral planul directorului și nu îl supune niciunei aprobări. Ce cere ROFUIP?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Un plan propriu, conform fișei postului, corelat cu planul directorului și PDI/PAS, aprobat de consiliul de administrație.",
+          "isCorrect": true
+        },
+        {
+          "id": "B",
+          "text": "Un plan propriu aprobat numai de director, fără legătură cu PDI/PAS.",
+          "isCorrect": false
+        },
+        {
+          "id": "C",
+          "text": "Niciun plan distinct, deoarece directorul adjunct execută planul directorului.",
+          "isCorrect": false
+        },
+        {
+          "id": "D",
+          "text": "Un plan întocmit de consiliul profesoral și aprobat de inspectorat.",
+          "isCorrect": false
+        }
+      ],
+      "correctOptionId": "A",
+      "explanation": "Directorul adjunct are propriul document managerial, dar acesta trebuie aliniat documentelor strategice și aprobat de consiliul de administrație.\n\nTemei: art. 35 alin. (5). Textul relevant: „Directorul adjunct întocmește propriul plan managerial conform fișei postului, în concordanță cu planul managerial al directorului și cu planul de dezvoltare instituțională/planul de acțiunii al școlii, care se aprobă de către consiliul de administrație.”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "art. 35 alin. (5)",
+        "excerpt": "Directorul adjunct întocmește propriul plan managerial conform fișei postului, în concordanță cu planul managerial al directorului și cu planul de dezvoltare instituțională/planul de acțiunii al școlii, care se aprobă de către consiliul de administrație.",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-114",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Titlul IX. Partenerii educaționali",
+      "annex": "",
+      "title": "Titlul IX. Partenerii educaționali",
+      "chapter": "Capitolul III. Adunarea generală a părinților/reprezentanților legali",
+      "section": "",
+      "article": 160,
+      "paragraph": "(3)",
+      "prompt": "În adunarea generală a părinților, un părinte cere discutarea publică a situației disciplinare concrete a unui elev. Poate fi acceptată cererea?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Da, dacă majoritatea părinților votează includerea subiectului pe ordinea de zi.",
+          "isCorrect": false
+        },
+        {
+          "id": "B",
+          "text": "Nu. Situația individuală se discută separat și numai în prezența părintelui sau reprezentantului legal al elevului respectiv.",
+          "isCorrect": true
+        },
+        {
+          "id": "C",
+          "text": "Da, dacă numele elevului nu apare în procesul-verbal.",
+          "isCorrect": false
+        },
+        {
+          "id": "D",
+          "text": "Nu, deoarece orice problemă disciplinară poate fi discutată numai de inspectorat.",
+          "isCorrect": false
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Adunarea generală tratează problemele colectivului; cazurile individuale sunt protejate printr-o discuție separată cu părintele vizat.\n\nTemei: art. 160 alin. (3). Textul relevant: „În adunarea generală a părinților/reprezentanților legali se discută problemele generale ale colectivului de beneficiari primari, și nu situația concretă a unui beneficiar primar. Situația unui beneficiar primar se discută individual, numai în prezența părintelui/ reprezentantului legal al beneficiarului primar respectiv.”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "art. 160 alin. (3)",
+        "excerpt": "În adunarea generală a părinților/reprezentanților legali se discută problemele generale ale colectivului de beneficiari primari, și nu situația concretă a unui beneficiar primar. Situația unui beneficiar primar se discută individual, numai în prezența părintelui/ reprezentantului legal al beneficiarului primar respectiv.",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-115",
+      "kind": "aplicare",
+      "difficulty": "expert",
+      "module": "Titlul IX. Partenerii educaționali",
+      "annex": "",
+      "title": "Titlul IX. Partenerii educaționali",
+      "chapter": "Capitolul III. Adunarea generală a părinților/reprezentanților legali",
+      "section": "",
+      "article": 161,
+      "paragraph": "(1)",
+      "prompt": "O treime dintre părinții unei clase solicită convocarea adunării generale, dar dirigintele refuză pe motiv că numai el o poate convoca. Are dreptate?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Da. Părinții pot solicita ședința, dar nu o pot convoca regulamentar.",
+          "isCorrect": false
+        },
+        {
+          "id": "B",
+          "text": "Nu. Este suficientă solicitarea unui singur părinte.",
+          "isCorrect": false
+        },
+        {
+          "id": "C",
+          "text": "Nu. Adunarea poate fi convocată și de o treime din numărul total al membrilor săi.",
+          "isCorrect": true
+        },
+        {
+          "id": "D",
+          "text": "Da, cu excepția cazului în care președintele consiliului de administrație aprobă convocarea.",
+          "isCorrect": false
+        }
+      ],
+      "correctOptionId": "C",
+      "explanation": "Dreptul de convocare aparține cadrului didactic responsabil, președintelui comitetului de părinți sau pragului de o treime dintre membri.\n\nTemei: art. 161 alin. (1). Textul relevant: „Adunarea generală a părinților/reprezentanților legali se convoacă de către educator/educatoare/profesor pentru educație timpurie/învățător/învățătoare/institutor/profesorul pentru învățământul preșcolar/primar/profesorul diriginte, de către președintele comitetului de părinți al clasei sau de către 1/3 din numărul total al membrilor săi.”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "art. 161 alin. (1)",
+        "excerpt": "Adunarea generală a părinților/reprezentanților legali se convoacă de către educator/educatoare/profesor pentru educație timpurie/învățător/învățătoare/institutor/profesorul pentru învățământul preșcolar/primar/profesorul diriginte, de către președintele comitetului de părinți al clasei sau de către 1/3 din numărul total al membrilor săi.",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-116",
+      "kind": "aplicare",
+      "difficulty": "expert",
+      "module": "Titlul IX. Partenerii educaționali",
+      "annex": "",
+      "title": "Titlul IX. Partenerii educaționali",
+      "chapter": "Capitolul III. Adunarea generală a părinților/reprezentanților legali",
+      "section": "",
+      "article": 161,
+      "paragraph": "(2)",
+      "prompt": "O clasă are 28 de părinți/reprezentanți legali. La adunare participă 14. Poate adopta hotărâri?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Da. Jumătate din total este suficientă pentru cvorum.",
+          "isCorrect": false
+        },
+        {
+          "id": "B",
+          "text": "Da, dacă hotărârea este votată unanim de cei 14 prezenți.",
+          "isCorrect": false
+        },
+        {
+          "id": "C",
+          "text": "Nu. Sunt necesare două treimi din total, adică 19 membri.",
+          "isCorrect": false
+        },
+        {
+          "id": "D",
+          "text": "Nu. Pentru întrunire sunt necesari 15 membri, adică jumătate plus unu din total.",
+          "isCorrect": true
+        }
+      ],
+      "correctOptionId": "D",
+      "explanation": "Cvorumul este jumătate plus unu din totalul membrilor; abia după întrunirea valabilă, hotărârile se iau cu jumătate plus unu dintre cei prezenți.\n\nTemei: art. 161 alin. (2). Textul relevant: „Adunarea generală a părinților/reprezentanților legali se convoacă ori de câte ori este nevoie, este valabil întrunită în prezența a jumătate plus unu din totalul părinților/reprezentanților legali ai copiilor/beneficiarilor primari din grupa/clasa respectivă și adoptă hotărâri cu votul a jumătate plus unu din cei prezenți.”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "art. 161 alin. (2)",
+        "excerpt": "Adunarea generală a părinților/reprezentanților legali se convoacă ori de câte ori este nevoie, este valabil întrunită în prezența a jumătate plus unu din totalul părinților/reprezentanților legali ai copiilor/beneficiarilor primari din grupa/clasa respectivă și adoptă hotărâri cu votul a jumătate plus unu din cei prezenți.",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-117",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Titlul IX. Partenerii educaționali",
+      "annex": "",
+      "title": "Titlul IX. Partenerii educaționali",
+      "chapter": "Capitolul IV. Comitetul de părinți",
+      "section": "",
+      "article": 162,
+      "paragraph": "(3)",
+      "prompt": "Comitetul de părinți al clasei este ales la 20 de zile calendaristice de la începerea cursurilor. A fost respectat termenul?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Nu. Adunarea pentru alegerea comitetului trebuie convocată în primele 15 zile calendaristice.",
+          "isCorrect": true
+        },
+        {
+          "id": "B",
+          "text": "Da. Termenul este de 30 de zile calendaristice.",
+          "isCorrect": false
+        },
+        {
+          "id": "C",
+          "text": "Da, deoarece termenul de 15 zile este doar recomandat.",
+          "isCorrect": false
+        },
+        {
+          "id": "D",
+          "text": "Nu. Alegerea trebuie făcută în prima zi de cursuri.",
+          "isCorrect": false
+        }
+      ],
+      "correctOptionId": "A",
+      "explanation": "Regulamentul stabilește un termen calendaristic expres pentru convocarea adunării care alege comitetul clasei.\n\nTemei: art. 162 alin. (3). Textul relevant: „Convocarea adunării generale pentru alegerea comitetului de părinți are loc în primele 15 zile calendaristice de la începerea cursurilor anului școlar.”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "art. 162 alin. (3)",
+        "excerpt": "Convocarea adunării generale pentru alegerea comitetului de părinți are loc în primele 15 zile calendaristice de la începerea cursurilor anului școlar.",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-118",
+      "kind": "aplicare",
+      "difficulty": "expert",
+      "module": "Titlul IX. Partenerii educaționali",
+      "annex": "",
+      "title": "Titlul IX. Partenerii educaționali",
+      "chapter": "Capitolul IV. Comitetul de părinți",
+      "section": "",
+      "article": 165,
+      "paragraph": "(3)",
+      "prompt": "Pentru renovarea clasei, profesorul le cere elevilor să colecteze bani și să țină evidența sumelor. Este permis?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Da, dacă sumele sunt voluntare și există acordul comitetului de părinți.",
+          "isCorrect": false
+        },
+        {
+          "id": "B",
+          "text": "Nu. Implicarea elevilor sau a personalului școlii în strângerea ori gestionarea fondurilor este interzisă și constituie abatere disciplinară.",
+          "isCorrect": true
+        },
+        {
+          "id": "C",
+          "text": "Da, dacă profesorul predă banii asociației de părinți la sfârșitul săptămânii.",
+          "isCorrect": false
+        },
+        {
+          "id": "D",
+          "text": "Nu, dar interdicția privește numai gestionarea, nu și colectarea fondurilor.",
+          "isCorrect": false
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Caracterul voluntar al contribuției nu permite folosirea elevilor sau personalului pentru colectarea ori administrarea banilor.\n\nTemei: art. 165 alin. (3). Textul relevant: „Este interzisă și constituie abatere disciplinară implicarea copiilor/beneficiarilor primari sau a personalului din unitatea de învățământ în strângerea și/sau gestionarea fondurilor.”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "art. 165 alin. (3)",
+        "excerpt": "Este interzisă și constituie abatere disciplinară implicarea copiilor/beneficiarilor primari sau a personalului din unitatea de învățământ în strângerea și/sau gestionarea fondurilor.",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-119",
+      "kind": "aplicare",
+      "difficulty": "expert",
+      "module": "Titlul IX. Partenerii educaționali",
+      "annex": "",
+      "title": "Titlul IX. Partenerii educaționali",
+      "chapter": "Capitolul V. Consiliul reprezentativ al părinților/reprezentanților legali/Asociația de părinți",
+      "section": "",
+      "article": 166,
+      "paragraph": "(3)",
+      "prompt": "Consiliul reprezentativ al părinților deschide un registru de cotizații și dorește să primească sponsorizări în nume propriu. Este conform?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Da, dacă fondurile sunt folosite exclusiv pentru activități educative.",
+          "isCorrect": false
+        },
+        {
+          "id": "B",
+          "text": "Da, cu aprobarea consiliului de administrație al școlii.",
+          "isCorrect": false
+        },
+        {
+          "id": "C",
+          "text": "Nu. Structura nu are personalitate juridică, patrimoniu sau buget și nu poate colecta cotizații, donații ori finanțări.",
+          "isCorrect": true
+        },
+        {
+          "id": "D",
+          "text": "Nu, deoarece poate primi doar cotizații, nu și sponsorizări.",
+          "isCorrect": false
+        }
+      ],
+      "correctOptionId": "C",
+      "explanation": "Consiliul reprezentativ este o structură fără personalitate juridică și se poate implica logistic, prin voluntariat, nu ca gestionar de fonduri.\n\nTemei: art. 166 alin. (3). Textul relevant: „Consiliul reprezentativ al părinților/reprezentanților legali este o structură fără personalitate juridică a cărei activitate este reglementată printr-un regulament adoptat prin hotărârea adunării generale a președinților comitetelor de părinți pe grupă/clasă din unitatea de învățământ, care nu are patrimoniu, nu are buget de venituri și cheltuieli, nu are dreptul de a colecta cotizații, donații și a primi finanțări de orice fel de la persoane fizice sau juridice. Se poate implica în activitățile unității de învățământ prin acțiuni cu caracter logistic - voluntariat.”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "art. 166 alin. (3)",
+        "excerpt": "Consiliul reprezentativ al părinților/reprezentanților legali este o structură fără personalitate juridică a cărei activitate este reglementată printr-un regulament adoptat prin hotărârea adunării generale a președinților comitetelor de părinți pe grupă/clasă din unitatea de învățământ, care nu are patrimoniu, nu are buget de venituri și cheltuieli, nu are dreptul de a colecta cotizații, donații și a primi finanțări de orice fel de la persoane fizice sau juridice. Se poate implica în activitățile unității de învățământ prin acțiuni cu caracter logistic - voluntariat.",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-120",
+      "kind": "aplicare",
+      "difficulty": "expert",
+      "module": "Titlul IX. Partenerii educaționali",
+      "annex": "",
+      "title": "Titlul IX. Partenerii educaționali",
+      "chapter": "Capitolul VI. Contractul educațional",
+      "section": "",
+      "article": 170,
+      "paragraph": "(3)",
+      "prompt": "Consiliul de administrație vrea să introducă o clauză suplimentară în contractul educațional. În ce condiții este posibil?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Prin hotărârea unilaterală a consiliului de administrație, fără semnătura părintelui.",
+          "isCorrect": false
+        },
+        {
+          "id": "B",
+          "text": "Numai cu aprobarea inspectoratului, fără consultarea părinților.",
+          "isCorrect": false
+        },
+        {
+          "id": "C",
+          "text": "Prin regulamentul de ordine interioară, care modifică automat toate contractele existente.",
+          "isCorrect": false
+        },
+        {
+          "id": "D",
+          "text": "După consultarea consiliului reprezentativ al părinților, prin act adițional semnat de ambele părți, fără afectarea interesului superior al elevului.",
+          "isCorrect": true
+        }
+      ],
+      "correctOptionId": "D",
+      "explanation": "Clauzele suplimentare sunt permise doar cu garanții procedurale și de fond: consultare, act adițional bilateral și respectarea interesului superior al elevului.\n\nTemei: art. 170 alin. (3). Textul relevant: „Prin hotărâre a consiliului de administrație, la contractul educațional pot fi adăugate și alte clauze, a căror natură nu poate afecta interesul superior al beneficiarului primar în funcție de specificul fiecărei unități și după consultarea consiliului reprezentativ al părinților/reprezentanților legali, prin act adițional semnat de ambele părți.”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "art. 170 alin. (3)",
+        "excerpt": "Prin hotărâre a consiliului de administrație, la contractul educațional pot fi adăugate și alte clauze, a căror natură nu poate afecta interesul superior al beneficiarului primar în funcție de specificul fiecărei unități și după consultarea consiliului reprezentativ al părinților/reprezentanților legali, prin act adițional semnat de ambele părți.",
         "verification": "fragment-exact-din-sursa-consolidata"
       }
     }
