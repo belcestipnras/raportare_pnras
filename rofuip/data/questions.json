@@ -7,7 +7,7 @@
     "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
     "method": "itemi situaționali redactați manual și verificați pe fragmentele exacte ale formei consolidate"
   },
-  "count": 191,
+  "count": 202,
   "questions": [
     {
       "id": "RF-A-001",
@@ -8814,6 +8814,534 @@
         "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
         "reference": "articolul 72 alineatul (21) litera a)",
         "excerpt": "înregistrarea și raportarea la Inspectoratul Școlar Județean/al Municipiului București a cazurilor de violență săvârșite în mediul școlar",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-192",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Titlul VII. Beneficiarii primari ai educației",
+      "annex": "",
+      "title": "Titlul VII. Beneficiarii primari ai educației",
+      "chapter": "Capitolul III. Evaluarea copiilor/elevilor",
+      "section": "Secţiunea 1. Evaluarea rezultatelor învăţării. Încheierea situaţiei şcolare",
+      "article": 102,
+      "paragraph": "(4)",
+      "prompt": "Un profesor spune unui elev: „Dacă mai vorbești la oră, îți scad nota la test.” Cum privește regulamentul această practică?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Este permisă, dacă profesorul anunță măsura în prealabil.",
+          "isCorrect": false,
+          "why": "Anunțarea prealabilă nu schimbă regula: nota reflectă strict rezultatele învățării."
+        },
+        {
+          "id": "B",
+          "text": "Este permisă, dar numai cu acordul dirigintelui.",
+          "isCorrect": false,
+          "why": "Nici acordul dirigintelui nu poate legitima folosirea notei ca mijloc de coerciție."
+        },
+        {
+          "id": "C",
+          "text": "Este interzisă, pentru că nota nu poate fi folosită ca mijloc de coerciție.",
+          "isCorrect": true
+        },
+        {
+          "id": "D",
+          "text": "Este permisă la disciplinele cu o oră pe săptămână.",
+          "isCorrect": false,
+          "why": "Regula se aplică la toate disciplinele, fără excepție după numărul de ore."
+        }
+      ],
+      "correctOptionId": "C",
+      "explanation": "Regula: Rezultatul evaluării reflectă strict rezultatele învățării și nu poate fi folosit ca mijloc de constrângere.\n\nComportamentul se sancționează prin instrumentele proprii (nota la purtare, măsuri disciplinare), nu prin note la disciplină.\n\nTemei: articolul 102 alineatul (4). Textul relevant: „Rezultatul evaluării, exprimat prin calificativ, notă, punctaj etc., nu poate fi folosit ca mijloc de coerciție, acesta reflectând strict rezultatele învățării, conform prevederilor legale.”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "articolul 102 alineatul (4)",
+        "excerpt": "Rezultatul evaluării, exprimat prin calificativ, notă, punctaj etc., nu poate fi folosit ca mijloc de coerciție, acesta reflectând strict rezultatele învățării, conform prevederilor legale.",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-193",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Titlul VII. Beneficiarii primari ai educației",
+      "annex": "",
+      "title": "Titlul VII. Beneficiarii primari ai educației",
+      "chapter": "Capitolul III. Evaluarea copiilor/elevilor",
+      "section": "Secţiunea 1. Evaluarea rezultatelor învăţării. Încheierea situaţiei şcolare",
+      "article": 104,
+      "paragraph": "(2)",
+      "prompt": "La o disciplină teoretică din clasa a VI-a, profesorul a dat într-un an școlar o singură lucrare scrisă, restul evaluărilor fiind orale. Directorul constată situația la control. Ce spune regulamentul?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Este insuficient, pentru că sunt necesare cel puțin două lucrări scrise sau teste pe an școlar la disciplină.",
+          "isCorrect": true
+        },
+        {
+          "id": "B",
+          "text": "Este corect, deoarece evaluarea orală o poate înlocui integral pe cea scrisă.",
+          "isCorrect": false,
+          "why": "Regulamentul cere cel puțin două lucrări scrise sau teste, nu admite înlocuirea lor cu evaluări orale."
+        },
+        {
+          "id": "C",
+          "text": "Este suficient, dacă lucrarea scrisă a fost dată la sfârșitul anului.",
+          "isCorrect": false,
+          "why": "Momentul nu contează: numărul minim este de două evaluări scrise."
+        },
+        {
+          "id": "D",
+          "text": "Cerința este de trei lucrări scrise pe semestru.",
+          "isCorrect": false,
+          "why": "Minimul este de două evaluări prin lucrare scrisă sau test pe an școlar, nu pe semestru."
+        }
+      ],
+      "correctOptionId": "A",
+      "explanation": "Regula: La fiecare disciplină sau modul, cu excepția celor preponderent practice, elevii au cel puțin două evaluări prin lucrare scrisă sau test pe an școlar.\n\nMinimul de două evaluări scrise este o garanție de obiectivitate și se verifică în controlul intern.\n\nTemei: articolul 104 alineatul (2). Textul relevant: „În învățământul primar, la clasele I-IV, în cel gimnazial, liceal, profesional și în cel postliceal, elevii vor avea la fiecare disciplină/modul, cu excepția celor preponderent practice, cel puțin două evaluări prin lucrare scrisă/test pe an școlar.”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "articolul 104 alineatul (2)",
+        "excerpt": "În învățământul primar, la clasele I-IV, în cel gimnazial, liceal, profesional și în cel postliceal, elevii vor avea la fiecare disciplină/modul, cu excepția celor preponderent practice, cel puțin două evaluări prin lucrare scrisă/test pe an școlar.",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-194",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Titlul VII. Beneficiarii primari ai educației",
+      "annex": "",
+      "title": "Titlul VII. Beneficiarii primari ai educației",
+      "chapter": "Capitolul III. Evaluarea copiilor/elevilor",
+      "section": "Secţiunea 1. Evaluarea rezultatelor învăţării. Încheierea situaţiei şcolare",
+      "article": 106,
+      "paragraph": "(9)",
+      "prompt": "În timpul unui test scris în clasa a IX-a, un elev este surprins copiind de pe telefon. Ce sancțiune la evaluare prevede regulamentul?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Se scade un punct din nota obținută, iar testul se reia.",
+          "isCorrect": false,
+          "why": "Regulamentul nu prevede scăderea unui punct, ci nota 1 pentru fraudă."
+        },
+        {
+          "id": "B",
+          "text": "Se anulează testul fără notare, iar elevul rămâne neevaluat.",
+          "isCorrect": false,
+          "why": "Fraudă constatată înseamnă notă, nu simplă anulare: se acordă nota 1."
+        },
+        {
+          "id": "C",
+          "text": "Se acordă nota minimă, 4, pentru a nu pune în pericol media.",
+          "isCorrect": false,
+          "why": "Nota minimă pentru fraudă este 1, nu 4."
+        },
+        {
+          "id": "D",
+          "text": "Se acordă nota 1 (sau calificativul insuficient, după caz).",
+          "isCorrect": true
+        }
+      ],
+      "correctOptionId": "D",
+      "explanation": "Regula: Pentru frauda constatată la evaluările scrise se acordă nota 1 sau, după caz, calificativul insuficient.\n\nRegula se aplică și probelor scrise din examenele și concursurile organizate la nivelul unității.\n\nTemei: articolul 106 alineatul (9). Textul relevant: „Pentru frauda constatată la evaluările scrise, inclusiv la probele scrise din cadrul examenelor/concursurilor organizate la nivelul unității de învățământ, conform prezentului regulament, se acordă nota 1 sau, după caz, calificativul insuficient.”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "articolul 106 alineatul (9)",
+        "excerpt": "Pentru frauda constatată la evaluările scrise, inclusiv la probele scrise din cadrul examenelor/concursurilor organizate la nivelul unității de învățământ, conform prezentului regulament, se acordă nota 1 sau, după caz, calificativul insuficient.",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-195",
+      "kind": "aplicare",
+      "difficulty": "expert",
+      "module": "Titlul VII. Beneficiarii primari ai educației",
+      "annex": "",
+      "title": "Titlul VII. Beneficiarii primari ai educației",
+      "chapter": "Capitolul III. Evaluarea copiilor/elevilor",
+      "section": "Secţiunea 1. Evaluarea rezultatelor învăţării. Încheierea situaţiei şcolare",
+      "article": 107,
+      "paragraph": "(4)",
+      "prompt": "La o disciplină cu două ore pe săptămână în planul-cadru, câte note trebuie să primească anual un elev, de regulă?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Cel puțin patru note, care este minimul absolut pentru orice disciplină.",
+          "isCorrect": false,
+          "why": "Patru este minimul absolut, dar pentru două ore săptămânale regula „ore plus trei” dă cinci note."
+        },
+        {
+          "id": "B",
+          "text": "Cel puțin cinci note (două ore plus trei), fiind peste minimul de patru.",
+          "isCorrect": true
+        },
+        {
+          "id": "C",
+          "text": "Cel puțin șase note, adică de trei ori numărul orelor.",
+          "isCorrect": false,
+          "why": "Regula nu este „de trei ori”, ci „cu cel puțin trei mai mare decât numărul orelor”."
+        },
+        {
+          "id": "D",
+          "text": "Cel puțin două note, la fel ca la disciplinele cu mai puțin de o oră pe săptămână.",
+          "isCorrect": false,
+          "why": "Minimul de două note se aplică doar disciplinelor cu mai puțin de o oră pe săptămână."
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Regula: Numărul de note anuale este, de regulă, cu cel puțin trei mai mare decât numărul de ore săptămânale, dar nu mai mic de patru pe an școlar.\n\nRegula are două praguri: orele săptămânale plus trei, dar niciodată sub patru note pe an. La două ore, rezultatul este cinci.\n\nTemei: articolul 107 alineatul (4). Textul relevant: „La fiecare disciplină numărul de calificative/note acordate anual este, de regulă, cu cel puțin trei mai mare decât numărul de ore alocat săptămânal disciplinei în planul-cadru de învățământ, dar nu mai mic de patru note pe an școlar pentru fiecare disciplină.”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "articolul 107 alineatul (4)",
+        "excerpt": "La fiecare disciplină numărul de calificative/note acordate anual este, de regulă, cu cel puțin trei mai mare decât numărul de ore alocat săptămânal disciplinei în planul-cadru de învățământ, dar nu mai mic de patru note pe an școlar pentru fiecare disciplină.",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-196",
+      "kind": "aplicare",
+      "difficulty": "expert",
+      "module": "Titlul VII. Beneficiarii primari ai educației",
+      "annex": "",
+      "title": "Titlul VII. Beneficiarii primari ai educației",
+      "chapter": "Capitolul III. Evaluarea copiilor/elevilor",
+      "section": "Secţiunea 1. Evaluarea rezultatelor învăţării. Încheierea situaţiei şcolare",
+      "article": 107,
+      "paragraph": "(6)",
+      "prompt": "Un elev este corigent la matematică și are, la disciplină, numărul minim de note. Câte note trebuie să aibă, în plus, și când se acordă ultima?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Cel puțin două note în plus, ultima în prima săptămână din semestrul al doilea.",
+          "isCorrect": false,
+          "why": "Regula este o notă în plus, iar ultima se dă în ultimele trei săptămâni ale anului."
+        },
+        {
+          "id": "B",
+          "text": "Nicio notă în plus, deoarece numărul de note este același pentru toți elevii.",
+          "isCorrect": false,
+          "why": "Elevii corigenți au o notă în plus față de numărul obișnuit."
+        },
+        {
+          "id": "C",
+          "text": "Cel puțin o notă în plus, ultima fiind acordată, de regulă, în ultimele trei săptămâni.",
+          "isCorrect": true
+        },
+        {
+          "id": "D",
+          "text": "Cel puțin o notă în plus, acordată obligatoriu în sesiunea de corigență.",
+          "isCorrect": false,
+          "why": "Nota în plus se acordă în ultimele trei săptămâni ale anului școlar, nu în sesiunea de corigență."
+        }
+      ],
+      "correctOptionId": "C",
+      "explanation": "Regula: Elevii aflați în situație de corigență au cu cel puțin o notă în plus, iar ultima notă se acordă, de regulă, în ultimele trei săptămâni ale anului școlar.\n\nNota suplimentară oferă elevului o ultimă șansă de recuperare înainte de încheierea mediei.\n\nTemei: articolul 107 alineatul (6). Textul relevant: „Elevii aflați în situație de corigență vor avea cu cel puțin un calificativ/o notă în plus față de numărul de calificative/note prevăzut la alin. (4), ultimul calificativ/ultima notă fiind acordat/ă, de regulă, în ultimele trei săptămâni ale anului școlar.”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "articolul 107 alineatul (6)",
+        "excerpt": "Elevii aflați în situație de corigență vor avea cu cel puțin un calificativ/o notă în plus față de numărul de calificative/note prevăzut la alin. (4), ultimul calificativ/ultima notă fiind acordat/ă, de regulă, în ultimele trei săptămâni ale anului școlar.",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-197",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Titlul VII. Beneficiarii primari ai educației",
+      "annex": "",
+      "title": "Titlul VII. Beneficiarii primari ai educației",
+      "chapter": "Capitolul III. Evaluarea copiilor/elevilor",
+      "section": "Secţiunea 1. Evaluarea rezultatelor învăţării. Încheierea situaţiei şcolare",
+      "article": 108,
+      "paragraph": "(1)",
+      "prompt": "La sfârșitul anului, un profesor refuză să încheie situația școlară la clasa lui, deși elevii au note suficiente. Cine intervine și cum?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Consiliul de administrație desemnează un alt cadru didactic care să încheie situația școlară.",
+          "isCorrect": true
+        },
+        {
+          "id": "B",
+          "text": "Directorul încheie personal situația școlară, fără decizie a consiliului de administrație.",
+          "isCorrect": false,
+          "why": "Regulamentul atribuie desemnarea unui alt cadru didactic consiliului de administrație."
+        },
+        {
+          "id": "C",
+          "text": "Situația rămâne neîncheiată, iar elevii sunt declarați amânați.",
+          "isCorrect": false,
+          "why": "Elevii au note suficiente, deci nu sunt amânați; situația se încheie prin cadrul didactic desemnat."
+        },
+        {
+          "id": "D",
+          "text": "Consiliul profesoral încheie situația școlară prin vot.",
+          "isCorrect": false,
+          "why": "Competența este a consiliului de administrație, iar situația o încheie un cadru didactic desemnat."
+        }
+      ],
+      "correctOptionId": "A",
+      "explanation": "Regula: Dacă cadrul didactic refuză să încheie situația școlară și elevii au note suficiente, consiliul de administrație desemnează un alt cadru didactic care să o încheie.\n\nElevii nu pot fi lăsați fără situație școlară încheiată din cauza refuzului unui cadru didactic.\n\nTemei: articolul 108 alineatul (1). Textul relevant: „În situația în care cadrul didactic refuză să încheie situația școlară a beneficiarilor primari și elevii au note suficiente, consiliul de administrație al unității de învățământ va desemna un cadru didactic care să le încheie situația școlară în locul acestuia.”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "articolul 108 alineatul (1)",
+        "excerpt": "În situația în care cadrul didactic refuză să încheie situația școlară a beneficiarilor primari și elevii au note suficiente, consiliul de administrație al unității de învățământ va desemna un cadru didactic care să le încheie situația școlară în locul acestuia.",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-198",
+      "kind": "aplicare",
+      "difficulty": "expert",
+      "module": "Titlul VII. Beneficiarii primari ai educației",
+      "annex": "",
+      "title": "Titlul VII. Beneficiarii primari ai educației",
+      "chapter": "Capitolul III. Evaluarea copiilor/elevilor",
+      "section": "Secţiunea 1. Evaluarea rezultatelor învăţării. Încheierea situaţiei şcolare",
+      "article": 109,
+      "paragraph": "(1)",
+      "prompt": "Un elev are la limba română notele 8, 7 și 7, media aritmetică fiind 7,33. Alt elev are notele 6 și 7, media aritmetică fiind 6,50. Cum se încheie mediile anuale?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Primul elev are media 7, iar al doilea elev are media 6.",
+          "isCorrect": false,
+          "why": "La 6,50 diferența este de 50 de sutimi, deci rotunjirea se face în favoarea elevului, la 7."
+        },
+        {
+          "id": "B",
+          "text": "Ambii elevi au medii cu două zecimale: 7,33 și 6,50.",
+          "isCorrect": false,
+          "why": "Media anuală pe disciplină este un număr întreg; cele două zecimale se folosesc doar la media generală."
+        },
+        {
+          "id": "C",
+          "text": "Primul elev are media 8, iar al doilea elev are media 7.",
+          "isCorrect": false,
+          "why": "7,33 se rotunjește la cel mai apropiat număr întreg, adică 7, nu la 8."
+        },
+        {
+          "id": "D",
+          "text": "Primul elev are media 7, iar al doilea elev are media 7.",
+          "isCorrect": true
+        }
+      ],
+      "correctOptionId": "D",
+      "explanation": "Regula: Media anuală este o singură medie pe disciplină, obținută prin rotunjire la cel mai apropiat număr întreg. La o diferență de 50 de sutimi, rotunjirea se face în favoarea elevului.\n\n7,33 se rotunjește la 7, iar 6,50 se rotunjește în favoarea elevului, adică la 7.\n\nTemei: articolul 109 alineatul (1). Textul relevant: „La fiecare disciplină de studiu/modul, inclusiv la purtare se încheie anual o singură medie, calculată prin rotunjirea mediei aritmetice a notelor la cel mai apropiat număr întreg. La o diferență de 50 de sutimi, rotunjirea se face în favoarea elevului.”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "articolul 109 alineatul (1)",
+        "excerpt": "La fiecare disciplină de studiu/modul, inclusiv la purtare se încheie anual o singură medie, calculată prin rotunjirea mediei aritmetice a notelor la cel mai apropiat număr întreg. La o diferență de 50 de sutimi, rotunjirea se face în favoarea elevului.",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-199",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Titlul VII. Beneficiarii primari ai educației",
+      "annex": "",
+      "title": "Titlul VII. Beneficiarii primari ai educației",
+      "chapter": "Capitolul III. Evaluarea copiilor/elevilor",
+      "section": "Secţiunea 1. Evaluarea rezultatelor învăţării. Încheierea situaţiei şcolare",
+      "article": 109,
+      "paragraph": "(2)",
+      "prompt": "Un diriginte completează în catalog mediile anuale cu cerneală albastră, la fel ca notele. Este corect?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Da, pentru că toate înscrierile din catalog se fac cu cerneală albastră.",
+          "isCorrect": false,
+          "why": "Notele sunt cu albastru, dar mediile se trec cu roșu."
+        },
+        {
+          "id": "B",
+          "text": "Nu, mediile se consemnează în catalog cu cerneală roșie.",
+          "isCorrect": true
+        },
+        {
+          "id": "C",
+          "text": "Nu, mediile se consemnează cu creion, pentru a putea fi corectate.",
+          "isCorrect": false,
+          "why": "Regulamentul prevede cerneală roșie, nu creion."
+        },
+        {
+          "id": "D",
+          "text": "Nu, mediile se consemnează cu cerneală neagră.",
+          "isCorrect": false,
+          "why": "Culoarea prevăzută pentru medii este roșu, nu negru."
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Regula: Notele se consemnează în catalog cu cerneală albastră, iar mediile se consemnează cu cerneală roșie.\n\nDistincția de culoare separă rezultatele curente (albastru) de mediile încheiate (roșu).\n\nTemei: articolul 109 alineatul (2), coroborat cu articolul 106 alineatul (2). Textul relevant: „Mediile se consemnează în catalog cu cerneală roșie.”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "articolul 109 alineatul (2), coroborat cu articolul 106 alineatul (2)",
+        "excerpt": "Mediile se consemnează în catalog cu cerneală roșie.",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-200",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Titlul VII. Beneficiarii primari ai educației",
+      "annex": "",
+      "title": "Titlul VII. Beneficiarii primari ai educației",
+      "chapter": "Capitolul III. Evaluarea copiilor/elevilor",
+      "section": "Secţiunea 1. Evaluarea rezultatelor învăţării. Încheierea situaţiei şcolare",
+      "article": 112,
+      "paragraph": "(1)",
+      "prompt": "Un elev are scutire medicală la educație fizică pentru tot anul școlar. Ce se întâmplă cu prezența lui la ore, cu nota și cu media generală?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Este scutit și de prezență, iar la disciplină primește media 10.",
+          "isCorrect": false,
+          "why": "Prezența rămâne obligatorie, iar media 10 nu se acordă automat."
+        },
+        {
+          "id": "B",
+          "text": "Este obligat să fie prezent, iar profesorul îi acordă note la teorie ca să încheie media.",
+          "isCorrect": false,
+          "why": "Elevii scutiți un an întreg nu primesc note și nu li se încheie media la disciplină."
+        },
+        {
+          "id": "C",
+          "text": "Rămâne obligat să fie prezent la ore, nu primește note, iar media anuală generală se calculează fără această disciplină.",
+          "isCorrect": true
+        },
+        {
+          "id": "D",
+          "text": "Nu mai este obligat să vină la oră, iar absențele se motivează automat.",
+          "isCorrect": false,
+          "why": "Elevii scutiți au obligația de a fi prezenți la orele de educație fizică și sport."
+        }
+      ],
+      "correctOptionId": "C",
+      "explanation": "Regula: Elevii scutiți de efort fizic sunt obligați să fie prezenți la ore. Cei scutiți medical un an întreg nu primesc note și nu li se încheie media la disciplină, iar media anuală se calculează fără ea.\n\nScutirea vizează efortul fizic, nu prezența, iar lipsa mediei nu blochează încheierea situației școlare.\n\nTemei: articolul 112 alineatul (1). Textul relevant: „Elevii scutiți de efort fizic au obligația de a fi prezenți la orele de educație fizică și sport. Beneficiarilor primari scutiți medical pe parcursul unui întreg an școlar nu li se acordă calificative/note și nu li se încheie media la această disciplină, respectiv, media anuală se calculează fără media de la această disciplină.”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "articolul 112 alineatul (1)",
+        "excerpt": "Elevii scutiți de efort fizic au obligația de a fi prezenți la orele de educație fizică și sport. Beneficiarilor primari scutiți medical pe parcursul unui întreg an școlar nu li se acordă calificative/note și nu li se încheie media la această disciplină, respectiv, media anuală se calculează fără media de la această disciplină.",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-201",
+      "kind": "aplicare",
+      "difficulty": "expert",
+      "module": "Titlul VII. Beneficiarii primari ai educației",
+      "annex": "",
+      "title": "Titlul VII. Beneficiarii primari ai educației",
+      "chapter": "Capitolul III. Evaluarea copiilor/elevilor",
+      "section": "Secţiunea 1. Evaluarea rezultatelor învăţării. Încheierea situaţiei şcolare",
+      "article": 112,
+      "paragraph": "(4)",
+      "prompt": "Un elev are scutire medicală doar pentru o perioadă din an. Când i se încheie media la educație fizică?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Numai dacă a obținut cel puțin două calificative sau note.",
+          "isCorrect": true
+        },
+        {
+          "id": "B",
+          "text": "Întotdeauna, indiferent de numărul de note obținute.",
+          "isCorrect": false,
+          "why": "Media se încheie numai dacă există cel puțin două note sau calificative."
+        },
+        {
+          "id": "C",
+          "text": "Numai dacă a obținut cel puțin patru note, ca la orice disciplină.",
+          "isCorrect": false,
+          "why": "Pentru elevii scutiți pe o perioadă determinată, pragul este de două note."
+        },
+        {
+          "id": "D",
+          "text": "Niciodată, deoarece scutirea oprește evaluarea la acea disciplină.",
+          "isCorrect": false,
+          "why": "Dacă are cel puțin două note, media se încheie."
+        }
+      ],
+      "correctOptionId": "A",
+      "explanation": "Regula: Elevului scutit pe o perioadă determinată i se încheie media numai dacă a obținut cel puțin două calificative sau note. Altfel nu i se încheie media, iar media anuală se calculează fără disciplină.\n\nPragul de două note arată că elevul a fost evaluat suficient pentru a i se încheia media.\n\nTemei: articolul 112 alineatul (4). Textul relevant: „Beneficiarilor primari scutiți de efort fizic la orele de educație fizică și sport, pe o perioadă determinată în timpul anului școlar, li se încheie media la această disciplină, pentru anul școlar respectiv, numai dacă au obținut cel puțin 2 calificative/note.”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "articolul 112 alineatul (4)",
+        "excerpt": "Beneficiarilor primari scutiți de efort fizic la orele de educație fizică și sport, pe o perioadă determinată în timpul anului școlar, li se încheie media la această disciplină, pentru anul școlar respectiv, numai dacă au obținut cel puțin 2 calificative/note.",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-202",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Titlul VII. Beneficiarii primari ai educației",
+      "annex": "",
+      "title": "Titlul VII. Beneficiarii primari ai educației",
+      "chapter": "Capitolul III. Evaluarea copiilor/elevilor",
+      "section": "Secţiunea 1. Evaluarea rezultatelor învăţării. Încheierea situaţiei şcolare",
+      "article": 115,
+      "paragraph": "(1)",
+      "prompt": "Un elev de gimnaziu are media 5 la fiecare disciplină, dar media anuală 5 la purtare. Este declarat promovat?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Da, pentru că media 5 este pragul de promovare și la purtare.",
+          "isCorrect": false,
+          "why": "La purtare pragul este media 6, nu 5."
+        },
+        {
+          "id": "B",
+          "text": "Da, pentru că purtarea nu influențează promovarea, ci doar media generală.",
+          "isCorrect": false,
+          "why": "Media sub 6 la purtare face ca elevul să nu fie promovat."
+        },
+        {
+          "id": "C",
+          "text": "Nu, deoarece la purtare este necesară media 7.",
+          "isCorrect": false,
+          "why": "Pragul de 7 privește consemnarea în ședința de validare, nu promovarea."
+        },
+        {
+          "id": "D",
+          "text": "Nu, pentru că la purtare este necesară cel puțin media anuală 6.",
+          "isCorrect": true
+        }
+      ],
+      "correctOptionId": "D",
+      "explanation": "Regula: Promovarea cere cel puțin media 5 la fiecare disciplină, dar cel puțin media 6 la purtare.\n\nPragurile sunt diferite: 5 la disciplinele de studiu, 6 la purtare. Media sub 6 la purtare duce la repetenție (articolul 120 alineatul (1) litera b).\n\nTemei: articolul 115 alineatul (1). Textul relevant: „Sunt declarați promovați elevii care, la sfârșitul anului școlar, obțin la fiecare disciplină de studiu/modul cel puțin media anuală 5/calificativul \"Suficient\", iar la purtare, media anuală 6/calificativul \"Suficient\".”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "articolul 115 alineatul (1)",
+        "excerpt": "Sunt declarați promovați elevii care, la sfârșitul anului școlar, obțin la fiecare disciplină de studiu/modul cel puțin media anuală 5/calificativul \"Suficient\", iar la purtare, media anuală 6/calificativul \"Suficient\".",
         "verification": "fragment-exact-din-sursa-consolidata"
       }
     }
