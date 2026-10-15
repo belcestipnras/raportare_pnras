@@ -7,7 +7,7 @@
     "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
     "method": "itemi situaționali redactați manual și verificați pe fragmentele exacte ale formei consolidate"
   },
-  "count": 202,
+  "count": 217,
   "questions": [
     {
       "id": "RF-A-001",
@@ -9342,6 +9342,726 @@
         "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
         "reference": "articolul 115 alineatul (1)",
         "excerpt": "Sunt declarați promovați elevii care, la sfârșitul anului școlar, obțin la fiecare disciplină de studiu/modul cel puțin media anuală 5/calificativul \"Suficient\", iar la purtare, media anuală 6/calificativul \"Suficient\".",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-203",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Titlul VII. Beneficiarii primari ai educației",
+      "annex": "",
+      "title": "Titlul VII. Beneficiarii primari ai educației",
+      "chapter": "Capitolul III. Evaluarea copiilor/elevilor",
+      "section": "Secţiunea 1. Evaluarea rezultatelor învăţării. Încheierea situaţiei şcolare",
+      "article": 117,
+      "paragraph": "(1)",
+      "prompt": "O elevă din clasa a X-a este însărcinată, iar sesiunea de examene coincide cu perioada nașterii. Ce statut școlar are și ce se întâmplă dacă nu se prezintă la examene?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Este declarată repetentă, deoarece nu poate susține examenele.",
+          "isCorrect": false,
+          "why": "Exceptarea din articolul 120 le protejează tocmai de repetenție în această situație."
+        },
+        {
+          "id": "B",
+          "text": "Este declarată amânată, iar dacă nu se prezintă la examene este reînscrisă în clasa pentru care nu i s-a încheiat situația școlară.",
+          "isCorrect": true
+        },
+        {
+          "id": "C",
+          "text": "Este exmatriculată, cu drept de reînscriere după nașterea copilului.",
+          "isCorrect": false,
+          "why": "Exmatricularea nu este prevăzută; situația este de amânare."
+        },
+        {
+          "id": "D",
+          "text": "Este declarată corigentă și trebuie să dea examen în sesiunea specială.",
+          "isCorrect": false,
+          "why": "Corigența privește media sub 5 la cel mult două discipline, nu perioada nașterii."
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Regula: Elevele gravide a căror perioadă de examene coincide cu nașterea (și elevii părinți, în perioada de îngrijire a copilului, dovedită medical) sunt declarate amânate. Dacă nu se prezintă în sesiuni, sunt reînscrise în clasa pentru care nu s-a încheiat situația școlară.\n\nStarea de gravidă nu produce repetenție: legea protejează elevele și părinții cu un statut de amânare și reînscriere.\n\nTemei: articolul 117 alineatul (1) litera f), coroborat cu alineatul (2). Textul relevant: „perioada examenelor coincide cu perioada de naștere în cazul elevelor gravide sau cu perioada de îngrijire a copilului în cazul beneficiarilor primari părinți, dovedită prin documente medicale.”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "articolul 117 alineatul (1) litera f), coroborat cu alineatul (2)",
+        "excerpt": "perioada examenelor coincide cu perioada de naștere în cazul elevelor gravide sau cu perioada de îngrijire a copilului în cazul beneficiarilor primari părinți, dovedită prin documente medicale.",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-204",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Titlul VII. Beneficiarii primari ai educației",
+      "annex": "",
+      "title": "Titlul VII. Beneficiarii primari ai educației",
+      "chapter": "Capitolul III. Evaluarea copiilor/elevilor",
+      "section": "Secţiunea 1. Evaluarea rezultatelor învăţării. Încheierea situaţiei şcolare",
+      "article": 117,
+      "paragraph": "(1)",
+      "prompt": "Un elev a lipsit, motivat și nemotivat, la 60% din orele unei discipline și nu are numărul minim de note. Ce statut primește?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Este declarat amânat la acea disciplină.",
+          "isCorrect": true
+        },
+        {
+          "id": "B",
+          "text": "Este declarat repetent, direct, pentru că a absentat mult.",
+          "isCorrect": false,
+          "why": "Repetenția se declară după regulile articolului 120, iar în acest caz statutul este de amânat."
+        },
+        {
+          "id": "C",
+          "text": "Este declarat corigent, deoarece nu are media încheiată.",
+          "isCorrect": false,
+          "why": "Corigent este elevul cu media sub 5 la cel mult două discipline; aici media nu poate fi încheiată."
+        },
+        {
+          "id": "D",
+          "text": "Este declarat în situație de abandon școlar.",
+          "isCorrect": false,
+          "why": "Abandonul presupune absențe nemotivate care conduc la imposibilitatea finalizării a doi ani școlari succesivi."
+        }
+      ],
+      "correctOptionId": "A",
+      "explanation": "Regula: Este declarat amânat elevul care a absentat, motivat și nemotivat, la cel puțin 50% din orele de curs la disciplină și nu are numărul minim de note.\n\nAbsența la cel puțin jumătate din ore, împreună cu lipsa numărului minim de note, nu permite încheierea mediei, deci elevul este amânat.\n\nTemei: articolul 117 alineatul (1) litera a). Textul relevant: „au absentat, motivat și nemotivat, la cel puțin 50% din numărul de ore de curs prevăzut într-un an școlar la disciplinele/modulele respective și nu au numărul minim de calificative/note prevăzut de prezentul regulament;”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "articolul 117 alineatul (1) litera a)",
+        "excerpt": "au absentat, motivat și nemotivat, la cel puțin 50% din numărul de ore de curs prevăzut într-un an școlar la disciplinele/modulele respective și nu au numărul minim de calificative/note prevăzut de prezentul regulament;",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-205",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Titlul VII. Beneficiarii primari ai educației",
+      "annex": "",
+      "title": "Titlul VII. Beneficiarii primari ai educației",
+      "chapter": "Capitolul III. Evaluarea copiilor/elevilor",
+      "section": "Secţiunea 1. Evaluarea rezultatelor învăţării. Încheierea situaţiei şcolare",
+      "article": 117,
+      "paragraph": "(3)",
+      "prompt": "Un profesor refuză să facă parte din comisia pentru examenul de încheiere a situației școlare a unor elevi amânați. Cum se procedează?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Directorul desemnează un cadru didactic, fără altă formalitate.",
+          "isCorrect": false,
+          "why": "Desemnarea este făcută de consiliul de administrație, cu avizul inspectorului de specialitate."
+        },
+        {
+          "id": "B",
+          "text": "Examenul se amână până când profesorul acceptă.",
+          "isCorrect": false,
+          "why": "Refuzul nu blochează examenul: se desemnează un alt cadru didactic."
+        },
+        {
+          "id": "C",
+          "text": "Consiliul profesoral alege un profesor din altă unitate, fără aviz.",
+          "isCorrect": false,
+          "why": "Competența este a consiliului de administrație și este necesar avizul inspectorului de specialitate."
+        },
+        {
+          "id": "D",
+          "text": "Consiliul de administrație desemnează un alt cadru didactic, cu avizul inspectorului școlar de specialitate.",
+          "isCorrect": true
+        }
+      ],
+      "correctOptionId": "D",
+      "explanation": "Regula: Consiliul de administrație, cu avizul inspectorului școlar de specialitate, desemnează un alt cadru didactic în comisie.\n\nAvizul inspectorului asigură că înlocuitorul este competent la disciplina respectivă.\n\nTemei: articolul 117 alineatul (3). Textul relevant: „În situația în care un cadru didactic refuză să participe la examenul pentru încheierea situației școlare sau la examenul de corigență, consiliul de administrație al unității de învățământ, cu avizul inspectorului școlar de specialitate, va desemna un alt cadru didactic care să facă parte din comisia de examinare.”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "articolul 117 alineatul (3)",
+        "excerpt": "În situația în care un cadru didactic refuză să participe la examenul pentru încheierea situației școlare sau la examenul de corigență, consiliul de administrație al unității de învățământ, cu avizul inspectorului școlar de specialitate, va desemna un alt cadru didactic care să facă parte din comisia de examinare.",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-206",
+      "kind": "aplicare",
+      "difficulty": "expert",
+      "module": "Titlul VII. Beneficiarii primari ai educației",
+      "annex": "",
+      "title": "Titlul VII. Beneficiarii primari ai educației",
+      "chapter": "Capitolul III. Evaluarea copiilor/elevilor",
+      "section": "Secţiunea 1. Evaluarea rezultatelor învăţării. Încheierea situaţiei şcolare",
+      "article": 118,
+      "paragraph": "(1)",
+      "prompt": "Un elev de clasa a VII-a are atât de multe absențe nemotivate încât nu poate încheia anul școlar. Anul următor situația se repetă. Cum se califică situația și cum se încheie?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Este în situație de risc de abandon, iar unitatea nu are alte obligații.",
+          "isCorrect": false,
+          "why": "Aici s-au parcurs doi ani școlari succesivi nefinalizați, deci este abandon; riscul de abandon are alt prag."
+        },
+        {
+          "id": "B",
+          "text": "Este exmatriculat definitiv și nu se mai poate reînscrie.",
+          "isCorrect": false,
+          "why": "Elevii în abandon pot fi reînscriși, la cerere, la nivelul clasei abandonate."
+        },
+        {
+          "id": "C",
+          "text": "Elevul este în situație de abandon școlar, este radiat din evidențe și poate fi reînscris, la cerere, la nivelul clasei abandonate.",
+          "isCorrect": true
+        },
+        {
+          "id": "D",
+          "text": "Este declarat corigent și se prezintă la sesiunea de corigențe.",
+          "isCorrect": false,
+          "why": "Corigența nu se aplică: absențele nemotivate au dus la abandon."
+        }
+      ],
+      "correctOptionId": "C",
+      "explanation": "Regula: Elevii din învățământul obligatoriu cu absențe nemotivate care duc la imposibilitatea finalizării a doi ani școlari succesivi sunt în situație de abandon școlar și sunt radiați din evidențe. Pot fi reînscriși, la cerere, în clasa abandonată.\n\nRadierea nu închide definitiv drumul elevului: se poate reînscrie la cerere, în clasa pe care a abandonat-o.\n\nTemei: articolul 118 alineatele (1)-(3). Textul relevant: „Elevii din învățământul obligatoriu care au acumulat un număr de absențe nemotivate ce au condus la imposibilitatea finalizării a 2 ani școlari succesivi sunt considerați în situație de abandon școlar.”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "articolul 118 alineatele (1)-(3)",
+        "excerpt": "Elevii din învățământul obligatoriu care au acumulat un număr de absențe nemotivate ce au condus la imposibilitatea finalizării a 2 ani școlari succesivi sunt considerați în situație de abandon școlar.",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-207",
+      "kind": "aplicare",
+      "difficulty": "expert",
+      "module": "Titlul VII. Beneficiarii primari ai educației",
+      "annex": "",
+      "title": "Titlul VII. Beneficiarii primari ai educației",
+      "chapter": "Capitolul III. Evaluarea copiilor/elevilor",
+      "section": "Secţiunea 1. Evaluarea rezultatelor învăţării. Încheierea situaţiei şcolare",
+      "article": 118,
+      "paragraph": "(4)",
+      "prompt": "Un elev a absentat nemotivat la 80% din orele de curs la o disciplină. Ce statut are și ce obligații apar pentru unitate?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Este în situație de risc de abandon școlar, iar unitatea informează instituțiile responsabile despre neîndeplinirea obligațiilor de către părinți.",
+          "isCorrect": true
+        },
+        {
+          "id": "B",
+          "text": "Este declarat amânat, iar unitatea nu are alte obligații.",
+          "isCorrect": false,
+          "why": "Amânarea privește un alt set de situații; aici este risc de abandon, cu obligația de informare."
+        },
+        {
+          "id": "C",
+          "text": "Este în situație de abandon școlar, deoarece a depășit 50% absențe.",
+          "isCorrect": false,
+          "why": "Pragul de 50% este pentru amânare (motivate și nemotivate); riscul de abandon este de 75% absențe nemotivate."
+        },
+        {
+          "id": "D",
+          "text": "Este în risc de abandon, iar informarea instituțiilor este doar facultativă.",
+          "isCorrect": false,
+          "why": "Regulamentul prevede obligația unității de a informa instituțiile responsabile."
+        }
+      ],
+      "correctOptionId": "A",
+      "explanation": "Regula: Elevul cu cel puțin 75% absențe nemotivate din orele anuale la disciplină este în situație de risc de abandon. Pentru elevii din învățământul obligatoriu în risc sau abandon, unitatea informează instituțiile responsabile despre neîndeplinirea obligațiilor legale de către părinți.\n\nPragul de 75% definește riscul, iar informarea instituțiilor este o obligație a unității, nu o opțiune.\n\nTemei: articolul 118 alineatele (4) și (5). Textul relevant: „Elevii care nu frecventează cursurile școlare și care au absentat nemotivat la cel puțin 75% din numărul de ore de curs prevăzut într-un an școlar la disciplinele/modulele respective, sunt considerați în situație de risc de abandon școlar.”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "articolul 118 alineatele (4) și (5)",
+        "excerpt": "Elevii care nu frecventează cursurile școlare și care au absentat nemotivat la cel puțin 75% din numărul de ore de curs prevăzut într-un an școlar la disciplinele/modulele respective, sunt considerați în situație de risc de abandon școlar.",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-208",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Titlul VII. Beneficiarii primari ai educației",
+      "annex": "",
+      "title": "Titlul VII. Beneficiarii primari ai educației",
+      "chapter": "Capitolul III. Evaluarea copiilor/elevilor",
+      "section": "Secţiunea 1. Evaluarea rezultatelor învăţării. Încheierea situaţiei şcolare",
+      "article": 118,
+      "paragraph": "(6)",
+      "prompt": "Un copil de la creșă lipsește 16 zile lucrătoare consecutive, fără justificare medicală și fără să anunțe unitatea. Ce face unitatea și ce termen are părintele?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Locul se declară vacant imediat, fără notificare.",
+          "isCorrect": false,
+          "why": "Regulamentul impune notificare prealabilă, apoi un termen de 5 zile."
+        },
+        {
+          "id": "B",
+          "text": "Părintele primește o notificare privind posibilitatea vacantării locului și are 5 zile să răspundă în scris; altfel locul devine vacant.",
+          "isCorrect": true
+        },
+        {
+          "id": "C",
+          "text": "Părintele are 15 zile pentru a răspunde, apoi locul devine vacant.",
+          "isCorrect": false,
+          "why": "Termenul pentru răspunsul scris este de 5 zile, nu de 15."
+        },
+        {
+          "id": "D",
+          "text": "Unitatea nu face nimic, locul se păstrează fără limită.",
+          "isCorrect": false,
+          "why": "Peste 15 zile lucrătoare consecutive se declanșează procedura de notificare."
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Regula: Pentru absența prelungită, mai mare de 15 zile lucrătoare consecutive, fără justificare medicală sau anunț, părintele primește o notificare privind posibilitatea vacantării locului. Dacă în 5 zile nu răspunde în scris, copilul este considerat retras și locul devine vacant.\n\nLocul nu se vacantează automat: este obligatorie notificarea, iar părintele are un termen scurt de răspuns.\n\nTemei: articolul 118 alineatul (6). Textul relevant: „În învățământul antepreșcolar și preșcolar (grupa mică), în situatia neprezentarii copilului la începutul anului școlar, după înscrierea acestuia în unitatea de învățământ, precum și în cazul unei absențe prelungite a copilului, mai mare de 15 zile lucrătoare consecutive, fără o justificare medicală sau fără a anunța conducerea unității cu privire la motivul absenței, părintele primește o notificare cu privire la posibilitatea vacantării locului. Dacă în termen de 5 zile părintele nu transmite, în scris, un răspuns la notificarea primită, copilul este considerat retras și locul acestuia este declarat liber/vacant.”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "articolul 118 alineatul (6)",
+        "excerpt": "În învățământul antepreșcolar și preșcolar (grupa mică), în situatia neprezentarii copilului la începutul anului școlar, după înscrierea acestuia în unitatea de învățământ, precum și în cazul unei absențe prelungite a copilului, mai mare de 15 zile lucrătoare consecutive, fără o justificare medicală sau fără a anunța conducerea unității cu privire la motivul absenței, părintele primește o notificare cu privire la posibilitatea vacantării locului. Dacă în termen de 5 zile părintele nu transmite, în scris, un răspuns la notificarea primită, copilul este considerat retras și locul acestuia este declarat liber/vacant.",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-209",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Titlul VII. Beneficiarii primari ai educației",
+      "annex": "",
+      "title": "Titlul VII. Beneficiarii primari ai educației",
+      "chapter": "Capitolul III. Evaluarea copiilor/elevilor",
+      "section": "Secţiunea 1. Evaluarea rezultatelor învăţării. Încheierea situaţiei şcolare",
+      "article": 119,
+      "paragraph": "(1)",
+      "prompt": "Un elev a rămas cu media sub 5 la trei discipline la sfârșitul anului. Ce statut are: corigent sau repetent?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Corigent, deoarece poate susține examenul în sesiunea de corigențe.",
+          "isCorrect": false,
+          "why": "Corigența se aplică doar la cel mult două discipline."
+        },
+        {
+          "id": "B",
+          "text": "Amânat, până la încheierea mediilor la cele trei discipline.",
+          "isCorrect": false,
+          "why": "Amânarea privește mediile neîncheiate, nu mediile sub 5."
+        },
+        {
+          "id": "C",
+          "text": "Promovat condiționat, cu obligația de a recupera.",
+          "isCorrect": false,
+          "why": "Regulamentul nu prevede promovare condiționată."
+        },
+        {
+          "id": "D",
+          "text": "Repetent, pentru că are media sub 5 la mai mult de două discipline.",
+          "isCorrect": true
+        }
+      ],
+      "correctOptionId": "D",
+      "explanation": "Regula: Este corigent elevul cu media sub 5 la cel mult două discipline. Cu media sub 5 la mai mult de două discipline, elevul este repetent.\n\nPrag decisiv: două discipline. Cel mult două înseamnă corigență, mai mult de două înseamnă repetenție.\n\nTemei: articolul 119 alineatul (1), coroborat cu articolul 120 alineatul (1) litera a). Textul relevant: „Sunt declarați corigenți elevii care obțin calificativul \"Insuficient\"/medii anuale sub 5 la cel mult două discipline de studiu, precum și elevii amânați care nu promovează examenul de încheiere a situației școlare la cel mult două discipline de studiu.”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "articolul 119 alineatul (1), coroborat cu articolul 120 alineatul (1) litera a)",
+        "excerpt": "Sunt declarați corigenți elevii care obțin calificativul \"Insuficient\"/medii anuale sub 5 la cel mult două discipline de studiu, precum și elevii amânați care nu promovează examenul de încheiere a situației școlare la cel mult două discipline de studiu.",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-210",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Titlul VII. Beneficiarii primari ai educației",
+      "annex": "",
+      "title": "Titlul VII. Beneficiarii primari ai educației",
+      "chapter": "Capitolul III. Evaluarea copiilor/elevilor",
+      "section": "Secţiunea 1. Evaluarea rezultatelor învăţării. Încheierea situaţiei şcolare",
+      "article": 119,
+      "paragraph": "(3)",
+      "prompt": "Un părinte cere o a doua sesiune de corigențe în toamnă pentru fiul său, corigent la o disciplină. Ce spune regulamentul?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Se pot organiza două sesiuni, la cererea părinților.",
+          "isCorrect": false,
+          "why": "Regulamentul prevede o singură sesiune anuală."
+        },
+        {
+          "id": "B",
+          "text": "Perioada sesiunii o stabilește consiliul de administrație al unității.",
+          "isCorrect": false,
+          "why": "Perioada este stabilită prin ordin de ministru."
+        },
+        {
+          "id": "C",
+          "text": "Se organizează o singură sesiune pe an, în perioada stabilită prin ordin de ministru.",
+          "isCorrect": true
+        },
+        {
+          "id": "D",
+          "text": "Sesiunea se organizează oricând, pe baza unei cereri a elevului.",
+          "isCorrect": false,
+          "why": "Sesiunea nu se organizează la cerere, ci anual, într-o perioadă stabilită prin ordin."
+        }
+      ],
+      "correctOptionId": "C",
+      "explanation": "Regula: Pentru elevii corigenți se organizează anual o singură sesiune de examene de corigență, într-o perioadă stabilită prin ordin de ministru. Pentru modulele care se finalizează în timpul anului se organizează și o sesiune specială în ultima săptămână de cursuri.\n\nSesiunea specială privește doar elevii cu module nepromovate care se finalizează în cursul anului.\n\nTemei: articolul 119 alineatul (3). Textul relevant: „Pentru elevii corigenți se organizează anual o singură sesiune de examene de corigență, într-o perioadă stabilită prin ordin de ministru.”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "articolul 119 alineatul (3)",
+        "excerpt": "Pentru elevii corigenți se organizează anual o singură sesiune de examene de corigență, într-o perioadă stabilită prin ordin de ministru.",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-211",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Titlul VII. Beneficiarii primari ai educației",
+      "annex": "",
+      "title": "Titlul VII. Beneficiarii primari ai educației",
+      "chapter": "Capitolul III. Evaluarea copiilor/elevilor",
+      "section": "Secţiunea 1. Evaluarea rezultatelor învăţării. Încheierea situaţiei şcolare",
+      "article": 120,
+      "paragraph": "(2)",
+      "prompt": "Un elev de clasa I are dificultăți mari de învățare. Poate fi lăsat repetent? Ce se întâmplă cu el?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Nu poate fi lăsat repetent; rămâne în colectiv și intră într-un program de remediere sau recuperare.",
+          "isCorrect": true
+        },
+        {
+          "id": "B",
+          "text": "Poate fi lăsat repetent, dacă părintele își dă acordul.",
+          "isCorrect": false,
+          "why": "La clasa pregătitoare și la clasa I repetenția nu este posibilă, indiferent de acordul părintelui."
+        },
+        {
+          "id": "C",
+          "text": "Poate fi lăsat repetent doar la clasa I, nu și la clasa pregătitoare.",
+          "isCorrect": false,
+          "why": "Interdicția se aplică ambelor clase: pregătitoare și clasa I."
+        },
+        {
+          "id": "D",
+          "text": "Este mutat într-o clasă de elevi cu cerințe educaționale speciale.",
+          "isCorrect": false,
+          "why": "El rămâne în colectivul în care a învățat și intră într-un program de recuperare."
+        }
+      ],
+      "correctOptionId": "A",
+      "explanation": "Regula: La sfârșitul clasei pregătitoare și al clasei I elevii nu pot fi lăsați repetenți. Cei cu dificultăți rămân în colectiv și intră în anul următor într-un program de remediere sau recuperare școlară.\n\nDificultățile sunt consemnate în raportul de evaluare, iar programul este realizat de învățător împreună cu un specialist de la centrul județean de resurse și asistență educațională.\n\nTemei: articolul 120 alineatul (2). Textul relevant: „La sfârșitul clasei pregătitoare și al clasei I elevii nu pot fi lăsați repetenți.”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "articolul 120 alineatul (2)",
+        "excerpt": "La sfârșitul clasei pregătitoare și al clasei I elevii nu pot fi lăsați repetenți.",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-212",
+      "kind": "aplicare",
+      "difficulty": "expert",
+      "module": "Titlul VII. Beneficiarii primari ai educației",
+      "annex": "",
+      "title": "Titlul VII. Beneficiarii primari ai educației",
+      "chapter": "Capitolul III. Evaluarea copiilor/elevilor",
+      "section": "Secţiunea 1. Evaluarea rezultatelor învăţării. Încheierea situaţiei şcolare",
+      "article": 121,
+      "paragraph": "(3)",
+      "prompt": "Un elev de la învățământul postliceal cu frecvență a repetat anul I o dată și anul II o dată. Poate repeta al doilea an încă o dată?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Da, pentru că repetenția este posibilă fără limită la acest nivel.",
+          "isCorrect": false,
+          "why": "Regulamentul impune limite explicite."
+        },
+        {
+          "id": "B",
+          "text": "Nu, pentru că un an nepromovat se poate repeta o singură dată și numărul total de repetenții este maxim două.",
+          "isCorrect": true
+        },
+        {
+          "id": "C",
+          "text": "Da, dar doar dacă obține aprobarea inspectoratului școlar.",
+          "isCorrect": false,
+          "why": "Nu există derogare prin aprobarea inspectoratului în textul alineatului."
+        },
+        {
+          "id": "D",
+          "text": "Da, cu condiția să se transfere la altă unitate de învățământ.",
+          "isCorrect": false,
+          "why": "Transferul nu ocolește limita de repetenție stabilită."
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Regula: În învățământul postliceal cu frecvență, elevii pot fi în repetenție de cel mult două ori, iar un an nepromovat se poate repeta o singură dată.\n\nDouă limite lucrează simultan: maximum două repetenții în total și o singură repetare pentru același an.\n\nTemei: articolul 121 alineatul (3). Textul relevant: „În învățământul postliceal cu frecvență, elevii se pot afla în situația de repetenție de cel mult două ori. Anul de studiu nepromovat se poate repeta o singură dată.”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "articolul 121 alineatul (3)",
+        "excerpt": "În învățământul postliceal cu frecvență, elevii se pot afla în situația de repetenție de cel mult două ori. Anul de studiu nepromovat se poate repeta o singură dată.",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-213",
+      "kind": "aplicare",
+      "difficulty": "expert",
+      "module": "Titlul VII. Beneficiarii primari ai educației",
+      "annex": "",
+      "title": "Titlul VII. Beneficiarii primari ai educației",
+      "chapter": "Capitolul III. Evaluarea copiilor/elevilor",
+      "section": "Secţiunea 1. Evaluarea rezultatelor învăţării. Încheierea situaţiei şcolare",
+      "article": 122,
+      "paragraph": "(1)",
+      "prompt": "Un elev corigent la o singură disciplină nu a promovat examenul de corigență. Cum și în ce condiții poate cere reexaminarea?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Cere reexaminarea în 3 zile, iar comisia este aceeași ca la examenul de corigență.",
+          "isCorrect": false,
+          "why": "Termenul este de 24 de ore, iar comisia trebuie să fie formată din alte cadre didactice."
+        },
+        {
+          "id": "B",
+          "text": "Cere reexaminarea în 24 de ore, dar poate repeta cererea de mai multe ori în același an.",
+          "isCorrect": false,
+          "why": "Reexaminarea se aprobă o singură dată pe an școlar."
+        },
+        {
+          "id": "C",
+          "text": "Reexaminarea este posibilă și când elevul a picat două discipline.",
+          "isCorrect": false,
+          "why": "Dreptul la reexaminare privește elevii nepromovați la o singură disciplină."
+        },
+        {
+          "id": "D",
+          "text": "Cere reexaminarea la secretariat în 24 de ore de la afișarea rezultatelor, iar comisia este formată din alte cadre didactice.",
+          "isCorrect": true
+        }
+      ],
+      "correctOptionId": "D",
+      "explanation": "Regula: După sesiunea de corigență, elevii care nu au promovat la o singură disciplină pot solicita reexaminarea. Aceasta se aprobă de director, în cazuri justificate, o singură dată pe an. Cererea se depune în 24 de ore de la afișarea rezultatelor, iar comisia este formată din alți profesori.\n\nTermenul scurt, cazul justificat, o singură dată pe an și comisia diferită protejează obiectivitatea reexaminării.\n\nTemei: articolul 122 alineatele (1)-(4). Textul relevant: „După încheierea sesiunii de corigență, elevii care nu au promovat la o singură disciplină de învățământ/un singur modul au dreptul să solicite reexaminarea. Aceasta se aprobă de către director, în cazuri justificate, o singură dată pe an școlar.”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "articolul 122 alineatele (1)-(4)",
+        "excerpt": "După încheierea sesiunii de corigență, elevii care nu au promovat la o singură disciplină de învățământ/un singur modul au dreptul să solicite reexaminarea. Aceasta se aprobă de către director, în cazuri justificate, o singură dată pe an școlar.",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-214",
+      "kind": "aplicare",
+      "difficulty": "expert",
+      "module": "Titlul VII. Beneficiarii primari ai educației",
+      "annex": "",
+      "title": "Titlul VII. Beneficiarii primari ai educației",
+      "chapter": "Capitolul III. Evaluarea copiilor/elevilor",
+      "section": "Secţiunea 1. Evaluarea rezultatelor învăţării. Încheierea situaţiei şcolare",
+      "article": 125,
+      "paragraph": "(2)",
+      "prompt": "Un elev vine din străinătate cu acte de studii și părinții cer înscrierea imediată. Sub ce statut este înscris și în ce termen se depune dosarul de echivalare?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Ca elev cu drepturi depline, iar echivalarea se face la unitatea de învățământ.",
+          "isCorrect": false,
+          "why": "Până la echivalare este audient, iar echivalarea se face de inspectoratul școlar."
+        },
+        {
+          "id": "B",
+          "text": "Nu poate fi înscris până la finalizarea echivalării.",
+          "isCorrect": false,
+          "why": "Regulamentul impune înscrierea ca audient, indiferent de momentul solicitării."
+        },
+        {
+          "id": "C",
+          "text": "Ca audient, iar dosarul de echivalare se depune la inspectoratul școlar în maximum 30 de zile de la înscriere.",
+          "isCorrect": true
+        },
+        {
+          "id": "D",
+          "text": "Ca audient, iar dosarul se depune în 10 zile.",
+          "isCorrect": false,
+          "why": "Termenul pentru depunerea dosarului este de 30 de zile."
+        }
+      ],
+      "correctOptionId": "C",
+      "explanation": "Regula: Până la finalizarea echivalării, elevul este înscris ca audient. Dosarul de echivalare se depune la inspectoratul școlar în maximum 30 de zile de la înscrierea ca audient.\n\nStatutul de audient permite frecventarea școlii fără a bloca elevul în așteptarea echivalării.\n\nTemei: articolul 125 alineatul (2). Textul relevant: „Elevii menționați la alin. (1) vor fi înscriși ca audienți până la finalizarea procedurii de echivalare, indiferent de momentul în care părinții sau reprezentanții legali ai acestora solicită școlarizarea, în unități de învățământ preuniversitar, cu excepția unităților de învățământ din cadrul Ministerului Apărării Naționale. Dosarul pentru echivalare se depune la inspectoratele școlare județene/Inspectoratul Școlar al Municipiului București/în termen de maximum 30 de zile de la data înscrierii în calitate de audient.”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "articolul 125 alineatul (2)",
+        "excerpt": "Elevii menționați la alin. (1) vor fi înscriși ca audienți până la finalizarea procedurii de echivalare, indiferent de momentul în care părinții sau reprezentanții legali ai acestora solicită școlarizarea, în unități de învățământ preuniversitar, cu excepția unităților de învățământ din cadrul Ministerului Apărării Naționale. Dosarul pentru echivalare se depune la inspectoratele școlare județene/Inspectoratul Școlar al Municipiului București/în termen de maximum 30 de zile de la data înscrierii în calitate de audient.",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-215",
+      "kind": "aplicare",
+      "difficulty": "expert",
+      "module": "Titlul VII. Beneficiarii primari ai educației",
+      "annex": "",
+      "title": "Titlul VII. Beneficiarii primari ai educației",
+      "chapter": "Capitolul III. Evaluarea copiilor/elevilor",
+      "section": "Secţiunea 1. Evaluarea rezultatelor învăţării. Încheierea situaţiei şcolare",
+      "article": 125,
+      "paragraph": "(7)",
+      "prompt": "Comisia recomandă înscrierea unui elev audient în clasa a V-a, dar părinții insistă pentru clasa a VI-a. Cine decide?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Elevul este înscris la clasa dorită de părinți, pe răspunderea acestora asumată prin semnătură.",
+          "isCorrect": true
+        },
+        {
+          "id": "B",
+          "text": "Rămâne obligatoriu la clasa a V-a, hotărârea comisiei fiind definitivă.",
+          "isCorrect": false,
+          "why": "Recomandarea nu este obligatorie pentru părinți."
+        },
+        {
+          "id": "C",
+          "text": "Directorul decide, în baza votului consiliului de administrație.",
+          "isCorrect": false,
+          "why": "În cazul dezacordului cu recomandarea, decide opțiunea părinților."
+        },
+        {
+          "id": "D",
+          "text": "Inspectoratul școlar stabilește clasa prin decizie proprie.",
+          "isCorrect": false,
+          "why": "Clasa aleasă de părinți primează, pe răspunderea lor asumată prin semnătură."
+        }
+      ],
+      "correctOptionId": "A",
+      "explanation": "Regula: Dacă părinții nu sunt de acord cu recomandarea comisiei, elevul este înscris la clasa pentru care optează părinții, pe răspunderea lor asumată prin semnătură.\n\nRecomandarea comisiei este consultativă: decizia finală aparține părinților, care își asumă riscul în scris.\n\nTemei: articolul 125 alineatul (7). Textul relevant: „În cazul în care părinții sau reprezentanții legali nu sunt de acord cu recomandarea comisiei privind nivelul clasei în care va fi înscris elevul audient, elevul va fi înscris la clasa pentru care optează părinții, pe răspunderea acestora asumată prin semnătură.”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "articolul 125 alineatul (7)",
+        "excerpt": "În cazul în care părinții sau reprezentanții legali nu sunt de acord cu recomandarea comisiei privind nivelul clasei în care va fi înscris elevul audient, elevul va fi înscris la clasa pentru care optează părinții, pe răspunderea acestora asumată prin semnătură.",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-216",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Titlul VII. Beneficiarii primari ai educației",
+      "annex": "",
+      "title": "Titlul VII. Beneficiarii primari ai educației",
+      "chapter": "Capitolul III. Evaluarea copiilor/elevilor",
+      "section": "Secţiunea 1. Evaluarea rezultatelor învăţării. Încheierea situaţiei şcolare",
+      "article": 126,
+      "paragraph": "(3)",
+      "prompt": "O elevă gravidă cere în scris rezervarea locului în unitate pe perioada îngrijirii copilului. Este obligatorie rezervarea?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Nu, pentru că locul se rezervă doar elevilor care pleacă în străinătate.",
+          "isCorrect": false,
+          "why": "Rezervarea locului pentru studii în străinătate este alt caz; elevele gravide au un drept propriu."
+        },
+        {
+          "id": "B",
+          "text": "Da, dar doar dacă unitatea are locuri libere.",
+          "isCorrect": false,
+          "why": "Rezervarea nu depinde de locurile libere, ci este un drept."
+        },
+        {
+          "id": "C",
+          "text": "Nu, pentru că alegerea aparține consiliului de administrație.",
+          "isCorrect": false,
+          "why": "Dreptul există la cerere scrisă, nu la aprecierea consiliului de administrație."
+        },
+        {
+          "id": "D",
+          "text": "Da, locul i se rezervă la solicitarea scrisă a părintelui sau a elevei majore, pe perioada de îngrijire a copilului.",
+          "isCorrect": true
+        }
+      ],
+      "correctOptionId": "D",
+      "explanation": "Regula: Elevelor gravide și elevilor părinți li se rezervă locul în unitate pe perioada de îngrijire a copilului, la solicitarea scrisă a părintelui sau a elevului major.\n\nRezervarea locului este un drept, activat prin cerere scrisă.\n\nTemei: articolul 126 alineatul (3). Textul relevant: „Elevelor gravide și beneficiarilor primari părinți, pe perioada de îngrijire a copilului, li se rezervă locul în unitatea de învățământ în care sunt școlarizați, la solicitarea scrisă a părintelui/reprezentantului legal al acestora sau la solicitarea scrisă a beneficiarilor primari majori.”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "articolul 126 alineatul (3)",
+        "excerpt": "Elevelor gravide și beneficiarilor primari părinți, pe perioada de îngrijire a copilului, li se rezervă locul în unitatea de învățământ în care sunt școlarizați, la solicitarea scrisă a părintelui/reprezentantului legal al acestora sau la solicitarea scrisă a beneficiarilor primari majori.",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-217",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Titlul VII. Beneficiarii primari ai educației",
+      "annex": "",
+      "title": "Titlul VII. Beneficiarii primari ai educației",
+      "chapter": "Capitolul III. Evaluarea copiilor/elevilor",
+      "section": "Secţiunea 1. Evaluarea rezultatelor învăţării. Încheierea situaţiei şcolare",
+      "article": 127,
+      "paragraph": "(2)",
+      "prompt": "Cine și în ce termen comunică părinților situația școlară a elevilor corigenți, amânați, repetenți sau în abandon școlar?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Secretarul, verbal, în cel mult 30 de zile.",
+          "isCorrect": false,
+          "why": "Comunicarea este făcută de diriginte sau învățător, în scris, în 7 zile."
+        },
+        {
+          "id": "B",
+          "text": "Dirigintele (sau învățătorul), în scris, în cel mult 7 zile de la încheierea cursurilor.",
+          "isCorrect": true
+        },
+        {
+          "id": "C",
+          "text": "Directorul adjunct, în scris, în prima zi a noului an școlar.",
+          "isCorrect": false,
+          "why": "Responsabil este dirigintele sau învățătorul, în maximum 7 zile de la încheierea cursurilor."
+        },
+        {
+          "id": "D",
+          "text": "Consiliul profesoral, prin afișare la avizier, în 14 zile.",
+          "isCorrect": false,
+          "why": "Comunicarea se face în scris către părinți, nu prin afișare, și în 7 zile."
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Regula: Situația se comunică în scris de către învățător, institutor, profesorul pentru învățământ primar sau profesorul diriginte, în cel mult 7 zile de la încheierea cursurilor.\n\nResponsabilitatea este a dirigintelui, iar forma scrisă asigură dovada comunicării.\n\nTemei: articolul 127 alineatul (2). Textul relevant: „Situația școlară a beneficiarilor primari corigenți, amânați, repetenți sau în situație de abandon școlar se comunică în scris părinților sau reprezentanților legali sau, după caz, beneficiarilor primari majori de către învățător/institutor/profesorul pentru învățământul primar/profesorul diriginte, în cel mult 7 zile de la încheierea cursurilor.”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "articolul 127 alineatul (2)",
+        "excerpt": "Situația școlară a beneficiarilor primari corigenți, amânați, repetenți sau în situație de abandon școlar se comunică în scris părinților sau reprezentanților legali sau, după caz, beneficiarilor primari majori de către învățător/institutor/profesorul pentru învățământul primar/profesorul diriginte, în cel mult 7 zile de la încheierea cursurilor.",
         "verification": "fragment-exact-din-sursa-consolidata"
       }
     }
