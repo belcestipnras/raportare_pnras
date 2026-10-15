@@ -223,7 +223,7 @@ function renderQuestion() {
   const question = session.questions[session.index];
   session.selected = null;
   session.locked = false;
-  const labels = { study: "Învățare", contest: "Concurs 20", mistakes: "Reîncercare greșeli" };
+  const labels = { study: "Învățare", contest: "Test ROFUIP 20", mistakes: "Reîncercare greșeli" };
   elements.sessionMode.textContent = labels[session.mode];
   elements.questionPosition.textContent = `${session.index + 1} / ${session.questions.length}`;
   elements.progressBar.style.width = `${((session.index + 1) / session.questions.length) * 100}%`;
@@ -340,7 +340,7 @@ function finishSession() {
 }
 
 function renderResults(session, percent) {
-  const labels = { study: "Sesiune de învățare", contest: "Simulare de concurs", mistakes: "Reîncercarea greșelilor" };
+  const labels = { study: "Sesiune de învățare", contest: "Test tematic ROFUIP", mistakes: "Reîncercarea greșelilor" };
   elements.resultTitle.textContent = labels[session.mode];
   elements.resultScore.textContent = `${session.correct}/${session.questions.length}`;
   elements.resultPercent.textContent = `${percent}%`;
@@ -555,5 +555,6 @@ function formatNumber(value) {
 function toCamel(value) {
   return value.replace(/-([a-z])/g, (_, char) => char.toUpperCase());
 }
+
 
 
