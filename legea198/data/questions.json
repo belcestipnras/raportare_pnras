@@ -7,7 +7,7 @@
     "url": "https://legislatie.just.ro/",
     "method": "itemi situaționali redactați manual și verificați pe fragmentele exacte ale formei consolidate"
   },
-  "count": 176,
+  "count": 197,
   "questions": [
     {
       "id": "LG-A-001",
@@ -8454,6 +8454,1014 @@
         "url": "https://legislatie.just.ro/",
         "reference": "articolul 220 alineatul (2)",
         "excerpt": "Perioadele de efectuare a concediului de odihnă pentru fiecare cadru didactic se stabilesc de consiliul de administrație, prin raportare la interesul superior al beneficiarului primar, cu asigurarea personalului didactic necesar pentru desfășurarea examenelor naționale și a concursurilor finanțate de Ministerul Educației.",
+        "verification": "fragment-exact-din-textul-consolidat"
+      }
+    },
+    {
+      "id": "LG-A-177",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Titlul I. Organizarea sistemului de învățământ preuniversitar",
+      "annex": "",
+      "title": "Titlul I. Organizarea sistemului de învățământ preuniversitar",
+      "chapter": "Capitolul IX. Conducerea sistemului național de învățământ",
+      "section": "Secțiunea a 2-a. Conducerea și coordonarea la nivelul unității de învățământ preuniversitar",
+      "article": 128,
+      "paragraph": "(12)",
+      "prompt": "În ședința consiliului de administrație al liceului se discută aplicarea unei sancțiuni disciplinare unui profesor. Unul dintre membrii consiliului este rudă apropiată cu profesorul vizat. Cum trebuie procedat la adoptarea hotărârii?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Hotărârea se adoptă prin vot deschis, nominal, pentru transparența deciziei, iar membrul aflat în conflict de interese votează ultimul.",
+          "isCorrect": false,
+          "why": "Hotărârile privind personalul, inclusiv aplicarea de sancțiuni, se iau prin vot secret, nu prin vot deschis, iar membrul aflat în conflict de interese nu votează."
+        },
+        {
+          "id": "B",
+          "text": "Hotărârea se adoptă prin vot secret, iar membrul aflat în conflict de interese poate vota, cu condiția să își declare conflictul în procesul-verbal.",
+          "isCorrect": false,
+          "why": "Votul este secret, însă membrii aflați în conflict de interese nu participă la vot; declararea conflictului nu permite votul."
+        },
+        {
+          "id": "C",
+          "text": "Hotărârea se adoptă prin vot secret, iar membrul aflat în conflict de interese nu participă la vot.",
+          "isCorrect": true
+        },
+        {
+          "id": "D",
+          "text": "Hotărârea se adoptă prin vot deschis, deoarece sancțiunea se aplică prin decizia directorului, iar membrul aflat în conflict de interese nu participă la vot.",
+          "isCorrect": false,
+          "why": "Chiar dacă sancțiunea este pusă în aplicare prin decizia directorului, hotărârea consiliului de administrație privind aplicarea sancțiunilor se ia prin vot secret."
+        }
+      ],
+      "correctOptionId": "C",
+      "explanation": "Regula: Hotărârile consiliului de administrație privind personalul din unitate (inclusiv aplicarea de sancțiuni) se iau prin vot secret, iar membrii aflați în conflict de interese nu participă la vot.\n\nTextul impune votul secret pentru hotărârile care vizează personalul și exclude de la vot membrii aflați în conflict de interese.\n\nTemei: articolul 128 alineatul (12). Textul relevant: „(12) Hotărârile consiliului de administrație se adoptă cu majoritatea voturilor celor prezenți, cu excepția celor prevăzute la alin. (11). Hotărârile consiliului de administrație care vizează personalul din unitate, respectiv: procedurile pentru ocuparea posturilor, a funcțiilor de conducere, acordarea gradației de merit, restrângerea de activitate, acordarea calificativelor, aplicarea de sancțiuni și altele asemenea, se iau prin vot secret. Membrii consiliului de administrație care se află în conflict de interese nu participă la vot.”",
+      "legalSource": {
+        "document": "Legea învățământului preuniversitar nr. 198/2023, forma consolidată",
+        "consolidatedAt": "2026-09-02",
+        "url": "https://legislatie.just.ro/",
+        "reference": "articolul 128 alineatul (12)",
+        "excerpt": "(12) Hotărârile consiliului de administrație se adoptă cu majoritatea voturilor celor prezenți, cu excepția celor prevăzute la alin. (11). Hotărârile consiliului de administrație care vizează personalul din unitate, respectiv: procedurile pentru ocuparea posturilor, a funcțiilor de conducere, acordarea gradației de merit, restrângerea de activitate, acordarea calificativelor, aplicarea de sancțiuni și altele asemenea, se iau prin vot secret. Membrii consiliului de administrație care se află în conflict de interese nu participă la vot.",
+        "verification": "fragment-exact-din-textul-consolidat"
+      }
+    },
+    {
+      "id": "LG-A-178",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Titlul III. Statutul și cariera personalului didactic",
+      "annex": "",
+      "title": "Titlul III. Statutul și cariera personalului didactic",
+      "chapter": "Capitolul XIV. Răspunderea disciplinară și patrimonială a personalului didactic, de conducere, de îndrumare și control",
+      "section": "Secțiunea 1. Răspunderea disciplinară a personalului didactic",
+      "article": 211,
+      "paragraph": "(2)",
+      "prompt": "La un liceu a fost înregistrată o sesizare scrisă privind o posibilă abatere disciplinară a unei profesoare de matematică. Directorul trebuie să constituie comisia de cercetare disciplinară. Cum este alcătuită aceasta conform legii?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Comisia are 3-5 membri, dintre care unul reprezintă federația sindicală din care face parte profesoara sau este un reprezentant al salariaților, iar ceilalți au funcția cel puțin egală cu a ei.",
+          "isCorrect": true
+        },
+        {
+          "id": "B",
+          "text": "Comisia are 5-7 membri, toți din cadrul direcției județene de învățământ preuniversitar, cu un reprezentant al elevilor și unul al părinților ca observatori.",
+          "isCorrect": false,
+          "why": "Aceasta este structura prevăzută pentru cercetarea personalului de conducere al unității, nu a personalului didactic de predare."
+        },
+        {
+          "id": "C",
+          "text": "Comisia are 3-5 membri, desemnați exclusiv de director dintre cadrele didactice cu cea mai mare vechime, fără reprezentant al salariaților.",
+          "isCorrect": false,
+          "why": "Legea cere ca un membru să reprezinte federația sindicală a persoanei cercetate sau să fie un reprezentant al salariaților."
+        },
+        {
+          "id": "D",
+          "text": "Comisia are cel puțin 7 membri, dintre care unul este inspectorul școlar general, iar ceilalți sunt membri ai consiliului de administrație.",
+          "isCorrect": false,
+          "why": "Numărul membrilor este de 3-5, iar legea nu prevede participarea inspectorului școlar general sau includerea tuturor membrilor consiliului de administrație."
+        }
+      ],
+      "correctOptionId": "A",
+      "explanation": "Regula: Comisia de cercetare disciplinară pentru personalul didactic de predare are 3-5 membri, dintre care unul reprezintă federația sindicală a persoanei cercetate sau este un reprezentant al salariaților, iar ceilalți au funcția cel puțin egală cu a celui cercetat.\n\nAceasta este structura prevăzută pentru cercetarea abaterilor personalului didactic de predare din unitățile de învățământ.\n\nTemei: articolul 211 alineatul (2). Textul relevant: „(2) Pentru cercetarea împrejurărilor și faptelor reclamate la alin. (1), săvârșite de personalul didactic de predare din unitățile de învățământ, se constituie o comisie de cercetare disciplinară formată din 3-5 membri, dintre care unul reprezintă federația sindicală din care face parte persoana aflată în discuție sau este un reprezentant al salariaților, iar ceilalți au funcția cel puțin egală cu a celui care a săvârșit abaterea. În situația în care la nivelul unității de învățământ nu există suficienți salariați care au funcția didactică cel puțin egală cu a salariatului cercetat, comisia de cercetare se completează cu persoane care au cel puțin aceeași funcție, desemnate de către DJIP/DMBIP, la solicitarea conducerii unității de învățământ.”",
+      "legalSource": {
+        "document": "Legea învățământului preuniversitar nr. 198/2023, forma consolidată",
+        "consolidatedAt": "2026-09-02",
+        "url": "https://legislatie.just.ro/",
+        "reference": "articolul 211 alineatul (2)",
+        "excerpt": "(2) Pentru cercetarea împrejurărilor și faptelor reclamate la alin. (1), săvârșite de personalul didactic de predare din unitățile de învățământ, se constituie o comisie de cercetare disciplinară formată din 3-5 membri, dintre care unul reprezintă federația sindicală din care face parte persoana aflată în discuție sau este un reprezentant al salariaților, iar ceilalți au funcția cel puțin egală cu a celui care a săvârșit abaterea. În situația în care la nivelul unității de învățământ nu există suficienți salariați care au funcția didactică cel puțin egală cu a salariatului cercetat, comisia de cercetare se completează cu persoane care au cel puțin aceeași funcție, desemnate de către DJIP/DMBIP, la solicitarea conducerii unității de învățământ.",
+        "verification": "fragment-exact-din-textul-consolidat"
+      }
+    },
+    {
+      "id": "LG-A-179",
+      "kind": "aplicare",
+      "difficulty": "expert",
+      "module": "Titlul III. Statutul și cariera personalului didactic",
+      "annex": "",
+      "title": "Titlul III. Statutul și cariera personalului didactic",
+      "chapter": "Capitolul XIV. Răspunderea disciplinară și patrimonială a personalului didactic, de conducere, de îndrumare și control",
+      "section": "Secțiunea a 2-a. Răspunderea disciplinară a personalului de conducere, de îndrumare și control",
+      "article": 214,
+      "paragraph": "(1)",
+      "prompt": "Un grup de părinți dorește să sesizeze în scris o posibilă abatere disciplinară a directorului liceului pe care îl frecventează copiii lor. Unde trebuie înregistrată sesizarea conform articolului 214 alineatul (1)?",
+      "options": [
+        {
+          "id": "A",
+          "text": "La secretariatul unității de învățământ, deoarece orice persoană poate sesiza faptele personalului didactic angajat la unitatea respectivă.",
+          "isCorrect": false,
+          "why": "Secretariatul unității este locul pentru faptele personalului didactic angajat, conform articolului 211; pentru directori sesizarea se depune la direcția județeană."
+        },
+        {
+          "id": "B",
+          "text": "La registratura Ministerului Educației, deoarece directorul este personal de conducere.",
+          "isCorrect": false,
+          "why": "Ministerul Educației primește sesizările privind personalul de conducere din cadrul direcțiilor județene, al agenției de asigurare a calității și al centrului național de formare, nu al unităților."
+        },
+        {
+          "id": "C",
+          "text": "La registratura agenției de asigurare a calității și inspecție în învățământul preuniversitar.",
+          "isCorrect": false,
+          "why": "Agenția primește sesizările privind personalul de conducere, de îndrumare și control din cadrul birourilor sale județene, nu privind directorii de unități."
+        },
+        {
+          "id": "D",
+          "text": "La secretariatul direcției județene de învățământ preuniversitar sau al direcției municipiului București.",
+          "isCorrect": true
+        }
+      ],
+      "correctOptionId": "D",
+      "explanation": "Regula: Sesizările privind faptele personalului de conducere al unităților de învățământ se înregistrează la secretariatul direcției județene de învățământ preuniversitar (respectiv al direcției municipiului București).\n\nLitera a) stabilește acest loc de înregistrare pentru faptele personalului de conducere al unităților de învățământ.\n\nTemei: articolul 214 alineatul (1) litera a). Textul relevant: „a) la secretariatul DJIP/DMBIP, pentru fapte săvârșite de personalul de conducere al unităților de învățământ și de personalul de îndrumare și control și de execuție al DJIP/DMBIP, precum și pentru fapte săvârșite de membrii comisiilor/consiliilor sau responsabilii numiți de DJIP/DMBIP;”",
+      "legalSource": {
+        "document": "Legea învățământului preuniversitar nr. 198/2023, forma consolidată",
+        "consolidatedAt": "2026-09-02",
+        "url": "https://legislatie.just.ro/",
+        "reference": "articolul 214 alineatul (1) litera a)",
+        "excerpt": "a) la secretariatul DJIP/DMBIP, pentru fapte săvârșite de personalul de conducere al unităților de învățământ și de personalul de îndrumare și control și de execuție al DJIP/DMBIP, precum și pentru fapte săvârșite de membrii comisiilor/consiliilor sau responsabilii numiți de DJIP/DMBIP;",
+        "verification": "fragment-exact-din-textul-consolidat"
+      }
+    },
+    {
+      "id": "LG-A-180",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Titlul III. Statutul și cariera personalului didactic",
+      "annex": "",
+      "title": "Titlul III. Statutul și cariera personalului didactic",
+      "chapter": "Capitolul XVI. Drepturi și obligații ale personalului din învățământul preuniversitar",
+      "section": "",
+      "article": 223,
+      "paragraph": "(4)",
+      "prompt": "Un cadru didactic reclamă că imaginile de la camerele de supraveghere audio-video, stocate de școală în clasa în care predă, ar reprezenta o înregistrare a activității didactice făcută fără temei. Cum se apreciază situația conform legii?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Este înregistrare a activității didactice și este permisă numai cu acordul scris al cadrului didactic și al părinților elevilor.",
+          "isCorrect": false,
+          "why": "Legea nu califică stocarea imaginilor de supraveghere drept înregistrare a activității didactice și nu cere acordul cadrului didactic și al părinților pentru aceasta."
+        },
+        {
+          "id": "B",
+          "text": "Stocarea imaginilor de pe camerele de supraveghere nu se consideră înregistrare a activității didactice, dacă se face în condițiile legislației în vigoare.",
+          "isCorrect": true
+        },
+        {
+          "id": "C",
+          "text": "Este înregistrare a activității didactice și este permisă numai cu aprobarea directorului, dată prin decizie.",
+          "isCorrect": false,
+          "why": "Stocarea imaginilor de supraveghere nu este înregistrare a activității didactice; înregistrarea propriu-zisă depinde de actele normative ale Ministerului Educației, nu de decizia directorului."
+        },
+        {
+          "id": "D",
+          "text": "Nu este înregistrare a activității didactice doar dacă imaginile sunt șterse în aceeași zi, indiferent de legislația în vigoare.",
+          "isCorrect": false,
+          "why": "Legea nu condiționează excluderea de ștergerea imaginilor în aceeași zi; stocarea se face în condițiile legislației în vigoare."
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Regula: Stocarea imaginilor audio-video de pe camerele de supraveghere ale unității (în condițiile legislației în vigoare) nu se consideră înregistrare a activității didactice; înregistrarea propriu-zisă se face doar potrivit actelor normative ale Ministerului Educației.\n\nLegea exclude expres din noțiunea de înregistrare a activității didactice stocarea imaginilor de pe camerele de supraveghere.\n\nTemei: articolul 223 alineatul (4). Textul relevant: „(4) Înregistrarea activității didactice poate fi făcută numai în conformitate cu actele normative emise de Ministerul Educației, cu excepția situațiilor în care înregistrarea activității didactice este dispusă în temeiul unor dispoziții legale sau al unor norme emise de ministerele cu rețea de învățământ proprie. Nu se consideră înregistrare a activității didactice stocarea imaginilor audio-video de pe camerele de supraveghere din unitățile de învățământ unde este implementat un sistem de supraveghere audio-video, în condițiile legislației în vigoare.”",
+      "legalSource": {
+        "document": "Legea învățământului preuniversitar nr. 198/2023, forma consolidată",
+        "consolidatedAt": "2026-09-02",
+        "url": "https://legislatie.just.ro/",
+        "reference": "articolul 223 alineatul (4)",
+        "excerpt": "(4) Înregistrarea activității didactice poate fi făcută numai în conformitate cu actele normative emise de Ministerul Educației, cu excepția situațiilor în care înregistrarea activității didactice este dispusă în temeiul unor dispoziții legale sau al unor norme emise de ministerele cu rețea de învățământ proprie. Nu se consideră înregistrare a activității didactice stocarea imaginilor audio-video de pe camerele de supraveghere din unitățile de învățământ unde este implementat un sistem de supraveghere audio-video, în condițiile legislației în vigoare.",
+        "verification": "fragment-exact-din-textul-consolidat"
+      }
+    },
+    {
+      "id": "LG-A-181",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Titlul I. Organizarea sistemului de învățământ preuniversitar",
+      "annex": "",
+      "title": "Titlul I. Organizarea sistemului de învățământ preuniversitar",
+      "chapter": "Capitolul II. Formele de organizare a învățământului preuniversitar",
+      "section": "",
+      "article": 27,
+      "paragraph": "(10)",
+      "prompt": "Fondatorul unui liceu particular dorește să stabilească salariul directorului și al directorului adjunct. Cum se determină veniturile acestora conform legii?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Prin negociere între conducerea persoanei juridice finanțatoare și persoana în cauză, cu avizul consiliului de administrație al unității de învățământ.",
+          "isCorrect": true
+        },
+        {
+          "id": "B",
+          "text": "Prin aplicarea grilei naționale de salarizare a personalului din învățământul de stat, fără negociere.",
+          "isCorrect": false,
+          "why": "Pentru unitățile particulare legea prevede negocierea veniturilor, nu aplicarea obligatorie a unei grile naționale."
+        },
+        {
+          "id": "C",
+          "text": "Prin hotărârea consiliului local, la propunerea direcției județene de învățământ preuniversitar, pe baza efectivului de elevi.",
+          "isCorrect": false,
+          "why": "Consiliul local și direcția județeană de învățământ preuniversitar nu stabilesc veniturile directorilor din învățământul particular."
+        },
+        {
+          "id": "D",
+          "text": "Prin hotărâre a consiliului de administrație, fără implicarea persoanei juridice finanțatoare.",
+          "isCorrect": false,
+          "why": "Veniturile se negociază cu conducerea persoanei juridice finanțatoare; consiliul de administrație doar avizează."
+        }
+      ],
+      "correctOptionId": "A",
+      "explanation": "Regula: În învățământul particular, veniturile salariale și extrasalariale ale directorilor și directorilor adjuncți se stabilesc prin negociere între conducerea persoanei juridice finanțatoare și persoana în cauză, cu avizul consiliului de administrație al unității.\n\nLegea prevede negocierea, iar consiliul de administrație dă un aviz.\n\nTemei: articolul 27 alineatul (10). Textul relevant: „(10) Veniturile salariale și extrasalariale ale directorilor și directorilor adjuncți, precum și salarizarea personalului didactic din unitățile de învățământ particular se stabilesc prin negociere între conducerea persoanei juridice finanțatoare și persoana în cauză, cu avizul consiliului de administrație al unității de învățământ.”",
+      "legalSource": {
+        "document": "Legea învățământului preuniversitar nr. 198/2023, forma consolidată",
+        "consolidatedAt": "2026-09-02",
+        "url": "https://legislatie.just.ro/",
+        "reference": "articolul 27 alineatul (10)",
+        "excerpt": "(10) Veniturile salariale și extrasalariale ale directorilor și directorilor adjuncți, precum și salarizarea personalului didactic din unitățile de învățământ particular se stabilesc prin negociere între conducerea persoanei juridice finanțatoare și persoana în cauză, cu avizul consiliului de administrație al unității de învățământ.",
+        "verification": "fragment-exact-din-textul-consolidat"
+      }
+    },
+    {
+      "id": "LG-A-182",
+      "kind": "aplicare",
+      "difficulty": "expert",
+      "module": "Titlul I. Organizarea sistemului de învățământ preuniversitar",
+      "annex": "",
+      "title": "Titlul I. Organizarea sistemului de învățământ preuniversitar",
+      "chapter": "Capitolul III. Rețeaua școlară din învățământul preuniversitar",
+      "section": "Secțiunea a 2-a. Constituirea formațiunilor de studiu/grupelor/claselor",
+      "article": 23,
+      "paragraph": "(1^2)",
+      "prompt": "Un liceu teoretic de stat cu predare în limba română, într-o localitate în care majoritatea populației este de etnie română, are 40 de elevi înscriși în clasa a IX-a profil real, față de media prevăzută de lege de 23 de elevi pe clasă. Conducerea vrea să formeze două clase a IX-a profil real, fiecare cu sub 23 de elevi (de exemplu, câte 20). Cum se apreciază propunerea?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Propunerea este permisă, deoarece legea cere doar respectarea numărului minim de elevi, nu și a valorii medii.",
+          "isCorrect": false,
+          "why": "Pentru categoria de unități din enunț legea cere ca formațiunile să depășească valoarea medie, cu excepția unei singure formațiuni pe nivel, filieră și profil."
+        },
+        {
+          "id": "B",
+          "text": "Propunerea este permisă, dacă direcția județeană de învățământ preuniversitar aprobă în scris ambele clase.",
+          "isCorrect": false,
+          "why": "Legea limitează numărul formațiunilor sub medie, fără a prevedea o aprobare a direcției județene de învățământ preuniversitar care să ridice limita."
+        },
+        {
+          "id": "C",
+          "text": "Propunerea este permisă, deoarece fiecare clasă poate avea sub medie atât timp cât respectă efectivul minim.",
+          "isCorrect": false,
+          "why": "Cel mult o formațiune de studiu pe nivel, filieră și profil poate fi sub valoarea medie, chiar dacă respectă efectivul minim."
+        },
+        {
+          "id": "D",
+          "text": "Propunerea nu este permisă, deoarece cel mult una dintre clasele de acest profil poate avea sub valoarea medie, iar cealaltă trebuie să o depășească.",
+          "isCorrect": true
+        }
+      ],
+      "correctOptionId": "D",
+      "explanation": "Regula: Regula este ca formațiunile de studiu să depășească valoarea medie; prin excepție, într-o unitate cu personalitate juridică se poate constitui cel mult o formațiune de studiu pe nivel/filieră/profil cu numărul de elevi sub medie.\n\nExcepția permite cel mult o formațiune de studiu pe nivel, filieră și profil sub valoarea medie.\n\nTemei: articolul 23 alineatul (1^2). Textul relevant: „(1^2) Prin excepție de la prevederile alin. (1^1), într-o unitate de învățământ cu personalitate juridică se poate constitui cel mult o formațiune de studiu pe nivel/filieră/profil, cu numărul copiilor/elevilor sub valoarea medie prevăzută la alin. (1).”",
+      "legalSource": {
+        "document": "Legea învățământului preuniversitar nr. 198/2023, forma consolidată",
+        "consolidatedAt": "2026-09-02",
+        "url": "https://legislatie.just.ro/",
+        "reference": "articolul 23 alineatul (1^2)",
+        "excerpt": "(1^2) Prin excepție de la prevederile alin. (1^1), într-o unitate de învățământ cu personalitate juridică se poate constitui cel mult o formațiune de studiu pe nivel/filieră/profil, cu numărul copiilor/elevilor sub valoarea medie prevăzută la alin. (1).",
+        "verification": "fragment-exact-din-textul-consolidat"
+      }
+    },
+    {
+      "id": "LG-A-183",
+      "kind": "aplicare",
+      "difficulty": "expert",
+      "module": "Titlul I. Organizarea sistemului de învățământ preuniversitar",
+      "annex": "",
+      "title": "Titlul I. Organizarea sistemului de învățământ preuniversitar",
+      "chapter": "Capitolul III. Rețeaua școlară din învățământul preuniversitar",
+      "section": "Secțiunea a 2-a. Constituirea formațiunilor de studiu/grupelor/claselor",
+      "article": 23,
+      "paragraph": "(1^3)",
+      "prompt": "Într-o comună în care o minoritate națională constituie majoritatea populației funcționează o școală cu predare în limba minorității. Directorul întreabă ce efective speciale se aplică acestei școli față de regula generală. Ce prevede legea?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Unitatea cu personalitate juridică are nevoie de 80% din numărul prevăzut la articolul 16 alineatul (1), iar formațiunile de studiu de 60% din cel stabilit la alineatul (1).",
+          "isCorrect": false,
+          "why": "Procentele sunt inversate: 60% pentru unitate și 80% pentru formațiunile de studiu."
+        },
+        {
+          "id": "B",
+          "text": "Unitatea cu personalitate juridică are nevoie de un număr minim echivalent cu 60% din cel prevăzut la articolul 16 alineatul (1), iar formațiunile de studiu de 80% din numărul stabilit la alineatul (1).",
+          "isCorrect": true
+        },
+        {
+          "id": "C",
+          "text": "Nu se aplică nicio excepție, toate unitățile respectând aceleași efective, indiferent de limba de predare.",
+          "isCorrect": false,
+          "why": "Alineatul (1^3) stabilește expres o excepție de la efectivele din alineatul (1) pentru aceste unități."
+        },
+        {
+          "id": "D",
+          "text": "Atât unitatea cu personalitate juridică, cât și formațiunile de studiu au nevoie de 50% din numărul prevăzut de lege.",
+          "isCorrect": false,
+          "why": "Legea prevede 60% pentru unitatea cu personalitate juridică și 80% pentru formațiunile de studiu, nu 50% pentru ambele."
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Regula: Pentru învățământul în limbile minorităților naționale (și cel în limba română din unități administrativ-teritoriale cu majoritate minoritară), unitatea cu personalitate juridică are nevoie de 60% din numărul prevăzut la articolul 16 alineatul (1), iar formațiunile de studiu de 80% din numărul stabilit la alineatul (1).\n\nAcestea sunt procentele prevăzute de litera a) pentru unități și de litera b) pentru formațiuni de studiu.\n\nTemei: articolul 23 alineatul (1^3). Textul relevant: „(1^3) Prin excepție de la prevederile alin. (1), învățământul cu predare în limbile minorităților naționale, precum și învățământul cu predare în limba română organizat în unități administrativ-teritoriale în care o minoritate națională constituie majoritatea populației se organizează și funcționează după cum urmează: a) unități de învățământ cu personalitate juridică, cu un număr minim de antepreșcolari/preșcolari/elevi echivalent cu 60% din numărul prevăzut la art. 16 alin (1); b) formațiuni de studiu, grupe sau clase, care cuprind un număr de antepreșcolari/preșcolari/elevi echivalent cu 80% din numărul stabilit la alin. (1).”",
+      "legalSource": {
+        "document": "Legea învățământului preuniversitar nr. 198/2023, forma consolidată",
+        "consolidatedAt": "2026-09-02",
+        "url": "https://legislatie.just.ro/",
+        "reference": "articolul 23 alineatul (1^3)",
+        "excerpt": "(1^3) Prin excepție de la prevederile alin. (1), învățământul cu predare în limbile minorităților naționale, precum și învățământul cu predare în limba română organizat în unități administrativ-teritoriale în care o minoritate națională constituie majoritatea populației se organizează și funcționează după cum urmează: a) unități de învățământ cu personalitate juridică, cu un număr minim de antepreșcolari/preșcolari/elevi echivalent cu 60% din numărul prevăzut la art. 16 alin (1); b) formațiuni de studiu, grupe sau clase, care cuprind un număr de antepreșcolari/preșcolari/elevi echivalent cu 80% din numărul stabilit la alin. (1).",
+        "verification": "fragment-exact-din-textul-consolidat"
+      }
+    },
+    {
+      "id": "LG-A-184",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Titlul I. Organizarea sistemului de învățământ preuniversitar",
+      "annex": "",
+      "title": "Titlul I. Organizarea sistemului de învățământ preuniversitar",
+      "chapter": "Capitolul VIII. Drepturile și obligațiile beneficiarilor sistemului de învățământ",
+      "section": "Secțiunea a 2-a. Drepturile și obligațiile beneficiarilor sistemului de învățământ",
+      "article": 106,
+      "paragraph": "(7)",
+      "prompt": "La un gimnaziu, un elev folosește repetat telefonul mobil în timpul orelor, deși regulamentul intern interzice acest lucru, iar telefonul nu este folosit în scop educativ. Ce poate face unitatea de învățământ conform legii?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Unitatea nu poate prelua echipamentul, deoarece acesta este proprietate personală, putând doar să convoace părinții.",
+          "isCorrect": false,
+          "why": "Legea prevede că nerespectarea interdicției poate duce la preluarea echipamentului de către personalul unității."
+        },
+        {
+          "id": "B",
+          "text": "Echipamentul poate fi reținut de director până la sfârșitul anului școlar, ca sancțiune.",
+          "isCorrect": false,
+          "why": "Legea prevede preluarea în vederea predării către părinți sau tutori, nu reținerea până la sfârșitul anului școlar."
+        },
+        {
+          "id": "C",
+          "text": "Personalul unității poate prelua echipamentul, în vederea predării către părinții sau tutorii legali, conform regulamentului intern.",
+          "isCorrect": true
+        },
+        {
+          "id": "D",
+          "text": "Echipamentul poate fi preluat și predat exclusiv direcției județene de învățământ preuniversitar, care decide restituirea.",
+          "isCorrect": false,
+          "why": "Predarea se face către părinții sau tutorii legali ai elevilor minori, conform regulamentului intern, nu către direcția județeană de învățământ preuniversitar."
+        }
+      ],
+      "correctOptionId": "C",
+      "explanation": "Regula: Nerespectarea interdicției privind telefonul mobil poate duce la preluarea echipamentului de către personalul unității, în vederea predării către părinți/tutori legali, conform regulamentului intern.\n\nAlineatul (7) permite expres preluarea echipamentului și predarea lui, după caz, părinților sau tutorilor, conform regulamentului intern.\n\nTemei: articolul 106 alineatul (7). Textul relevant: „(7) Nerespectarea prevederilor alin. (4) și (5) poate duce la preluarea echipamentului de către personalul unității de învățământ în vederea predării, după caz, către părinți/tutori legali ai beneficiarilor primari minori sau elevi conform regulamentului intern al unității de învățământ.”",
+      "legalSource": {
+        "document": "Legea învățământului preuniversitar nr. 198/2023, forma consolidată",
+        "consolidatedAt": "2026-09-02",
+        "url": "https://legislatie.just.ro/",
+        "reference": "articolul 106 alineatul (7)",
+        "excerpt": "(7) Nerespectarea prevederilor alin. (4) și (5) poate duce la preluarea echipamentului de către personalul unității de învățământ în vederea predării, după caz, către părinți/tutori legali ai beneficiarilor primari minori sau elevi conform regulamentului intern al unității de învățământ.",
+        "verification": "fragment-exact-din-textul-consolidat"
+      }
+    },
+    {
+      "id": "LG-A-185",
+      "kind": "aplicare",
+      "difficulty": "expert",
+      "module": "Titlul I. Organizarea sistemului de învățământ preuniversitar",
+      "annex": "",
+      "title": "Titlul I. Organizarea sistemului de învățământ preuniversitar",
+      "chapter": "Capitolul VII. Scopul, structura și caracteristicile evaluărilor",
+      "section": "Secțiunea a 3-a. Examenul național de bacalaureat",
+      "article": 103,
+      "paragraph": "(1)",
+      "prompt": "Un absolvent de liceu teoretic a fost declarat admis la probele A01 și F, a obținut nivelul B2 la proba B și nivelul mediu la proba C, nota 8,50 la proba A1, iar la proba E notele 9,00 la prima disciplină și 4,80 la a doua. Media aritmetică a notelor este peste 6. Poate fi declarat promovat examenul național de bacalaureat?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Nu, deoarece la proba E trebuie obținută cel puțin nota 5 la fiecare dintre cele două discipline, condițiile fiind cumulative.",
+          "isCorrect": true
+        },
+        {
+          "id": "B",
+          "text": "Da, deoarece media aritmetică de peste 6 compensează nota mică de la a doua disciplină a probei E.",
+          "isCorrect": false,
+          "why": "Condițiile sunt cumulative; nota minimă 5 la fiecare disciplină a probei E se cere separat de media aritmetică."
+        },
+        {
+          "id": "C",
+          "text": "Da, deoarece nota 5 se cere doar ca medie a celor două discipline ale probei E.",
+          "isCorrect": false,
+          "why": "Legea cere cel puțin nota 5 la fiecare dintre cele două discipline, nu doar ca medie."
+        },
+        {
+          "id": "D",
+          "text": "Nu, deoarece media aritmetică trebuie să fie cel puțin 7, iar candidatul nu poate fi declarat promovat sub acest prag.",
+          "isCorrect": false,
+          "why": "Media aritmetică necesară este de cel puțin 6, nu 7."
+        }
+      ],
+      "correctOptionId": "A",
+      "explanation": "Regula: Examenul de bacalaureat se promovează dacă sunt îndeplinite cumulativ toate condițiile, inclusiv nota minimă 5 la fiecare dintre cele două discipline ale probei E și media aritmetică de cel puțin 6.\n\nMedia peste 6 nu compensează o notă sub 5 la una dintre disciplinele probei E.\n\nTemei: articolul 103 alineatul (1). Textul relevant: „(1) Examenul național de bacalaureat se consideră promovat de către absolvenții învățământului liceal, care îndeplinesc cumulativ următoarele condiții: a) au susținut proba A01, A02, respectiv F și au obținut calificativul admis; b) au susținut probele B și C prevăzute la art. 102 alin. (4) și au obținut la proba B cel puțin echivalentul nivelului B1, respectiv A2, în funcție de tipul de probă susținut, iar la proba C au obținut cel puțin nivelul „mediu “; c) au susținut, după caz, proba A1, A2 sau A3 prevăzută la art. 102 alin. (4) și au obținut cel puțin nota 5 (cinci); d) au susținut, după caz, proba D prevăzută la art. 102 alin. (4) și au obținut cel puțin nota 5 (cinci); e) au susținut proba E, prevăzută la art. 102 alin. (4) și au obținut cel puțin nota 5 (cinci) la fiecare dintre cele două discipline; f) au obținut media aritmetică, calculată cu două zecimale exacte, a notelor obținute la A1, A2, A3, D și E, cel puțin egală cu 6.”",
+      "legalSource": {
+        "document": "Legea învățământului preuniversitar nr. 198/2023, forma consolidată",
+        "consolidatedAt": "2026-09-02",
+        "url": "https://legislatie.just.ro/",
+        "reference": "articolul 103 alineatul (1)",
+        "excerpt": "(1) Examenul național de bacalaureat se consideră promovat de către absolvenții învățământului liceal, care îndeplinesc cumulativ următoarele condiții: a) au susținut proba A01, A02, respectiv F și au obținut calificativul admis; b) au susținut probele B și C prevăzute la art. 102 alin. (4) și au obținut la proba B cel puțin echivalentul nivelului B1, respectiv A2, în funcție de tipul de probă susținut, iar la proba C au obținut cel puțin nivelul „mediu “; c) au susținut, după caz, proba A1, A2 sau A3 prevăzută la art. 102 alin. (4) și au obținut cel puțin nota 5 (cinci); d) au susținut, după caz, proba D prevăzută la art. 102 alin. (4) și au obținut cel puțin nota 5 (cinci); e) au susținut proba E, prevăzută la art. 102 alin. (4) și au obținut cel puțin nota 5 (cinci) la fiecare dintre cele două discipline; f) au obținut media aritmetică, calculată cu două zecimale exacte, a notelor obținute la A1, A2, A3, D și E, cel puțin egală cu 6.",
+        "verification": "fragment-exact-din-textul-consolidat"
+      }
+    },
+    {
+      "id": "LG-A-186",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Titlul I. Organizarea sistemului de învățământ preuniversitar",
+      "annex": "",
+      "title": "Titlul I. Organizarea sistemului de învățământ preuniversitar",
+      "chapter": "Capitolul VII. Scopul, structura și caracteristicile evaluărilor",
+      "section": "Secțiunea a 3-a. Examenul național de bacalaureat",
+      "article": 102,
+      "paragraph": "(4)",
+      "prompt": "La începutul clasei a XII-a, dirigintele explică elevilor probele examenului național de bacalaureat. Una dintre probe evaluează competențele digitale, iar rezultatul ei se exprimă prin niveluri de competență. Despre care probă este vorba?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Proba B.",
+          "isCorrect": false,
+          "why": "Proba B evaluează competențele lingvistice la două limbi de circulație internațională, nu competențele digitale."
+        },
+        {
+          "id": "B",
+          "text": "Proba F.",
+          "isCorrect": false,
+          "why": "Proba F este o probă scrisă pentru evaluarea competențelor de bază, complementare profilului sau probelor scrise E."
+        },
+        {
+          "id": "C",
+          "text": "Proba A01.",
+          "isCorrect": false,
+          "why": "Proba A01 este o probă orală de evaluare a competențelor lingvistice de comunicare orală în limba română."
+        },
+        {
+          "id": "D",
+          "text": "Proba C.",
+          "isCorrect": true
+        }
+      ],
+      "correctOptionId": "D",
+      "explanation": "Regula: Competențele digitale se evaluează la proba C; rezultatul se exprimă prin niveluri de competență raportate la standardele europene, iar examenele cu recunoaștere europeană pot fi echivalate.\n\nLitera g) definește proba C ca probă de evaluare a competențelor digitale.\n\nTemei: articolul 102 alineatul (4) litera g). Textul relevant: „g) proba C - proba de evaluare a competențelor digitale, în acord cu descriptorii elaborați pe baza programelor școlare. Rezultatul evaluării se exprimă prin nivelurile de competență în raport cu standardele europene recunoscute în domeniu. Examenele cu recunoaștere europeană pentru certificarea competențelor digitale pot fi echivalate conform metodologiei aprobate prin ordin al ministrului educației;”",
+      "legalSource": {
+        "document": "Legea învățământului preuniversitar nr. 198/2023, forma consolidată",
+        "consolidatedAt": "2026-09-02",
+        "url": "https://legislatie.just.ro/",
+        "reference": "articolul 102 alineatul (4) litera g)",
+        "excerpt": "g) proba C - proba de evaluare a competențelor digitale, în acord cu descriptorii elaborați pe baza programelor școlare. Rezultatul evaluării se exprimă prin nivelurile de competență în raport cu standardele europene recunoscute în domeniu. Examenele cu recunoaștere europeană pentru certificarea competențelor digitale pot fi echivalate conform metodologiei aprobate prin ordin al ministrului educației;",
+        "verification": "fragment-exact-din-textul-consolidat"
+      }
+    },
+    {
+      "id": "LG-A-187",
+      "kind": "aplicare",
+      "difficulty": "expert",
+      "module": "Titlul I. Organizarea sistemului de învățământ preuniversitar",
+      "annex": "",
+      "title": "Titlul I. Organizarea sistemului de învățământ preuniversitar",
+      "chapter": "Capitolul X. Finanțarea și baza materială a învățământului preuniversitar",
+      "section": "Secțiunea a 3-a. Baza materială a învățământului preuniversitar",
+      "article": 146,
+      "paragraph": "(14)",
+      "prompt": "Autoritatea locală a hotărât să transforme în spațiu comercial o clădire în care funcționa o școală de stat, aflată încă în perioada în care activitatea didactică ar putea continua, fără să ceară avizul conform al Ministerului Educației. Directorul unității întreabă ce natură are răspunderea pentru o asemenea faptă a autorităților administrației publice locale.",
+      "options": [
+        {
+          "id": "A",
+          "text": "Fapta constituie contravenție, sancționată cu amendă de la 1.000 de lei la 5.000 de lei, aplicată de persoanele împuternicite de primar.",
+          "isCorrect": false,
+          "why": "Contravențiile din articolul 148 privesc alte fapte (refuzul părinților sau al directorului, nealocarea burselor); schimbarea destinației fără aviz conform este infracțiune."
+        },
+        {
+          "id": "B",
+          "text": "Actele sunt doar anulabile la cererea Ministerului Educației, fără altă formă de răspundere.",
+          "isCorrect": false,
+          "why": "Fapta este încadrată expres ca infracțiune prin alineatul (14); legea nu prevede doar anulabilitatea actelor la cererea Ministerului Educației, iar răspunderea nu se limitează la efectele civile ale actelor."
+        },
+        {
+          "id": "C",
+          "text": "Fapta constituie infracțiune și se pedepsește cu închisoare de la 6 luni la 5 ani sau cu amendă.",
+          "isCorrect": true
+        },
+        {
+          "id": "D",
+          "text": "Fapta constituie abatere disciplinară a primarului, sancționată de prefect.",
+          "isCorrect": false,
+          "why": "Legea nu o tratează ca abatere disciplinară, ci o încadrează expres ca infracțiune."
+        }
+      ],
+      "correctOptionId": "C",
+      "explanation": "Regula: Schimbarea destinației bazei materiale de către autoritățile administrației publice locale, fără avizul conform al Ministerului Educației, constituie infracțiune pedepsită cu închisoare de la 6 luni la 5 ani sau cu amendă.\n\nLegea califică expres drept infracțiune schimbarea destinației bazei materiale fără avizul conform al Ministerului Educației.\n\nTemei: articolul 146 alineatul (14). Textul relevant: „Schimbarea destinației bazei materiale de autoritățile administrației publice locale, în lipsa avizului conform emis de Ministerul Educației, constituie infracțiune și se pedepsește cu închisoare de la 6 luni la 5 ani sau cu amendă.”",
+      "legalSource": {
+        "document": "Legea învățământului preuniversitar nr. 198/2023, forma consolidată",
+        "consolidatedAt": "2026-09-02",
+        "url": "https://legislatie.just.ro/",
+        "reference": "articolul 146 alineatul (14)",
+        "excerpt": "Schimbarea destinației bazei materiale de autoritățile administrației publice locale, în lipsa avizului conform emis de Ministerul Educației, constituie infracțiune și se pedepsește cu închisoare de la 6 luni la 5 ani sau cu amendă.",
+        "verification": "fragment-exact-din-textul-consolidat"
+      }
+    },
+    {
+      "id": "LG-A-188",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Titlul I. Organizarea sistemului de învățământ preuniversitar",
+      "annex": "",
+      "title": "Titlul I. Organizarea sistemului de învățământ preuniversitar",
+      "chapter": "Capitolul X. Finanțarea și baza materială a învățământului preuniversitar",
+      "section": "Secțiunea a 3-a. Baza materială a învățământului preuniversitar",
+      "article": 147,
+      "paragraph": "",
+      "prompt": "Consiliul local primește o ofertă de la un investitor privat care propune preluarea prin vânzare a unei școli gimnaziale de stat, cu promisiunea menținerii activității didactice. Un consilier susține că operațiunea este posibilă dacă se obține avizul conform al Ministerului Educației. Ce prevede legea despre privatizarea unităților de învățământ de stat?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Privatizarea unităților de învățământ de stat este interzisă, deci vânzarea nu este posibilă nici cu aviz.",
+          "isCorrect": true
+        },
+        {
+          "id": "B",
+          "text": "Este permisă, cu avizul conform al Ministerului Educației, dacă se păstrează destinația de învățământ.",
+          "isCorrect": false,
+          "why": "Avizul conform privește schimbarea destinației bazei materiale; privatizarea unităților de stat este interzisă."
+        },
+        {
+          "id": "C",
+          "text": "Este permisă prin hotărâre a consiliului local, dacă unitatea are sub 250 de elevi.",
+          "isCorrect": false,
+          "why": "Legea nu leagă privatizarea de numărul de elevi; ea este interzisă."
+        },
+        {
+          "id": "D",
+          "text": "Este permisă numai pentru clădiri, nu și pentru unitatea de învățământ, cu avizul direcției județene de învățământ preuniversitar.",
+          "isCorrect": false,
+          "why": "Articolul 147 nu prevede o astfel de distincție sau un aviz al direcției județene, ci interdicția privatizării unităților de învățământ de stat."
+        }
+      ],
+      "correctOptionId": "A",
+      "explanation": "Regula: Privatizarea unităților de învățământ de stat este interzisă.\n\nArticolul 147 interzice privatizarea, fără a prevedea vreo procedură de aprobare care să o permită; avizul conform privește schimbarea destinației, nu privatizarea.\n\nTemei: articolul 147. Textul relevant: „Înscrierea dreptului de proprietate asupra bunurilor imobile aparținând Ministerului Educației sau unităților de învățământ preuniversitar din sistemul învățământului de stat, precum și asupra bunurilor aparținând consiliilor locale, județene și, respectiv, Consiliului General al Municipiului București, în care își desfășoară activitatea unitățile de învățământ preuniversitar de stat, se face în cartea funciară, cu scutire de plata taxelor prevăzute de lege. Privatizarea unităților de învățământ de stat este interzisă.”",
+      "legalSource": {
+        "document": "Legea învățământului preuniversitar nr. 198/2023, forma consolidată",
+        "consolidatedAt": "2026-09-02",
+        "url": "https://legislatie.just.ro/",
+        "reference": "articolul 147",
+        "excerpt": "Înscrierea dreptului de proprietate asupra bunurilor imobile aparținând Ministerului Educației sau unităților de învățământ preuniversitar din sistemul învățământului de stat, precum și asupra bunurilor aparținând consiliilor locale, județene și, respectiv, Consiliului General al Municipiului București, în care își desfășoară activitatea unitățile de învățământ preuniversitar de stat, se face în cartea funciară, cu scutire de plata taxelor prevăzute de lege. Privatizarea unităților de învățământ de stat este interzisă.",
+        "verification": "fragment-exact-din-textul-consolidat"
+      }
+    },
+    {
+      "id": "LG-A-189",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Titlul I. Organizarea sistemului de învățământ preuniversitar",
+      "annex": "",
+      "title": "Titlul I. Organizarea sistemului de învățământ preuniversitar",
+      "chapter": "Capitolul X. Finanțarea și baza materială a învățământului preuniversitar",
+      "section": "Secțiunea a 3-a. Baza materială a învățământului preuniversitar",
+      "article": 147,
+      "paragraph": "",
+      "prompt": "Școala dumneavoastră, de stat, trebuie să înscrie dreptul de proprietate asupra unui imobil în cartea funciară, iar contabilul întreabă dacă unitatea trebuie să plătească taxele de înscriere. Cum răspundeți conform legii?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Taxele se plătesc integral, dar se pot deconta din bugetul Ministerului Educației.",
+          "isCorrect": false,
+          "why": "Legea nu prevede decontarea; prevede scutirea de plata taxelor."
+        },
+        {
+          "id": "B",
+          "text": "Taxele se reduc cu 50%, restul fiind suportat de autoritatea locală.",
+          "isCorrect": false,
+          "why": "Legea nu prevede reducere parțială, ci scutire de plata taxelor."
+        },
+        {
+          "id": "C",
+          "text": "Scutirea se aplică numai imobilelor aparținând Ministerului Educației, nu și celor ale unităților de învățământ.",
+          "isCorrect": false,
+          "why": "Scutirea vizează și imobilele unităților de învățământ preuniversitar de stat și pe cele ale consiliilor locale în care acestea funcționează."
+        },
+        {
+          "id": "D",
+          "text": "Înscrierea se face în cartea funciară cu scutire de plata taxelor prevăzute de lege.",
+          "isCorrect": true
+        }
+      ],
+      "correctOptionId": "D",
+      "explanation": "Regula: Înscrierea în cartea funciară a dreptului de proprietate asupra bunurilor imobile ale unităților de învățământ de stat și ale autorităților locale în care acestea funcționează se face cu scutire de plata taxelor prevăzute de lege.\n\nLegea prevede expres scutirea de taxe pentru înscrierea dreptului de proprietate asupra acestor imobile.\n\nTemei: articolul 147. Textul relevant: „Înscrierea dreptului de proprietate asupra bunurilor imobile aparținând Ministerului Educației sau unităților de învățământ preuniversitar din sistemul învățământului de stat, precum și asupra bunurilor aparținând consiliilor locale, județene și, respectiv, Consiliului General al Municipiului București, în care își desfășoară activitatea unitățile de învățământ preuniversitar de stat, se face în cartea funciară, cu scutire de plata taxelor prevăzute de lege. Privatizarea unităților de învățământ de stat este interzisă.”",
+      "legalSource": {
+        "document": "Legea învățământului preuniversitar nr. 198/2023, forma consolidată",
+        "consolidatedAt": "2026-09-02",
+        "url": "https://legislatie.just.ro/",
+        "reference": "articolul 147",
+        "excerpt": "Înscrierea dreptului de proprietate asupra bunurilor imobile aparținând Ministerului Educației sau unităților de învățământ preuniversitar din sistemul învățământului de stat, precum și asupra bunurilor aparținând consiliilor locale, județene și, respectiv, Consiliului General al Municipiului București, în care își desfășoară activitatea unitățile de învățământ preuniversitar de stat, se face în cartea funciară, cu scutire de plata taxelor prevăzute de lege. Privatizarea unităților de învățământ de stat este interzisă.",
+        "verification": "fragment-exact-din-textul-consolidat"
+      }
+    },
+    {
+      "id": "LG-A-190",
+      "kind": "aplicare",
+      "difficulty": "expert",
+      "module": "Titlul I. Organizarea sistemului de învățământ preuniversitar",
+      "annex": "",
+      "title": "Titlul I. Organizarea sistemului de învățământ preuniversitar",
+      "chapter": "Capitolul IV. Organizarea unităților de învățământ preuniversitar",
+      "section": "Secțiunea a 5-a. Învățământul preuniversitar tehnologic în sistem dual",
+      "article": 35,
+      "paragraph": "(8) litera a)",
+      "prompt": "Liceul tehnologic pe care îl conduceți pregătește clasa a IX-a în sistem dual împreună cu doi operatori economici și primăria. Operatorii propun un contract de parteneriat valabil doar pentru un an școlar, cu reînnoire anuală. Ce durată minimă trebuie să acopere contractul de parteneriat?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Un an școlar, cu posibilitatea reînnoirii anuale prin acordul părților.",
+          "isCorrect": false,
+          "why": "Contractul de parteneriat trebuie să acopere cel puțin perioada celor 3 sau 4 ani de studiu, nu doar un an."
+        },
+        {
+          "id": "B",
+          "text": "Cel puțin perioada celor 3 sau 4 ani de studiu.",
+          "isCorrect": true
+        },
+        {
+          "id": "C",
+          "text": "Doar perioada pregătirii practice din clasele a XI-a și a XII-a.",
+          "isCorrect": false,
+          "why": "Contractul acoperă cel puțin întreaga perioadă de 3 sau 4 ani de studiu, nu numai anii de pregătire practică finală."
+        },
+        {
+          "id": "D",
+          "text": "Durata o stabilește liber consiliul de administrație, fără o limită minimă în lege.",
+          "isCorrect": false,
+          "why": "Legea fixează o durată minimă: cel puțin perioada celor 3 sau 4 ani de studiu."
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Regula: Contractul de parteneriat din învățământul liceal tehnologic dual stabilește condițiile de colaborare, drepturile, obligațiile și costurile partenerilor și acoperă cel puțin perioada celor 3 sau 4 ani de studiu.\n\nLegea cere ca durata contractului de parteneriat să acopere cel puțin întreaga perioadă de studiu de 3 sau 4 ani.\n\nTemei: articolul 35 alineatul (8) litera a). Textul relevant: „a) încheierea contractului de parteneriat dintre unul sau mai mulți operatori economici sau între structuri asociative/un consorțiu de operatori economici, unitatea de învățământ și una sau mai multe unități administrativ-teritoriale, contract care stabilește condițiile de colaborare, drepturile și obligațiile părților, precum și costurile asumate de parteneri. Contractul de parteneriat va acoperi cel puțin perioada celor 3 sau 4 ani de studiu;”",
+      "legalSource": {
+        "document": "Legea învățământului preuniversitar nr. 198/2023, forma consolidată",
+        "consolidatedAt": "2026-09-02",
+        "url": "https://legislatie.just.ro/",
+        "reference": "articolul 35 alineatul (8) litera a)",
+        "excerpt": "a) încheierea contractului de parteneriat dintre unul sau mai mulți operatori economici sau între structuri asociative/un consorțiu de operatori economici, unitatea de învățământ și una sau mai multe unități administrativ-teritoriale, contract care stabilește condițiile de colaborare, drepturile și obligațiile părților, precum și costurile asumate de parteneri. Contractul de parteneriat va acoperi cel puțin perioada celor 3 sau 4 ani de studiu;",
+        "verification": "fragment-exact-din-textul-consolidat"
+      }
+    },
+    {
+      "id": "LG-A-191",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Titlul I. Organizarea sistemului de învățământ preuniversitar",
+      "annex": "",
+      "title": "Titlul I. Organizarea sistemului de învățământ preuniversitar",
+      "chapter": "Capitolul IV. Organizarea unităților de învățământ preuniversitar",
+      "section": "Secțiunea a 15-a. Asigurarea siguranței în unitățile de învățământ preuniversitar",
+      "article": 65,
+      "paragraph": "(8)",
+      "prompt": "Într-o pauză, un elev a lovit grav un coleg, iar medicul școlar constată leziuni care pot indica comiterea unei infracțiuni. Directorul adjunct este întrebat ce trebuie să facă, în plus față de măsurile interne, conducerea unității de învățământ.",
+      "options": [
+        {
+          "id": "A",
+          "text": "Sesizează poliția și colaborează cu organele de anchetă.",
+          "isCorrect": true
+        },
+        {
+          "id": "B",
+          "text": "Așteaptă ca părinții victimei să depună plângere, pentru că unitatea poate acționa doar intern.",
+          "isCorrect": false,
+          "why": "Conducerea unității are ea însăși obligația de a sesiza poliția, indiferent de plângerea părinților."
+        },
+        {
+          "id": "C",
+          "text": "Sesizează direcția județeană de învățământ preuniversitar și așteaptă ca acesta să decidă dacă anunță poliția.",
+          "isCorrect": false,
+          "why": "Legea nu pune sesizarea poliției în sarcina direcției județene de învățământ preuniversitar, ci o impune conducerii unității de învățământ."
+        },
+        {
+          "id": "D",
+          "text": "Sesizează poliția numai după ce comisia pentru prevenirea violenței confirmă fapta prin raport scris.",
+          "isCorrect": false,
+          "why": "Obligația apare la suspiciunea comiterii unei infracțiuni, fără să fie condiționată de confirmarea prealabilă a faptei."
+        }
+      ],
+      "correctOptionId": "A",
+      "explanation": "Regula: Dacă există suspiciunea comiterii unei infracțiuni, conducerea unității de învățământ are obligația să sesizeze poliția și să colaboreze cu organele de anchetă.\n\nObligația de sesizare a poliției apare la simpla suspiciune a comiterii unei infracțiuni și aparține conducerii unității de învățământ.\n\nTemei: articolul 65 alineatul (8). Textul relevant: „Dacă există suspiciunea comiterii unei infracțiuni, conducerea unităților de învățământ are obligația să sesizeze poliția și să colaboreze cu organele de anchetă.”",
+      "legalSource": {
+        "document": "Legea învățământului preuniversitar nr. 198/2023, forma consolidată",
+        "consolidatedAt": "2026-09-02",
+        "url": "https://legislatie.just.ro/",
+        "reference": "articolul 65 alineatul (8)",
+        "excerpt": "Dacă există suspiciunea comiterii unei infracțiuni, conducerea unităților de învățământ are obligația să sesizeze poliția și să colaboreze cu organele de anchetă.",
+        "verification": "fragment-exact-din-textul-consolidat"
+      }
+    },
+    {
+      "id": "LG-A-192",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Titlul I. Organizarea sistemului de învățământ preuniversitar",
+      "annex": "",
+      "title": "Titlul I. Organizarea sistemului de învățământ preuniversitar",
+      "chapter": "Capitolul IV. Organizarea unităților de învățământ preuniversitar",
+      "section": "Secțiunea a 15-a. Asigurarea siguranței în unitățile de învățământ preuniversitar",
+      "article": 65,
+      "paragraph": "(9)",
+      "prompt": "După un caz de bullying grav între elevi de clasa a VII-a, consiliul de administrație discută ce măsuri trebuie luate. Un membru propune sancționarea autorului și trimiterea victimei la direcția de asistență socială, fără alte măsuri ale școlii. Ce obligație are unitatea de învățământ conform legii?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Aplică numai sancțiuni autorului, sprijinul victimei fiind responsabilitatea exclusivă a direcției de asistență socială.",
+          "isCorrect": false,
+          "why": "Unitatea de învățământ este obligată să stabilească și să aplice ea însăși măsuri de sprijin pentru victimă."
+        },
+        {
+          "id": "B",
+          "text": "Aplică aceleași sancțiuni fixe, indiferent de gravitatea cazului, pentru egalitatea de tratament.",
+          "isCorrect": false,
+          "why": "Măsurile trebuie adecvate la gravitatea cazului, la cauzele și efectele posibile și la nevoile celor implicați."
+        },
+        {
+          "id": "C",
+          "text": "Stabilește și aplică măsuri de sprijin pentru victimă și măsuri de sprijin și sancțiuni pentru autor, adecvate gravității cazului și nevoilor celor implicați.",
+          "isCorrect": true
+        },
+        {
+          "id": "D",
+          "text": "Acordă sprijin doar victimei; autorului i se aplică sancțiuni numai dacă părinții victimei o cer.",
+          "isCorrect": false,
+          "why": "Legea prevede măsuri de sprijin și sancțiuni pentru autor, iar aplicarea nu depinde de cererea părinților victimei."
+        }
+      ],
+      "correctOptionId": "C",
+      "explanation": "Regula: Unitatea de învățământ trebuie să stabilească și să aplice măsuri de sprijin pentru victimă, precum și măsuri de sprijin și sancțiuni pentru autor, adecvate gravității cazului și nevoilor celor implicați.\n\nLegea cere măsuri adaptate la gravitate, cauze și nevoile celor implicați, atât pentru victimă, cât și pentru autor (sprijin plus sancțiuni).\n\nTemei: articolul 65 alineatul (9). Textul relevant: „Unitățile de învățământ sunt obligate să stabilească și să pună în aplicare măsuri de sprijin pentru victimă /victime, respectiv măsuri de sprijin și sancțiuni pentru autor/autori adecvate la gravitatea cazului de violență, la cauzele/efectele posibile ale situației de violență și la nevoile educaționale/profesionale, relaționale, sociale, psihologice și fizice ale celor implicați, la nivelul unității de învățământ.”",
+      "legalSource": {
+        "document": "Legea învățământului preuniversitar nr. 198/2023, forma consolidată",
+        "consolidatedAt": "2026-09-02",
+        "url": "https://legislatie.just.ro/",
+        "reference": "articolul 65 alineatul (9)",
+        "excerpt": "Unitățile de învățământ sunt obligate să stabilească și să pună în aplicare măsuri de sprijin pentru victimă /victime, respectiv măsuri de sprijin și sancțiuni pentru autor/autori adecvate la gravitatea cazului de violență, la cauzele/efectele posibile ale situației de violență și la nevoile educaționale/profesionale, relaționale, sociale, psihologice și fizice ale celor implicați, la nivelul unității de învățământ.",
+        "verification": "fragment-exact-din-textul-consolidat"
+      }
+    },
+    {
+      "id": "LG-A-193",
+      "kind": "aplicare",
+      "difficulty": "expert",
+      "module": "Titlul I. Organizarea sistemului de învățământ preuniversitar",
+      "annex": "",
+      "title": "Titlul I. Organizarea sistemului de învățământ preuniversitar",
+      "chapter": "Capitolul IV. Organizarea unităților de învățământ preuniversitar",
+      "section": "Secțiunea a 15-a. Asigurarea siguranței în unitățile de învățământ preuniversitar",
+      "article": 66,
+      "paragraph": "(2)",
+      "prompt": "Într-un liceu au fost înregistrate mai multe sesizări privind agresiuni fizice în holuri, iar riscul de violență este considerat crescut. Consiliul de administrație vrea să instaleze camere de supraveghere audio-video fără a organiza votul părinților, al elevilor majori și al salariaților. Ce permite legea în această situație excepțională?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Este necesar tot acordul majorității simple a persoanelor vizate, ca la regula generală.",
+          "isCorrect": false,
+          "why": "Acordul majorității simple este regula din alineatul (1); în situații excepționale se cere doar informarea."
+        },
+        {
+          "id": "B",
+          "text": "Este necesar acordul a două treimi dintre părinți, elevii majori și salariați.",
+          "isCorrect": false,
+          "why": "Legea nu prevede majoritatea de două treimi; pentru situații excepționale se cere doar informarea persoanelor vizate."
+        },
+        {
+          "id": "C",
+          "text": "Este necesar avizul conform al direcției județene de învățământ preuniversitar, în locul acordului persoanelor vizate.",
+          "isCorrect": false,
+          "why": "Articolul 66 alineatul (2) nu cere avizul direcției județene, ci informarea persoanelor vizate."
+        },
+        {
+          "id": "D",
+          "text": "Decizia poate fi luată doar cu informarea persoanelor vizate (părinți, elevi majori, salariați), fără acordul lor majoritar.",
+          "isCorrect": true
+        }
+      ],
+      "correctOptionId": "D",
+      "explanation": "Regula: În situații excepționale, cu risc crescut de violență și număr semnificativ de sesizări, decizia de instalare a sistemului de supraveghere poate fi luată doar cu informarea persoanelor vizate, fără acordul majorității simple cerut în regula generală.\n\nÎn situațiile excepționale descrise, se cere informarea persoanelor vizate, nu acordul majorității simple prevăzut la alineatul (1).\n\nTemei: articolul 66 alineatul (2). Textul relevant: „În situații excepționale, atunci când există un risc crescut de violență în spațiul școlar, fiind înregistrat un număr semnificativ de sesizări privind săvârșirea unor acte de violență fizică și/sau psihică, în vederea asigurării pazei și protecției persoanelor, bunurilor și valorilor, precum și în scopul prevenirii actelor de violență fizică și/sau psihică, decizia privind instalarea unui sistem de supraveghere poate fi efectuată doar cu informarea persoanelor vizate, prevăzute la alin. (1).”",
+      "legalSource": {
+        "document": "Legea învățământului preuniversitar nr. 198/2023, forma consolidată",
+        "consolidatedAt": "2026-09-02",
+        "url": "https://legislatie.just.ro/",
+        "reference": "articolul 66 alineatul (2)",
+        "excerpt": "În situații excepționale, atunci când există un risc crescut de violență în spațiul școlar, fiind înregistrat un număr semnificativ de sesizări privind săvârșirea unor acte de violență fizică și/sau psihică, în vederea asigurării pazei și protecției persoanelor, bunurilor și valorilor, precum și în scopul prevenirii actelor de violență fizică și/sau psihică, decizia privind instalarea unui sistem de supraveghere poate fi efectuată doar cu informarea persoanelor vizate, prevăzute la alin. (1).",
+        "verification": "fragment-exact-din-textul-consolidat"
+      }
+    },
+    {
+      "id": "LG-A-194",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Titlul I. Organizarea sistemului de învățământ preuniversitar",
+      "annex": "",
+      "title": "Titlul I. Organizarea sistemului de învățământ preuniversitar",
+      "chapter": "Capitolul IV. Organizarea unităților de învățământ preuniversitar",
+      "section": "Secțiunea a 15-a. Asigurarea siguranței în unitățile de învățământ preuniversitar",
+      "article": 66,
+      "paragraph": "(6) litera b)",
+      "prompt": "Un furnizor oferă școlii camere de supraveghere moderne, care transmit imaginile pe un server din afara unității, pentru a fi vizionate de la distanță de operatorul serviciului. Directorul adjunct trebuie să verifice dacă oferta respectă obligațiile legale. Ce tip de camere sau dispozitive permite legea?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Orice tip de camere, dacă furnizorul semnează un acord de confidențialitate.",
+          "isCorrect": false,
+          "why": "Legea impune folosirea numai a camerelor în circuit închis, indiferent de existența unui acord de confidențialitate."
+        },
+        {
+          "id": "B",
+          "text": "Numai camere în circuit închis, care nu permit configurarea sau accesul din afara unității de învățământ.",
+          "isCorrect": true
+        },
+        {
+          "id": "C",
+          "text": "Camere cu acces de la distanță, dacă accesul este permis doar primăriei.",
+          "isCorrect": false,
+          "why": "Legea nu permite accesul din afara unității, nici pentru autoritatea locală, ci numai camere în circuit închis."
+        },
+        {
+          "id": "D",
+          "text": "Camere cu acces de la distanță, dacă directorul aprobă în scris fiecare conectare.",
+          "isCorrect": false,
+          "why": "Aprobarea directorului nu înlocuiește cerința de circuit închis fără acces din afara unității."
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Regula: Unitățile de învățământ pot folosi numai camere sau dispozitive de supraveghere în circuit închis, care nu permit configurarea sau accesul din afara unității.\n\nObligația este de a folosi exclusiv sisteme în circuit închis, fără acces sau configurare din exterior.\n\nTemei: articolul 66 alineatul (6) litera b). Textul relevant: „b) de a utiliza numai camere sau dispozitive de supraveghere configurate cu circuit închis, care nu permit configurarea sau accesul din afara unității de învățământ;”",
+      "legalSource": {
+        "document": "Legea învățământului preuniversitar nr. 198/2023, forma consolidată",
+        "consolidatedAt": "2026-09-02",
+        "url": "https://legislatie.just.ro/",
+        "reference": "articolul 66 alineatul (6) litera b)",
+        "excerpt": "b) de a utiliza numai camere sau dispozitive de supraveghere configurate cu circuit închis, care nu permit configurarea sau accesul din afara unității de învățământ;",
+        "verification": "fragment-exact-din-textul-consolidat"
+      }
+    },
+    {
+      "id": "LG-A-195",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Titlul I. Organizarea sistemului de învățământ preuniversitar",
+      "annex": "",
+      "title": "Titlul I. Organizarea sistemului de învățământ preuniversitar",
+      "chapter": "Capitolul IV. Organizarea unităților de învățământ preuniversitar",
+      "section": "Secțiunea a 15-a. Asigurarea siguranței în unitățile de învățământ preuniversitar",
+      "article": 66,
+      "paragraph": "(6) litera c)",
+      "prompt": "La instalarea sistemului de supraveghere audio-video, consiliul de administrație trebuie să desemneze persoanele responsabile. Directorul adjunct cere să știe cine este desemnat, de regulă, pentru monitorizarea funcționării sistemului și cine pentru protecția datelor cu caracter personal.",
+      "options": [
+        {
+          "id": "A",
+          "text": "Monitorizarea: de regulă un cadru didactic; protecția datelor: de regulă directorul adjunct sau un membru al consiliului de administrație.",
+          "isCorrect": true
+        },
+        {
+          "id": "B",
+          "text": "Monitorizarea: de regulă directorul adjunct; protecția datelor: de regulă un cadru didactic.",
+          "isCorrect": false,
+          "why": "Rolurile sunt inversate: monitorizarea revine, de regulă, unui cadru didactic, iar protecția datelor directorului adjunct sau unui membru al consiliului de administrație."
+        },
+        {
+          "id": "C",
+          "text": "Monitorizarea: de regulă administratorul de patrimoniu; protecția datelor: de regulă secretarul-șef.",
+          "isCorrect": false,
+          "why": "Legea nu indică aceste funcții, ci un cadru didactic pentru monitorizare și directorul adjunct ori un membru al consiliului de administrație pentru protecția datelor."
+        },
+        {
+          "id": "D",
+          "text": "Ambele atribuții revin obligatoriu directorului unității, fără posibilitatea altei desemnări.",
+          "isCorrect": false,
+          "why": "Legea prevede două persoane distincte, desemnate de regulă dintre un cadru didactic, respectiv directorul adjunct sau un membru al consiliului de administrație."
+        }
+      ],
+      "correctOptionId": "A",
+      "explanation": "Regula: Unitatea desemnează o persoană cu atribuții de monitorizare a funcționării sistemului, de regulă un cadru didactic, și un responsabil cu protecția datelor, de regulă directorul adjunct sau un membru al consiliului de administrație.\n\nLegea prevede aceste două desemnări, cu aceste categorii de persoane indicate ca soluție obișnuită.\n\nTemei: articolul 66 alineatul (6) litera c). Textul relevant: „c) de a desemna o persoană cu atribuții de monitorizare a funcționării sistemului de supraveghere audio- video, de regulă un cadru didactic, precum și un responsabil cu protecția datelor cu caracter personal, de regulă directorul adjunct sau un membru al consiliului de administrație, după caz;”",
+      "legalSource": {
+        "document": "Legea învățământului preuniversitar nr. 198/2023, forma consolidată",
+        "consolidatedAt": "2026-09-02",
+        "url": "https://legislatie.just.ro/",
+        "reference": "articolul 66 alineatul (6) litera c)",
+        "excerpt": "c) de a desemna o persoană cu atribuții de monitorizare a funcționării sistemului de supraveghere audio- video, de regulă un cadru didactic, precum și un responsabil cu protecția datelor cu caracter personal, de regulă directorul adjunct sau un membru al consiliului de administrație, după caz;",
+        "verification": "fragment-exact-din-textul-consolidat"
+      }
+    },
+    {
+      "id": "LG-A-196",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Titlul I. Organizarea sistemului de învățământ preuniversitar",
+      "annex": "",
+      "title": "Titlul I. Organizarea sistemului de învățământ preuniversitar",
+      "chapter": "Capitolul IV. Organizarea unităților de învățământ preuniversitar",
+      "section": "Secțiunea a 15-a. Asigurarea siguranței în unitățile de învățământ preuniversitar",
+      "article": 66,
+      "paragraph": "(12)",
+      "prompt": "Directorul adjunct este informat că liceul său va găzdui un centru de desfășurare a concursului național pentru ocuparea funcțiilor de conducere din învățământul preuniversitar. Un coleg susține că supravegherea audio-video se aplică numai examenelor elevilor. Cum se apreciază situația conform legii?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Supravegherea audio-video se aplică numai examenelor naționale susținute de elevi.",
+          "isCorrect": false,
+          "why": "Alineatul (12) litera b) extinde supravegherea și la examenele și concursurile cadrelor didactice, inclusiv funcțiile de conducere."
+        },
+        {
+          "id": "B",
+          "text": "Supravegherea este facultativă și o decide, de la caz la caz, direcția județeană de învățământ preuniversitar.",
+          "isCorrect": false,
+          "why": "Legea prevede supravegherea audio-video ca element al desfășurării probelor, nu ca opțiune lăsată la decizia inspectoratului."
+        },
+        {
+          "id": "C",
+          "text": "Probele și activitățile specifice ale concursului pentru funcții de conducere presupun supraveghere audio-video.",
+          "isCorrect": true
+        },
+        {
+          "id": "D",
+          "text": "Supravegherea se aplică la concursurile cadrelor didactice, dar nu și la concursul pentru funcțiile de conducere.",
+          "isCorrect": false,
+          "why": "Funcțiile de conducere, de îndrumare și de control sunt menționate expres în alineatul (12) litera b)."
+        }
+      ],
+      "correctOptionId": "C",
+      "explanation": "Regula: Concursul pentru ocuparea funcțiilor de conducere, îndrumare și control presupune supravegherea audio-video a probelor și a activităților specifice, alături de examenele naționale ale elevilor și celelalte concursuri ale cadrelor didactice.\n\nAlineatul (12) litera b) include expres concursul pentru ocuparea funcțiilor de conducere, îndrumare și control.\n\nTemei: articolul 66 alineatul (12) literele a) și b). Textul relevant: „În învățământul preuniversitar, susținerea evaluării naționale, a admiterii la liceu, a examenelor naționale de către elevi, respectiv a concursurilor/examenelor susținute de către cadrele didactice presupune: a) supravegherea audio-video a probelor și a activităților specifice din cadrul evaluării/examenelor naționale susținute de absolvenții claselor a VIII-a, respectiv a XII-a/a XIII-a; b) supravegherea audio-video a probelor și a activităților specifice din cadrul examenului național de definitivare în învățământ/licențiere, respectiv a probelor și a activităților specifice concursului național de ocupare a posturilor didactice/catedrelor vacante/rezervate, precum și ale concursului pentru ocuparea funcțiilor de conducere, îndrumare și control din învățământul preuniversitar.”",
+      "legalSource": {
+        "document": "Legea învățământului preuniversitar nr. 198/2023, forma consolidată",
+        "consolidatedAt": "2026-09-02",
+        "url": "https://legislatie.just.ro/",
+        "reference": "articolul 66 alineatul (12) literele a) și b)",
+        "excerpt": "În învățământul preuniversitar, susținerea evaluării naționale, a admiterii la liceu, a examenelor naționale de către elevi, respectiv a concursurilor/examenelor susținute de către cadrele didactice presupune: a) supravegherea audio-video a probelor și a activităților specifice din cadrul evaluării/examenelor naționale susținute de absolvenții claselor a VIII-a, respectiv a XII-a/a XIII-a; b) supravegherea audio-video a probelor și a activităților specifice din cadrul examenului național de definitivare în învățământ/licențiere, respectiv a probelor și a activităților specifice concursului național de ocupare a posturilor didactice/catedrelor vacante/rezervate, precum și ale concursului pentru ocuparea funcțiilor de conducere, îndrumare și control din învățământul preuniversitar.",
+        "verification": "fragment-exact-din-textul-consolidat"
+      }
+    },
+    {
+      "id": "LG-A-197",
+      "kind": "aplicare",
+      "difficulty": "expert",
+      "module": "Titlul I. Organizarea sistemului de învățământ preuniversitar",
+      "annex": "",
+      "title": "Titlul I. Organizarea sistemului de învățământ preuniversitar",
+      "chapter": "Capitolul IV. Organizarea unităților de învățământ preuniversitar",
+      "section": "Secțiunea a 13-a. Învățământul pentru persoanele aparținând minorităților naționale",
+      "article": 60,
+      "paragraph": "(13)",
+      "prompt": "La o școală gimnazială cu predare în limba maghiară, un părinte întreabă în ce limbă se predă disciplina Istoria României și după ce programe. Directorul adjunct trebuie să răspundă corect, distingând de Limba și literatura română și de Istoria și tradițiile minorității naționale.",
+      "options": [
+        {
+          "id": "A",
+          "text": "În limba română, după programe speciale elaborate pentru minoritatea respectivă.",
+          "isCorrect": false,
+          "why": "Programele speciale vizează Limba și literatura română (alineatul (2)); Istoria și Geografia României se predau în limba minorității, după programe identice."
+        },
+        {
+          "id": "B",
+          "text": "În limba maghiară, după programe și manuale speciale elaborate de colective de experți ai minorității.",
+          "isCorrect": false,
+          "why": "Pentru Istoria și Geografia României programele și manualele sunt identice cu cele pentru clasele cu predare în limba română."
+        },
+        {
+          "id": "C",
+          "text": "În limba maghiară, după programe identice, dar fără obligația de a însuși toponimia și numele proprii în limba română.",
+          "isCorrect": false,
+          "why": "Alineatul (13) impune expres transcrierea și însușirea toponimiei și a numelor proprii românești și în limba română."
+        },
+        {
+          "id": "D",
+          "text": "În limba maghiară, după programe și manuale identice cu cele pentru clasele cu predare în limba română, cu transcrierea și însușirea toponimiei și a numelor proprii românești și în limba română.",
+          "isCorrect": true
+        }
+      ],
+      "correctOptionId": "D",
+      "explanation": "Regula: Disciplinele Istoria și Geografia României se predau în limba minorității, după programe școlare și manuale identice cu cele din clasele cu predare în limba română, cu obligația transcrierii și a însușirii toponimiei și a numelor proprii românești și în limba română.\n\nAlineatul (13) combină predarea în limba minorității cu programe și manuale identice și cu obligația toponimiei și numelor proprii românești.\n\nTemei: articolul 60 alineatul (13). Textul relevant: „În învățământul primar, gimnazial și liceal cu predare în limbile minorităților naționale, disciplinele Istoria și Geografia României se predau în aceste limbi, după programe școlare și manuale identice cu cele pentru clasele cu predare în limba română, cu obligația transcrierii și a însușirii toponimiei și a numelor proprii românești și în limba română.”",
+      "legalSource": {
+        "document": "Legea învățământului preuniversitar nr. 198/2023, forma consolidată",
+        "consolidatedAt": "2026-09-02",
+        "url": "https://legislatie.just.ro/",
+        "reference": "articolul 60 alineatul (13)",
+        "excerpt": "În învățământul primar, gimnazial și liceal cu predare în limbile minorităților naționale, disciplinele Istoria și Geografia României se predau în aceste limbi, după programe școlare și manuale identice cu cele pentru clasele cu predare în limba română, cu obligația transcrierii și a însușirii toponimiei și a numelor proprii românești și în limba română.",
         "verification": "fragment-exact-din-textul-consolidat"
       }
     }
