@@ -7,7 +7,7 @@
     "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
     "method": "itemi situaționali redactați manual și verificați pe fragmentele exacte ale formei consolidate"
   },
-  "count": 120,
+  "count": 136,
   "questions": [
     {
       "id": "RF-A-001",
@@ -5406,6 +5406,726 @@
         "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
         "reference": "art. 170 alin. (3)",
         "excerpt": "Prin hotărâre a consiliului de administrație, la contractul educațional pot fi adăugate și alte clauze, a căror natură nu poate afecta interesul superior al beneficiarului primar în funcție de specificul fiecărei unități și după consultarea consiliului reprezentativ al părinților/reprezentanților legali, prin act adițional semnat de ambele părți.",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-121",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Titlul III. Managementul unităților de învățământ",
+      "annex": "",
+      "title": "Titlul III. Managementul unităților de învățământ",
+      "chapter": "Capitolul IV. Directorul adjunct",
+      "section": "",
+      "article": 24,
+      "paragraph": "(3)",
+      "prompt": "Un liceu funcționează cu 55 de formațiuni de studiu. Câte funcții de director adjunct se pot norma pentru această unitate?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Două funcții de director adjunct.",
+          "isCorrect": true
+        },
+        {
+          "id": "B",
+          "text": "O singură funcție de director adjunct, indiferent de numărul formațiunilor de studiu.",
+          "isCorrect": false
+        },
+        {
+          "id": "C",
+          "text": "Trei funcții de director adjunct.",
+          "isCorrect": false
+        },
+        {
+          "id": "D",
+          "text": "Nicio funcție, deoarece normarea este posibilă doar pentru unitățile cu peste 70 de formațiuni de studiu.",
+          "isCorrect": false
+        }
+      ],
+      "correctOptionId": "A",
+      "explanation": "La nivel gimnazial, liceal sau postliceal, peste 50 de formațiuni de studiu permit normarea a două funcții. A treia funcție devine posibilă abia peste 70 de formațiuni de studiu.\n\nTemei: articolul 24 alineatul (3). Textul relevant: „Se pot norma două funcții de director adjunct pentru unitățile de învățământ de nivel gimnazial, liceal sau postliceal care funcționează cu peste 50 de formațiuni de studiu.”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "articolul 24 alineatul (3)",
+        "excerpt": "Se pot norma două funcții de director adjunct pentru unitățile de învățământ de nivel gimnazial, liceal sau postliceal care funcționează cu peste 50 de formațiuni de studiu.",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-122",
+      "kind": "aplicare",
+      "difficulty": "expert",
+      "module": "Titlul III. Managementul unităților de învățământ",
+      "annex": "",
+      "title": "Titlul III. Managementul unităților de învățământ",
+      "chapter": "Capitolul IV. Directorul adjunct",
+      "section": "",
+      "article": 24,
+      "paragraph": "(2)",
+      "prompt": "Un liceu are 23 de clase, internat și cantină. Nu are grupe de preșcolari și nici secții cu predare în limbile minorităților. Poate fi normată o funcție de director adjunct?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Nu, deoarece liceele pot avea director adjunct doar dacă au peste 25 de clase.",
+          "isCorrect": false
+        },
+        {
+          "id": "B",
+          "text": "Da, o funcție, deoarece liceul are între 20 și 25 de clase și are internat și cantină.",
+          "isCorrect": true
+        },
+        {
+          "id": "C",
+          "text": "Da, dar numai dacă liceul are și cel puțin 10 clase din învățământul primar.",
+          "isCorrect": false
+        },
+        {
+          "id": "D",
+          "text": "Nu, deoarece internatul și cantina contează doar pentru unitățile cu peste 30 de formațiuni de studiu.",
+          "isCorrect": false
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Pentru liceele cu între 20 și 25 de clase, o funcție de director adjunct se poate norma fie dacă sunt îndeplinite condițiile legate de învățământul primar, preșcolar sau de limba de predare, fie dacă unitatea are internat și cantină. Aici este îndeplinită a doua variantă.\n\nTemei: articolul 24 alineatul (2) litera f). Textul relevant: „unitățile de învățământ liceal/postliceal care au între 20 și 25 de clase și au internat și cantină”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "articolul 24 alineatul (2) litera f)",
+        "excerpt": "unitățile de învățământ liceal/postliceal care au între 20 și 25 de clase și au internat și cantină",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-123",
+      "kind": "aplicare",
+      "difficulty": "expert",
+      "module": "Titlul III. Managementul unităților de învățământ",
+      "annex": "",
+      "title": "Titlul III. Managementul unităților de învățământ",
+      "chapter": "Capitolul IV. Directorul adjunct",
+      "section": "",
+      "article": 24,
+      "paragraph": "(2)",
+      "prompt": "O școală gimnazială are 24 de clase, dintre care 12 sunt din învățământul primar. Nu are internat, cantină sau secții cu predare în limbile minorităților. Se poate norma o funcție de director adjunct?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Nu, deoarece unitatea nu are nici internat, nici cantină.",
+          "isCorrect": false
+        },
+        {
+          "id": "B",
+          "text": "Nu, deoarece o funcție de director adjunct se normează doar pentru unitățile cu peste 30 de formațiuni de studiu.",
+          "isCorrect": false
+        },
+        {
+          "id": "C",
+          "text": "Da, deoarece unitatea are între 20 și 30 de clase și cel puțin 10 clase din învățământul primar.",
+          "isCorrect": true
+        },
+        {
+          "id": "D",
+          "text": "Da, dar numai după aprobarea consiliului de administrație al unității.",
+          "isCorrect": false
+        }
+      ],
+      "correctOptionId": "C",
+      "explanation": "Unitățile cu între 20 și 30 de clase pot avea o funcție de director adjunct dacă îndeplinesc una dintre condiții. Cel puțin 10 clase din învățământul primar este o astfel de condiție, iar internatul și cantina sunt o condiție distinctă, alternativă.\n\nTemei: articolul 24 alineatul (2) litera b). Textul relevant: „unitățile de învățământ care au între 20 și 30 de clase și îndeplinesc una dintre condițiile: au cel puțin 10 clase inclusiv din învățământul primar și/sau grupe din învățământul antepreșcolar/preșcolar sau au secții cu predare în limbile minorităților într-o unitate școlară cu predare în limba română sau au secții cu predare în limba română într-o unitate școlară cu predare într-o limbă a minorităților”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "articolul 24 alineatul (2) litera b)",
+        "excerpt": "unitățile de învățământ care au între 20 și 30 de clase și îndeplinesc una dintre condițiile: au cel puțin 10 clase inclusiv din învățământul primar și/sau grupe din învățământul antepreșcolar/preșcolar sau au secții cu predare în limbile minorităților într-o unitate școlară cu predare în limba română sau au secții cu predare în limba română într-o unitate școlară cu predare într-o limbă a minorităților",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-124",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Titlul III. Managementul unităților de învățământ",
+      "annex": "",
+      "title": "Titlul III. Managementul unităților de învățământ",
+      "chapter": "Capitolul IV. Directorul adjunct",
+      "section": "",
+      "article": 25,
+      "paragraph": "(2)",
+      "prompt": "Un profesor cu gradul didactic I predă în unitate ca suplinitor, nu ca titular. Dorește să se înscrie la concursul național pentru funcția de director adjunct. Poate participa?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Da, deoarece gradul didactic I este singura condiție pentru participare.",
+          "isCorrect": false
+        },
+        {
+          "id": "B",
+          "text": "Da, dacă obține acordul scris al directorului unității.",
+          "isCorrect": false
+        },
+        {
+          "id": "C",
+          "text": "Nu, deoarece la concurs pot participa doar cadrele didactice titulare chiar în unitatea care organizează postul.",
+          "isCorrect": false
+        },
+        {
+          "id": "D",
+          "text": "Nu, deoarece la concurs participă personalul didactic de predare titular în învățământul preuniversitar.",
+          "isCorrect": true
+        }
+      ],
+      "correctOptionId": "D",
+      "explanation": "Participarea la concurs este rezervată personalului didactic de predare titular în învățământul preuniversitar. Statutul de suplinitor nu îndeplinește această cerință, iar regulamentul nu leagă titularizarea de unitatea care scoate postul la concurs.\n\nTemei: articolul 25 alineatul (2). Textul relevant: „La concursul pentru ocuparea funcțiilor de director adjunct participă personalul didactic de predare titular în învățământul preuniversitar.”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "articolul 25 alineatul (2)",
+        "excerpt": "La concursul pentru ocuparea funcțiilor de director adjunct participă personalul didactic de predare titular în învățământul preuniversitar.",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-125",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Titlul III. Managementul unităților de învățământ",
+      "annex": "",
+      "title": "Titlul III. Managementul unităților de învățământ",
+      "chapter": "Capitolul IV. Directorul adjunct",
+      "section": "",
+      "article": 25,
+      "paragraph": "(3)",
+      "prompt": "După semnarea contractului de management educațional, directorul adjunct și cealaltă parte convin asupra schimbării unei clauze. Cum poate fi modificat contractul?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Exclusiv prin act adițional, cu acordul părților semnatare.",
+          "isCorrect": true
+        },
+        {
+          "id": "B",
+          "text": "Printr-o decizie a inspectorului școlar general, fără acordul directorului adjunct.",
+          "isCorrect": false
+        },
+        {
+          "id": "C",
+          "text": "Printr-o hotărâre a consiliului de administrație al unității.",
+          "isCorrect": false
+        },
+        {
+          "id": "D",
+          "text": "Printr-o notă internă a directorului unității, atașată la fișa postului.",
+          "isCorrect": false
+        }
+      ],
+      "correctOptionId": "A",
+      "explanation": "Contractul de management educațional nu se schimbă prin decizii unilaterale sau prin acte interne. Singura cale este actul adițional, semnat cu acordul ambelor părți.\n\nTemei: articolul 25 alineatul (3). Textul relevant: „Contractul de management educațional poate fi modificat exclusiv prin act adițional, cu acordul părților semnatare.”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "articolul 25 alineatul (3)",
+        "excerpt": "Contractul de management educațional poate fi modificat exclusiv prin act adițional, cu acordul părților semnatare.",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-126",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Titlul III. Managementul unităților de învățământ",
+      "annex": "",
+      "title": "Titlul III. Managementul unităților de învățământ",
+      "chapter": "Capitolul IV. Directorul adjunct",
+      "section": "",
+      "article": 25,
+      "paragraph": "(4)",
+      "prompt": "Un candidat a promovat concursul pentru funcția de director adjunct și propune să semneze imediat contractul de management educațional, urmând să depună evaluarea medicală după câteva zile. Ce se întâmplă?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Contractul se semnează, iar evaluarea medicală se depune ulterior, în termen de 30 de zile.",
+          "isCorrect": false
+        },
+        {
+          "id": "B",
+          "text": "Contractul nu poate fi încheiat înainte de prezentarea unei evaluări medicale care atestă că persoana este aptă pentru funcția vizată.",
+          "isCorrect": true
+        },
+        {
+          "id": "C",
+          "text": "Evaluarea medicală se cere doar la prima numire într-o funcție de conducere, nu la încheierea contractului.",
+          "isCorrect": false
+        },
+        {
+          "id": "D",
+          "text": "Evaluarea medicală este necesară doar dacă o solicită consiliul de administrație al unității.",
+          "isCorrect": false
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Evaluarea medicală este o condiție prealabilă. Contractul de management educațional poate fi încheiat numai după ce aceasta a fost prezentată.\n\nTemei: articolul 25 alineatul (4). Textul relevant: „Contractul de management educațional poate fi încheiat numai după prezentarea unei evaluări medicale care atestă faptul că persoana este aptă pentru funcția vizată.”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "articolul 25 alineatul (4)",
+        "excerpt": "Contractul de management educațional poate fi încheiat numai după prezentarea unei evaluări medicale care atestă faptul că persoana este aptă pentru funcția vizată.",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-127",
+      "kind": "aplicare",
+      "difficulty": "expert",
+      "module": "Titlul III. Managementul unităților de învățământ",
+      "annex": "",
+      "title": "Titlul III. Managementul unităților de învățământ",
+      "chapter": "Capitolul IV. Directorul adjunct",
+      "section": "",
+      "article": 25,
+      "paragraph": "(5)",
+      "prompt": "Un director adjunct aflat în mandat este ales președinte al sindicatului din propria unitate de învățământ. Este permis acest cumul?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Da, dacă sindicatul funcționează doar la nivelul unității de învățământ.",
+          "isCorrect": false
+        },
+        {
+          "id": "B",
+          "text": "Da, dacă directorul unității își dă acordul scris.",
+          "isCorrect": false
+        },
+        {
+          "id": "C",
+          "text": "Nu, deoarece pe durata mandatului directorul adjunct nu poate deține nicio funcție de conducere în organizațiile sindicale.",
+          "isCorrect": true
+        },
+        {
+          "id": "D",
+          "text": "Da, dar numai ca vicepreședinte, nu ca președinte.",
+          "isCorrect": false
+        }
+      ],
+      "correctOptionId": "C",
+      "explanation": "Incompatibilitatea privește orice funcție de conducere în organizațiile sindicale, fără distincție între nivelul unității și alte niveluri și fără distincție între președinte și vicepreședinte. Acordul directorului nu o înlătură.\n\nTemei: articolul 25 alineatul (5). Textul relevant: „Pe perioada exercitării mandatului, directorul adjunct nu poate deține, conform legii, funcția de președinte sau vicepreședinte în structurile de conducere ale partidelor politice, la nivel local, județean/al municipiului București sau național, funcția de primar, viceprimar, președinte sau vicepreședinte de consiliu județean/al Consiliului General al Municipiului București sau orice funcție de conducere în organizațiile sindicale.”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "articolul 25 alineatul (5)",
+        "excerpt": "Pe perioada exercitării mandatului, directorul adjunct nu poate deține, conform legii, funcția de președinte sau vicepreședinte în structurile de conducere ale partidelor politice, la nivel local, județean/al municipiului București sau național, funcția de primar, viceprimar, președinte sau vicepreședinte de consiliu județean/al Consiliului General al Municipiului București sau orice funcție de conducere în organizațiile sindicale.",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-128",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Titlul III. Managementul unităților de învățământ",
+      "annex": "",
+      "title": "Titlul III. Managementul unităților de învățământ",
+      "chapter": "Capitolul IV. Directorul adjunct",
+      "section": "",
+      "article": 25,
+      "paragraph": "(6)",
+      "prompt": "O persoană a fost condamnată penal definitiv, cu intenție, pentru furt calificat, iar reabilitarea nu a intervenit. Poate ocupa o funcție de conducere într-o unitate de învățământ preuniversitar?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Da, dacă au trecut cel puțin cinci ani de la condamnare.",
+          "isCorrect": false
+        },
+        {
+          "id": "B",
+          "text": "Da, dacă obține avizul favorabil al consiliului de administrație al inspectoratului școlar.",
+          "isCorrect": false
+        },
+        {
+          "id": "C",
+          "text": "Da, dar numai pentru funcția de director adjunct, nu și pentru cea de director.",
+          "isCorrect": false
+        },
+        {
+          "id": "D",
+          "text": "Nu, deoarece nu poate ocupa o funcție de conducere persoana condamnată definitiv pentru o asemenea infracțiune, dacă nu a intervenit reabilitarea.",
+          "isCorrect": true
+        }
+      ],
+      "correctOptionId": "D",
+      "explanation": "Interdicția se aplică funcțiilor de conducere din unitățile preuniversitare și durează până la reabilitare. Trecerea unui anumit număr de ani sau un aviz nu o înlătură, iar textul nu distinge între director și director adjunct.\n\nTemei: articolul 25 alineatul (6). Textul relevant: „Nu poate ocupa/exercita o funcție de conducere la nivelul unităților de învățământ preuniversitar persoana care a fost condamnată penal definitiv pentru săvârșirea cu intenție a unei infracțiuni contra vieții, integrității corporale sau sănătății, contra libertății persoanei, rele tratamente aplicate minorului, hărțuire, trafic de minori, proxenetism, infracțiuni contra libertății și integrității sexuale, luare și dare de mită, trafic de influență, fals și uz de fals, furt calificat, pentru care nu a intervenit reabilitarea.”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "articolul 25 alineatul (6)",
+        "excerpt": "Nu poate ocupa/exercita o funcție de conducere la nivelul unităților de învățământ preuniversitar persoana care a fost condamnată penal definitiv pentru săvârșirea cu intenție a unei infracțiuni contra vieții, integrității corporale sau sănătății, contra libertății persoanei, rele tratamente aplicate minorului, hărțuire, trafic de minori, proxenetism, infracțiuni contra libertății și integrității sexuale, luare și dare de mită, trafic de influență, fals și uz de fals, furt calificat, pentru care nu a intervenit reabilitarea.",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-129",
+      "kind": "aplicare",
+      "difficulty": "expert",
+      "module": "Titlul III. Managementul unităților de învățământ",
+      "annex": "",
+      "title": "Titlul III. Managementul unităților de învățământ",
+      "chapter": "Capitolul IV. Directorul adjunct",
+      "section": "",
+      "article": 25,
+      "paragraph": "(7)",
+      "prompt": "Două treimi dintre membrii consiliului de administrație al unității propun motivat eliberarea din funcție a directorului adjunct numit prin concurs național. Ce urmează?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Un raport de evaluare a activității directorului adjunct, realizat de o comisie constituită la nivelul inspectoratului școlar, decizia finală aparținând consiliului de administrație al inspectoratului școlar.",
+          "isCorrect": true
+        },
+        {
+          "id": "B",
+          "text": "Directorul unității emite imediat decizia de eliberare din funcție.",
+          "isCorrect": false
+        },
+        {
+          "id": "C",
+          "text": "Consiliul profesoral validează propunerea prin vot secret, iar decizia finală aparține inspectorului școlar general.",
+          "isCorrect": false
+        },
+        {
+          "id": "D",
+          "text": "Propunerea produce efecte direct, fără alte etape, după înregistrarea ei la inspectoratul școlar.",
+          "isCorrect": false
+        }
+      ],
+      "correctOptionId": "A",
+      "explanation": "Propunerea consiliului de administrație al unității nu duce la eliberare automat. Ea este urmată de un raport de evaluare întocmit la nivelul inspectoratului școlar, iar decizia finală aparține consiliului de administrație al inspectoratului școlar.\n\nTemei: articolul 25 alineatul (7) litera b). Textul relevant: „la propunerea motivată a 2/3 dintre membrii consiliului de administrație al unității de învățământ urmată de un raport de evaluare a activității directorului adjunct, realizat de către o comisie constituită la nivelul ISJ/ISMB, decizia finală aparținând consiliului de administrație al inspectoratului școlar”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "articolul 25 alineatul (7) litera b)",
+        "excerpt": "la propunerea motivată a 2/3 dintre membrii consiliului de administrație al unității de învățământ urmată de un raport de evaluare a activității directorului adjunct, realizat de către o comisie constituită la nivelul ISJ/ISMB, decizia finală aparținând consiliului de administrație al inspectoratului școlar",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-130",
+      "kind": "aplicare",
+      "difficulty": "expert",
+      "module": "Titlul III. Managementul unităților de învățământ",
+      "annex": "",
+      "title": "Titlul III. Managementul unităților de învățământ",
+      "chapter": "Capitolul IV. Directorul adjunct",
+      "section": "",
+      "article": 25,
+      "paragraph": "(7)",
+      "prompt": "Consiliul profesoral propune, prin vot secret al a două treimi dintre membri, eliberarea din funcție a directorului adjunct. Care este consecința procedurală?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Directorul adjunct este eliberat automat din funcție, fără alte verificări.",
+          "isCorrect": false
+        },
+        {
+          "id": "B",
+          "text": "Este obligatorie realizarea unui audit de către inspectoratul școlar, iar rezultatele se analizează în consiliul de administrație al inspectoratului.",
+          "isCorrect": true
+        },
+        {
+          "id": "C",
+          "text": "Consiliul de administrație al unității decide definitiv, pe baza unui raport de evaluare.",
+          "isCorrect": false
+        },
+        {
+          "id": "D",
+          "text": "Auditul este facultativ și se realizează doar la cererea directorului adjunct.",
+          "isCorrect": false
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Propunerea consiliului profesoral declanșează un audit obligatoriu realizat de inspectoratul școlar. Inspectorul școlar general emite decizia de eliberare abia după hotărârea consiliului de administrație al inspectoratului.\n\nTemei: articolul 25 alineatul (7) litera c). Textul relevant: „la propunerea consiliului profesoral, cu votul secret a 2/3 dintre membri. În această situație, este obligatorie realizarea unui audit de către ISJ/ISMB. Rezultatele auditului se analizează în consiliul de administrație al ISJ/ISMB.”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "articolul 25 alineatul (7) litera c)",
+        "excerpt": "la propunerea consiliului profesoral, cu votul secret a 2/3 dintre membri. În această situație, este obligatorie realizarea unui audit de către ISJ/ISMB. Rezultatele auditului se analizează în consiliul de administrație al ISJ/ISMB.",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-131",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Titlul III. Managementul unităților de învățământ",
+      "annex": "",
+      "title": "Titlul III. Managementul unităților de învățământ",
+      "chapter": "Capitolul IV. Directorul adjunct",
+      "section": "",
+      "article": 25,
+      "paragraph": "(7)",
+      "prompt": "Un director adjunct a încălcat cu vinovăție obligațiile stabilite prin contractul de management. Cum poate fi eliberat din funcție pentru acest motiv?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Prin decizia directorului unității, fără cercetare disciplinară, dacă încălcarea este evidentă.",
+          "isCorrect": false
+        },
+        {
+          "id": "B",
+          "text": "Doar la propunerea consiliului profesoral, prin vot secret al a două treimi dintre membri.",
+          "isCorrect": false
+        },
+        {
+          "id": "C",
+          "text": "Cu respectarea procedurii de cercetare disciplinară prevăzute de Legea învățământului preuniversitar nr. 198/2023.",
+          "isCorrect": true
+        },
+        {
+          "id": "D",
+          "text": "Prin simpla notificare a inspectorului școlar general, fără alte formalități.",
+          "isCorrect": false
+        }
+      ],
+      "correctOptionId": "C",
+      "explanation": "Eliberarea pentru încălcarea vinovată a contractului de management este legată de procedura de cercetare disciplinară din lege. Ea nu se face prin decizie unilaterală sau prin simplă notificare.\n\nTemei: articolul 25 alineatul (7) litera d). Textul relevant: „pentru încălcarea cu vinovăție a obligațiilor stabilite prin contractul de management, cu respectarea procedurii de cercetare disciplinară prevăzută de Legea învățământului preuniversitar nr. 198/2023, cu modificările și completările ulterioare”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "articolul 25 alineatul (7) litera d)",
+        "excerpt": "pentru încălcarea cu vinovăție a obligațiilor stabilite prin contractul de management, cu respectarea procedurii de cercetare disciplinară prevăzută de Legea învățământului preuniversitar nr. 198/2023, cu modificările și completările ulterioare",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-132",
+      "kind": "aplicare",
+      "difficulty": "expert",
+      "module": "Titlul III. Managementul unităților de învățământ",
+      "annex": "",
+      "title": "Titlul III. Managementul unităților de învățământ",
+      "chapter": "Capitolul IV. Directorul adjunct",
+      "section": "",
+      "article": 25,
+      "paragraph": "(11)",
+      "prompt": "Funcția de director adjunct devine vacantă și nu se poate asigura numirea prin detașare în interesul învățământului. Cine asigură conducerea interimară și pentru cât timp, cel mult?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Directorul unității, pe durată nelimitată, până la organizarea concursului.",
+          "isCorrect": false
+        },
+        {
+          "id": "B",
+          "text": "Cel mai vechi membru al consiliului profesoral, pentru cel mult 90 de zile calendaristice.",
+          "isCorrect": false
+        },
+        {
+          "id": "C",
+          "text": "Un cadru didactic membru al consiliului de administrație, cu acordul său, pe tot anul școlar, indiferent de organizarea concursului.",
+          "isCorrect": false
+        },
+        {
+          "id": "D",
+          "text": "Un cadru didactic membru al consiliului de administrație din unitate, cu acordul său, cel mult 60 de zile calendaristice și fără a depăși sfârșitul anului școlar.",
+          "isCorrect": true
+        }
+      ],
+      "correctOptionId": "D",
+      "explanation": "Soluția cu delegarea către un membru al consiliului de administrație este de rezervă și are două limite cumulative: 60 de zile calendaristice și sfârșitul anului școlar. Persoana trebuie să fie de acord.\n\nTemei: articolul 25 alineatul (11). Textul relevant: „În cazul în care nu se poate asigura numirea prin detașare în interesul învățământului, conducerea interimară va fi asigurată de un cadru didactic membru al consiliului de administrație din unitatea de învățământ, cu acordul acestuia, căruia i se deleagă atribuțiile specifice funcției de conducere, până la organizarea concursului, dar nu mai mult de 60 de zile calendaristice și fără a depăși sfârșitul anului școlar.”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "articolul 25 alineatul (11)",
+        "excerpt": "În cazul în care nu se poate asigura numirea prin detașare în interesul învățământului, conducerea interimară va fi asigurată de un cadru didactic membru al consiliului de administrație din unitatea de învățământ, cu acordul acestuia, căruia i se deleagă atribuțiile specifice funcției de conducere, până la organizarea concursului, dar nu mai mult de 60 de zile calendaristice și fără a depăși sfârșitul anului școlar.",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-133",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Titlul III. Managementul unităților de învățământ",
+      "annex": "",
+      "title": "Titlul III. Managementul unităților de învățământ",
+      "chapter": "Capitolul IV. Directorul adjunct",
+      "section": "",
+      "article": 26,
+      "paragraph": "(1)",
+      "prompt": "Cum sunt stabilite atribuțiile unui director adjunct?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Prin fișa postului, anexă la contractul de management, la care se adaugă atribuțiile delegate de director pe perioade determinate.",
+          "isCorrect": true
+        },
+        {
+          "id": "B",
+          "text": "Exclusiv prin decizia consiliului de administrație, adoptată la începutul fiecărui an școlar.",
+          "isCorrect": false
+        },
+        {
+          "id": "C",
+          "text": "Exclusiv prin delegare de la director, pe durată nedeterminată.",
+          "isCorrect": false
+        },
+        {
+          "id": "D",
+          "text": "Prin regulamentul intern al unității, fără legătură cu contractul de management.",
+          "isCorrect": false
+        }
+      ],
+      "correctOptionId": "A",
+      "explanation": "Activitatea directorului adjunct se desfășoară în baza contractului de management. Atribuțiile rezultă din fișa postului, care este anexă la contract, și din atribuțiile delegate de director, dar numai pe perioade determinate.\n\nTemei: articolul 26 alineatul (1). Textul relevant: „Directorul adjunct își desfășoară activitatea în baza contractului de management încheiat și îndeplinește atribuțiile stabilite prin fișa postului, anexă la contractul de management, precum și atribuțiile delegate de director pe perioade determinate.”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "articolul 26 alineatul (1)",
+        "excerpt": "Directorul adjunct își desfășoară activitatea în baza contractului de management încheiat și îndeplinește atribuțiile stabilite prin fișa postului, anexă la contractul de management, precum și atribuțiile delegate de director pe perioade determinate.",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-134",
+      "kind": "aplicare",
+      "difficulty": "expert",
+      "module": "Titlul III. Managementul unităților de învățământ",
+      "annex": "",
+      "title": "Titlul III. Managementul unităților de învățământ",
+      "chapter": "Capitolul IV. Directorul adjunct",
+      "section": "",
+      "article": 26,
+      "paragraph": "(2)",
+      "prompt": "Directorul pleacă în concediu de odihnă, iar unitatea are director adjunct. Ce trebuie să facă directorul pentru această perioadă?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Să lase atribuțiile suspendate până la întoarcere, cu excepția celor urgente.",
+          "isCorrect": false
+        },
+        {
+          "id": "B",
+          "text": "Să delege prin decizie atribuțiile către directorul adjunct, care le exercită pe toate în lipsa lui.",
+          "isCorrect": true
+        },
+        {
+          "id": "C",
+          "text": "Să delege atribuțiile unui alt cadru didactic membru al consiliului de administrație, chiar dacă există director adjunct.",
+          "isCorrect": false
+        },
+        {
+          "id": "D",
+          "text": "Să ceară inspectorului școlar general să desemneze un înlocuitor.",
+          "isCorrect": false
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Directorul are obligația să delege prin decizie atribuțiile către directorul adjunct. Alt cadru didactic titular intră în discuție doar când nu există funcția de director adjunct.\n\nTemei: articolul 26 alineatul (2), coroborat cu articolul 21 alineatul (7). Textul relevant: „Directorul adjunct exercită, prin delegare, în condițiile art. 21 alin. (7) și (8), toate atribuțiile directorului, în lipsa acestuia.”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "articolul 26 alineatul (2), coroborat cu articolul 21 alineatul (7)",
+        "excerpt": "Directorul adjunct exercită, prin delegare, în condițiile art. 21 alin. (7) și (8), toate atribuțiile directorului, în lipsa acestuia.",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-135",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Titlul III. Managementul unităților de învățământ",
+      "annex": "",
+      "title": "Titlul III. Managementul unităților de învățământ",
+      "chapter": "Capitolul IV. Directorul adjunct",
+      "section": "",
+      "article": 27,
+      "paragraph": "(1)",
+      "prompt": "Directorul adjunct își planifică concediul anual de odihnă. Cine aprobă perioada acestuia?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Inspectorul școlar general.",
+          "isCorrect": false
+        },
+        {
+          "id": "B",
+          "text": "Consiliul de administrație al unității, prin hotărâre.",
+          "isCorrect": false
+        },
+        {
+          "id": "C",
+          "text": "Directorul unității de învățământ.",
+          "isCorrect": true
+        },
+        {
+          "id": "D",
+          "text": "Consiliul profesoral, prin vot majoritar.",
+          "isCorrect": false
+        }
+      ],
+      "correctOptionId": "C",
+      "explanation": "Perioada concediului anual de odihnă al directorului adjunct se aprobă de către directorul unității. Directorul adjunct are contractul de management cu inspectorul școlar general, dar aprobarea concediului nu urmează această regulă.\n\nTemei: articolul 27 alineatul (1). Textul relevant: „Perioada concediului anual de odihnă al directorului adjunct se aprobă de către directorul unității de învățământ.”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "articolul 27 alineatul (1)",
+        "excerpt": "Perioada concediului anual de odihnă al directorului adjunct se aprobă de către directorul unității de învățământ.",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-136",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Titlul III. Managementul unităților de învățământ",
+      "annex": "",
+      "title": "Titlul III. Managementul unităților de învățământ",
+      "chapter": "Capitolul IV. Directorul adjunct",
+      "section": "",
+      "article": 27,
+      "paragraph": "(2)",
+      "prompt": "În timpul concediului de odihnă al directorului adjunct apare o situație care îi cere prezența. Cine îl poate rechema din concediu?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Directorul unității sau inspectorul școlar general, cu respectarea obligațiilor legale ale angajatorului.",
+          "isCorrect": true
+        },
+        {
+          "id": "B",
+          "text": "Numai directorul unității, după consultarea consiliului de administrație.",
+          "isCorrect": false
+        },
+        {
+          "id": "C",
+          "text": "Numai inspectorul școlar general, deoarece directorul adjunct are contract de management cu el.",
+          "isCorrect": false
+        },
+        {
+          "id": "D",
+          "text": "Consiliul de administrație al unității, prin hotărâre.",
+          "isCorrect": false
+        }
+      ],
+      "correctOptionId": "A",
+      "explanation": "Rechemarea din concediu poate fi dispusă de două persoane: directorul unității sau inspectorul școlar general. Ea se face cu respectarea obligațiilor legale ale angajatorului.\n\nTemei: articolul 27 alineatul (2). Textul relevant: „Rechemarea din concediu a directorului adjunct se poate realiza de către directorul unității de învățământ sau de către inspectorul școlar general al ISJ/ISMB, cu respectarea obligațiilor legale de către angajator.”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "articolul 27 alineatul (2)",
+        "excerpt": "Rechemarea din concediu a directorului adjunct se poate realiza de către directorul unității de învățământ sau de către inspectorul școlar general al ISJ/ISMB, cu respectarea obligațiilor legale de către angajator.",
         "verification": "fragment-exact-din-sursa-consolidata"
       }
     }
