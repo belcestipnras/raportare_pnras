@@ -7,7 +7,7 @@
     "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
     "method": "itemi situaționali redactați manual și verificați pe fragmentele exacte ale formei consolidate"
   },
-  "count": 148,
+  "count": 161,
   "questions": [
     {
       "id": "RF-A-001",
@@ -6750,6 +6750,630 @@
         "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
         "reference": "articolul 53",
         "excerpt": "Personalul administrativ răspunde disciplinar în conformitate cu prevederile Legii nr. 53/2003 - Codul muncii, republicată, cu modificările și completările ulterioare.",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-149",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Titlul VII. Elevii",
+      "annex": "",
+      "title": "Titlul VII. Elevii",
+      "chapter": "Capitolul I. Dobândirea și exercitarea calității de elev",
+      "section": "",
+      "article": 89,
+      "paragraph": "(2)",
+      "prompt": "Părinții unui copil depun o cerere scrisă de înscriere în clasa a V-a. Secretara le spune că decizia aparține doar directorului, fără alte aprobări. Este corect?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Nu, deoarece înscrierea se aprobă de consiliul de administrație, ca urmare a solicitării scrise a părinților.",
+          "isCorrect": true
+        },
+        {
+          "id": "B",
+          "text": "Da, directorul aprobă singur înscrierile, prin decizie.",
+          "isCorrect": false,
+          "why": "Aprobarea înscrierii aparține consiliului de administrație."
+        },
+        {
+          "id": "C",
+          "text": "Nu, înscrierea se aprobă de consiliul profesoral.",
+          "isCorrect": false,
+          "why": "Aprobarea aparține consiliului de administrație, nu consiliului profesoral."
+        },
+        {
+          "id": "D",
+          "text": "Nu, înscrierea se aprobă de inspectoratul școlar, la cererea scrisă a părinților.",
+          "isCorrect": false,
+          "why": "Regulamentul atribuie aprobarea consiliului de administrație al unității, nu inspectoratului școlar."
+        }
+      ],
+      "correctOptionId": "A",
+      "explanation": "Regula: Înscrierea se aprobă de consiliul de administrație, ca urmare a solicitării scrise a părinților sau reprezentanților legali, cu respectarea legislației și a regulamentelor aplicabile.\n\nCererea scrisă a părinților pornește procedura, iar aprobarea este competența consiliului de administrație, nu doar a directorului.\n\nTemei: articolul 89 alineatul (2). Textul relevant: „Înscrierea se aprobă de către consiliul de administrație, cu respectarea legislației în vigoare, a prezentului regulament, a regulamentelor specifice aprobate prin ordin al ministrului educației și a regulamentului de organizare și funcționare a unității, ca urmare a solicitării scrise a părinților/reprezentanților legali.”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "articolul 89 alineatul (2)",
+        "excerpt": "Înscrierea se aprobă de către consiliul de administrație, cu respectarea legislației în vigoare, a prezentului regulament, a regulamentelor specifice aprobate prin ordin al ministrului educației și a regulamentului de organizare și funcționare a unității, ca urmare a solicitării scrise a părinților/reprezentanților legali.",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-150",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Titlul VII. Elevii",
+      "annex": "",
+      "title": "Titlul VII. Elevii",
+      "chapter": "Capitolul I. Dobândirea și exercitarea calității de elev",
+      "section": "",
+      "article": 89,
+      "paragraph": "(3)",
+      "prompt": "La înscrierea la școală, părinții unui copil nu pot prezenta codul numeric personal al acestuia. Secretariatul propune să amâne înscrierea până se rezolvă actele. Este corect?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Da, înscrierea se face numai după obținerea codului numeric personal.",
+          "isCorrect": false,
+          "why": "Regulamentul impune înscrierea chiar și fără cod numeric personal."
+        },
+        {
+          "id": "B",
+          "text": "Nu, deoarece unitatea are obligația de a înscrie persoanele care nu dețin cod numeric personal.",
+          "isCorrect": true
+        },
+        {
+          "id": "C",
+          "text": "Da, copilul poate fi înscris doar ca audient, fără calitatea de elev.",
+          "isCorrect": false,
+          "why": "Regulamentul prevede înscrierea și înmatricularea, nu un statut de audient."
+        },
+        {
+          "id": "D",
+          "text": "Nu, dar obligația există numai pentru copiii cu cetățenie română.",
+          "isCorrect": false,
+          "why": "Textul nu face nicio distincție după cetățenie."
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Regula: Unitățile de învățământ preuniversitar au obligația de a înscrie persoanele care nu dețin cod numeric personal, pentru a asigura accesul la învățământul obligatoriu.\n\nLipsa codului numeric personal nu justifică amânarea. Normele metodologice pentru înmatricularea acestor persoane sunt în Anexa numărul 2 la regulament.\n\nTemei: articolul 89 alineatul (3). Textul relevant: „unitățile de învățământ preuniversitar au obligația de a înscrie persoanele care nu dețin un cod numeric personal”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "articolul 89 alineatul (3)",
+        "excerpt": "unitățile de învățământ preuniversitar au obligația de a înscrie persoanele care nu dețin un cod numeric personal",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-151",
+      "kind": "aplicare",
+      "difficulty": "expert",
+      "module": "Titlul VII. Elevii",
+      "annex": "",
+      "title": "Titlul VII. Elevii",
+      "chapter": "Capitolul I. Dobândirea și exercitarea calității de elev",
+      "section": "",
+      "article": 90,
+      "paragraph": "(4)",
+      "prompt": "Părinții unui elev din clasa I cer retragerea lui pentru că obosește și lipsește des din motive medicale. Directorul le promite că reînscrierea în anul următor se va face oricum. Ce trebuie să facă unitatea?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Să aprobe cererea imediat, deoarece părinții decid în interesul copilului.",
+          "isCorrect": false,
+          "why": "Cererea se soluționează numai dacă evaluarea nivelului dezvoltării atestă necesitatea reînscrierii."
+        },
+        {
+          "id": "B",
+          "text": "Să respingă cererea, deoarece retragerea din clasa I nu este permisă.",
+          "isCorrect": false,
+          "why": "Retragerea este prevăzută de alineatul (2) pentru absențe medicale sau neadaptare școlară. Condiția este evaluarea, nu o interdicție."
+        },
+        {
+          "id": "C",
+          "text": "Să consilieze părinții și să îi informeze că solicitarea se poate soluționa doar dacă evaluarea nivelului dezvoltării, realizată de cadrul didactic de la clasă, atestă necesitatea reînscrierii.",
+          "isCorrect": true
+        },
+        {
+          "id": "D",
+          "text": "Să condiționeze soluționarea de avizul inspectoratului școlar.",
+          "isCorrect": false,
+          "why": "Condiția prevăzută este evaluarea nivelului dezvoltării realizată de cadrul didactic, nu avizul inspectoratului."
+        }
+      ],
+      "correctOptionId": "C",
+      "explanation": "Regula: Când părinții cer retragerea unui elev din clasa pregătitoare sau clasa I, unitatea îi consiliază și îi informează că solicitarea se poate soluționa doar dacă evaluarea nivelului dezvoltării, făcută de cadrul didactic de la clasă, atestă necesitatea reînscrierii.\n\nRetragerea nu se aprobă automat. Decide evaluarea făcută de cadrul didactic, iar unitatea are obligația să consilieze părinții în interesul educațional al copilului.\n\nTemei: articolul 90 alineatul (4). Textul relevant: „unitățile de învățământ vor consilia părinții sau reprezentanții legali privind nevoia de a lua decizii în interesul educațional al copilului/elevului și îi vor informa că solicitarea nu poate fi soluționată decât în situația în care evaluarea nivelului dezvoltării realizată de cadrul didactic de la clasă atestă necesitatea reînscrierii în grupa/clasa anterioară sau în grupa/clasa corespunzătoare nivelului din care s-a retras”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "articolul 90 alineatul (4)",
+        "excerpt": "unitățile de învățământ vor consilia părinții sau reprezentanții legali privind nevoia de a lua decizii în interesul educațional al copilului/elevului și îi vor informa că solicitarea nu poate fi soluționată decât în situația în care evaluarea nivelului dezvoltării realizată de cadrul didactic de la clasă atestă necesitatea reînscrierii în grupa/clasa anterioară sau în grupa/clasa corespunzătoare nivelului din care s-a retras",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-152",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Titlul VII. Elevii",
+      "annex": "",
+      "title": "Titlul VII. Elevii",
+      "chapter": "Capitolul I. Dobândirea și exercitarea calității de elev",
+      "section": "",
+      "article": 94,
+      "paragraph": "(1)",
+      "prompt": "Un profesor anunță că va trece absență elevilor prezenți la oră care nu și-au făcut tema. Este permis?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Da, dacă regulamentul intern al unității prevede această sancțiune.",
+          "isCorrect": false,
+          "why": "Un regulament intern nu poate contraveni regulamentului-cadru, care interzice folosirea absenței ca mijloc de coerciție."
+        },
+        {
+          "id": "B",
+          "text": "Da, dar numai cu acordul dirigintelui.",
+          "isCorrect": false,
+          "why": "Acordul dirigintelui nu schimbă regula: absența se consemnează doar pentru elevul care nu este prezent la oră."
+        },
+        {
+          "id": "C",
+          "text": "Da, dar absența se șterge din catalog dacă elevul aduce tema ulterior.",
+          "isCorrect": false,
+          "why": "Absența unui elev prezent nu se consemnează deloc, iar absența nu poate fi folosită ca mijloc de presiune."
+        },
+        {
+          "id": "D",
+          "text": "Nu, deoarece absența se consemnează doar dacă elevul nu este prezent la ora de curs și nu poate fi folosită drept mijloc de coerciție.",
+          "isCorrect": true
+        }
+      ],
+      "correctOptionId": "D",
+      "explanation": "Regula: Absența se consemnează în catalog doar dacă elevul nu este prezent la ora de curs și nu poate fi folosită drept mijloc de coerciție.\n\nPrezența la oră decide: un elev prezent nu poate fi trecut absent ca sancțiune.\n\nTemei: articolul 94 alineatul (1). Textul relevant: „Absența se consemnează în catalog doar în cazul în care elevul nu este prezent la ora de curs și nu poate fi folosită drept mijloc de coerciție.”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "articolul 94 alineatul (1)",
+        "excerpt": "Absența se consemnează în catalog doar în cazul în care elevul nu este prezent la ora de curs și nu poate fi folosită drept mijloc de coerciție.",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-153",
+      "kind": "aplicare",
+      "difficulty": "expert",
+      "module": "Titlul VII. Elevii",
+      "annex": "",
+      "title": "Titlul VII. Elevii",
+      "chapter": "Capitolul I. Dobândirea și exercitarea calității de elev",
+      "section": "",
+      "article": 94,
+      "paragraph": "(5)",
+      "prompt": "Un părinte cere în scris motivarea absențelor fiului, fără acte medicale. Dirigintele vrea să le motiveze direct, pe baza cererii. Ce condiții trebuie respectate?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Motivarea pe cerere scrisă este posibilă doar în limita a 40 de ore pe an școlar, fără a depăși 20% din orele unei discipline, și cu avizul prealabil al directorului.",
+          "isCorrect": true
+        },
+        {
+          "id": "B",
+          "text": "Dirigintele motivează orice număr de absențe pe baza cererii, fără alt aviz.",
+          "isCorrect": false,
+          "why": "Cererea scrisă motivează absențe doar în limitele prevăzute și numai cu avizul prealabil al directorului."
+        },
+        {
+          "id": "C",
+          "text": "Motivarea pe cerere este posibilă în limita a 100 de ore pe an școlar, cu avizul directorului.",
+          "isCorrect": false,
+          "why": "Limita de 100 de ore este o excepție pentru elevele gravide și elevii părinți (alineatul (6)). Pentru ceilalți elevi limita este de 40 de ore."
+        },
+        {
+          "id": "D",
+          "text": "Cererea scrisă nu poate motiva absențe, fiind acceptate numai actele medicale.",
+          "isCorrect": false,
+          "why": "Regulamentul permite motivarea pe baza cererii scrise a părintelui, în limita prevăzută și cu avizul directorului."
+        }
+      ],
+      "correctOptionId": "A",
+      "explanation": "Regula: Pe baza cererilor scrise ale părintelui, absențele se pot motiva doar în limita a 40 de ore de curs pe an școlar, fără a depăși 20% din orele alocate unei discipline, și numai cu avizul prealabil al directorului.\n\nCererea părintelui este o cale limitată: are plafon pe an școlar, plafon pe disciplină și cere avizul directorului înainte de motivare.\n\nTemei: articolul 94 alineatul (5). Textul relevant: „În limita a 40 de ore de curs pe an școlar, fără a depăși 20% din numărul orelor alocate unei discipline, absențele pot fi motivate doar pe baza cererilor scrise ale părintelui sau reprezentantului legal al elevului sau ale elevului major, adresate învățătorului/institutorului/profesorului pentru învățământul primar/profesorului diriginte al clasei, avizate în prealabil de motivare de către directorul unității de învățământ.”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "articolul 94 alineatul (5)",
+        "excerpt": "În limita a 40 de ore de curs pe an școlar, fără a depăși 20% din numărul orelor alocate unei discipline, absențele pot fi motivate doar pe baza cererilor scrise ale părintelui sau reprezentantului legal al elevului sau ale elevului major, adresate învățătorului/institutorului/profesorului pentru învățământul primar/profesorului diriginte al clasei, avizate în prealabil de motivare de către directorul unității de învățământ.",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-154",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Titlul VII. Elevii",
+      "annex": "",
+      "title": "Titlul VII. Elevii",
+      "chapter": "Capitolul I. Dobândirea și exercitarea calității de elev",
+      "section": "",
+      "article": 94,
+      "paragraph": "(7)-(8)",
+      "prompt": "Un elev lipsește o săptămână din motive medicale și își reia activitatea luni. Părinții aduc adeverința medicală abia în a noua zi calendaristică de la reluare. Ce se întâmplă cu absențele?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Rămân motivate, deoarece există adeverința medicală.",
+          "isCorrect": false,
+          "why": "Existența adeverinței nu este suficientă. Ea trebuie prezentată în termen, iar depășirea termenului duce la absențe nemotivate."
+        },
+        {
+          "id": "B",
+          "text": "Termenul de 7 zile calendaristice de la reluarea activității a fost depășit, deci absențele sunt declarate nemotivate.",
+          "isCorrect": true
+        },
+        {
+          "id": "C",
+          "text": "Dirigintele poate prelungi termenul cu încă 7 zile.",
+          "isCorrect": false,
+          "why": "Regulamentul nu prevede prelungirea termenului de către diriginte."
+        },
+        {
+          "id": "D",
+          "text": "Directorul le motivează automat, deoarece actul are viza cabinetului școlar.",
+          "isCorrect": false,
+          "why": "Viza condiționează valabilitatea actului medical, dar termenul de 7 zile rămâne, iar nerespectarea lui declară absențele nemotivate."
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Regula: Actele justificative se prezintă în termen de 7 zile calendaristice de la reluarea activității elevului. Nerespectarea termenului duce la declararea absențelor ca nemotivate.\n\nTermenul de prezentare a actelor este obligatoriu, iar consecința depășirii lui este prevăzută expres în regulament.\n\nTemei: articolul 94 alineatele (7) și (8). Textul relevant: „păstrează la sediul unității de învățământ, pe tot parcursul anului școlar, actele pe baza cărora se face motivarea absențelor, prezentate în termen de 7 zile calendaristice de la reluarea activității elevului. (8)Nerespectarea termenului prevăzut la alin. (7) atrage declararea absențelor ca nemotivate.”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "articolul 94 alineatele (7) și (8)",
+        "excerpt": "păstrează la sediul unității de învățământ, pe tot parcursul anului școlar, actele pe baza cărora se face motivarea absențelor, prezentate în termen de 7 zile calendaristice de la reluarea activității elevului. (8)Nerespectarea termenului prevăzut la alin. (7) atrage declararea absențelor ca nemotivate.",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-155",
+      "kind": "aplicare",
+      "difficulty": "expert",
+      "module": "Titlul VII. Elevii",
+      "annex": "",
+      "title": "Titlul VII. Elevii",
+      "chapter": "Capitolul I. Dobândirea și exercitarea calității de elev",
+      "section": "",
+      "article": 95,
+      "paragraph": "(4)",
+      "prompt": "La o disciplină, un elev a lipsit la peste 75% din orele prevăzute pe un an școlar. Ce obligație are directorul?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Să declare elevul repetent, deoarece pragul de 75% duce la repetenție.",
+          "isCorrect": false,
+          "why": "Textul nu leagă acest prag de repetenție, ci de anunțarea serviciilor de asistență socială și de măsuri de prevenire a abandonului."
+        },
+        {
+          "id": "B",
+          "text": "Să comunice situația doar părinților și să aștepte încheierea anului școlar.",
+          "isCorrect": false,
+          "why": "Directorul trebuie să anunțe serviciile de asistență socială și să contribuie la măsuri de prevenire, nu să aștepte încheierea anului."
+        },
+        {
+          "id": "C",
+          "text": "Să anunțe serviciile de asistență socială și să contribuie la stabilirea unor măsuri de prevenire a abandonului școlar.",
+          "isCorrect": true
+        },
+        {
+          "id": "D",
+          "text": "Să lase dirigintele să decidă dacă informează alte instituții.",
+          "isCorrect": false,
+          "why": "Obligația este stabilită în sarcina directorului unității."
+        }
+      ],
+      "correctOptionId": "C",
+      "explanation": "Regula: Când un elev înregistrează absențe la cel puțin 75% din orele unei discipline sau ale unui modul pe an școlar, directorul trebuie să anunțe serviciile de asistență socială și să contribuie la măsuri de prevenire a abandonului școlar.\n\nPragul de 75% declanșează o obligație proprie a directorului: sesizarea serviciilor de asistență socială și măsuri de prevenire a abandonului.\n\nTemei: articolul 95 alineatul (4). Textul relevant: „Directorul unității de învățământ are obligația să anunțe serviciile de asistență socială (SPAS/DAS) și să contribuie la stabilirea unor măsuri de prevenire a abandonului școlar, în cazul beneficiarilor primari care înregistrează absențe la cel puțin 75% din numărul de ore de curs prevăzut într-un an școlar la disciplinele/modulele respective.”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "articolul 95 alineatul (4)",
+        "excerpt": "Directorul unității de învățământ are obligația să anunțe serviciile de asistență socială (SPAS/DAS) și să contribuie la stabilirea unor măsuri de prevenire a abandonului școlar, în cazul beneficiarilor primari care înregistrează absențe la cel puțin 75% din numărul de ore de curs prevăzut într-un an școlar la disciplinele/modulele respective.",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-156",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Titlul VII. Elevii",
+      "annex": "",
+      "title": "Titlul VII. Elevii",
+      "chapter": "Capitolul I. Dobândirea și exercitarea calității de elev",
+      "section": "",
+      "article": 95,
+      "paragraph": "(2)",
+      "prompt": "Trei elevi participă la faza județeană a unei olimpiade școlare, iar profesorul îndrumător vrea ca absențele lor să fie motivate. Cum se procedează?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Dirigintele motivează absențele pe baza biletelor de transport.",
+          "isCorrect": false,
+          "why": "Pentru olimpiade și concursuri motivarea este aprobată de directorul unității, la cererea scrisă a profesorilor îndrumători sau însoțitori."
+        },
+        {
+          "id": "B",
+          "text": "Absențele se motivează doar în limita celor 40 de ore pe an, pe baza cererii părinților.",
+          "isCorrect": false,
+          "why": "Participarea la olimpiade și concursuri are regula proprie din alineatul (2), care nu trimite la limita de 40 de ore."
+        },
+        {
+          "id": "C",
+          "text": "Inspectoratul școlar aprobă motivarea, deoarece olimpiada este județeană.",
+          "isCorrect": false,
+          "why": "Aprobarea aparține directorului unității, indiferent de nivelul competiției."
+        },
+        {
+          "id": "D",
+          "text": "Directorul unității aprobă motivarea absențelor, la cererea scrisă a profesorilor îndrumători sau însoțitori.",
+          "isCorrect": true
+        }
+      ],
+      "correctOptionId": "D",
+      "explanation": "Regula: Pentru participarea la olimpiade și concursuri, motivarea absențelor este aprobată de directorul unității, la cererea scrisă a profesorilor îndrumători sau însoțitori.\n\nRegula privește toate nivelurile competiției (local, județean, regional, național, internațional) și are o procedură proprie.\n\nTemei: articolul 95 alineatul (2). Textul relevant: „Directorul unității de învățământ aprobă motivarea absențelor beneficiarilor primari care participă la olimpiadele și concursurile școlare și profesionale organizate la nivel local, județean/interjudețean, regional, național și internațional, la cererea scrisă a profesorilor îndrumători/însoțitori.”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "articolul 95 alineatul (2)",
+        "excerpt": "Directorul unității de învățământ aprobă motivarea absențelor beneficiarilor primari care participă la olimpiadele și concursurile școlare și profesionale organizate la nivel local, județean/interjudețean, regional, național și internațional, la cererea scrisă a profesorilor îndrumători/însoțitori.",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-157",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Titlul VII. Elevii",
+      "annex": "",
+      "title": "Titlul VII. Elevii",
+      "chapter": "Capitolul I. Dobândirea și exercitarea calității de elev",
+      "section": "",
+      "article": 96,
+      "paragraph": "(2)",
+      "prompt": "Un elev minor se retrage din învățământ, iar părinții spun că nu știu încă dacă va continua studiile în altă parte. Ce obligație au?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Să depună o declarație pe propria răspundere că, în cel mult 60 de zile, vor prezenta dovada continuării studiilor și actele privind domiciliul sau reședința elevului.",
+          "isCorrect": true
+        },
+        {
+          "id": "B",
+          "text": "Nu au nicio obligație, deoarece retragerea este decizia familiei.",
+          "isCorrect": false,
+          "why": "Regulamentul stabilește obligația părinților de a depune declarația și de a prezenta dovada continuării studiilor, pentru asigurarea dreptului la educație."
+        },
+        {
+          "id": "C",
+          "text": "Să prezinte dovada continuării studiilor în cel mult 30 de zile, altfel elevul este declarat repetent.",
+          "isCorrect": false,
+          "why": "Termenul este de cel mult 60 de zile, iar consecința prevăzută este informarea Serviciului de Siguranță Școlară, nu repetenția."
+        },
+        {
+          "id": "D",
+          "text": "Să informeze primăria, care preia monitorizarea elevului.",
+          "isCorrect": false,
+          "why": "Obligația părinților este față de unitatea de învățământ, prin declarație. Directorul informează Serviciul de Siguranță Școlară dacă dovada nu este prezentată."
+        }
+      ],
+      "correctOptionId": "A",
+      "explanation": "Regula: Părinții elevului retras depun o declarație pe propria răspundere prin care își asumă că, în cel mult 60 de zile, vor prezenta dovada continuării studiilor și actele privind domiciliul sau reședința. Dacă nu o fac, directorul informează Serviciul de Siguranță Școlară.\n\nDeclarația fixează un termen de 60 de zile, iar consecința neprezentării este informarea Serviciului de Siguranță Școlară de către director.\n\nTemei: articolul 96 alineatul (2). Textul relevant: „În situația beneficiarilor primari retrași din învățământul preuniversitar, părinții/reprezentanții legali au obligația de a depune o declarație pe propria răspundere prin care își asumă că, în termen de cel mult 60 de zile, prezintă dovada continuării studiilor și acte doveditoare privind domiciliul/rezidența elevului în vederea asigurării dreptului la educație al copilului. În caz contrar, directorul unității de învățământ va informa Serviciul de Siguranța Școlară de pe raza căruia își desfășoară activitatea.”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "articolul 96 alineatul (2)",
+        "excerpt": "În situația beneficiarilor primari retrași din învățământul preuniversitar, părinții/reprezentanții legali au obligația de a depune o declarație pe propria răspundere prin care își asumă că, în termen de cel mult 60 de zile, prezintă dovada continuării studiilor și acte doveditoare privind domiciliul/rezidența elevului în vederea asigurării dreptului la educație al copilului. În caz contrar, directorul unității de învățământ va informa Serviciul de Siguranța Școlară de pe raza căruia își desfășoară activitatea.",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-158",
+      "kind": "aplicare",
+      "difficulty": "expert",
+      "module": "Titlul VII. Elevii",
+      "annex": "",
+      "title": "Titlul VII. Elevii",
+      "chapter": "Capitolul I. Dobândirea și exercitarea calității de elev",
+      "section": "",
+      "article": 96,
+      "paragraph": "(3)",
+      "prompt": "O elevă retrasă din cauza sarcinii vrea să revină la școală în martie. Alți elevi retrași pot de regulă să se reînmatriculeze doar la începutul anului școlar. Ce se aplică ei?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Poate reveni numai la începutul anului școlar următor, ca toți elevii retrași.",
+          "isCorrect": false,
+          "why": "Alineatul (3) este tocmai excepția de la regula generală a reînmatriculării de regulă la începutul anului școlar."
+        },
+        {
+          "id": "B",
+          "text": "Poate fi reînmatriculată la același an de studiu, în unitatea la care a fost școlarizată, oricând în timpul anului școlar.",
+          "isCorrect": true
+        },
+        {
+          "id": "C",
+          "text": "Poate reveni oricând, dar numai într-o altă unitate de învățământ.",
+          "isCorrect": false,
+          "why": "Reînmatricularea se face în unitatea la care a fost școlarizată."
+        },
+        {
+          "id": "D",
+          "text": "Poate reveni oricând, dar în anul de studiu anterior celui din care s-a retras.",
+          "isCorrect": false,
+          "why": "Reînmatricularea se face la același an de studiu."
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Regula: Elevele gravide și elevii părinți aflați în perioada de îngrijire a copilului se pot reînmatricula la același an de studiu, în unitatea la care au fost școlarizați, oricând în timpul anului școlar.\n\nRegula generală (de regulă la începutul anului școlar) are o excepție pentru elevele gravide și elevii părinți aflați în perioada de îngrijire a copilului.\n\nTemei: articolul 96 alineatul (3). Textul relevant: „elevele gravide și elevii părinți aflați în perioada de îngrijire a copilului, retrași, se pot reînmatricula la același an de studiu, în unitatea de învățământ la care au fost școlarizați, oricând în timpul anului școlar.”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "articolul 96 alineatul (3)",
+        "excerpt": "elevele gravide și elevii părinți aflați în perioada de îngrijire a copilului, retrași, se pot reînmatricula la același an de studiu, în unitatea de învățământ la care au fost școlarizați, oricând în timpul anului școlar.",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-159",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Titlul VII. Elevii",
+      "annex": "",
+      "title": "Titlul VII. Elevii",
+      "chapter": "Capitolul II. Educația extrașcolară",
+      "section": "",
+      "article": 97,
+      "paragraph": "(3)",
+      "prompt": "O organizație neguvernamentală propune activități pentru elevii școlii, în afara orelor de curs, în sediul organizației. Ce condiție trebuie îndeplinită?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Este suficientă înștiințarea verbală a directorului.",
+          "isCorrect": false,
+          "why": "Regulamentul cere un acord sau protocol de parteneriat, nu o simplă înștiințare."
+        },
+        {
+          "id": "B",
+          "text": "Este suficient acordul scris al părinților, fără alt document al unității.",
+          "isCorrect": false,
+          "why": "Regulamentul cere un acord sau protocol de parteneriat cu unitatea de învățământ."
+        },
+        {
+          "id": "C",
+          "text": "Participarea elevilor se realizează în baza unui acord sau protocol de parteneriat cu unitatea de învățământ.",
+          "isCorrect": true
+        },
+        {
+          "id": "D",
+          "text": "Este necesară o hotărâre a consiliului local.",
+          "isCorrect": false,
+          "why": "Regulamentul cere acord sau protocol cu unitatea de învățământ sau cu unitatea de educație extrașcolară, nu o hotărâre a consiliului local."
+        }
+      ],
+      "correctOptionId": "C",
+      "explanation": "Regula: Participarea elevilor la activități extrașcolare organizate de organizații din afara sistemului de învățământ se face în baza unui acord sau protocol de parteneriat.\n\nOrganizația externă nu poate lucra cu elevii școlii fără un cadru formal de parteneriat.\n\nTemei: articolul 97 alineatul (3). Textul relevant: „Participarea beneficiarilor primari la activități educaționale extrașcolare realizate de organizații publice sau private din afara sistemului național de învățământ se realizează în baza unui acord/protocol de parteneriat cu unitățile de învățământ preuniversitar sau cu unitățile de educație extrașcolară.”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "articolul 97 alineatul (3)",
+        "excerpt": "Participarea beneficiarilor primari la activități educaționale extrașcolare realizate de organizații publice sau private din afara sistemului național de învățământ se realizează în baza unui acord/protocol de parteneriat cu unitățile de învățământ preuniversitar sau cu unitățile de educație extrașcolară.",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-160",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Titlul VII. Elevii",
+      "annex": "",
+      "title": "Titlul VII. Elevii",
+      "chapter": "Capitolul II. Educația extrașcolară",
+      "section": "",
+      "article": 99,
+      "paragraph": "(4)",
+      "prompt": "Unitatea își planifică activitățile educaționale extrașcolare pentru anul școlar. Cine le stabilește?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Directorul singur, prin decizie, iar consiliul de administrație aprobă calendarul.",
+          "isCorrect": false,
+          "why": "Calendarul este într-adevăr aprobat de consiliul de administrație, dar activitățile se stabilesc în consiliul profesoral, împreună cu consiliul beneficiarilor primari."
+        },
+        {
+          "id": "B",
+          "text": "Consiliul de administrație, fără consultarea elevilor.",
+          "isCorrect": false,
+          "why": "Activitățile se stabilesc în consiliul profesoral cu consiliul beneficiarilor primari. Consiliul de administrație aprobă calendarul."
+        },
+        {
+          "id": "C",
+          "text": "Coordonatorul pentru proiecte și programe educative, fără alte organisme.",
+          "isCorrect": false,
+          "why": "Coordonatorul poate proiecta activități la nivelul unității (alineatul (3)), dar stabilirea lor se face în consiliul profesoral cu consiliul beneficiarilor primari."
+        },
+        {
+          "id": "D",
+          "text": "Consiliul profesoral, împreună cu consiliul beneficiarilor primari, în funcție de opțiunile elevilor, ale consiliului reprezentativ al părinților și de resursele unității.",
+          "isCorrect": true
+        }
+      ],
+      "correctOptionId": "D",
+      "explanation": "Regula: Activitățile extrașcolare se stabilesc în consiliul profesoral, împreună cu consiliul beneficiarilor primari. Consiliul de administrație aprobă doar calendarul lor (alineatul (7)).\n\nActivitățile se stabilesc ținând cont de opțiunile elevilor și ale părinților, precum și de resursele unității.\n\nTemei: articolul 99 alineatul (4), coroborat cu alineatul (7). Textul relevant: „Activitățile educaționale extrașcolare sunt stabilite în consiliul profesoral al unității de învățământ, împreună cu consiliul beneficiarilor primari, în conformitate cu opțiunile beneficiarilor primari, ale consiliului reprezentativ al părinților/reprezentanților legali și ale asociațiilor părinților/reprezentanților legali, acolo unde acestea există, precum și cu resursele de care dispune unitatea de învățământ.”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "articolul 99 alineatul (4), coroborat cu alineatul (7)",
+        "excerpt": "Activitățile educaționale extrașcolare sunt stabilite în consiliul profesoral al unității de învățământ, împreună cu consiliul beneficiarilor primari, în conformitate cu opțiunile beneficiarilor primari, ale consiliului reprezentativ al părinților/reprezentanților legali și ale asociațiilor părinților/reprezentanților legali, acolo unde acestea există, precum și cu resursele de care dispune unitatea de învățământ.",
+        "verification": "fragment-exact-din-sursa-consolidata"
+      }
+    },
+    {
+      "id": "RF-A-161",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Titlul VII. Elevii",
+      "annex": "",
+      "title": "Titlul VII. Elevii",
+      "chapter": "Capitolul II. Educația extrașcolară",
+      "section": "",
+      "article": 99,
+      "paragraph": "(5)",
+      "prompt": "Școala și primăria organizează o excursie de două zile, cu deplasare din localitate. În ce reglementare se găsesc regulile de organizare?",
+      "options": [
+        {
+          "id": "A",
+          "text": "În regulamentul aprobat prin ordin al ministrului educației pentru excursii, tabere, expediții și alte activități cu deplasare din localitate.",
+          "isCorrect": true
+        },
+        {
+          "id": "B",
+          "text": "Exclusiv în regulamentul de organizare și funcționare al unității, aprobat de consiliul de administrație.",
+          "isCorrect": false,
+          "why": "Pentru activitățile cu deplasare din localitate se aplică regulamentul aprobat prin ordin al ministrului educației."
+        },
+        {
+          "id": "C",
+          "text": "În decizia inspectorului școlar general, emisă separat pentru fiecare excursie.",
+          "isCorrect": false,
+          "why": "Alineatul (5) trimite la regulamentul aprobat prin ordin al ministrului educației, nu la o decizie a inspectorului pentru fiecare excursie."
+        },
+        {
+          "id": "D",
+          "text": "Nu există reguli speciale, este suficient acordul părinților.",
+          "isCorrect": false,
+          "why": "Alineatul (5) trimite expres la regulamentul aprobat prin ordin al ministrului educației."
+        }
+      ],
+      "correctOptionId": "A",
+      "explanation": "Regula: Excursiile, taberele, expedițiile și alte activități de timp liber care necesită deplasarea din localitatea de domiciliu se organizează conform regulamentului aprobat prin ordin al ministrului educației.\n\nPentru activitățile cu deplasare, regulamentul-cadru trimite la un regulament separat. Activitățile fără deplasare, din incinta unității, urmează regulile din alineatul (6).\n\nTemei: articolul 99 alineatul (5). Textul relevant: „Organizarea activităților educaționale extrașcolare de către unitățile de învățământ preuniversitar/comitetele de părinți/asociațiile de părinți în parteneriat cu autorități publice locale, organizații neguvernamentale și alți parteneri educaționali, sub forma excursiilor, taberelor, expedițiilor și a altor activități de timp liber care necesită deplasarea din localitatea de domiciliu se face în conformitate cu regulamentul aprobat prin ordin al ministrului educației.”",
+      "legalSource": {
+        "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
+        "consolidatedAt": "2026-07-07",
+        "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
+        "reference": "articolul 99 alineatul (5)",
+        "excerpt": "Organizarea activităților educaționale extrașcolare de către unitățile de învățământ preuniversitar/comitetele de părinți/asociațiile de părinți în parteneriat cu autorități publice locale, organizații neguvernamentale și alți parteneri educaționali, sub forma excursiilor, taberelor, expedițiilor și a altor activități de timp liber care necesită deplasarea din localitatea de domiciliu se face în conformitate cu regulamentul aprobat prin ordin al ministrului educației.",
         "verification": "fragment-exact-din-sursa-consolidata"
       }
     }
