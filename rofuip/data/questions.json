@@ -5735,7 +5735,7 @@
         }
       ],
       "correctOptionId": "C",
-      "explanation": "Regula: Pe durata mandatului, directorul adjunct nu poate deține funcții de conducere în partide politice, funcții de primar, viceprimar, președinte sau vicepreședinte de consiliu județean, nici orice funcție de conducere în organizațiile sindicale.\n\nInterdicția privește orice funcție de conducere sindicală, iar președintele sindicatului din unitate este o astfel de funcție.\n\nTemei: articolul 25 alineatul (5). Textul relevant: „Pe perioada exercitării mandatului, directorul adjunct nu poate deține, conform legii, funcția de președinte sau vicepreședinte în structurile de conducere ale partidelor politice, la nivel local, județean/al municipiului București sau național, funcția de primar, viceprimar, președinte sau vicepreședinte de consiliu județean/al Consiliului General al Municipiului București sau orice funcție de conducere în organizațiile sindicale.”",
+      "explanation": "Regula: Pe durata mandatului, directorul adjunct nu poate deține funcția de președinte sau vicepreședinte în structurile de conducere ale partidelor politice, funcții de primar, viceprimar, președinte sau vicepreședinte de consiliu județean, nici orice funcție de conducere în organizațiile sindicale.\n\nInterdicția privește orice funcție de conducere sindicală, iar președintele sindicatului din unitate este o astfel de funcție.\n\nTemei: articolul 25 alineatul (5). Textul relevant: „Pe perioada exercitării mandatului, directorul adjunct nu poate deține, conform legii, funcția de președinte sau vicepreședinte în structurile de conducere ale partidelor politice, la nivel local, județean/al municipiului București sau național, funcția de primar, viceprimar, președinte sau vicepreședinte de consiliu județean/al Consiliului General al Municipiului București sau orice funcție de conducere în organizațiile sindicale.”",
       "legalSource": {
         "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
         "consolidatedAt": "2026-07-07",
@@ -5906,7 +5906,7 @@
           "id": "A",
           "text": "Prin decizia directorului unității, fără cercetare disciplinară, dacă încălcarea este evidentă.",
           "isCorrect": false,
-          "why": "Chiar dacă fapta pare evidentă, procedura de cercetare disciplinară trebuie respectată. Directorul unității nu elibera singur directorul adjunct."
+          "why": "Chiar dacă fapta pare evidentă, procedura de cercetare disciplinară trebuie respectată. Directorul unității nu poate elibera singur directorul adjunct."
         },
         {
           "id": "B",
@@ -7895,7 +7895,7 @@
         }
       ],
       "correctOptionId": "C",
-      "explanation": "Regula: Consiliul clasei stabilește mediile la purtare, dar propune consiliului profesoral validarea mediilor mai mici de 7 (mai mici de 8 la unitățile cu profil pedagogic, teologic și militar) și a calificativelor mai mici de „bine” la învățământul primar.\n\nMedia 6 este sub pragul de 7, deci are nevoie de validarea consiliului profesoral. Consiliul clasei doar o stabilește și o propune spre validare.\n\nTemei: articolul 58 litera c), coroborat cu articolul 55 litera m). Textul relevant: „stabilește notele/calificativele, respectiv mediile la purtare pentru fiecare elev al clasei, în funcție de frecvența și comportamentul acestora în activitatea școlară și extrașcolară; propune consiliului profesoral validarea notelor mai mici de 7, respectiv mai mici de 8, pentru unitățile de învățământ cu profil pedagogic, teologic și militar, sau a calificativelor mai mici de \"bine\", pentru învățământul primar”",
+      "explanation": "Regula: Consiliul clasei stabilește mediile la purtare, dar propune consiliului profesoral validarea mediilor mai mici de 7 (mai mici de 8 la unitățile cu profil pedagogic, teologic și militar) și a calificativelor mai mici de „bine” la învățământul primar.\n\nMedia 6 este sub pragul de 7, deci are nevoie de validarea consiliului profesoral. Consiliul clasei doar o stabilește și o propune spre validare.\n\nTemei: articolul 58 litera c), coroborat cu articolul 55 litera m). Textul relevant: „stabilește notele/calificativele, respectiv mediile la purtare pentru fiecare elev al clasei, în funcție de frecvența și comportamentul acestora în activitatea școlară și extrașcolară; propune consiliului profesoral validarea notelor mai mici de 7, respectiv mai mici de 8, pentru unitățile de învățământ cu profil pedagogic, teologic și militar, sau a calificativelor mai mici de \"bine\", pentru învățământul primar”\n\nTextul privind purtarea (articolul 55 litera m): „validează mediile la purtare mai mici de 7, respectiv mai mici de 8, în cazul unităților de învățământ cu profil pedagogic, teologic și militar”",
       "legalSource": {
         "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
         "consolidatedAt": "2026-07-07",
@@ -8035,7 +8035,7 @@
           "id": "D",
           "text": "Atribuțiile sunt îndeplinite obligatoriu de coordonatorul pentru proiecte educative, indiferent de numărul proiectelor.",
           "isCorrect": false,
-          "why": "Coordonatorul pentru proiecte educative preia aceste atribuții doar când unitatea nu este acreditată sau derulează mai puține proiecte."
+          "why": "Fals: directorul „poate” numi un coordonator european, deci nu există o obligație. Aici unitatea derulează cinci proiecte, peste pragul de trei, deci numirea este posibilă și fără acreditare Erasmus+."
         }
       ],
       "correctOptionId": "B",
@@ -8183,12 +8183,12 @@
         }
       ],
       "correctOptionId": "C",
-      "explanation": "Regula: Dirigintele informează părinții în scris când elevul înregistrează absențe nemotivate. Numărul de absențe de la care se informează se stabilește prin regulamentul de organizare și funcționare al fiecărei unități.\n\nForma scrisă este obligatorie, iar pragul este stabilit la nivelul unității, nu fixat central.\n\nTemei: articolul 68 alineatul (4) punctul d). Textul relevant: „părinții sau reprezentanții legali, în cazul în care elevul înregistrează absențe nemotivate; informarea se face în scris; numărul absențelor se stabilește prin regulamentul de organizare și funcționare a fiecărei unități de învățământ”",
+      "explanation": "Regula: Dirigintele informează părinții în scris când elevul înregistrează absențe nemotivate. Numărul de absențe de la care se informează se stabilește prin regulamentul de organizare și funcționare al fiecărei unități.\n\nForma scrisă este obligatorie, iar pragul este stabilit la nivelul unității, nu fixat central.\n\nTemei: articolul 68 punctul 4 litera d). Textul relevant: „părinții sau reprezentanții legali, în cazul în care elevul înregistrează absențe nemotivate; informarea se face în scris; numărul absențelor se stabilește prin regulamentul de organizare și funcționare a fiecărei unități de învățământ”",
       "legalSource": {
         "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
         "consolidatedAt": "2026-07-07",
         "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
-        "reference": "articolul 68 alineatul (4) punctul d)",
+        "reference": "articolul 68 punctul 4 litera d)",
         "excerpt": "părinții sau reprezentanții legali, în cazul în care elevul înregistrează absențe nemotivate; informarea se face în scris; numărul absențelor se stabilește prin regulamentul de organizare și funcționare a fiecărei unități de învățământ",
         "verification": "fragment-exact-din-sursa-consolidata"
       }
@@ -8231,12 +8231,12 @@
         }
       ],
       "correctOptionId": "D",
-      "explanation": "Regula: Dirigintele informează în scris părinții despre sancționările disciplinare, neîncheierea situației școlare, corigență sau repetenție.\n\nInformarea scrisă este formă obligatorie pentru toate aceste situații, nu doar pentru repetenție.\n\nTemei: articolul 68 alineatul (4) punctul e). Textul relevant: „părinții sau reprezentanții legali, în scris, referitor la sancționările disciplinare, neîncheierea situației școlare, situațiile de corigență sau repetenție”",
+      "explanation": "Regula: Dirigintele informează în scris părinții despre sancționările disciplinare, neîncheierea situației școlare, corigență sau repetenție.\n\nInformarea scrisă este formă obligatorie pentru toate aceste situații, nu doar pentru repetenție.\n\nTemei: articolul 68 punctul 4 litera e). Textul relevant: „părinții sau reprezentanții legali, în scris, referitor la sancționările disciplinare, neîncheierea situației școlare, situațiile de corigență sau repetenție”",
       "legalSource": {
         "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
         "consolidatedAt": "2026-07-07",
         "url": "https://legislatie.just.ro/Public/DetaliiDocument/311705",
-        "reference": "articolul 68 alineatul (4) punctul e)",
+        "reference": "articolul 68 punctul 4 litera e)",
         "excerpt": "părinții sau reprezentanții legali, în scris, referitor la sancționările disciplinare, neîncheierea situației școlare, situațiile de corigență sau repetenție",
         "verification": "fragment-exact-din-sursa-consolidata"
       }
@@ -8976,9 +8976,9 @@
       "options": [
         {
           "id": "A",
-          "text": "Cel puțin patru note, care este minimul absolut pentru orice disciplină.",
+          "text": "Patru note, pragul minim prevăzut pentru disciplinele cu cel puțin o oră pe săptămână.",
           "isCorrect": false,
-          "why": "Patru este minimul absolut, dar pentru două ore săptămânale regula „ore plus trei” dă cinci note."
+          "why": "Patru note este doar pragul minim. La două ore pe săptămână, regula „ore plus trei” dă, de regulă, cinci note."
         },
         {
           "id": "B",
@@ -9548,7 +9548,7 @@
       "section": "Secţiunea 1. Evaluarea rezultatelor învăţării. Încheierea situaţiei şcolare",
       "article": 118,
       "paragraph": "(4)",
-      "prompt": "Un elev a absentat nemotivat la 80% din orele de curs la o disciplină. Ce statut are și ce obligații apar pentru unitate?",
+      "prompt": "Un elev de gimnaziu a absentat nemotivat la 80% din orele de curs la o disciplină. Ce statut are și ce obligații apar pentru unitate?",
       "options": [
         {
           "id": "A",
@@ -9559,7 +9559,7 @@
           "id": "B",
           "text": "Este declarat amânat, iar unitatea nu are alte obligații.",
           "isCorrect": false,
-          "why": "Amânarea privește un alt set de situații; aici este risc de abandon, cu obligația de informare."
+          "why": "Chiar dacă amânarea poate apărea separat, în condițiile articolului 117 alineatul (1) litera a), unitatea are în plus obligația de a informa instituțiile responsabile. Afirmația că nu are alte obligații este falsă."
         },
         {
           "id": "C",
@@ -9947,9 +9947,9 @@
         },
         {
           "id": "C",
-          "text": "Directorul decide, în baza votului consiliului de administrație.",
+          "text": "Consiliul profesoral, prin vot, în ședința de validare.",
           "isCorrect": false,
-          "why": "În cazul dezacordului cu recomandarea, decide opțiunea părinților."
+          "why": "Consiliul profesoral nu are această competență. În caz de dezacord cu recomandarea comisiei, elevul se înscrie la clasa aleasă de părinți."
         },
         {
           "id": "D",
@@ -10517,7 +10517,7 @@
         },
         {
           "id": "B",
-          "text": "În aceeași zi cu examenul, pe site, cu numele complet și CNP-ul.",
+          "text": "În aceeași zi cu examenul, pe site, cu numele complet și codul numeric personal.",
           "isCorrect": false,
           "why": "Afișarea se face a doua zi după sesiune, iar datele personale trebuie protejate."
         },
@@ -10748,13 +10748,13 @@
       "section": "",
       "article": 151,
       "paragraph": "(2)",
-      "prompt": "Cine coordonează, prin metoda managementului de caz, monitorizarea integrată a elevelor gravide și a elevilor părinți?",
+      "prompt": "Cine sprijină coordonarea, prin metoda managementului de caz, a monitorizării integrate a elevelor gravide și a elevilor părinți și cine o realizează?",
       "options": [
         {
           "id": "A",
           "text": "Directorul unității, singur, prin decizie internă.",
           "isCorrect": false,
-          "why": "Monitorizarea este integrată și realizată prin DGASPC, cu sprijinul inspectoratului școlar."
+          "why": "Monitorizarea este integrată și realizată de Direcția Generală de Asistență și Protecția Copilului, cu sprijinul inspectoratului școlar."
         },
         {
           "id": "B",
@@ -10775,7 +10775,7 @@
         }
       ],
       "correctOptionId": "C",
-      "explanation": "Regula: Inspectoratul școlar sprijină coordonarea, prin metoda managementului de caz, a monitorizării integrate realizate de Direcția Generală de Asistență și Protecția Copilului. În echipă intră un cadru didactic din CJRAE/CMBRAE, un inspector școlar și mediatorii școlar și sanitar.\n\nȘcoala nu este singură: monitorizarea este integrată, iar echipa implică mai multe instituții și specialiști.\n\nTemei: articolul 151 alineatele (2)-(4). Textul relevant: „Inspectoratul școlar sprijină coordonarea, prin metoda managementului de caz, a activității de monitorizare integrată realizată de către Direcția Generală de Asistență și Protecția Copilului.”",
+      "explanation": "Regula: Inspectoratul școlar sprijină coordonarea, prin metoda managementului de caz, a monitorizării integrate realizate de Direcția Generală de Asistență și Protecția Copilului. În echipă intră un cadru didactic din centrul județean de resurse și asistență educațională (sau cel al municipiului București), un inspector școlar și mediatorii școlar și sanitar.\n\nȘcoala nu este singură: monitorizarea este integrată, iar echipa implică mai multe instituții și specialiști.\n\nTemei: articolul 151 alineatele (2)-(4). Textul relevant: „Inspectoratul școlar sprijină coordonarea, prin metoda managementului de caz, a activității de monitorizare integrată realizată de către Direcția Generală de Asistență și Protecția Copilului.”",
       "legalSource": {
         "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
         "consolidatedAt": "2026-07-07",
@@ -11010,12 +11010,12 @@
         },
         {
           "id": "D",
-          "text": "În funcție de numărul efectiv de zile de prezență, cu raportarea sumei pentru zilele absentate în luna următoare.",
+          "text": "În funcție de numărul efectiv de zile de prezență, cu reportarea, pentru luna următoare, a sumei plătite pentru zilele absentate.",
           "isCorrect": true
         }
       ],
       "correctOptionId": "D",
-      "explanation": "Regula: Contribuția lunară de hrană se stabilește în funcție de numărul efectiv de zile de prezență. Prezența este monitorizată prin registrul completat de cadrele didactice. Dacă părintele a plătit în avans, zilele de absență se reportează pentru luna următoare.\n\nRegistrul de prezență este baza de calcul, iar plata în avans este compensată prin report.\n\nTemei: articolul 157 alineatele (12)-(16). Textul relevant: „Contribuția lunară de hrană pentru copiii înscriși în unitățile de educație timpurie se stabilește în funcție de numărul efectiv de zile de prezență a copilului la programul zilnic.”",
+      "explanation": "Regula: Contribuția lunară de hrană se stabilește în funcție de numărul efectiv de zile de prezență. Prezența este monitorizată prin registrul completat de cadrele didactice. Dacă părintele a plătit în avans, zilele de absență se reportează pentru luna următoare.\n\nRegistrul de prezență este baza de calcul, iar plata în avans este compensată prin reportarea sumei pentru luna următoare.\n\nTemei: articolul 157 alineatele (12)-(16). Textul relevant: „Contribuția lunară de hrană pentru copiii înscriși în unitățile de educație timpurie se stabilește în funcție de numărul efectiv de zile de prezență a copilului la programul zilnic.”",
       "legalSource": {
         "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
         "consolidatedAt": "2026-07-07",
@@ -11084,7 +11084,7 @@
       "section": "",
       "article": 161,
       "paragraph": "(2)",
-      "prompt": "La o clasă sunt 30 de părinți. La adunarea generală se prezintă 15. Este adunarea valabil întrunită și câți voturi sunt necesare pentru o hotărâre?",
+      "prompt": "La o clasă sunt 30 de părinți. La adunarea generală se prezintă 15. Este adunarea valabil întrunită?",
       "options": [
         {
           "id": "A",
@@ -11093,7 +11093,7 @@
         },
         {
           "id": "B",
-          "text": "Este valabil întrunită, iar hotărârile se iau cu 8 voturi.",
+          "text": "Este valabil întrunită, deoarece 15 reprezintă jumătate din totalul părinților.",
           "isCorrect": false,
           "why": "Cvorumul necesar este 16 părinți, nu 15."
         },
@@ -11276,7 +11276,7 @@
       "section": "",
       "article": 167,
       "paragraph": "(4)",
-      "prompt": "Consiliul reprezentativ are 18 membri. La prima convocare se prezintă 11. Este ședința statutară? Dar la a doua convocare?",
+      "prompt": "Consiliul reprezentativ are 18 membri. La prima convocare se prezintă 11. Este ședința statutară? Dar la reconvocare, dacă se prezintă tot 11 membri?",
       "options": [
         {
           "id": "A",
@@ -11664,9 +11664,9 @@
       "options": [
         {
           "id": "A",
-          "text": "Da, dacă automatul este amplasat în afara clădirii școlii.",
+          "text": "Da, dacă automatul este amplasat în curtea școlii, nu în clădire.",
           "isCorrect": false,
-          "why": "Interdicția vizează unitatea de învățământ; automatul din incintă nu este permis."
+          "why": "Interdicția privește unitatea de învățământ în ansamblu, inclusiv curtea, nu doar clădirea."
         },
         {
           "id": "B",
@@ -11735,7 +11735,7 @@
         }
       ],
       "correctOptionId": "B",
-      "explanation": "Regula: În timpul orelor, telefonul poate fi folosit numai la solicitarea cadrului didactic, când este folosit în procesul educativ. Nerespectarea poate duce la preluarea echipamentului de personalul unității, în vederea predării către părinți sau elevul major, conform regulamentului intern. Excepție pentru echipamentele autorizate ale elevilor cu CES.\n\nPreluarea echipamentului este urmată de predare, nu de păstrare, iar modalitatea este stabilită prin regulamentul de organizare și funcționare al unității.\n\nTemei: articolul 182 alineatele (6) și (7). Textul relevant: „utilizarea acestora în timpul orelor de curs se poate face numai la solicitarea cadrului didactic, în situația folosirii lor în procesul educativ.”",
+      "explanation": "Regula: În timpul orelor, telefonul poate fi folosit numai la solicitarea cadrului didactic, când este folosit în procesul educativ. Nerespectarea poate duce la preluarea echipamentului de personalul unității, în vederea predării către părinți sau elevul major, conform regulamentului intern. Excepție pentru echipamentele autorizate ale elevilor cu cerințe educaționale speciale.\n\nPreluarea echipamentului este urmată de predare, nu de păstrare, iar modalitatea este stabilită prin regulamentul de organizare și funcționare al unității.\n\nTemei: articolul 182 alineatele (6) și (7). Textul relevant: „utilizarea acestora în timpul orelor de curs se poate face numai la solicitarea cadrului didactic, în situația folosirii lor în procesul educativ.”\n\nContinuare relevantă: „Nerespectarea prevederilor referitoare la utilizarea telefoanelor/a altor echipamente de comunicații electronice poate duce la preluarea echipamentului de către personalul unității de învățământ în vederea predării, după caz, către părinți/reprezentanți legali ai beneficiarilor primari minori sau beneficiarilor primari majori conform regulamentului de organizare și funcționare al unității de învățământ.”",
       "legalSource": {
         "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
         "consolidatedAt": "2026-07-07",
@@ -11831,7 +11831,7 @@
         }
       ],
       "correctOptionId": "A",
-      "explanation": "Regula: Unitățile au obligația să publice pe site-urile proprii și prin orice formă de comunicare publică autorizația de securitate la incendiu pentru fiecare clădire și autorizația sanitară de funcționare. Dacă lipsesc, trebuie să informeze public dacă se impune obținerea lor.\n\nDacă documentele lipsesc, unitatea are obligația să informeze public acest fapt, inclusiv dacă se impune obținerea lor.\n\nTemei: articolul 184 alineatele (1)-(3). Textul relevant: „Unitățile de învățământ preuniversitar și unitățile de educație extrașcolară au obligația publicării pe site-urile proprii și prin orice altă formă de comunicare publică existentă la nivelul unității școlare, a autorizației de securitate la incendiu pentru fiecare clădire de învățământ, precum și a autorizației sanitare de funcționare.”",
+      "explanation": "Regula: Unitățile au obligația să publice pe site-urile proprii și prin orice formă de comunicare publică autorizația de securitate la incendiu pentru fiecare clădire și autorizația sanitară de funcționare. Dacă lipsește autorizația de securitate la incendiu a unei clădiri, unitatea informează public dacă se impune sau nu obținerea ei; dacă lipsește autorizația sanitară de funcționare, informează public acest fapt.\n\nDacă documentele lipsesc, unitatea are obligația să informeze public acest fapt, inclusiv dacă se impune obținerea lor.\n\nTemei: articolul 184 alineatele (1)-(3). Textul relevant: „Unitățile de învățământ preuniversitar și unitățile de educație extrașcolară au obligația publicării pe site-urile proprii și prin orice altă formă de comunicare publică existentă la nivelul unității școlare, a autorizației de securitate la incendiu pentru fiecare clădire de învățământ, precum și a autorizației sanitare de funcționare.”",
       "legalSource": {
         "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
         "consolidatedAt": "2026-07-07",
@@ -11856,9 +11856,9 @@
       "options": [
         {
           "id": "A",
-          "text": "Consiliul profesoral; se respectă și contractul colectiv de muncă.",
+          "text": "Consiliul profesoral; se respectă și planul-cadru de învățământ.",
           "isCorrect": false,
-          "why": "Aprobarea este a consiliului de administrație, iar actul cerut este Statutul elevului."
+          "why": "Aprobarea este a consiliului de administrație, nu a consiliului profesoral."
         },
         {
           "id": "B",
@@ -11879,7 +11879,7 @@
         }
       ],
       "correctOptionId": "B",
-      "explanation": "Regula: Consiliul de administrație aprobă propriul regulament de organizare și funcționare pe baza regulamentului-cadru. La elaborarea regulamentului de organizare și funcționare și a regulamentului de ordine interioară se respectă și Statutul elevului.\n\nRegulamentul intern nu poate contrazice nici regulamentul-cadru, nici Statutul elevului.\n\nTemei: articolul 186 alineatele (1) și (2). Textul relevant: „La elaborarea regulamentului de organizare și funcționare și a regulamentului de ordine interioară se respectă și prevederile din Statutul elevului, aprobat prin ordin al ministrului educației.”",
+      "explanation": "Regula: Consiliul de administrație aprobă, prin hotărâre, regulamentul de organizare și funcționare al unității (articolul 2 alineatul (5)) pe baza regulamentului-cadru. La elaborarea regulamentului de organizare și funcționare și a regulamentului de ordine interioară se respectă și Statutul elevului.\n\nRegulamentul intern nu poate contrazice nici regulamentul-cadru, nici Statutul elevului.\n\nTemei: articolul 186 alineatele (1) și (2). Textul relevant: „La elaborarea regulamentului de organizare și funcționare și a regulamentului de ordine interioară se respectă și prevederile din Statutul elevului, aprobat prin ordin al ministrului educației.”",
       "legalSource": {
         "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
         "consolidatedAt": "2026-07-07",
@@ -11927,7 +11927,7 @@
         }
       ],
       "correctOptionId": "B",
-      "explanation": "Regula: Proiectul se elaborează de un colectiv de lucru coordonat de un cadru didactic, membru al consiliului de administrație, numit de director. Colectivul însuși este numit prin hotărâre a consiliului de administrație și include reprezentanți ai sindicatelor, părinților și elevilor.\n\nParticiparea mai multor părți interesate în elaborare asigură legitimitatea regulamentului.\n\nTemei: articolul 2 alineatul (3). Textul relevant: „Proiectul regulamentului de organizare și funcționare a unității de învățământ se elaborează de către un colectiv de lucru, coordonat de un cadru didactic, membru al Consiliului de Administrație, numit de către directorul unității de învățământ.”",
+      "explanation": "Regula: Proiectul se elaborează de un colectiv de lucru coordonat de un cadru didactic, membru al consiliului de administrație, numit de director. Colectivul însuși este numit prin hotărâre a consiliului de administrație și include reprezentanți ai sindicatelor, părinților și elevilor.\n\nParticiparea mai multor părți interesate în elaborare asigură legitimitatea regulamentului.\n\nTemei: articolul 2 alineatul (3). Textul relevant: „Proiectul regulamentului de organizare și funcționare a unității de învățământ se elaborează de către un colectiv de lucru, coordonat de un cadru didactic, membru al Consiliului de Administrație, numit de către directorul unității de învățământ.”\n\nContinuare relevantă: „Din colectivul de lucru, numit prin hotărâre a consiliului de administrație, fac parte și reprezentanți ai organizațiilor sindicale afiliate federațiilor sindicale reprezentative la nivel de sector de negociere colectivă învățământ preuniversitar care au membri în unitatea de învățământ, ai părinților/reprezentanților legali și ai beneficiarilor primari”",
       "legalSource": {
         "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
         "consolidatedAt": "2026-07-07",
@@ -11975,7 +11975,7 @@
         }
       ],
       "correctOptionId": "D",
-      "explanation": "Regula: Proiectul și modificările ulterioare se supun dezbaterii consiliului reprezentativ al părinților (și asociației de părinți, dacă există), consiliului școlar al elevilor și consiliului profesoral, la care participă cu drept de vot și personalul didactic auxiliar și administrativ. Se aprobă, prin hotărâre, de consiliul de administrație.\n\nAprobarea finală revine consiliului de administrație, după consultarea celor trei structuri.\n\nTemei: articolul 2 alineatele (4) și (5). Textul relevant: „Proiectul regulamentului de organizare și funcționare a unității de învățământ, precum și modificările ulterioare ale acestuia se supun spre dezbatere în consiliul reprezentativ al părinților/reprezentanților legali și asociației părinților/reprezentanților legali, acolo unde există, în consiliul școlar al elevilor și în consiliul profesoral, la care participă cu drept de vot și personalul didactic auxiliar și administrativ.”",
+      "explanation": "Regula: Proiectul și modificările ulterioare se supun dezbaterii consiliului reprezentativ al părinților (și asociației de părinți, dacă există), consiliului școlar al elevilor și consiliului profesoral, la care participă cu drept de vot și personalul didactic auxiliar și administrativ. Se aprobă, prin hotărâre, de consiliul de administrație.\n\nAprobarea finală revine consiliului de administrație, după consultarea celor trei structuri.\n\nTemei: articolul 2 alineatele (4) și (5). Textul relevant: „Proiectul regulamentului de organizare și funcționare a unității de învățământ, precum și modificările ulterioare ale acestuia se supun spre dezbatere în consiliul reprezentativ al părinților/reprezentanților legali și asociației părinților/reprezentanților legali, acolo unde există, în consiliul școlar al elevilor și în consiliul profesoral, la care participă cu drept de vot și personalul didactic auxiliar și administrativ.”\n\nContinuare relevantă: „Regulamentul de organizare și funcționare a unității de învățământ, precum și modificările ulterioare ale acestuia se aprobă, prin hotărâre, de către consiliul de administrație.”",
       "legalSource": {
         "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
         "consolidatedAt": "2026-07-07",
@@ -12023,7 +12023,7 @@
         }
       ],
       "correctOptionId": "A",
-      "explanation": "Regula: După aprobare, regulamentul se înregistrează la secretariat și se afișează pe site-ul unității și prin orice altă formă de comunicare publică. Dirigintele are obligația să îl prezinte elevilor și părinților la începutul fiecărui an școlar și la fiecare revizuire.\n\nPublicarea și prezentarea de către diriginte fac regulile cunoscute celor care trebuie să le respecte.\n\nTemei: articolul 2 alineatele (6) și (7). Textul relevant: „Pentru aducerea la cunoștința personalului unității de învățământ, a părinților/reprezentanților legali și a beneficiarilor primari, regulamentul de organizare și funcționare a unității de învățământ se afișează pe site-ul unității de învățământ și prin orice altă formă de comunicare publică existentă la nivelul unității de învățământ.”",
+      "explanation": "Regula: După aprobare, regulamentul se înregistrează la secretariat și se afișează pe site-ul unității și prin orice altă formă de comunicare publică. Dirigintele are obligația să îl prezinte elevilor și părinților la începutul fiecărui an școlar și la fiecare revizuire.\n\nPublicarea și prezentarea de către diriginte fac regulile cunoscute celor care trebuie să le respecte.\n\nTemei: articolul 2 alineatele (6) și (7). Textul relevant: „Pentru aducerea la cunoștința personalului unității de învățământ, a părinților/reprezentanților legali și a beneficiarilor primari, regulamentul de organizare și funcționare a unității de învățământ se afișează pe site-ul unității de învățământ și prin orice altă formă de comunicare publică existentă la nivelul unității de învățământ.”\n\nContinuare relevantă: „După aprobare, regulamentul de organizare și funcționare a unității de învățământ se înregistrează la secretariatul unității.”\n\nContinuare relevantă: „au obligația de a prezenta regulamentul beneficiarilor primari și părinților/reprezentanților legali, la începutul fiecărui an școlar și ori de câte ori există o revizuire a acestuia.”",
       "legalSource": {
         "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
         "consolidatedAt": "2026-07-07",
@@ -12215,7 +12215,7 @@
         }
       ],
       "correctOptionId": "A",
-      "explanation": "Regula: Înscrierea în afara circumscripției se face pe baza unei solicitări scrise și se aprobă de consiliul de administrație al unității, în limita planului de școlarizare, după asigurarea școlarizării elevilor din circumscripție.\n\nElevii din circumscripție au prioritate, iar cererile din afara ei se rezolvă doar cu locurile rămase.\n\nTemei: articolul 8 alineatul (4). Textul relevant: „Părintele/reprezentantul legal are dreptul de a solicita școlarizarea copilului la o altă unitate de învățământ decât aceea la care domiciliul său este arondat.”",
+      "explanation": "Regula: Înscrierea în afara circumscripției se face pe baza unei solicitări scrise și se aprobă de consiliul de administrație al unității, în limita planului de școlarizare, după asigurarea școlarizării elevilor din circumscripție.\n\nElevii din circumscripție au prioritate, iar cererile din afara ei se rezolvă doar cu locurile rămase.\n\nTemei: articolul 8 alineatul (4). Textul relevant: „Părintele/reprezentantul legal are dreptul de a solicita școlarizarea copilului la o altă unitate de învățământ decât aceea la care domiciliul său este arondat.”\n\nContinuare relevantă: „Înscrierea se face în urma unei solicitări scrise din partea părintelui, a tutorelui sau a reprezentantului legal și se aprobă de către consiliul de administrație al unității de învățământ la care se solicită înscrierea, în limita planului de școlarizare aprobat, după asigurarea școlarizării beneficiarilor primari din circumscripția școlară a unității de învățământ respective.”",
       "legalSource": {
         "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
         "consolidatedAt": "2026-07-07",
@@ -12791,7 +12791,7 @@
         }
       ],
       "correctOptionId": "C",
-      "explanation": "Regula: Bunurile unității de stat sunt administrate de consiliul de administrație. Bunurile temporar disponibile pot fi închiriate în baza hotărârii consiliului de administrație.\n\nDirectorul nu poate închiria singur bunurile; este nevoie de hotărârea consiliului de administrație.\n\nTemei: articolul 85 alineatul (1) și articolul 86. Textul relevant: „Bunurile aflate în proprietatea unității de învățământ de stat sunt administrate de către consiliul de administrație.”",
+      "explanation": "Regula: Bunurile unității de stat sunt administrate de consiliul de administrație. Bunurile temporar disponibile pot fi închiriate în baza hotărârii consiliului de administrație.\n\nDirectorul nu poate închiria singur bunurile; este nevoie de hotărârea consiliului de administrație.\n\nTemei: articolul 85 alineatul (1) și articolul 86. Textul relevant: „Bunurile aflate în proprietatea unității de învățământ de stat sunt administrate de către consiliul de administrație.”\n\nContinuare relevantă: „Bunurile, care sunt temporar disponibile și care sunt în proprietatea sau administrarea unității de învățământ, pot fi închiriate în baza hotărârii consiliului de administrație.”",
       "legalSource": {
         "document": "Ordinul nr. 5.726/2024 - ROFUIP, forma consolidată",
         "consolidatedAt": "2026-07-07",
