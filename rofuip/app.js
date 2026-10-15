@@ -459,7 +459,7 @@ function repeatLastSession() {
 
 function exportProgress() {
   const exportData = {
-    application: "Concurs ROFUIP",
+    application: "Modul ROFUIP · Concurs",
     exportedAt: new Date().toISOString(),
     progress: state.progress,
   };
@@ -555,4 +555,5 @@ function formatNumber(value) {
 function toCamel(value) {
   return value.replace(/-([a-z])/g, (_, char) => char.toUpperCase());
 }
+
 
