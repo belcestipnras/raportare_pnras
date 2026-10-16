@@ -95,13 +95,13 @@
         }
       ],
       "correctOptionId": "C",
-      "explanation": "Regula: Obiectivele formale au adesea un grad mare de generalitate și sunt adesea utopice, de aceea oferă o bază inadecvată pentru activitatea managerială.\n\nUn obiectiv atât de larg nu indică nicio alegere managerială precisă, deci nu poate ghida deciziile.\n\nTemei: Capitolul 1, secțiunea „Obiectivele formale”. Textul relevant: „De obicei, acestea presupun o fundamentare temeinică, dar, pentru că sunt adesea utopice, astfel de obiective oferă o bază inadecvată pentru activitatea managerială.”",
+      "explanation": "Regula: Obiectivele formale au uneori un grad mare de generalitate și sunt adesea utopice, de aceea oferă o bază inadecvată pentru activitatea managerială.\n\nUn obiectiv atât de larg nu indică nicio alegere managerială precisă, deci nu poate ghida deciziile.\n\nTemei: Capitolul 1, secțiunea „Obiectivele formale”. Textul relevant: „În instituțiile de învățământ, obiectivele formale stabilite au uneori un grad mare de generalitate. De obicei, acestea presupun o fundamentare temeinică, dar, pentru că sunt adesea utopice, astfel de obiective oferă o bază inadecvată pentru activitatea managerială.”",
       "legalSource": {
         "document": "Tony Bush, Leadership și management educațional. Teorii și practici actuale (Polirom)",
         "consolidatedAt": "2026-10-16",
         "url": "",
         "reference": "Capitolul 1, secțiunea „Obiectivele formale”",
-        "excerpt": "De obicei, acestea presupun o fundamentare temeinică, dar, pentru că sunt adesea utopice, astfel de obiective oferă o bază inadecvată pentru activitatea managerială.",
+        "excerpt": "În instituțiile de învățământ, obiectivele formale stabilite au uneori un grad mare de generalitate. De obicei, acestea presupun o fundamentare temeinică, dar, pentru că sunt adesea utopice, astfel de obiective oferă o bază inadecvată pentru activitatea managerială.",
         "verification": "fragment-verificat-pe-textul-scanat-si-recunoscut-prin-ocr"
       }
     },
@@ -314,7 +314,7 @@
           "id": "A",
           "text": "Valorile sunt alese liber de lideri și reprezintă scopurile morale ale școlii",
           "isCorrect": false,
-          "why": "Aceasta este concluzia lui Day, Harris și Hadfield; Bush adaugă că cele dominante sunt cele guvernamentale, impuse liderilor, iar Greenfield nu vorbește despre măsurare."
+          "why": "Aceasta este concluzia lui Day, Harris și Hadfield (valorile sunt „alese”); Bush adaugă că valorile dominante sunt cele de origine guvernamentală, „impuse” liderilor. Ea nu răspunde la ideea măsurării, pe care Greenfield o respinge."
         },
         {
           "id": "B",
@@ -331,7 +331,7 @@
           "id": "D",
           "text": "Influența explică și recomandă scopurile școlii, deci valorile devin inutile",
           "isCorrect": false,
-          "why": "Noțiunea de influență este neutră, nu explică și nu recomandă scopuri; tocmai de aceea leadershipul este asociat tot mai mult cu valorile."
+          "why": "Noțiunea de influență este neutră, nu explică și nu recomandă scopuri; totuși, leadershipul este asociat tot mai mult cu valorile."
         }
       ],
       "correctOptionId": "C",
@@ -360,7 +360,7 @@
       "options": [
         {
           "id": "A",
-          "text": "Viziunea poate induce în eroare și îi poate orbi pe lideri; școlile conduse astfel intră în declin odată cu plecarea liderului.",
+          "text": "Viziunea poate induce în eroare și îi poate orbi pe lideri; cele mai multe dintre școlile conduse astfel intră în declin odată cu plecarea liderului.",
           "isCorrect": true
         },
         {
@@ -383,7 +383,7 @@
         }
       ],
       "correctOptionId": "A",
-      "explanation": "Regula: Fullan critică accentul pus pe viziune: un director carismatic care transformă radical școala poate fi un model fals, iar școlile intră adesea în declin odată cu plecarea liderului.\n\nDeclinul de după plecarea directorului carismatic confirmă ipoteza lui Fullan.\n\nTemei: Capitolul 1, secțiunea „Leadershipul și viziunea”. Textul relevant: „Directorul energic și carismatic, care „transformă radical școala” în patru-cinci ani, poate (...) fi un model fals și amăgitor (...) ipoteza mea este că cele mai multe dintre aceste școli intră în declin odată cu plecarea liderului (...).”",
+      "explanation": "Regula: Fullan critică accentul pus pe viziune: un director carismatic care transformă radical școala poate fi un model fals, iar cele mai multe dintre aceste școli intră în declin odată cu plecarea liderului.\n\nDeclinul de după plecarea directorului carismatic confirmă ipoteza lui Fullan.\n\nTemei: Capitolul 1, secțiunea „Leadershipul și viziunea”. Textul relevant: „Directorul energic și carismatic, care „transformă radical școala” în patru-cinci ani, poate (...) fi un model fals și amăgitor (...) ipoteza mea este că cele mai multe dintre aceste școli intră în declin odată cu plecarea liderului (...).”",
       "legalSource": {
         "document": "Tony Bush, Leadership și management educațional. Teorii și practici actuale (Polirom)",
         "consolidatedAt": "2026-10-16",
