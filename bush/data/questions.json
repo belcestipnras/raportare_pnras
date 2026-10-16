@@ -1,0 +1,781 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-16",
+  "source": {
+    "name": "Tony Bush, Leadership și management educațional. Teorii și practici actuale (Polirom)",
+    "consolidatedAt": "2026-10-16",
+    "url": "",
+    "method": "itemi situaționali redactați manual, cu fragmente verificate pe textul scanat al capitolelor"
+  },
+  "count": 16,
+  "questions": [
+    {
+      "id": "BU-A-001",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Tony Bush, Leadership și management educațional",
+      "annex": "",
+      "title": "Tony Bush, Leadership și management educațional",
+      "chapter": "Capitolul 1. Importanța leadershipului și a managementului educațional",
+      "section": "Ce este managementul educațional?",
+      "article": 1,
+      "paragraph": "",
+      "prompt": "Într-o școală, consiliul de administrație verifică săptămânal completarea registrelor, respectarea termenelor și corectitudinea rapoartelor, însă nimeni nu mai întreabă ce rezultate educaționale servesc aceste proceduri pentru elevi. Ce pericol descrie Bush într-o astfel de situație?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Managerialismul: accentul cade pe proceduri și pe eficiență managerială, nu pe scopurile și obiectivele educației.",
+          "isCorrect": true
+        },
+        {
+          "id": "B",
+          "text": "Leadershipul fals: proiectarea unei viziuni educaționale care este doar aparentă",
+          "isCorrect": false,
+          "why": "Conceptul lui Wright privește o viziune aparentă, redusă la aplicarea politicilor guvernamentale; aici problema este supremația procedurilor asupra scopurilor."
+        },
+        {
+          "id": "C",
+          "text": "Centralismul birocratic: concentrarea deciziilor la nivelul autorității centrale",
+          "isCorrect": false,
+          "why": "Lauglo descrie locul în care se iau deciziile, nu orientarea managementului intern spre proceduri în loc de scopuri."
+        },
+        {
+          "id": "D",
+          "text": "Managementul autonom: autoritatea de a decide asupra resurselor, acordată școlii",
+          "isCorrect": false,
+          "why": "Este o descriere a descentralizării, nu o deviere a managementului de la scopurile educației."
+        }
+      ],
+      "correctOptionId": "A",
+      "explanation": "Regula: Dacă legătura dintre scop și management nu este clar definită, managementul alunecă spre managerialism: procedurile devin importante în sine, în detrimentul scopurilor și valorilor educaționale.\n\nExact aceasta este situația descrisă: procedurile au înlocuit întrebarea despre scopul lor educațional.\n\nTemei: Capitolul 1, secțiunea „Ce este managementul educațional?”. Textul relevant: „Dacă legătura dintre scop și management nu este clar definită, apare pericolul alunecării în „managerialism”, cu „un accent pe proceduri în detrimentul scopurilor și valorilor educaționale””",
+      "legalSource": {
+        "document": "Tony Bush, Leadership și management educațional. Teorii și practici actuale (Polirom)",
+        "consolidatedAt": "2026-10-16",
+        "url": "",
+        "reference": "Capitolul 1, secțiunea „Ce este managementul educațional?”",
+        "excerpt": "Dacă legătura dintre scop și management nu este clar definită, apare pericolul alunecării în „managerialism”, cu „un accent pe proceduri în detrimentul scopurilor și valorilor educaționale”",
+        "verification": "fragment-verificat-pe-textul-scanat-si-recunoscut-prin-ocr"
+      }
+    },
+    {
+      "id": "BU-A-002",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Tony Bush, Leadership și management educațional",
+      "annex": "",
+      "title": "Tony Bush, Leadership și management educațional",
+      "chapter": "Capitolul 1. Importanța leadershipului și a managementului educațional",
+      "section": "Obiectivele formale",
+      "article": 1,
+      "paragraph": "",
+      "prompt": "Planul școlii are ca obiectiv ca fiecare elev să dobândească abilități fizice, sociale, intelectuale și morale. Un profesor spune că, deși obiectivul este lăudabil, nu îl ajută la nicio decizie concretă. Ce limită a obiectivelor formale invocă, în esență, profesorul?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Obiectivul este formulat prea precis, astfel că blochează inițiativa profesorilor",
+          "isCorrect": false,
+          "why": "Bush observă contrariul: obiectivele formale au un grad mare de generalitate, nu unul de precizie excesivă."
+        },
+        {
+          "id": "B",
+          "text": "Obiectivul a fost impus din afara școlii, deci este lipsit de legitimitate",
+          "isCorrect": false,
+          "why": "Impunerea externă este discutată în altă parte; aici limita citată este generalitatea, nu proveniența obiectivului."
+        },
+        {
+          "id": "C",
+          "text": "Generalitatea și caracterul utopic: formularea impune limitări considerabile în orientarea deciziilor manageriale.",
+          "isCorrect": true
+        },
+        {
+          "id": "D",
+          "text": "Obiectivul privește doar organizația și ignoră complet aspirațiile individuale",
+          "isCorrect": false,
+          "why": "Raportul dintre obiectivele organizaționale și cele individuale este o dezbatere distinctă, nu motivul pentru care obiectivele formale sunt inadecvate."
+        }
+      ],
+      "correctOptionId": "C",
+      "explanation": "Regula: Obiectivele formale au adesea un grad mare de generalitate și sunt adesea utopice, de aceea oferă o bază inadecvată pentru activitatea managerială.\n\nUn obiectiv atât de larg nu indică nicio alegere managerială precisă, deci nu poate ghida deciziile.\n\nTemei: Capitolul 1, secțiunea „Obiectivele formale”. Textul relevant: „De obicei, acestea presupun o fundamentare temeinică, dar, pentru că sunt adesea utopice, astfel de obiective oferă o bază inadecvată pentru activitatea managerială.”",
+      "legalSource": {
+        "document": "Tony Bush, Leadership și management educațional. Teorii și practici actuale (Polirom)",
+        "consolidatedAt": "2026-10-16",
+        "url": "",
+        "reference": "Capitolul 1, secțiunea „Obiectivele formale”",
+        "excerpt": "De obicei, acestea presupun o fundamentare temeinică, dar, pentru că sunt adesea utopice, astfel de obiective oferă o bază inadecvată pentru activitatea managerială.",
+        "verification": "fragment-verificat-pe-textul-scanat-si-recunoscut-prin-ocr"
+      }
+    },
+    {
+      "id": "BU-A-003",
+      "kind": "aplicare",
+      "difficulty": "expert",
+      "module": "Tony Bush, Leadership și management educațional",
+      "annex": "",
+      "title": "Tony Bush, Leadership și management educațional",
+      "chapter": "Capitolul 1. Importanța leadershipului și a managementului educațional",
+      "section": "Obiectivele formale",
+      "article": 1,
+      "paragraph": "",
+      "prompt": "Școala își afișează la intrare o „viziune” formulată în termeni generali, aproape identică cu cea a altor zeci de școli și preluată din prioritățile naționale, fără o analiză a nevoilor comunității locale. Ce constată Bush, pe baza studiului lui Bolam și al colaboratorilor, despre astfel de viziuni?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Sunt imaginea mentală a unui viitor dezirabil, împărtășită tuturor membrilor comunității școlare",
+          "isCorrect": false,
+          "why": "Aceasta este definiția viziunii liderilor remarcabili (Beare, Caldwell și Millikan), nu descrierea a ceea ce se întâmplă adesea în practică."
+        },
+        {
+          "id": "B",
+          "text": "Rezultă dintr-o analiză de nevoi desfășurată la nivelul școlii, deci sunt adaptate contextului",
+          "isCorrect": false,
+          "why": "Este exact opusul constatării: viziunile derivă mai puțin dintr-o analiză de nevoi la nivelul școlii."
+        },
+        {
+          "id": "C",
+          "text": "Reflectă viziunile individuale ale directorului, care motivează liderii să muncească mult",
+          "isCorrect": false,
+          "why": "Ideea lui Southworth privește motivația celor aflați în conducere; ea nu explică viziunile generalizate și preluate din politicile naționale."
+        },
+        {
+          "id": "D",
+          "text": "Multe „viziuni” sunt de fapt obiective educaționale generalizate, care derivă din imperativele guvernamentale naționale.",
+          "isCorrect": true
+        }
+      ],
+      "correctOptionId": "D",
+      "explanation": "Regula: În practică, multe „viziuni” sunt simple obiective educaționale generalizate, derivate din imperative guvernamentale și nu dintr-o analiză de nevoi la nivelul școlii.\n\nSituația descrisă (formulare generală, copiată, fără analiză locală) este chiar ceea ce Bush observă în practică.\n\nTemei: Capitolul 1, secțiunea „Obiectivele formale”. Textul relevant: „În practică însă, așa cum vom vedea mai târziu, multe „viziuni” sunt de fapt simple obiective educaționale generalizate (Bolam et al., 1993) ce derivă mai degrabă din imperative guvernamentale naționale și mai puțin dintr-o analiză de nevoi desfășurată la nivelul școlii.”",
+      "legalSource": {
+        "document": "Tony Bush, Leadership și management educațional. Teorii și practici actuale (Polirom)",
+        "consolidatedAt": "2026-10-16",
+        "url": "",
+        "reference": "Capitolul 1, secțiunea „Obiectivele formale”",
+        "excerpt": "În practică însă, așa cum vom vedea mai târziu, multe „viziuni” sunt de fapt simple obiective educaționale generalizate (Bolam et al., 1993) ce derivă mai degrabă din imperative guvernamentale naționale și mai puțin dintr-o analiză de nevoi desfășurată la nivelul școlii.",
+        "verification": "fragment-verificat-pe-textul-scanat-si-recunoscut-prin-ocr"
+      }
+    },
+    {
+      "id": "BU-A-004",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Tony Bush, Leadership și management educațional",
+      "annex": "",
+      "title": "Tony Bush, Leadership și management educațional",
+      "chapter": "Capitolul 1. Importanța leadershipului și a managementului educațional",
+      "section": "Obiective organizaționale sau individuale?",
+      "article": 1,
+      "paragraph": "",
+      "prompt": "Directorul propune un obiectiv organizațional ambițios pentru anul școlar, dar cei mai mulți profesori doresc ca școala să adopte politici potrivite propriilor interese și preferințe. Ce problemă teoretică ilustrează situația, potrivit lui Bush?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Pericolul managerialismului, adică accentul pe proceduri în locul scopurilor educaționale",
+          "isCorrect": false,
+          "why": "Managerialismul privește pierderea scopurilor în favoarea procedurilor, nu raportul dintre interesele profesorilor și obiectivele organizației."
+        },
+        {
+          "id": "B",
+          "text": "Posibila incompatibilitate dintre obiectivele individuale și cele organizaționale.",
+          "isCorrect": true
+        },
+        {
+          "id": "C",
+          "text": "Caracterul formal și prea general al obiectivelor școlii",
+          "isCorrect": false,
+          "why": "Generalitatea obiectivelor formale este o altă problemă, tratată într-o secțiune separată."
+        },
+        {
+          "id": "D",
+          "text": "Imposibilitatea liderilor de a modifica politicile guvernamentale, adică leadershipul fals",
+          "isCorrect": false,
+          "why": "Leadershipul fals privește raportul dintre școală și guvern, nu pe cel dintre interesele individuale și cele organizaționale."
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Regula: Între obiectivele organizaționale și cele individuale poate exista incompatibilitate, iar obiectivele organizației pot fi orientate spre anumite aspirații individuale.\n\nInteresele profesorilor și obiectivul organizațional nu coincid, ceea ce este exact problema semnalată.\n\nTemei: Capitolul 1, secțiunea „Obiective organizaționale sau individuale?”. Textul relevant: „Una dintre probleme vizează posibilitatea incompatibilității dintre obiectivele individuale și cele organizaționale sau a orientării obiectivelor organizaționale spre anumite aspirații individuale.”",
+      "legalSource": {
+        "document": "Tony Bush, Leadership și management educațional. Teorii și practici actuale (Polirom)",
+        "consolidatedAt": "2026-10-16",
+        "url": "",
+        "reference": "Capitolul 1, secțiunea „Obiective organizaționale sau individuale?”",
+        "excerpt": "Una dintre probleme vizează posibilitatea incompatibilității dintre obiectivele individuale și cele organizaționale sau a orientării obiectivelor organizaționale spre anumite aspirații individuale.",
+        "verification": "fragment-verificat-pe-textul-scanat-si-recunoscut-prin-ocr"
+      }
+    },
+    {
+      "id": "BU-A-005",
+      "kind": "aplicare",
+      "difficulty": "expert",
+      "module": "Tony Bush, Leadership și management educațional",
+      "annex": "",
+      "title": "Tony Bush, Leadership și management educațional",
+      "chapter": "Capitolul 1. Importanța leadershipului și a managementului educațional",
+      "section": "Stabilirea obiectivelor",
+      "article": 1,
+      "paragraph": "",
+      "prompt": "Directorul prezintă consiliului profesoral o „viziune a școlii”, dar în practică ea nu face decât să preia valorile și politicile guvernului, fără nicio posibilitate de adaptare la contextul local. Cum ar numi Wright o astfel de conducere?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Leadershipul vizionar, în care viziunea este împărtășită de toți membrii comunității școlare",
+          "isCorrect": false,
+          "why": "Leadershipul vizionar presupune o viziune autentică a școlii; aici viziunea este doar o aplicare a politicilor externe."
+        },
+        {
+          "id": "B",
+          "text": "Leadershipul distribuit, în care influența poate proveni de la oricine din școală",
+          "isCorrect": false,
+          "why": "Distribuirea influenței nu are legătură cu preluarea valorilor guvernamentale ca viziune proprie."
+        },
+        {
+          "id": "C",
+          "text": "Leadershipul fals: viziunea este doar aparentă, iar conducerea doar implementează politicile guvernului.",
+          "isCorrect": true
+        },
+        {
+          "id": "D",
+          "text": "Managementul autonom, în care școala decide asupra alocării resurselor",
+          "isCorrect": false,
+          "why": "Managementul autonom presupune autoritate decizională la nivelul școlii, deci este opusul unei conduceri limitate la aplicarea politicilor externe."
+        }
+      ],
+      "correctOptionId": "C",
+      "explanation": "Regula: Wright susține că proiectarea unei viziuni educaționale poate fi doar aparentă, conducerea școlilor limitându-se la a implementa valorile și politicile guvernului: este „leadershipul fals”.\n\nViziunea afișată nu este a școlii, ci a guvernului, ceea ce definește conceptul lui Wright.\n\nTemei: Capitolul 1, secțiunea „Stabilirea obiectivelor”. Textul relevant: „Concepția lui Wright (2001) cu privire la existența unui „leadership fals” susține acest argument, sugerând că proiectarea unei viziuni educaționale este doar aparentă, conducerea școlilor din Anglia și din Țara Galilor limitându-se la a implementa valorile și politicile guvernului și ale instituțiilor afiliate”",
+      "legalSource": {
+        "document": "Tony Bush, Leadership și management educațional. Teorii și practici actuale (Polirom)",
+        "consolidatedAt": "2026-10-16",
+        "url": "",
+        "reference": "Capitolul 1, secțiunea „Stabilirea obiectivelor”",
+        "excerpt": "Concepția lui Wright (2001) cu privire la existența unui „leadership fals” susține acest argument, sugerând că proiectarea unei viziuni educaționale este doar aparentă, conducerea școlilor din Anglia și din Țara Galilor limitându-se la a implementa valorile și politicile guvernului și ale instituțiilor afiliate",
+        "verification": "fragment-verificat-pe-textul-scanat-si-recunoscut-prin-ocr"
+      }
+    },
+    {
+      "id": "BU-A-006",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Tony Bush, Leadership și management educațional",
+      "annex": "",
+      "title": "Tony Bush, Leadership și management educațional",
+      "chapter": "Capitolul 1. Importanța leadershipului și a managementului educațional",
+      "section": "Leadershipul ca influență",
+      "article": 1,
+      "paragraph": "",
+      "prompt": "O profesoară fără funcție de conducere reușește să convingă colegii să adopte un instrument comun de evaluare, în timp ce un coleg cu funcție formală nu a reușit. Ce idee din definirea leadershipului explică cel mai bine situația?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Conceptul de bază este influența, nu autoritatea, iar leadershipul este independent de autoritatea poziției.",
+          "isCorrect": true
+        },
+        {
+          "id": "B",
+          "text": "Leadershipul presupune întotdeauna autoritatea unei funcții formale, precum cea de director",
+          "isCorrect": false,
+          "why": "Bush afirmă contrariul: autoritatea tinde să se regăsească în pozițiile formale, dar leadershipul este independent de ea; legat direct de autoritate este managementul."
+        },
+        {
+          "id": "C",
+          "text": "Influența exercitată este neintenționată și apare spontan, fără un scop urmărit",
+          "isCorrect": false,
+          "why": "Procesul de influență este intenționat: cel care o exercită urmărește anumite scopuri."
+        },
+        {
+          "id": "D",
+          "text": "Influența poate fi exercitată doar de indivizi, nu și de grupuri sau de echipe",
+          "isCorrect": false,
+          "why": "Bush arată că influența poate fi exercitată atât de grupuri, cât și de indivizi, ceea ce susține leadershipul distribuit."
+        }
+      ],
+      "correctOptionId": "A",
+      "explanation": "Regula: Leadershipul se bazează pe influență, nu pe autoritate: autoritatea ține de pozițiile formale, în timp ce influența poate fi exercitată de oricine din școală.\n\nProfesoara a influențat colegii fără o poziție formală, ceea ce arată că leadershipul nu depinde de autoritate.\n\nTemei: Capitolul 1, secțiunea „Leadershipul ca influență”. Textul relevant: „Conceptul de bază este mai degrabă cel de influență, și nu de autoritate. Ambele sunt dimensiuni ale puterii, dar ultimul tinde să se regăsească în poziții formale, precum cea de director, în timp ce primul poate fi exercitat de oricine din școală sau din colegiu. Leadershipul este independent de autoritatea poziției, însă managementul este direct legat de aceasta.”",
+      "legalSource": {
+        "document": "Tony Bush, Leadership și management educațional. Teorii și practici actuale (Polirom)",
+        "consolidatedAt": "2026-10-16",
+        "url": "",
+        "reference": "Capitolul 1, secțiunea „Leadershipul ca influență”",
+        "excerpt": "Conceptul de bază este mai degrabă cel de influență, și nu de autoritate. Ambele sunt dimensiuni ale puterii, dar ultimul tinde să se regăsească în poziții formale, precum cea de director, în timp ce primul poate fi exercitat de oricine din școală sau din colegiu. Leadershipul este independent de autoritatea poziției, însă managementul este direct legat de aceasta.",
+        "verification": "fragment-verificat-pe-textul-scanat-si-recunoscut-prin-ocr"
+      }
+    },
+    {
+      "id": "BU-A-007",
+      "kind": "aplicare",
+      "difficulty": "expert",
+      "module": "Tony Bush, Leadership și management educațional",
+      "annex": "",
+      "title": "Tony Bush, Leadership și management educațional",
+      "chapter": "Capitolul 1. Importanța leadershipului și a managementului educațional",
+      "section": "Leadershipul și valorile",
+      "article": 1,
+      "paragraph": "",
+      "prompt": "Directorul adjunct propune ca valorile școlii să fie justificate exclusiv prin indicatori numerici și să fie evaluate printr-un sistem de punctaje. Ce observație a lui Greenfield arată limita acestei idei?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Valorile sunt alese liber de lideri și reprezintă scopurile morale ale școlii",
+          "isCorrect": false,
+          "why": "Aceasta este concluzia lui Day, Harris și Hadfield; Bush adaugă că cele dominante sunt cele guvernamentale, impuse liderilor, iar Greenfield nu vorbește despre măsurare."
+        },
+        {
+          "id": "B",
+          "text": "Valorile rezultă din rațiune și pot fi deduse prin raționament logic",
+          "isCorrect": false,
+          "why": "Greenfield spune contrariul: rațiunea trebuie să se construiască pe un fundament valoric."
+        },
+        {
+          "id": "C",
+          "text": "Valorile nu pot fi nici cuantificate, nici măsurate, fiind fundamentul pe care se construiește rațiunea.",
+          "isCorrect": true
+        },
+        {
+          "id": "D",
+          "text": "Influența explică și recomandă scopurile școlii, deci valorile devin inutile",
+          "isCorrect": false,
+          "why": "Noțiunea de influență este neutră, nu explică și nu recomandă scopuri; tocmai de aceea leadershipul este asociat tot mai mult cu valorile."
+        }
+      ],
+      "correctOptionId": "C",
+      "explanation": "Regula: Pentru Greenfield, valorile stau în spatele rațiunii și nu pot fi nici cuantificate, nici măsurate; ele sunt afirmate, alese, impuse sau crezute.\n\nUn sistem de punctaje presupune măsurarea valorilor, ceea ce Greenfield consideră imposibil.\n\nTemei: Capitolul 1, secțiunea „Leadershipul și valorile”. Textul relevant: „Anterior, Greenfield (1991 : 208) făcea distincția dintre valori și rațiune: „Valorile se află în spatele rațiunii. Pentru ca rațiunea să fie ceea ce este, trebuie să se construiască pe un fundament valoric. Valorile sunt afirmate, alese, impuse sau crezute. Acestea nu pot fi nici cuantificate și nici măsurate”.”",
+      "legalSource": {
+        "document": "Tony Bush, Leadership și management educațional. Teorii și practici actuale (Polirom)",
+        "consolidatedAt": "2026-10-16",
+        "url": "",
+        "reference": "Capitolul 1, secțiunea „Leadershipul și valorile”",
+        "excerpt": "Anterior, Greenfield (1991 : 208) făcea distincția dintre valori și rațiune: „Valorile se află în spatele rațiunii. Pentru ca rațiunea să fie ceea ce este, trebuie să se construiască pe un fundament valoric. Valorile sunt afirmate, alese, impuse sau crezute. Acestea nu pot fi nici cuantificate și nici măsurate”.",
+        "verification": "fragment-verificat-pe-textul-scanat-si-recunoscut-prin-ocr"
+      }
+    },
+    {
+      "id": "BU-A-008",
+      "kind": "aplicare",
+      "difficulty": "expert",
+      "module": "Tony Bush, Leadership și management educațional",
+      "annex": "",
+      "title": "Tony Bush, Leadership și management educațional",
+      "chapter": "Capitolul 1. Importanța leadershipului și a managementului educațional",
+      "section": "Leadershipul și viziunea",
+      "article": 1,
+      "paragraph": "",
+      "prompt": "Un director energic și carismatic a transformat radical școala în patru-cinci ani, dar după plecarea lui rezultatele au scăzut vizibil. Ce avertisment formulează Fullan despre leadershipul vizionar?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Viziunea poate induce în eroare și îi poate orbi pe lideri; școlile conduse astfel intră în declin odată cu plecarea liderului.",
+          "isCorrect": true
+        },
+        {
+          "id": "B",
+          "text": "Aproape toți părinții și profesorii se așteaptă ca directorul să își exprime clar viziunea",
+          "isCorrect": false,
+          "why": "Este rezultatul studiului lui Dempster și Logan, care susține leadershipul vizionar, nu un avertisment privind declinul."
+        },
+        {
+          "id": "C",
+          "text": "Directorii pot descrie „un fel de viziune”, dar diferă prin capacitatea de a o articula",
+          "isCorrect": false,
+          "why": "Aceasta este concluzia lui Bolam și a colaboratorilor despre articularea viziunii, nu despre declinul școlii după plecarea liderului."
+        },
+        {
+          "id": "D",
+          "text": "Retorica vizionară contrastează cu realitatea prozaică trăită de personalul școlii",
+          "isCorrect": false,
+          "why": "Este critica lui Hoyle și Wallace la adresa discursului managerial; nu privește dependența școlii de un lider carismatic."
+        }
+      ],
+      "correctOptionId": "A",
+      "explanation": "Regula: Fullan critică accentul pus pe viziune: un director carismatic care transformă radical școala poate fi un model fals, iar școlile intră adesea în declin odată cu plecarea liderului.\n\nDeclinul de după plecarea directorului carismatic confirmă ipoteza lui Fullan.\n\nTemei: Capitolul 1, secțiunea „Leadershipul și viziunea”. Textul relevant: „Directorul energic și carismatic, care „transformă radical școala” în patru-cinci ani, poate (...) fi un model fals și amăgitor (...) ipoteza mea este că cele mai multe dintre aceste școli intră în declin odată cu plecarea liderului (...).”",
+      "legalSource": {
+        "document": "Tony Bush, Leadership și management educațional. Teorii și practici actuale (Polirom)",
+        "consolidatedAt": "2026-10-16",
+        "url": "",
+        "reference": "Capitolul 1, secțiunea „Leadershipul și viziunea”",
+        "excerpt": "Directorul energic și carismatic, care „transformă radical școala” în patru-cinci ani, poate (...) fi un model fals și amăgitor (...) ipoteza mea este că cele mai multe dintre aceste școli intră în declin odată cu plecarea liderului (...).",
+        "verification": "fragment-verificat-pe-textul-scanat-si-recunoscut-prin-ocr"
+      }
+    },
+    {
+      "id": "BU-A-009",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Tony Bush, Leadership și management educațional",
+      "annex": "",
+      "title": "Tony Bush, Leadership și management educațional",
+      "chapter": "Capitolul 1. Importanța leadershipului și a managementului educațional",
+      "section": "Diferența dintre leadership și management educațional",
+      "article": 1,
+      "paragraph": "",
+      "prompt": "În același semestru, directorul are două sarcini: introduce un program nou de mentorat pentru a schimba modul de lucru al profesorilor și asigură zilnic funcționarea orarului, a suplinirilor și a documentelor curente. Cum le încadrează distincția lui Cuban?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Programul nou ține de management, iar funcționarea orarului ține de leadership",
+          "isCorrect": false,
+          "why": "Încadrarea este inversată față de distincția lui Cuban."
+        },
+        {
+          "id": "B",
+          "text": "Programul nou de mentorat ține de leadership (schimbare), iar funcționarea curentă a școlii ține de management (menținere).",
+          "isCorrect": true
+        },
+        {
+          "id": "C",
+          "text": "Ambele sunt leadership, deoarece managementul reclamă adesea deprinderi de leadership",
+          "isCorrect": false,
+          "why": "Cuban notează că managementul reclamă adesea deprinderi de leadership, dar funcția sa globală rămâne menținerea, nu schimbarea."
+        },
+        {
+          "id": "D",
+          "text": "Prima este management, iar a doua administrație, termen mai nou și mai potrivit",
+          "isCorrect": false,
+          "why": "„Administrația” este termenul mai vechi, din care s-a trecut spre management și apoi spre leadership; el nu separă schimbarea de menținere."
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Regula: Cuban asociază leadershipul cu schimbarea și managementul cu menținerea eficienței activităților curente ale organizației, apreciindu-le pe amândouă.\n\nPrima sarcină inițiază o schimbare, a doua menține activitățile curente, exact cum distinge Cuban.\n\nTemei: Capitolul 1, secțiunea „Diferența dintre leadership și management educațional”. Textul relevant: „Cuban (1988) oferă una dintre cele mai clare distincții, asociind leadershipul cu schimbarea și managementul cu „menținerea”.”",
+      "legalSource": {
+        "document": "Tony Bush, Leadership și management educațional. Teorii și practici actuale (Polirom)",
+        "consolidatedAt": "2026-10-16",
+        "url": "",
+        "reference": "Capitolul 1, secțiunea „Diferența dintre leadership și management educațional”",
+        "excerpt": "Cuban (1988) oferă una dintre cele mai clare distincții, asociind leadershipul cu schimbarea și managementul cu „menținerea”.",
+        "verification": "fragment-verificat-pe-textul-scanat-si-recunoscut-prin-ocr"
+      }
+    },
+    {
+      "id": "BU-A-010",
+      "kind": "aplicare",
+      "difficulty": "expert",
+      "module": "Tony Bush, Leadership și management educațional",
+      "annex": "",
+      "title": "Tony Bush, Leadership și management educațional",
+      "chapter": "Capitolul 1. Importanța leadershipului și a managementului educațional",
+      "section": "Diferența dintre leadership și management educațional",
+      "article": 1,
+      "paragraph": "",
+      "prompt": "O școală are proceduri impecabile, documente la zi și termene respectate, dar nimeni nu mai știe în ce spirit sau pentru ce scop funcționează instituția. Cum ar caracteriza Bolman și Deal, citați de Bush, o astfel de organizație?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Organizație slab gestionată, dar cu un lider puternic și carismatic",
+          "isCorrect": false,
+          "why": "Este combinația inversă: aici lipsesc scopul și spiritul, nu gestionarea; organizațiile slab gestionate cu lideri carismatici se pot menține doar temporar."
+        },
+        {
+          "id": "B",
+          "text": "Organizație cu centralism birocratic, în care deciziile aparțin autorității centrale",
+          "isCorrect": false,
+          "why": "Centralismul birocratic privește locul deciziilor în sistem, nu echilibrul dintre management și leadership în interiorul școlii."
+        },
+        {
+          "id": "C",
+          "text": "Organizație cu leadership fals, în care viziunea este doar aparentă",
+          "isCorrect": false,
+          "why": "Leadershipul fals privește limitarea la politicile guvernului, nu pierderea sensului dintr-o organizație prea gestionată."
+        },
+        {
+          "id": "D",
+          "text": "Organizație hipergestionată și condusă insuficient, în care lipsește leadershipul care dă sens și scop.",
+          "isCorrect": true
+        }
+      ],
+      "correctOptionId": "D",
+      "explanation": "Regula: Organizațiile hipergestionate și subconduse pierd în cele din urmă sentimentul că funcționează într-un anumit spirit sau pentru un anumit scop; sunt necesare atât managerul, cât și liderul.\n\nProcedurile excelente (management) fără sens și scop (leadership) descriu exact o organizație hipergestionată și condusă insuficient.\n\nTemei: Capitolul 1, secțiunea „Diferența dintre leadership și management educațional”. Textul relevant: „Organizațiile hipergestionate și subconduse vor pierde în cele din urmă sentimentul că funcționează într-un anumit spirit sau pentru un anumit scop. Organizațiile slab gestionate, însă cu lideri puternici și carismatici s-ar putea menține temporar pe linia de plutire, ca mai apoi să se prăbușească.”",
+      "legalSource": {
+        "document": "Tony Bush, Leadership și management educațional. Teorii și practici actuale (Polirom)",
+        "consolidatedAt": "2026-10-16",
+        "url": "",
+        "reference": "Capitolul 1, secțiunea „Diferența dintre leadership și management educațional”",
+        "excerpt": "Organizațiile hipergestionate și subconduse vor pierde în cele din urmă sentimentul că funcționează într-un anumit spirit sau pentru un anumit scop. Organizațiile slab gestionate, însă cu lideri puternici și carismatici s-ar putea menține temporar pe linia de plutire, ca mai apoi să se prăbușească.",
+        "verification": "fragment-verificat-pe-textul-scanat-si-recunoscut-prin-ocr"
+      }
+    },
+    {
+      "id": "BU-A-011",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Tony Bush, Leadership și management educațional",
+      "annex": "",
+      "title": "Tony Bush, Leadership și management educațional",
+      "chapter": "Capitolul 1. Importanța leadershipului și a managementului educațional",
+      "section": "Perspectiva cronologică asupra leadershipului și managementului educațional",
+      "article": 1,
+      "paragraph": "",
+      "prompt": "La o ședință, adjunctul prezintă teoriile lui Taylor despre managementul științific, ale lui Fayol despre principiile generale de management și ale lui Weber despre birocrație. Un profesor întreabă unde s-au dezvoltat aceste teorii. Ce răspuns susține Bush?",
+      "options": [
+        {
+          "id": "A",
+          "text": "S-au dezvoltat în școlile britanice, spre finalul anilor 1960, odată cu disciplina de studiu",
+          "isCorrect": false,
+          "why": "În Marea Britanie, managementul educațional s-a impus ca disciplină de studiu spre finalul anilor 1960, dar teoriile lui Taylor, Fayol și Weber sunt anterioare și nu s-au născut în educație."
+        },
+        {
+          "id": "B",
+          "text": "S-au dezvoltat în afara educației și au fost implementate ulterior în școli, cu rezultate contrastante.",
+          "isCorrect": true
+        },
+        {
+          "id": "C",
+          "text": "S-au dezvoltat în cadrul Colegiului Național pentru Leadership Școlar, după anul 2000",
+          "isCorrect": false,
+          "why": "Colegiul Național a fost înființat în noiembrie 2000, cu mult după aceste teorii."
+        },
+        {
+          "id": "D",
+          "text": "S-au dezvoltat în programele de masterat în administrație educațională din Canada",
+          "isCorrect": false,
+          "why": "Masteratul în administrație educațională este menționat ca cerință pentru numirea directorilor, nu ca sursă a acestor teorii."
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Regula: Aceste teorii s-au dezvoltat în afara sistemului de educație și au fost implementate ulterior în școli și colegii, cu rezultate contrastante.\n\nTaylor, Fayol și Weber au creat teorii pentru alte domenii, aplicate apoi în școli.\n\nTemei: Capitolul 1, secțiunea „Perspectiva cronologică asupra leadershipului și managementului educațional”. Textul relevant: „Toate aceste teorii s-au dezvoltat în afara sistemului de educație, fiind ulterior implementate la nivelul școlilor și colegiilor, cu rezultate contrastante.”",
+      "legalSource": {
+        "document": "Tony Bush, Leadership și management educațional. Teorii și practici actuale (Polirom)",
+        "consolidatedAt": "2026-10-16",
+        "url": "",
+        "reference": "Capitolul 1, secțiunea „Perspectiva cronologică asupra leadershipului și managementului educațional”",
+        "excerpt": "Toate aceste teorii s-au dezvoltat în afara sistemului de educație, fiind ulterior implementate la nivelul școlilor și colegiilor, cu rezultate contrastante.",
+        "verification": "fragment-verificat-pe-textul-scanat-si-recunoscut-prin-ocr"
+      }
+    },
+    {
+      "id": "BU-A-012",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Tony Bush, Leadership și management educațional",
+      "annex": "",
+      "title": "Tony Bush, Leadership și management educațional",
+      "chapter": "Capitolul 1. Importanța leadershipului și a managementului educațional",
+      "section": "Descentralizarea și autonomia în management",
+      "article": 1,
+      "paragraph": "",
+      "prompt": "Într-un sistem de învățământ, puterea decizională privind resursele, personalul și organizarea a fost transferată de la nivelul central către fiecare școală în parte. Cum denumește Bush situația în care puterea este atribuită nivelului instituțional?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Centralism birocratic, adică concentrarea deciziilor la nivelul autorității centrale",
+          "isCorrect": false,
+          "why": "Este situația opusă: deciziile rămân la centru, iar nivelurilor inferioare le revine doar rutina implementării."
+        },
+        {
+          "id": "B",
+          "text": "Federalism, adică transferul puterii către state sau regiuni dintr-o țară",
+          "isCorrect": false,
+          "why": "Federalismul este o formă de descentralizare, dar puterea este atribuită unităților teritoriale, nu nivelului instituțional al școlii."
+        },
+        {
+          "id": "C",
+          "text": "Managerialism, adică accentul pe proceduri în detrimentul scopurilor",
+          "isCorrect": false,
+          "why": "Managerialismul nu privește repartizarea puterii în sistem, ci pierderea scopurilor educaționale în favoarea procedurilor."
+        },
+        {
+          "id": "D",
+          "text": "Management autonom, adică autoritatea decizională atribuită nivelului instituțional.",
+          "isCorrect": true
+        }
+      ],
+      "correctOptionId": "D",
+      "explanation": "Regula: Sistemele descentralizate acordă mai multă putere nivelurilor subordonate; atunci când puterea este atribuită nivelului instituțional, se vorbește despre management autonom.\n\nTransferul puterii către școală, ca instituție, este definiția managementului autonom.\n\nTemei: Capitolul 1, secțiunea „Descentralizarea și autonomia în management”. Textul relevant: „Sistemele descentralizate, pe de altă parte, acordă mai multă putere nivelurilor subordonate. Acolo unde puterea este atribuită nivelului instituțional putem vorbi despre „management autonom”.”",
+      "legalSource": {
+        "document": "Tony Bush, Leadership și management educațional. Teorii și practici actuale (Polirom)",
+        "consolidatedAt": "2026-10-16",
+        "url": "",
+        "reference": "Capitolul 1, secțiunea „Descentralizarea și autonomia în management”",
+        "excerpt": "Sistemele descentralizate, pe de altă parte, acordă mai multă putere nivelurilor subordonate. Acolo unde puterea este atribuită nivelului instituțional putem vorbi despre „management autonom”.",
+        "verification": "fragment-verificat-pe-textul-scanat-si-recunoscut-prin-ocr"
+      }
+    },
+    {
+      "id": "BU-A-013",
+      "kind": "aplicare",
+      "difficulty": "expert",
+      "module": "Tony Bush, Leadership și management educațional",
+      "annex": "",
+      "title": "Tony Bush, Leadership și management educațional",
+      "chapter": "Capitolul 1. Importanța leadershipului și a managementului educațional",
+      "section": "Descentralizarea și autonomia în management",
+      "article": 1,
+      "paragraph": "",
+      "prompt": "O școală primește autonomie în alocarea resurselor, iar consiliul de administrație se întreabă de ce depinde succesul acestei autonomii. Ce condiție evidențiază cercetarea lui Dellar, citată de Bush?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Controlul centralizat strict asupra obiectivelor și a monitorizării performanțelor școlii",
+          "isCorrect": false,
+          "why": "Controlul centralizat caracterizează sistemele centralizate; Dellar leagă succesul de climat și de participare."
+        },
+        {
+          "id": "B",
+          "text": "Un climat școlar pozitiv, cu implicarea personalului și a reprezentanților comunității în luarea deciziilor.",
+          "isCorrect": true
+        },
+        {
+          "id": "C",
+          "text": "Transferul automat al autorității, fără alte condiții legate de leadershipul intern",
+          "isCorrect": false,
+          "why": "Bush afirmă că totul depinde de natura și calitatea leadershipului intern și a managementului."
+        },
+        {
+          "id": "D",
+          "text": "Preluarea modelelor de management din domeniul afacerilor, fără adaptare",
+          "isCorrect": false,
+          "why": "Preluarea fără adaptare este exact ceea ce avertizează Baldridge să nu se facă; nu este condiția identificată de Dellar."
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Regula: Autonomia nu garantează singură eficiența: depinde de calitatea leadershipului și a managementului intern, iar managementul local reușește unde climatul este pozitiv și deciziile implică personalul și comunitatea.\n\nDellar a constatat succesul managementului local acolo unde climatul era pozitiv și deciziile erau participative.\n\nTemei: Capitolul 1, secțiunea „Descentralizarea și autonomia în management”. Textul relevant: „Cercetarea realizată de Dellar (1998) în 30 de școli secundare din Australia, spre exemplu, demonstrează că managementul local avea succes acolo unde climatul școlar era pozitiv, cu implicarea personalului și a reprezentanților comunității în procesul de luare a deciziilor.”",
+      "legalSource": {
+        "document": "Tony Bush, Leadership și management educațional. Teorii și practici actuale (Polirom)",
+        "consolidatedAt": "2026-10-16",
+        "url": "",
+        "reference": "Capitolul 1, secțiunea „Descentralizarea și autonomia în management”",
+        "excerpt": "Cercetarea realizată de Dellar (1998) în 30 de școli secundare din Australia, spre exemplu, demonstrează că managementul local avea succes acolo unde climatul școlar era pozitiv, cu implicarea personalului și a reprezentanților comunității în procesul de luare a deciziilor.",
+        "verification": "fragment-verificat-pe-textul-scanat-si-recunoscut-prin-ocr"
+      }
+    },
+    {
+      "id": "BU-A-014",
+      "kind": "aplicare",
+      "difficulty": "expert",
+      "module": "Tony Bush, Leadership și management educațional",
+      "annex": "",
+      "title": "Tony Bush, Leadership și management educațional",
+      "chapter": "Capitolul 1. Importanța leadershipului și a managementului educațional",
+      "section": "Importanța contextului educațional",
+      "article": 1,
+      "paragraph": "",
+      "prompt": "Un consultant propune școlii un model de „management modern” folosit cu succes în firme și cere adoptarea lui imediată. Ce poziție, preluată de Bush de la Baldridge, ar susține adjunctul?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Modelul poate fi folosit doar după o evaluare atentă și o adaptare la contextul unic al școlii.",
+          "isCorrect": true
+        },
+        {
+          "id": "B",
+          "text": "Modelul trebuie adoptat direct, deoarece bunele practici din afara educației sunt universale",
+          "isCorrect": false,
+          "why": "Bush pune sub semnul întrebării universalitatea: cine decide ce este bună practică și dacă ea se potrivește oricărui cadru școlar."
+        },
+        {
+          "id": "C",
+          "text": "Modelul trebuie respins total, deoarece domeniul afacerilor nu are nimic de oferit educației",
+          "isCorrect": false,
+          "why": "Bush recunoaște că unele idei au fost împrumutate în educație, în special din managementul resurselor umane și din marketing, cu precauție."
+        },
+        {
+          "id": "D",
+          "text": "Modelul trebuie adoptat dacă este recomandat de agențiile naționale de formare",
+          "isCorrect": false,
+          "why": "Recomandarea unei agenții nu înlocuiește analiza viabilității; Bush întreabă cine decide ce înseamnă bună practică."
+        }
+      ],
+      "correctOptionId": "A",
+      "explanation": "Regula: Teoriile și tehnicile din afara educației pot fi împrumutate, dar numai după o analiză prealabilă a viabilității lor în contextul unic al organizațiilor educaționale.\n\nÎmprumutul poate fi justificat, dar trebuie abordat cu multă grijă, după analiza viabilității în context.\n\nTemei: Capitolul 1, secțiunea „Importanța contextului educațional”. Textul relevant: „Teoriile clasice ale managementului nu pot fi transpuse în mediul organizațiilor cu profil educațional fără o analiză prealabilă a viabilității lor în contextul unic al acestora (...). Prin urmare, trebuie să fim atenți atunci când vrem să gestionăm sau să ameliorăm (...) domeniul educației cu tehnici de „management modern” împrumutate din domeniul afacerilor, de exemplu.”",
+      "legalSource": {
+        "document": "Tony Bush, Leadership și management educațional. Teorii și practici actuale (Polirom)",
+        "consolidatedAt": "2026-10-16",
+        "url": "",
+        "reference": "Capitolul 1, secțiunea „Importanța contextului educațional”",
+        "excerpt": "Teoriile clasice ale managementului nu pot fi transpuse în mediul organizațiilor cu profil educațional fără o analiză prealabilă a viabilității lor în contextul unic al acestora (...). Prin urmare, trebuie să fim atenți atunci când vrem să gestionăm sau să ameliorăm (...) domeniul educației cu tehnici de „management modern” împrumutate din domeniul afacerilor, de exemplu.",
+        "verification": "fragment-verificat-pe-textul-scanat-si-recunoscut-prin-ocr"
+      }
+    },
+    {
+      "id": "BU-A-015",
+      "kind": "aplicare",
+      "difficulty": "expert",
+      "module": "Tony Bush, Leadership și management educațional",
+      "annex": "",
+      "title": "Tony Bush, Leadership și management educațional",
+      "chapter": "Capitolul 1. Importanța leadershipului și a managementului educațional",
+      "section": "Leadershipul instruirii",
+      "article": 1,
+      "paragraph": "",
+      "prompt": "Directorul își propune să influențeze comportamentul profesorilor la clasă, astfel încât elevii să învețe mai bine. Ce accent definește, potrivit lui Bush și Glover, leadershipul instruirii?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Natura și sursa influenței, adică cine o exercită în organizație",
+          "isCorrect": false,
+          "why": "Natura și sursa influenței interesează alte modele, discutate în capitolele următoare; aici accentul este direcția."
+        },
+        {
+          "id": "B",
+          "text": "Autoritatea poziției formale a directorului asupra profesorilor",
+          "isCorrect": false,
+          "why": "Accentul nu cade pe autoritatea poziției, iar leadershipul este oricum independent de ea."
+        },
+        {
+          "id": "C",
+          "text": "Direcția și impactul influenței, adică favorizarea învățării cu ajutorul profesorului.",
+          "isCorrect": true
+        },
+        {
+          "id": "D",
+          "text": "Procesul propriu-zis de exercitare a influenței, adică procedurile folosite",
+          "isCorrect": false,
+          "why": "Definiția spune explicit că accentul cade mai puțin pe procesul propriu-zis de exercitare a influenței."
+        }
+      ],
+      "correctOptionId": "C",
+      "explanation": "Regula: Leadershipul instruirii este centrat pe predare, învățare și comportamentul profesorilor; accentul cade pe direcția și impactul influenței, nu pe procesul de exercitare a ei.\n\nDirectorul urmărește direcția influenței (învățarea elevilor), nu modul sau sursa influenței.\n\nTemei: Capitolul 1, secțiunea „Leadershipul instruirii”. Textul relevant: „Leadershipul instruirii este centrat pe predare și învățare, precum și pe comportamentul profesorilor în lucrul cu elevii. Influența liderilor țintește spre favorizarea învățării cu ajutorul profesorului. Accentul cade pe direcția și impactul influenței și mai puțin pe procesul propriu-zis de exercitare a influenței”",
+      "legalSource": {
+        "document": "Tony Bush, Leadership și management educațional. Teorii și practici actuale (Polirom)",
+        "consolidatedAt": "2026-10-16",
+        "url": "",
+        "reference": "Capitolul 1, secțiunea „Leadershipul instruirii”",
+        "excerpt": "Leadershipul instruirii este centrat pe predare și învățare, precum și pe comportamentul profesorilor în lucrul cu elevii. Influența liderilor țintește spre favorizarea învățării cu ajutorul profesorului. Accentul cade pe direcția și impactul influenței și mai puțin pe procesul propriu-zis de exercitare a influenței",
+        "verification": "fragment-verificat-pe-textul-scanat-si-recunoscut-prin-ocr"
+      }
+    },
+    {
+      "id": "BU-A-016",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Tony Bush, Leadership și management educațional",
+      "annex": "",
+      "title": "Tony Bush, Leadership și management educațional",
+      "chapter": "Capitolul 1. Importanța leadershipului și a managementului educațional",
+      "section": "Leadershipul instruirii",
+      "article": 1,
+      "paragraph": "",
+      "prompt": "Directorul adjunct vizitează orele colegilor, asistă la lecții și apoi oferă fiecărui profesor feedback individual. Care dintre cele trei strategii de bază prin care liderii influențează învățarea (Southworth) este ilustrată?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Modelarea, adică puterea exemplului dat de liderul preocupat de predare și învățare",
+          "isCorrect": false,
+          "why": "Modelarea înseamnă puterea exemplului personal, nu vizitarea claselor și oferirea de feedback."
+        },
+        {
+          "id": "B",
+          "text": "Dialogul, adică schimbul de idei despre învățare și predare între profesori și lideri",
+          "isCorrect": false,
+          "why": "Dialogul creează oportunități de schimb de idei; el nu presupune asistarea la ore și feedback."
+        },
+        {
+          "id": "C",
+          "text": "Promovarea dezvoltării profesionale, cu cursuri și formare continuă",
+          "isCorrect": false,
+          "why": "Aceasta este una dintre cele trei componente ale lui Blasé și Blasé, nu una dintre strategiile lui Southworth."
+        },
+        {
+          "id": "D",
+          "text": "Monitorizarea, care presupune vizitarea claselor, asistarea la ore și furnizarea de feedback profesorilor.",
+          "isCorrect": true
+        }
+      ],
+      "correctOptionId": "D",
+      "explanation": "Regula: Southworth indică trei strategii: modelarea, monitorizarea și dialogul; monitorizarea presupune vizitarea claselor, asistarea la ore și furnizarea de feedback.\n\nVizitele la clasă, asistența la ore și feedbackul sunt chiar descrierea monitorizării.\n\nTemei: Capitolul 1, secțiunea „Leadershipul instruirii”. Textul relevant: „Monitorizarea presupune vizitarea claselor, asistarea la ore și furnizarea de feedback profesorilor. Dialogul creează oportunități pentru profesori de a realiza un schimb de idei pe tema învățării și a predării alături de colegi și lideri din sistem.”",
+      "legalSource": {
+        "document": "Tony Bush, Leadership și management educațional. Teorii și practici actuale (Polirom)",
+        "consolidatedAt": "2026-10-16",
+        "url": "",
+        "reference": "Capitolul 1, secțiunea „Leadershipul instruirii”",
+        "excerpt": "Monitorizarea presupune vizitarea claselor, asistarea la ore și furnizarea de feedback profesorilor. Dialogul creează oportunități pentru profesori de a realiza un schimb de idei pe tema învățării și a predării alături de colegi și lideri din sistem.",
+        "verification": "fragment-verificat-pe-textul-scanat-si-recunoscut-prin-ocr"
+      }
+    }
+  ]
+}
