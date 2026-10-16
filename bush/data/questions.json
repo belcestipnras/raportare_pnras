@@ -907,7 +907,7 @@
           "id": "D",
           "text": "Teoria trebuie respinsă ca irelevantă dacă nu este confirmată de experiența directorului",
           "isCorrect": false,
-          "why": "Textul susține că teoria nu poate fi respinsă ca irelevantă atunci când aduce o înțelegere mai bună a practicii."
+          "why": "Hoyle spune că ambele tipuri de teorie pot fi valoroase, iar relevanța teoriei se judecă după măsura în care inspiră acțiunile conducerii, nu după confirmarea de către experiența unui singur director."
         }
       ],
       "correctOptionId": "B",
@@ -959,13 +959,13 @@
         }
       ],
       "correctOptionId": "D",
-      "explanation": "Regula: Nu există o teorie care să cuprindă toate aspectele managementului educațional; având în vedere centralitatea contextului și varietatea problemelor, o teorie universală este prea ambițioasă.\n\nDiversitatea instituțiilor, centralitatea contextului și varietatea problemelor fac imposibilă generarea unei singure teorii de ansamblu.\n\nTemei: Capitolul 2, secțiunea „Natura teoriei”. Textul relevant: „Nu există o teorie care cuprinde toate aspectele managementului educațional. Aceasta reflectă, într-o anumită măsură, diversitatea instituțiilor educaționale, ce variază de la școli primare din mediul rural până la universități foarte mari și colegii.”",
+      "explanation": "Regula: Nu există o teorie care să cuprindă toate aspectele managementului educațional; având în vedere centralitatea contextului și varietatea problemelor, o teorie universală este prea ambițioasă.\n\nDiversitatea instituțiilor, centralitatea contextului și varietatea problemelor fac imposibilă generarea unei singure teorii de ansamblu.\n\nTemei: Capitolul 2, secțiunea „Natura teoriei”. Textul relevant: „Nu există o teorie care cuprinde toate aspectele managementului educațional. Aceasta reflectă, într-o anumită măsură, diversitatea instituțiilor educaționale, ce variază de la școli primare din mediul rural până la universități foarte mari și colegii. Dată fiind centralitatea contextului (vezi mai sus), o teorie universală care să explice comportamentul de leadership în toate tipurile de școli și colegii poate fi considerată prea ambițioasă.”",
       "legalSource": {
         "document": "Tony Bush, Leadership și management educațional. Teorii și practici actuale (Polirom)",
         "consolidatedAt": "2026-10-16",
         "url": "",
         "reference": "Capitolul 2, secțiunea „Natura teoriei”",
-        "excerpt": "Nu există o teorie care cuprinde toate aspectele managementului educațional. Aceasta reflectă, într-o anumită măsură, diversitatea instituțiilor educaționale, ce variază de la școli primare din mediul rural până la universități foarte mari și colegii.",
+        "excerpt": "Nu există o teorie care cuprinde toate aspectele managementului educațional. Aceasta reflectă, într-o anumită măsură, diversitatea instituțiilor educaționale, ce variază de la școli primare din mediul rural până la universități foarte mari și colegii. Dată fiind centralitatea contextului (vezi mai sus), o teorie universală care să explice comportamentul de leadership în toate tipurile de școli și colegii poate fi considerată prea ambițioasă.",
         "verification": "fragment-verificat-pe-textul-scanat-si-recunoscut-prin-ocr"
       }
     },
@@ -1176,7 +1176,7 @@
       "options": [
         {
           "id": "A",
-          "text": "Teorie fundamentată: conceptele provin din observarea sistematică, iar practicienii o percep ca relevantă, fiind derivată din școli reale.",
+          "text": "Teorie fundamentată: conceptele provin din observarea sistematică, iar practicienii o percep, cel mai probabil, ca relevantă, fiind derivată din școli reale.",
           "isCorrect": true
         },
         {
@@ -1535,7 +1535,7 @@
         }
       ],
       "correctOptionId": "D",
-      "explanation": "Regula: Sensul și validitatea structurilor în cadrul instituțiilor educaționale diferă de la un model la altul: structura poate fi un fapt obiectiv, o creație subiectivă, obiect de negociere sau o trăsătură ambiguă.\n\nCele trei poziții sunt exact variantele descrise de Bush pentru acest criteriu.\n\nTemei: Capitolul 2, secțiunea „Analiza modelelor”. Textul relevant: „Conform unor teoreticieni, structura este un fapt obiectiv, în timp ce alții cred că este creația subiectivă a indivizilor din organizație.”",
+      "explanation": "Regula: Sensul și validitatea structurilor în cadrul instituțiilor educaționale diferă de la un model la altul: structura poate fi un fapt obiectiv, o creație subiectivă, obiect de negociere sau o trăsătură ambiguă.\n\nCele trei poziții din scenariu sunt trei dintre variantele descrise de Bush pentru acest criteriu: structura ca fapt obiectiv, ca creație subiectivă și ca obiect de negociere (a patra variantă este structura ca trăsătură ambiguă).\n\nTemei: Capitolul 2, secțiunea „Analiza modelelor”. Textul relevant: „Conform unor teoreticieni, structura este un fapt obiectiv, în timp ce alții cred că este creația subiectivă a indivizilor din organizație.”",
       "legalSource": {
         "document": "Tony Bush, Leadership și management educațional. Teorii și practici actuale (Polirom)",
         "consolidatedAt": "2026-10-16",
@@ -1871,7 +1871,7 @@
         }
       ],
       "correctOptionId": "A",
-      "explanation": "Regula: Concentrarea excesivă pe organizație în defavoarea oamenilor duce la atribuirea de caracteristici umane școlii.\n\nTextul avertizează tocmai asupra acestei tendințe, cea mai transant criticată de Greenfield.\n\nTemei: Capitolul 3, secțiunea «Modelele sistemice». Textul relevant: „Totuși, există pericole în concentrarea excesivă asupra organizației în defavoarea oamenilor din interiorul ei, deoarece apare riscul de a atribui caracteristici umane școlii sau colegiului.”",
+      "explanation": "Regula: Concentrarea excesivă pe organizație în defavoarea oamenilor duce la atribuirea de caracteristici umane școlii.\n\nTextul avertizează tocmai asupra acestei tendințe, cea mai tranșant criticată de Greenfield.\n\nTemei: Capitolul 3, secțiunea «Modelele sistemice». Textul relevant: „Totuși, există pericole în concentrarea excesivă asupra organizației în defavoarea oamenilor din interiorul ei, deoarece apare riscul de a atribui caracteristici umane școlii sau colegiului.”",
       "legalSource": {
         "document": "Tony Bush, Leadership și management educațional. Teorii și practici actuale (Polirom)",
         "consolidatedAt": "2026-10-16",
@@ -2090,7 +2090,7 @@
           "id": "A",
           "text": "Că profesorii pierd orice diviziune a muncii, devenind generaliști",
           "isCorrect": false,
-          "why": "Diviziunea muncii nu este amenințată; temerea privește dominația procedurilor."
+          "why": "Textul nu menționează o astfel de temere; temerea formulată privește dominația procedurilor asupra scopurilor educaționale."
         },
         {
           "id": "B",
@@ -2303,13 +2303,13 @@
         }
       ],
       "correctOptionId": "C",
-      "explanation": "Regula: Autoritatea de a delega merge de sus în jos, responsabilitatea performanței merge în sens opus, iar ambele sunt atașate rolurilor, nu persoanelor.\n\nCitatul spune că autoritatea trece de la senior la junior, responsabilitatea în sens invers, și că ambele sunt atașate rolurilor.\n\nTemei: Capitolul 3, secțiunea «Modelele ierarhice». Textul relevant: „Autoritatea și responsabilitatea sunt impersonale, în sensul că sunt atașate rolurilor, și nu personalităților indivizilor care le ocupă. Directorul are autoritatea să definească munca directorului adjunct într-o școală pe baza poziției de director principal.”",
+      "explanation": "Regula: Autoritatea de a delega merge de sus în jos, responsabilitatea performanței merge în sens opus, iar ambele sunt atașate rolurilor, nu persoanelor.\n\nCitatul spune că autoritatea trece de la senior la junior, responsabilitatea în sens invers, și că ambele sunt atașate rolurilor.\n\nTemei: Capitolul 3, secțiunea «Modelele ierarhice». Textul relevant: „Autoritatea de a delega sarcini trece de la rolurile de senior la cele de junior, în timp ce responsabilitatea performanței la serviciu merge în direcția opusă, de la junior la senior. Autoritatea și responsabilitatea sunt impersonale, în sensul că sunt atașate rolurilor, și nu personalităților indivizilor care le ocupă. Directorul are autoritatea să definească munca directorului adjunct într-o școală pe baza poziției de director principal, și nu în virtutea a ce reprezintă ca individ.”",
       "legalSource": {
         "document": "Tony Bush, Leadership și management educațional. Teorii și practici actuale (Polirom)",
         "consolidatedAt": "2026-10-16",
         "url": "",
         "reference": "Capitolul 3, secțiunea «Modelele ierarhice»",
-        "excerpt": "Autoritatea și responsabilitatea sunt impersonale, în sensul că sunt atașate rolurilor, și nu personalităților indivizilor care le ocupă. Directorul are autoritatea să definească munca directorului adjunct într-o școală pe baza poziției de director principal.",
+        "excerpt": "Autoritatea de a delega sarcini trece de la rolurile de senior la cele de junior, în timp ce responsabilitatea performanței la serviciu merge în direcția opusă, de la junior la senior. Autoritatea și responsabilitatea sunt impersonale, în sensul că sunt atașate rolurilor, și nu personalităților indivizilor care le ocupă. Directorul are autoritatea să definească munca directorului adjunct într-o școală pe baza poziției de director principal, și nu în virtutea a ce reprezintă ca individ.",
         "verification": "fragment-verificat-pe-textul-scanat-si-recunoscut-prin-ocr"
       }
     },
@@ -2376,7 +2376,7 @@
       "options": [
         {
           "id": "A",
-          "text": "Bush spune că ar fi inadecvat să fie clasate ca irelevante, deoarece perspectivele alternative nu le-au eliminat.",
+          "text": "Bush spune că ar fi inadecvat ca modelele formale să fie clasate ca irelevante, deoarece rămân valide ca descrieri parțiale ale organizației și managementului în educație.",
           "isCorrect": true
         },
         {
@@ -2531,7 +2531,7 @@
         },
         {
           "id": "C",
-          "text": "Orchestrarea, adică ghidarea schimbării prin supravegherea unei multimi de sarcini coordonate",
+          "text": "Orchestrarea, adică ghidarea schimbării prin supravegherea unei mulțimi de sarcini coordonate",
           "isCorrect": false,
           "why": "Orchestrarea (Wallace) privește liderii seniori și procesul de schimbare, nu relația cu fișa postului."
         },
@@ -2676,7 +2676,7 @@
         },
         {
           "id": "C",
-          "text": "Orchestrarea presupune ghidarea schimbării prin organizarea și supravegherea unei multimi de sarcini coordonate.",
+          "text": "Orchestrarea presupune ghidarea procesului de schimbare prin organizarea și menținerea supravegherii unei mulțimi complicate de sarcini coordonate.",
           "isCorrect": true
         },
         {
@@ -2712,7 +2712,7 @@
       "options": [
         {
           "id": "A",
-          "text": "Definiția lui Leithwood și colaboratorilor leagă leadershipul managerial de puterea pozițională și de politicile și procedurile formale.",
+          "text": "Leadershipul managerial, în care autoritatea și influența decurg din puterea pozițională, în combinație cu politicile și procedurile formale.",
           "isCorrect": true
         },
         {
@@ -2970,7 +2970,7 @@
         },
         {
           "id": "D",
-          "text": "Punctul slab este ignorarea contribuției indivizilor în favoarea organizației ca entitate.",
+          "text": "Greenfield: organizațiile sunt creația oamenilor din cadrul lor, iar modelele formale subestimează contribuția indivizilor și produc imagini distorsionate.",
           "isCorrect": true
         }
       ],
