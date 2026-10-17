@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="ro">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#12253f">
+  <meta name="description" content="Antrenament: itemi de învățare pe capitole, pentru fiecare hartă mentală, cu explicație imediată.">
+  <title>Antrenament · Concurs</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="../styles.css">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="../" aria-label="Înapoi la pagina Concurs">
+      <span class="brand-mark" aria-hidden="true">A</span>
+      <span><strong>Antrenament</strong><small>Itemi de învățare, câte unii pentru fiecare hartă</small></span>
+    </a>
+    <a class="portal-link" href="../">Concurs</a>
+  </header>
+
+  <main>
+    <div id="status" class="an-status" role="status">Se încarcă itemii…</div>
+
+    <section id="setup" class="an-panel" hidden>
+      <span class="eyebrow">Itemi de învățare · valori, termene, limite</span>
+      <h1>Antrenament pe capitole</h1>
+      <p>Întrebările cer exact ce trebuie memorat: numere, termene, efective, cvorumuri, competențe. După fiecare răspuns vezi explicația, temeiul și pasajul din harta mentală.</p>
+
+      <div class="an-toolbar">
+        <label class="an-field">Mod
+          <select id="mode">
+            <option value="new">Itemi nevăzuți și greșiți mai întâi</option>
+            <option value="wrong">Numai itemii greșiți</option>
+            <option value="all">Toți itemii selectați</option>
+          </select>
+        </label>
+        <label class="an-field">Număr de itemi
+          <select id="count">
+            <option value="10">10</option>
+            <option value="20" selected>20</option>
+            <option value="40">40</option>
+            <option value="0">Toți</option>
+          </select>
+        </label>
+        <span class="an-total" id="total"></span>
+      </div>
+
+      <div id="groups"></div>
+
+      <div class="an-actions">
+        <button id="start" type="button" class="an-btn primary">Începe antrenamentul</button>
+        <button id="reset" type="button" class="an-btn">Șterge progresul</button>
+      </div>
+    </section>
+
+    <section id="run" class="an-run" hidden>
+      <div class="an-bar">
+        <div id="pos" class="an-pos"></div>
+        <div class="an-progress"><span id="bar"></span></div>
+        <button id="quit" type="button" class="an-btn small">Oprește</button>
+      </div>
+      <article class="an-q">
+        <div id="meta" class="an-meta"></div>
+        <h2 id="prompt"></h2>
+        <div id="opts" class="an-opts"></div>
+        <div id="fb" class="an-fb" hidden></div>
+        <div class="an-actions">
+          <button id="next" type="button" class="an-btn primary" hidden>Următorul →</button>
+        </div>
+      </article>
+    </section>
+
+    <section id="done" class="an-panel" hidden>
+      <span class="eyebrow">Sesiune încheiată</span>
+      <h1 id="score"></h1>
+      <p id="msg"></p>
+      <div class="an-actions">
+        <button id="again" type="button" class="an-btn primary">Altă sesiune</button>
+        <a class="an-btn" href="../">Înapoi la Concurs</a>
+      </div>
+      <h2 class="an-h2" id="revtitle">Itemi de revăzut</h2>
+      <div id="review"></div>
+    </section>
+  </main>
+
+  <footer>
+    <p>Progresul este păstrat local, în acest browser.</p>
+    <a href="../">Înapoi la Concurs</a>
+  </footer>
+  <script src="app.js"></script>
+</body>
+</html>

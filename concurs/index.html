@@ -63,7 +63,7 @@
           <span class="eyebrow">Disponibil acum</span>
           <h2 id="module-title">Studiu și module de itemi</h2>
         </div>
-        <span class="module-count">1 studiu + 6 module · 400 de itemi</span>
+        <span class="module-count">1 studiu + antrenament + 6 module</span>
       </div>
 
       <div class="module-grid">
@@ -86,6 +86,29 @@
           </div>
           <a class="module-button" href="../harti/">
             Deschide hărțile mentale
+            <span aria-hidden="true">→</span>
+          </a>
+        </article>
+
+        <article class="module-card">
+          <div class="module-icon" aria-hidden="true">A</div>
+          <div class="module-copy">
+            <div class="module-meta">
+              <span>Itemi de învățare · fiecare hartă mentală</span>
+              <span data-count="antrenament">628 itemi</span>
+            </div>
+            <h3>Antrenament</h3>
+            <p>
+              Itemi scurți pe valori, termene, efective, cvorumuri și competențe, grupați pe cele 34 de capitole ale hărților. Explicație imediată, temei și pasajul din hartă.
+            </p>
+            <ul>
+              <li>alegi capitolele și numărul de itemi;</li>
+              <li>itemii greșiți revin primii;</li>
+              <li>progres pe capitole, salvat local.</li>
+            </ul>
+          </div>
+          <a class="module-button" href="antrenament/">
+            Deschide Antrenamentul
             <span aria-hidden="true">→</span>
           </a>
         </article>
@@ -237,6 +260,10 @@
   </footer>
   <script>
     (function () {
+      fetch("antrenament/data/items.json").then(function (r) { return r.json(); }).then(function (d) {
+        var n = document.querySelector('[data-count="antrenament"]');
+        if (n && d.items) n.textContent = d.items.length + " itemi";
+      }).catch(function () {});
       ["legea198", "rofuip", "bush", "crcnr", "profil", "hattie"].forEach(function (k) {
         fetch("../" + k + "/data/questions.json").then(function (r) { return r.json(); }).then(function (d) {
           var n = document.querySelector('[data-count="' + k + '"]');
