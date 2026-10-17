@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="ro">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#12253f">
+  <meta name="description" content="Hărți mentale pentru concurs: legea, regulamentul, profilul managerului, Bush și Hattie, fără repetiții.">
+  <title>Hărți mentale · Concurs</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <a class="skip-link" href="#continut">Sari la conținut</a>
+  <header class="site-header">
+    <a class="brand" href="../concurs/" aria-label="Înapoi la modulele pentru concurs">
+      <span class="brand-mark" aria-hidden="true">H</span>
+      <span><strong>Hărți mentale</strong><small>Lege și regulament, o singură dată</small></span>
+    </a>
+    <div class="tools">
+      <label class="search"><span class="sr">Caută în toate hărțile</span>
+        <input id="q" type="search" placeholder="Caută: cvorum, articol, termen…" autocomplete="off"></label>
+      <button id="menu-btn" class="btn menu-btn" type="button" aria-expanded="false" aria-controls="nav">Cuprins</button>
+    </div>
+  </header>
+
+  <div class="layout">
+    <nav id="nav" class="nav" aria-label="Cuprins hărți mentale"></nav>
+    <main id="continut" class="content" tabindex="-1">
+      <div id="status" class="status" role="status">Se încarcă hărțile…</div>
+      <div id="results" class="results" hidden></div>
+      <article id="map" hidden></article>
+    </main>
+  </div>
+
+  <footer class="foot">
+    <a href="../concurs/">← Modulele pentru concurs</a>
+    <span>Roșu = principal / obligatoriu · Albastru = detaliu, excepție, trimitere</span>
+  </footer>
+  <script src="app.js"></script>
+</body>
+</html>
