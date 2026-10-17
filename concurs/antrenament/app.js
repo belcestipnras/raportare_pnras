@@ -67,7 +67,7 @@
   function start() {
     var items = pick();
     if (!items.length) return;
-    session = { items: items, i: 0, ok: 0, wrong: [] };
+    session = { items: items, i: 0, ok: 0, wrong: [], ans: [], ord: [] };
     show("run"); ask();
   }
 
@@ -78,7 +78,7 @@
     var meta = $("meta"); meta.textContent = ""; meta.appendChild(el("span", "", chTitle(it.c)));
     $("prompt").textContent = it.q;
     $("fb").hidden = true; $("next").hidden = true;
-    var order = shuffle(it.o.map(function (t, k) { return { t: t, k: k }; }));
+    var order = session.ord[session.i] || (session.ord[session.i] = shuffle(it.o.map(function (t, k) { return { t: t, k: k }; })));
     var box = $("opts"); box.textContent = "";
     order.forEach(function (o, idx) {
       var b = el("button", "an-opt"); b.type = "button"; b.dataset.k = o.k;
@@ -86,18 +86,26 @@
       b.addEventListener("click", function () { answer(it, o.k); });
       box.appendChild(b);
     });
+    $("prev").hidden = session.i === 0;
+    if (session.ans[session.i] != null) showResult(it, session.ans[session.i]);
   }
 
   function answer(it, k) {
+    var good = k === it.a;
+    var p = progress[it.id] || { n: 0, ok: 0 };
+    p.n++; if (good) p.ok++; p.last = good ? 1 : 0; progress[it.id] = p; save();
+    session.ans[session.i] = k;
+    if (good) session.ok++; else session.wrong.push({ it: it, chosen: k });
+    showResult(it, k);
+  }
+
+  function showResult(it, k) {
     var good = k === it.a;
     document.querySelectorAll("#opts .an-opt").forEach(function (b) {
       b.disabled = true;
       if (+b.dataset.k === it.a) b.classList.add("c");
       else if (+b.dataset.k === k) b.classList.add("w");
     });
-    var p = progress[it.id] || { n: 0, ok: 0 };
-    p.n++; if (good) p.ok++; p.last = good ? 1 : 0; progress[it.id] = p; save();
-    if (good) session.ok++; else session.wrong.push({ it: it, chosen: k });
     var fb = $("fb"); fb.textContent = ""; fb.className = "an-fb" + (good ? "" : " no");
     fb.appendChild(el("div", "v", good ? "Corect." : "Greșit. Răspunsul corect: " + it.o[it.a]));
     fb.appendChild(el("div", "", it.e));
@@ -106,6 +114,16 @@
     fb.hidden = false;
     var nx = $("next"); nx.hidden = false; nx.textContent = session.i + 1 < session.items.length ? "Următorul →" : "Vezi rezultatul";
     nx.focus();
+  }
+
+  function prev() {
+    if (session.i > 0) { session.i--; ask(); }
+  }
+
+  function restart() {
+    if (!confirm("Reiei sesiunea de la prima întrebare? Răspunsurile din această sesiune se șterg.")) return;
+    session.i = 0; session.ok = 0; session.wrong = []; session.ans = []; session.ord = [];
+    ask();
   }
 
   function next() {
@@ -140,6 +158,11 @@
     }).catch(function () { $("status").textContent = "Itemii nu au putut fi încărcați."; });
     $("start").addEventListener("click", start);
     $("next").addEventListener("click", next);
+    $("prev").addEventListener("click", prev);
+    $("restart").addEventListener("click", restart);
+    $("reset2").addEventListener("click", function () {
+      if (confirm("Ștergi tot progresul din Antrenament și reiei sesiunea?")) { progress = {}; save(); session.i = 0; session.ok = 0; session.wrong = []; session.ans = []; session.ord = []; ask(); }
+    });
     $("quit").addEventListener("click", function () { renderSetup(); show("setup"); });
     $("again").addEventListener("click", function () { renderSetup(); show("setup"); });
     $("mode").addEventListener("change", updateTotal);
