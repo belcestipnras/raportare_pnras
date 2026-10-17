@@ -1,0 +1,1213 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-17",
+  "source": {
+    "name": "John Hattie, Învățarea vizibilă. Versiunea extinsă (Polirom, 2024), capitolul 9. Profesorul",
+    "consolidatedAt": "2026-10-17",
+    "url": "",
+    "method": "itemi situaționali redactați manual; fragmentele au fost comparate cu textul recunoscut prin OCR al capitolului (potrivire aproximativă), nu cu imaginea fiecărei pagini"
+  },
+  "count": 25,
+  "questions": [
+    {
+      "id": "HA-A-001",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "John Hattie, Învățarea vizibilă (capitolul 9)",
+      "annex": "",
+      "title": "John Hattie, Învățarea vizibilă (capitolul 9)",
+      "chapter": "Capitolul 9. Profesorul — Partea A. Atributele profesorului",
+      "section": "Efectele profesorului",
+      "article": 1,
+      "paragraph": "",
+      "prompt": "Un director afirmă că școala nu poate influența rezultatele elevilor, pentru că totul depinde de familie. Ce arată Hattie despre rolul profesorului în interiorul școlii?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Profesorul reprezintă cea mai mare sursă de varianță în interiorul școlii.",
+          "isCorrect": true
+        },
+        {
+          "id": "B",
+          "text": "Profesorul este o sursă neglijabilă de varianță, mai mică decât clădirea școlii.",
+          "isCorrect": false,
+          "why": "Hattie spune contrariul: profesorul este cea mai mare sursă de varianță în interiorul școlii."
+        },
+        {
+          "id": "C",
+          "text": "Directorul este cea mai mare sursă de varianță în interiorul școlii.",
+          "isCorrect": false,
+          "why": "Textul numește profesorul, nu directorul."
+        },
+        {
+          "id": "D",
+          "text": "Manualul folosit este cea mai mare sursă de varianță în interiorul școlii.",
+          "isCorrect": false,
+          "why": "Textul numește profesorul."
+        }
+      ],
+      "correctOptionId": "A",
+      "explanation": "Regula: În interiorul școlii, profesorul este cea mai mare sursă de varianță.\n\nAfirmația directorului ignoră acest rezultat; Hattie adaugă totuși că estimările variază.\n\nTemei: Capitolul 9, secțiunea „Efectele profesorului”. Textul relevant: „Profesorul reprezintă cea mai mare sursă de varianță în interiorul școlii.”",
+      "legalSource": {
+        "document": "John Hattie, Învățarea vizibilă. Versiunea extinsă (Polirom, 2024), capitolul 9. Profesorul",
+        "consolidatedAt": "2026-10-17",
+        "url": "",
+        "reference": "Capitolul 9, secțiunea „Efectele profesorului”",
+        "excerpt": "Profesorul reprezintă cea mai mare sursă de varianță în interiorul școlii.",
+        "verification": "fragment-verificat-aproximativ-pe-textul-recunoscut-prin-ocr"
+      }
+    },
+    {
+      "id": "HA-A-002",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "John Hattie, Învățarea vizibilă (capitolul 9)",
+      "annex": "",
+      "title": "John Hattie, Învățarea vizibilă (capitolul 9)",
+      "chapter": "Capitolul 9. Profesorul — Partea A. Atributele profesorului",
+      "section": "Personalitatea",
+      "article": 2,
+      "paragraph": "",
+      "prompt": "Care dimensiuni ale personalității profesorului se corelează cel mai puternic cu progresul elevilor, potrivit capitolului?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Amabilitatea și sociabilitatea, care au cele mai mari corelații.",
+          "isCorrect": false,
+          "why": "Amabilitatea apare cu corelație negativă mică în tabelul 9.3; textul spune că ceilalți factori au puține sau zero corelații."
+        },
+        {
+          "id": "B",
+          "text": "Toate dimensiunile personalității, aproape în aceeași măsură.",
+          "isCorrect": false,
+          "why": "Textul spune că majoritatea factorilor au puține sau zero corelații."
+        },
+        {
+          "id": "C",
+          "text": "Numai vechimea în profesie.",
+          "isCorrect": false,
+          "why": "Vechimea nu este o dimensiune de personalitate în text."
+        },
+        {
+          "id": "D",
+          "text": "Siguranța în calitate de profesor, entuziasmul față de slujbă și discernământul.",
+          "isCorrect": true
+        }
+      ],
+      "correctOptionId": "D",
+      "explanation": "Regula: Puține dimensiuni ale personalității contează: siguranța, entuziasmul, discernământul.\n\nAcestea sunt cele trei menționate.\n\nTemei: Capitolul 9, secțiunea „Personalitatea”. Textul relevant: „personalitatea cea mai puternic se corelează cu maximizarea performanței elevilor, prin manifestarea de siguranță în calitate de profesor, de entuziasm față de slujbă și de discernământ”",
+      "legalSource": {
+        "document": "John Hattie, Învățarea vizibilă. Versiunea extinsă (Polirom, 2024), capitolul 9. Profesorul",
+        "consolidatedAt": "2026-10-17",
+        "url": "",
+        "reference": "Capitolul 9, secțiunea „Personalitatea”",
+        "excerpt": "personalitatea cea mai puternic se corelează cu maximizarea performanței elevilor, prin manifestarea de siguranță în calitate de profesor, de entuziasm față de slujbă și de discernământ",
+        "verification": "fragment-verificat-aproximativ-pe-textul-recunoscut-prin-ocr"
+      }
+    },
+    {
+      "id": "HA-A-003",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "John Hattie, Învățarea vizibilă (capitolul 9)",
+      "annex": "",
+      "title": "John Hattie, Învățarea vizibilă (capitolul 9)",
+      "chapter": "Capitolul 9. Profesorul — Partea A. Atributele profesorului",
+      "section": "Abilitatea verbală",
+      "article": 3,
+      "paragraph": "",
+      "prompt": "Un director angajează profesori doar după abilitatea verbală, convins că ea prezice rezultatele elevilor pe toată durata carierei. Ce observă Hattie?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Relația rămâne la fel de puternică pe toată durata carierei.",
+          "isCorrect": false,
+          "why": "Textul spune că slăbește odată cu experiența la clasă."
+        },
+        {
+          "id": "B",
+          "text": "Abilitatea verbală nu are nicio legătură cu performanța elevilor, la niciun moment.",
+          "isCorrect": false,
+          "why": "Textul recunoaște legătura în primii ani de predare."
+        },
+        {
+          "id": "C",
+          "text": "Abilitatea verbală este legată de performanța elevilor numai în cazul profesorilor aflați în primii ani de predare; relația slăbește odată cu experiența.",
+          "isCorrect": true
+        },
+        {
+          "id": "D",
+          "text": "Abilitatea verbală contează doar pentru profesorii cu peste douăzeci de ani vechime.",
+          "isCorrect": false,
+          "why": "Textul indică primii ani, nu perioada târzie."
+        }
+      ],
+      "correctOptionId": "C",
+      "explanation": "Regula: Abilitatea verbală contează în primii ani de predare, apoi slăbește.\n\nCriteriul directorului este deci prea îngust.\n\nTemei: Capitolul 9, secțiunea „Abilitatea verbală a profesorului”. Textul relevant: „sunt legate de performanța elevilor (Kaplan & Owings, 2002; Darling-Hammond, 2000), dar numai în cazul profesorilor aflați în primii ani de predare”",
+      "legalSource": {
+        "document": "John Hattie, Învățarea vizibilă. Versiunea extinsă (Polirom, 2024), capitolul 9. Profesorul",
+        "consolidatedAt": "2026-10-17",
+        "url": "",
+        "reference": "Capitolul 9, secțiunea „Abilitatea verbală a profesorului”",
+        "excerpt": "sunt legate de performanța elevilor (Kaplan & Owings, 2002; Darling-Hammond, 2000), dar numai în cazul profesorilor aflați în primii ani de predare",
+        "verification": "fragment-verificat-aproximativ-pe-textul-recunoscut-prin-ocr"
+      }
+    },
+    {
+      "id": "HA-A-004",
+      "kind": "aplicare",
+      "difficulty": "expert",
+      "module": "John Hattie, Învățarea vizibilă (capitolul 9)",
+      "annex": "",
+      "title": "John Hattie, Învățarea vizibilă (capitolul 9)",
+      "chapter": "Capitolul 9. Profesorul — Partea A. Atributele profesorului",
+      "section": "Abilitatea verbală",
+      "article": 4,
+      "paragraph": "",
+      "prompt": "Cum comentează Hattie concluzia metaanalizei lui Aloe și Becker privind relația dintre abilitatea verbală și performanță?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Relația este mai puternică decât se credea și crește cu experiența.",
+          "isCorrect": false,
+          "why": "Textul spune că slăbește odată cu experiența."
+        },
+        {
+          "id": "B",
+          "text": "Relația nu este atât de puternică pe cât au pretins mulți și slăbește odată cu experiența la clasă.",
+          "isCorrect": true
+        },
+        {
+          "id": "C",
+          "text": "Relația este puternică, dar numai pentru matematică.",
+          "isCorrect": false,
+          "why": "Textul nu face această distincție în acest loc."
+        },
+        {
+          "id": "D",
+          "text": "Studiul nu a găsit nicio relație, nici în primii ani.",
+          "isCorrect": false,
+          "why": "Textul spune că relația slăbește, nu că ar lipsi cu totul."
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Regula: Relația verbală–performanță este mai slabă decât se pretindea și slăbește cu experiența.\n\nFormularea corectă este cea din text.\n\nTemei: Capitolul 9, secțiunea „Abilitatea verbală a profesorului”. Textul relevant: „relația nu este atât de puternică pe cât au pretins mulți și, într-adevăr, slăbește odată cu experiența la clasă”",
+      "legalSource": {
+        "document": "John Hattie, Învățarea vizibilă. Versiunea extinsă (Polirom, 2024), capitolul 9. Profesorul",
+        "consolidatedAt": "2026-10-17",
+        "url": "",
+        "reference": "Capitolul 9, secțiunea „Abilitatea verbală a profesorului”",
+        "excerpt": "relația nu este atât de puternică pe cât au pretins mulți și, într-adevăr, slăbește odată cu experiența la clasă",
+        "verification": "fragment-verificat-aproximativ-pe-textul-recunoscut-prin-ocr"
+      }
+    },
+    {
+      "id": "HA-A-005",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "John Hattie, Învățarea vizibilă (capitolul 9)",
+      "annex": "",
+      "title": "John Hattie, Învățarea vizibilă (capitolul 9)",
+      "chapter": "Capitolul 9. Profesorul — Partea A. Atributele profesorului",
+      "section": "Așteptările profesorului",
+      "article": 5,
+      "paragraph": "",
+      "prompt": "O școală discută dacă profesorii „au sau nu așteptări” de la elevi. Ce întrebare consideră Hattie mai potrivită?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Dacă profesorii au așteptări false și înșelătoare și dacă au așteptări ridicate pentru toți elevii.",
+          "isCorrect": true
+        },
+        {
+          "id": "B",
+          "text": "Dacă profesorii au sau nu au așteptări, indiferent de natura lor.",
+          "isCorrect": false,
+          "why": "Hattie spune că nu aceasta este întrebarea corectă."
+        },
+        {
+          "id": "C",
+          "text": "Dacă elevii cu rezultate slabe au suficientă motivație.",
+          "isCorrect": false,
+          "why": "Textul pune accentul pe așteptările profesorilor."
+        },
+        {
+          "id": "D",
+          "text": "Dacă părinții au așteptări realiste.",
+          "isCorrect": false,
+          "why": "Textul vorbește despre așteptările profesorilor."
+        }
+      ],
+      "correctOptionId": "A",
+      "explanation": "Regula: Întrebarea corectă: așteptări false și înșelătoare? Așteptări ridicate pentru toți?\n\nAceasta schimbă discuția de la „dacă” la „ce fel” și „pentru cine”.\n\nTemei: Capitolul 9, secțiunea „Așteptările profesorului”. Textul relevant: „Au ei așteptări ridicate pentru toți elevii lor?”",
+      "legalSource": {
+        "document": "John Hattie, Învățarea vizibilă. Versiunea extinsă (Polirom, 2024), capitolul 9. Profesorul",
+        "consolidatedAt": "2026-10-17",
+        "url": "",
+        "reference": "Capitolul 9, secțiunea „Așteptările profesorului”",
+        "excerpt": "Au ei așteptări ridicate pentru toți elevii lor?",
+        "verification": "fragment-verificat-aproximativ-pe-textul-recunoscut-prin-ocr"
+      }
+    },
+    {
+      "id": "HA-A-006",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "John Hattie, Învățarea vizibilă (capitolul 9)",
+      "annex": "",
+      "title": "John Hattie, Învățarea vizibilă (capitolul 9)",
+      "chapter": "Capitolul 9. Profesorul — Partea A. Atributele profesorului",
+      "section": "Așteptările profesorului",
+      "article": 6,
+      "paragraph": "",
+      "prompt": "Elevii dintr-o clasă spun că profesorul îi tratează diferit pe cei „buni” și pe cei „slabi”. Ce constată Weinstein, citat de Hattie?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Elevii nu observă diferențele de tratament.",
+          "isCorrect": false,
+          "why": "Textul spune că elevii știu că sunt tratați diferit."
+        },
+        {
+          "id": "B",
+          "text": "Diferențele de tratament apar numai în rândul părinților, nu al elevilor.",
+          "isCorrect": false,
+          "why": "Textul vorbește despre percepția elevilor."
+        },
+        {
+          "id": "C",
+          "text": "Elevii percep corect diferențele, dar acestea nu au efect asupra rezultatelor.",
+          "isCorrect": false,
+          "why": "Textul leagă așteptările de performanța elevilor."
+        },
+        {
+          "id": "D",
+          "text": "Elevii știu că sunt tratați diferit în clasă din cauza așteptărilor profesorilor.",
+          "isCorrect": true
+        }
+      ],
+      "correctOptionId": "D",
+      "explanation": "Regula: Elevii știu că sunt tratați diferit din cauza așteptărilor.\n\nConstatarea confirmă percepția elevilor.\n\nTemei: Capitolul 9, secțiunea „Așteptările profesorului”. Textul relevant: „elevii știu că sunt tratați diferit în clasă datorită așteptărilor profesorilor”",
+      "legalSource": {
+        "document": "John Hattie, Învățarea vizibilă. Versiunea extinsă (Polirom, 2024), capitolul 9. Profesorul",
+        "consolidatedAt": "2026-10-17",
+        "url": "",
+        "reference": "Capitolul 9, secțiunea „Așteptările profesorului”",
+        "excerpt": "elevii știu că sunt tratați diferit în clasă datorită așteptărilor profesorilor",
+        "verification": "fragment-verificat-aproximativ-pe-textul-recunoscut-prin-ocr"
+      }
+    },
+    {
+      "id": "HA-A-007",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "John Hattie, Învățarea vizibilă (capitolul 9)",
+      "annex": "",
+      "title": "John Hattie, Învățarea vizibilă (capitolul 9)",
+      "chapter": "Capitolul 9. Profesorul — Partea A. Atributele profesorului",
+      "section": "Așteptările profesorului",
+      "article": 7,
+      "paragraph": "",
+      "prompt": "Un profesor vrea să evalueze progresul unei eleve. Ce recomandare face Hattie în privința comparației?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Să compare elevii între ei, pentru a stimula competiția.",
+          "isCorrect": false,
+          "why": "Hattie recomandă contrariul."
+        },
+        {
+          "id": "B",
+          "text": "Să compare elevul numai cu media națională.",
+          "isCorrect": false,
+          "why": "Textul recomandă comparația cu rezultatul anterior al elevului."
+        },
+        {
+          "id": "C",
+          "text": "Să sublinieze progresul individual prin comparație cu rezultatul anterior al elevului, nu prin compararea elevilor între ei.",
+          "isCorrect": true
+        },
+        {
+          "id": "D",
+          "text": "Să evite orice raportare la rezultatele anterioare.",
+          "isCorrect": false,
+          "why": "Textul recomandă tocmai raportarea la rezultatul anterior."
+        }
+      ],
+      "correctOptionId": "C",
+      "explanation": "Regula: Progresul individual se raportează la rezultatul anterior, nu la colegi.\n\nAceasta este recomandarea din capitol.\n\nTemei: Capitolul 9, secțiunea „Așteptările profesorului”. Textul relevant: „pentru a sublinia progresul individual făcut prin comparație cu rezultatul anterior, mai degrabă decât să compare elevii unii cu alții”",
+      "legalSource": {
+        "document": "John Hattie, Învățarea vizibilă. Versiunea extinsă (Polirom, 2024), capitolul 9. Profesorul",
+        "consolidatedAt": "2026-10-17",
+        "url": "",
+        "reference": "Capitolul 9, secțiunea „Așteptările profesorului”",
+        "excerpt": "pentru a sublinia progresul individual făcut prin comparație cu rezultatul anterior, mai degrabă decât să compare elevii unii cu alții",
+        "verification": "fragment-verificat-aproximativ-pe-textul-recunoscut-prin-ocr"
+      }
+    },
+    {
+      "id": "HA-A-008",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "John Hattie, Învățarea vizibilă (capitolul 9)",
+      "annex": "",
+      "title": "John Hattie, Învățarea vizibilă (capitolul 9)",
+      "chapter": "Capitolul 9. Profesorul — Partea A. Atributele profesorului",
+      "section": "Așteptările profesorului",
+      "article": 8,
+      "paragraph": "",
+      "prompt": "Un profesor primește o clasă nouă și i se spune că unii elevi sunt „slabi”. Ce formule propune Hattie pentru a evita efectele așteptărilor nefavorabile?",
+      "options": [
+        {
+          "id": "A",
+          "text": "„Așteaptă mai puțin ca să eviți dezamăgirea” și „Compară cu colegii”.",
+          "isCorrect": false,
+          "why": "Aceste formule nu apar în text și contrazic recomandările lui Hattie."
+        },
+        {
+          "id": "B",
+          "text": "„Fii pregătit să fii surprins” și „Nu presupune”.",
+          "isCorrect": true
+        },
+        {
+          "id": "C",
+          "text": "„Grupează după abilități” și „Etichetează timpuriu”.",
+          "isCorrect": false,
+          "why": "Hattie critică gruparea după abilități și etichetarea."
+        },
+        {
+          "id": "D",
+          "text": "„Confirmă prima impresie” și „Nu schimba planul”.",
+          "isCorrect": false,
+          "why": "Hattie recomandă căutarea dovezilor care surprind."
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Regula: Mantre: „Fii pregătit să fii surprins”, „Nu presupune”.\n\nEle cer deschidere față de dovezi noi.\n\nTemei: Capitolul 9, secțiunea „Așteptările profesorului”. Textul relevant: „„Fii pregătit să fii surprins” și „Nu presupune” par a fi mantre potrivite pentru a evita efectele așteptărilor nefavorabile.”",
+      "legalSource": {
+        "document": "John Hattie, Învățarea vizibilă. Versiunea extinsă (Polirom, 2024), capitolul 9. Profesorul",
+        "consolidatedAt": "2026-10-17",
+        "url": "",
+        "reference": "Capitolul 9, secțiunea „Așteptările profesorului”",
+        "excerpt": "„Fii pregătit să fii surprins” și „Nu presupune” par a fi mantre potrivite pentru a evita efectele așteptărilor nefavorabile.",
+        "verification": "fragment-verificat-aproximativ-pe-textul-recunoscut-prin-ocr"
+      }
+    },
+    {
+      "id": "HA-A-009",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "John Hattie, Învățarea vizibilă (capitolul 9)",
+      "annex": "",
+      "title": "John Hattie, Învățarea vizibilă (capitolul 9)",
+      "chapter": "Capitolul 9. Profesorul — Partea A. Atributele profesorului",
+      "section": "Neetichetarea elevilor",
+      "article": 9,
+      "paragraph": "",
+      "prompt": "O școală colectează diagnostice pentru elevi. Cum recomandă Hattie să fie folosite etichetele?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Doar pentru diagnosticarea unor probleme de învățare, niciodată atașate copilului.",
+          "isCorrect": true
+        },
+        {
+          "id": "B",
+          "text": "Pentru a-i grupa permanent pe elevi, după nivel.",
+          "isCorrect": false,
+          "why": "Hattie critică gruparea și etichetarea permanentă."
+        },
+        {
+          "id": "C",
+          "text": "Pentru a le comunica tuturor profesorilor, ca informație permanentă despre elev.",
+          "isCorrect": false,
+          "why": "Etichetele nu trebuie atașate copilului."
+        },
+        {
+          "id": "D",
+          "text": "Etichetele trebuie evitate chiar și pentru diagnosticare.",
+          "isCorrect": false,
+          "why": "Hattie acceptă etichetele pentru diagnosticare."
+        }
+      ],
+      "correctOptionId": "A",
+      "explanation": "Regula: Etichetele servesc diagnosticării; nu se atașează copilului.\n\nAceasta este formularea din capitol.\n\nTemei: Capitolul 9, secțiunea „Neetichetarea elevilor”. Textul relevant: „etichetele sunt folosite doar pentru a diagnostica anumite probleme de învățare și nu sunt niciodată atașate copilului”",
+      "legalSource": {
+        "document": "John Hattie, Învățarea vizibilă. Versiunea extinsă (Polirom, 2024), capitolul 9. Profesorul",
+        "consolidatedAt": "2026-10-17",
+        "url": "",
+        "reference": "Capitolul 9, secțiunea „Neetichetarea elevilor”",
+        "excerpt": "etichetele sunt folosite doar pentru a diagnostica anumite probleme de învățare și nu sunt niciodată atașate copilului",
+        "verification": "fragment-verificat-aproximativ-pe-textul-recunoscut-prin-ocr"
+      }
+    },
+    {
+      "id": "HA-A-010",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "John Hattie, Învățarea vizibilă (capitolul 9)",
+      "annex": "",
+      "title": "John Hattie, Învățarea vizibilă (capitolul 9)",
+      "chapter": "Capitolul 9. Profesorul — Partea A. Atributele profesorului",
+      "section": "Neetichetarea elevilor",
+      "article": 10,
+      "paragraph": "",
+      "prompt": "Un specialist consideră că diagnosticul încheie discuția despre un elev. Ce spune Hattie despre rolul diagnosticului?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Diagnosticul este ultimul pas și explică de ce elevul nu poate progresa.",
+          "isCorrect": false,
+          "why": "Hattie spune contrariul."
+        },
+        {
+          "id": "B",
+          "text": "Diagnosticul este inutil și trebuie evitat.",
+          "isCorrect": false,
+          "why": "Textul spune că evaluarea poate fi primul pas spre intervenție."
+        },
+        {
+          "id": "C",
+          "text": "Diagnosticul trebuie urmat de adaptarea cerințelor la limitele elevului, fără intervenție pentru progres.",
+          "isCorrect": false,
+          "why": "Hattie critică adaptarea fără intervenție pentru progres."
+        },
+        {
+          "id": "D",
+          "text": "Diagnosticul este doar primul pas și nu ar trebui niciodată să fie ultimul; după el se intervine pentru progres.",
+          "isCorrect": true
+        }
+      ],
+      "correctOptionId": "D",
+      "explanation": "Regula: Diagnosticul este primul pas; după el urmează intervenția pentru progres.\n\nAceasta este concluzia din capitol.\n\nTemei: Capitolul 9, secțiunea „Neetichetarea elevilor”. Textul relevant: „Diagnosticul este doar primul pas și nu ar trebui niciodată să fie ultimul.”",
+      "legalSource": {
+        "document": "John Hattie, Învățarea vizibilă. Versiunea extinsă (Polirom, 2024), capitolul 9. Profesorul",
+        "consolidatedAt": "2026-10-17",
+        "url": "",
+        "reference": "Capitolul 9, secțiunea „Neetichetarea elevilor”",
+        "excerpt": "Diagnosticul este doar primul pas și nu ar trebui niciodată să fie ultimul.",
+        "verification": "fragment-verificat-aproximativ-pe-textul-recunoscut-prin-ocr"
+      }
+    },
+    {
+      "id": "HA-A-011",
+      "kind": "aplicare",
+      "difficulty": "expert",
+      "module": "John Hattie, Învățarea vizibilă (capitolul 9)",
+      "annex": "",
+      "title": "John Hattie, Învățarea vizibilă (capitolul 9)",
+      "chapter": "Capitolul 9. Profesorul — Partea A. Atributele profesorului",
+      "section": "Estimările profesorilor",
+      "article": 11,
+      "paragraph": "",
+      "prompt": "Un profesor notează un elev doar după impresia generală și constată că aprecierea se extinde la toate domeniile. Ce fenomen descrie Hattie?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Profeția autoîmplinită, în care elevul ajunge să confirme eticheta.",
+          "isCorrect": false,
+          "why": "Aceasta este alt fenomen: așteptările care se confirmă prin comportamentul elevului."
+        },
+        {
+          "id": "B",
+          "text": "Etichetarea, în care elevul este încadrat într-o categorie de diagnostic.",
+          "isCorrect": false,
+          "why": "Etichetarea diferă de generalizarea opiniei de ansamblu."
+        },
+        {
+          "id": "C",
+          "text": "Efectul de halou: opiniile de ansamblu despre un elev se generalizează la toate domeniile de performanță.",
+          "isCorrect": true
+        },
+        {
+          "id": "D",
+          "text": "Triangularea, în care aprecierile sunt testate și reexaminate.",
+          "isCorrect": false,
+          "why": "Triangularea este soluția recomandată, nu fenomenul descris."
+        }
+      ],
+      "correctOptionId": "C",
+      "explanation": "Regula: Efectul de halou: opinia de ansamblu se generalizează la toate domeniile.\n\nSituația descrisă corespunde exact definiției.\n\nTemei: Capitolul 9, secțiunea „Estimările profesorilor cu privire la performanță”. Textul relevant: „aproximativ două treimi din varianța aprecierilor profesorilor nu pot fi explicate prin performanța elevilor. Poate exista și un efect de halou”",
+      "legalSource": {
+        "document": "John Hattie, Învățarea vizibilă. Versiunea extinsă (Polirom, 2024), capitolul 9. Profesorul",
+        "consolidatedAt": "2026-10-17",
+        "url": "",
+        "reference": "Capitolul 9, secțiunea „Estimările profesorilor cu privire la performanță”",
+        "excerpt": "aproximativ două treimi din varianța aprecierilor profesorilor nu pot fi explicate prin performanța elevilor. Poate exista și un efect de halou",
+        "verification": "fragment-verificat-aproximativ-pe-textul-recunoscut-prin-ocr"
+      }
+    },
+    {
+      "id": "HA-A-012",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "John Hattie, Învățarea vizibilă (capitolul 9)",
+      "annex": "",
+      "title": "John Hattie, Învățarea vizibilă (capitolul 9)",
+      "chapter": "Capitolul 9. Profesorul — Partea A. Atributele profesorului",
+      "section": "Estimările profesorilor",
+      "article": 12,
+      "paragraph": "",
+      "prompt": "Cum recomandă Hattie să fie tratate aprecierile profesorilor despre elevi?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Să fie fixate la începutul anului și păstrate neschimbate.",
+          "isCorrect": false,
+          "why": "Textul cere reexaminare."
+        },
+        {
+          "id": "B",
+          "text": "Să fie mereu triangulate, testate și reexaminate.",
+          "isCorrect": true
+        },
+        {
+          "id": "C",
+          "text": "Să fie făcute o singură dată, de un profesor cu experiență.",
+          "isCorrect": false,
+          "why": "Textul cere triangulare și testare."
+        },
+        {
+          "id": "D",
+          "text": "Să fie înlocuite de aprecierea părinților.",
+          "isCorrect": false,
+          "why": "Textul nu propune înlocuirea; propune triangularea."
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Regula: Aprecierile se triangulează, se testează și se reexaminează.\n\nAceasta evită efectul de halou și etichetarea.\n\nTemei: Capitolul 9, secțiunea „Estimările profesorilor cu privire la performanță”. Textul relevant: „aprecierile trebuie să fie mereu triangulate, testate și reexaminate”",
+      "legalSource": {
+        "document": "John Hattie, Învățarea vizibilă. Versiunea extinsă (Polirom, 2024), capitolul 9. Profesorul",
+        "consolidatedAt": "2026-10-17",
+        "url": "",
+        "reference": "Capitolul 9, secțiunea „Estimările profesorilor cu privire la performanță”",
+        "excerpt": "aprecierile trebuie să fie mereu triangulate, testate și reexaminate",
+        "verification": "fragment-verificat-aproximativ-pe-textul-recunoscut-prin-ocr"
+      }
+    },
+    {
+      "id": "HA-A-013",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "John Hattie, Învățarea vizibilă (capitolul 9)",
+      "annex": "",
+      "title": "John Hattie, Învățarea vizibilă (capitolul 9)",
+      "chapter": "Capitolul 9. Profesorul — Partea A. Atributele profesorului",
+      "section": "Credibilitatea profesorului",
+      "article": 13,
+      "paragraph": "",
+      "prompt": "Cum definește Hattie credibilitatea profesorului?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Credința elevilor că pot învăța de la un anumit profesor, pentru că acesta este credibil, elocvent și capabil să-i asigure de succes.",
+          "isCorrect": true
+        },
+        {
+          "id": "B",
+          "text": "Numărul de ani de experiență la catedră.",
+          "isCorrect": false,
+          "why": "Definiția privește percepția elevilor, nu vechimea."
+        },
+        {
+          "id": "C",
+          "text": "Aprecierea profesorului de către inspectorul școlar.",
+          "isCorrect": false,
+          "why": "Definiția privește credința elevilor."
+        },
+        {
+          "id": "D",
+          "text": "Capacitatea profesorului de a menține disciplina în clasă.",
+          "isCorrect": false,
+          "why": "Definiția nu se bazează pe disciplină, ci pe credința elevilor că pot învăța."
+        }
+      ],
+      "correctOptionId": "A",
+      "explanation": "Regula: Credibilitatea = credința elevilor că pot învăța de la acel profesor.\n\nDefiniția pune accentul pe percepția elevilor.\n\nTemei: Capitolul 9, secțiunea „Credibilitatea profesorului”. Textul relevant: „Credibilitatea profesorului reprezintă credința elevilor că pot învăța de la un anumit profesor”",
+      "legalSource": {
+        "document": "John Hattie, Învățarea vizibilă. Versiunea extinsă (Polirom, 2024), capitolul 9. Profesorul",
+        "consolidatedAt": "2026-10-17",
+        "url": "",
+        "reference": "Capitolul 9, secțiunea „Credibilitatea profesorului”",
+        "excerpt": "Credibilitatea profesorului reprezintă credința elevilor că pot învăța de la un anumit profesor",
+        "verification": "fragment-verificat-aproximativ-pe-textul-recunoscut-prin-ocr"
+      }
+    },
+    {
+      "id": "HA-A-014",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "John Hattie, Învățarea vizibilă (capitolul 9)",
+      "annex": "",
+      "title": "John Hattie, Învățarea vizibilă (capitolul 9)",
+      "chapter": "Capitolul 9. Profesorul — Partea A. Atributele profesorului",
+      "section": "Credibilitatea profesorului",
+      "article": 14,
+      "paragraph": "",
+      "prompt": "Ce întrebare propune Hattie să fie pusă elevilor înainte să intre în clasă, pentru a verifica credibilitatea profesorului?",
+      "options": [
+        {
+          "id": "A",
+          "text": "„Este profesorul acesta exigent la notare?”",
+          "isCorrect": false,
+          "why": "Întrebarea din text privește dorința, capacitatea și grija."
+        },
+        {
+          "id": "B",
+          "text": "„Are profesorul cele mai multe ore de predare?”",
+          "isCorrect": false,
+          "why": "Întrebarea din text nu privește numărul de ore."
+        },
+        {
+          "id": "C",
+          "text": "„Cunoaște profesorul toți elevii pe nume?”",
+          "isCorrect": false,
+          "why": "Întrebarea din text nu privește acest aspect."
+        },
+        {
+          "id": "D",
+          "text": "„Este profesorul acesta credibil în ce privește dorința, capacitatea și grija față de învățătura ta?”",
+          "isCorrect": true
+        }
+      ],
+      "correctOptionId": "D",
+      "explanation": "Regula: Test: credibil în ce privește dorința, capacitatea și grija față de învățătura elevului?\n\nUn răspuns negativ compromite impactul.\n\nTemei: Capitolul 9, secțiunea „Credibilitatea profesorului”. Textul relevant: „Este profesorul acesta credibil în ce privește dorința, capacitatea și grija față de învățătura ta?”",
+      "legalSource": {
+        "document": "John Hattie, Învățarea vizibilă. Versiunea extinsă (Polirom, 2024), capitolul 9. Profesorul",
+        "consolidatedAt": "2026-10-17",
+        "url": "",
+        "reference": "Capitolul 9, secțiunea „Credibilitatea profesorului”",
+        "excerpt": "Este profesorul acesta credibil în ce privește dorința, capacitatea și grija față de învățătura ta?",
+        "verification": "fragment-verificat-aproximativ-pe-textul-recunoscut-prin-ocr"
+      }
+    },
+    {
+      "id": "HA-A-015",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "John Hattie, Învățarea vizibilă (capitolul 9)",
+      "annex": "",
+      "title": "John Hattie, Învățarea vizibilă (capitolul 9)",
+      "chapter": "Capitolul 9. Profesorul — Partea A. Atributele profesorului",
+      "section": "Eficacitatea colectivă",
+      "article": 15,
+      "paragraph": "",
+      "prompt": "Un director vrea ca toți profesorii să predea la fel, pentru coerență. Ce spune Hattie despre acest tip de uniformitate?",
+      "options": [
+        {
+          "id": "A",
+          "text": "O modalitate comună de predare este mai importantă decât orice limbă comună.",
+          "isCorrect": false,
+          "why": "Hattie spune contrariul."
+        },
+        {
+          "id": "B",
+          "text": "Nici limba comună, nici modalitatea comună nu au importanță.",
+          "isCorrect": false,
+          "why": "Hattie dă importanță limbii comune despre învățare și impact."
+        },
+        {
+          "id": "C",
+          "text": "O limbă comună despre învățare și impact este mai importantă decât o modalitate comună de predare.",
+          "isCorrect": true
+        },
+        {
+          "id": "D",
+          "text": "Uniformitatea metodelor garantează eficacitatea colectivă.",
+          "isCorrect": false,
+          "why": "Textul nu o garantează; contează limba comună."
+        }
+      ],
+      "correctOptionId": "C",
+      "explanation": "Regula: O limbă comună despre învățare și impact contează mai mult decât o modalitate comună de predare.\n\nDirectorul ar trebui să urmărească limbajul comun, nu uniformitatea metodelor.\n\nTemei: Capitolul 9, secțiunea „Eficacitatea colectivă a profesorilor”. Textul relevant: „O limbă comună despre învățare și impact este mai importantă decât o modalitate comună de predare”",
+      "legalSource": {
+        "document": "John Hattie, Învățarea vizibilă. Versiunea extinsă (Polirom, 2024), capitolul 9. Profesorul",
+        "consolidatedAt": "2026-10-17",
+        "url": "",
+        "reference": "Capitolul 9, secțiunea „Eficacitatea colectivă a profesorilor”",
+        "excerpt": "O limbă comună despre învățare și impact este mai importantă decât o modalitate comună de predare",
+        "verification": "fragment-verificat-aproximativ-pe-textul-recunoscut-prin-ocr"
+      }
+    },
+    {
+      "id": "HA-A-016",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "John Hattie, Învățarea vizibilă (capitolul 9)",
+      "annex": "",
+      "title": "John Hattie, Învățarea vizibilă (capitolul 9)",
+      "chapter": "Capitolul 9. Profesorul — Partea A. Atributele profesorului",
+      "section": "Eficacitatea colectivă",
+      "article": 16,
+      "paragraph": "",
+      "prompt": "Profesorii unei școli se întâlnesc săptămânal, dar discută mai ales despre programă și resurse. Ce avertizează Hattie?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Întâlnirile săptămânale sunt suficiente pentru a dovedi eficacitatea colectivă.",
+          "isCorrect": false,
+          "why": "Hattie spune că nu sunt suficiente."
+        },
+        {
+          "id": "B",
+          "text": "Eficacitatea colectivă nu înseamnă doar că profesorii se întâlnesc și lucrează împreună; accentul trebuie să cadă pe maximizarea impactului asupra elevilor.",
+          "isCorrect": true
+        },
+        {
+          "id": "C",
+          "text": "Discuțiile despre programă și resurse sunt cele mai productive pedagogic.",
+          "isCorrect": false,
+          "why": "Hattie arată că profesorii preferă astfel de discuții în locul cercetării productive pedagogic."
+        },
+        {
+          "id": "D",
+          "text": "Colaborarea nu are legătură cu impactul asupra elevilor.",
+          "isCorrect": false,
+          "why": "Textul leagă eficacitatea colectivă de maximizarea impactului."
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Regula: Eficacitatea colectivă = impact maximizat asupra elevilor, nu doar întâlniri.\n\nSituația descrisă este tocmai riscul semnalat.\n\nTemei: Capitolul 9, secțiunea „Eficacitatea colectivă a profesorilor”. Textul relevant: „eficacitatea colectivă nu înseamnă doar că profesorii se întâlnesc și lucrează împreună”",
+      "legalSource": {
+        "document": "John Hattie, Învățarea vizibilă. Versiunea extinsă (Polirom, 2024), capitolul 9. Profesorul",
+        "consolidatedAt": "2026-10-17",
+        "url": "",
+        "reference": "Capitolul 9, secțiunea „Eficacitatea colectivă a profesorilor”",
+        "excerpt": "eficacitatea colectivă nu înseamnă doar că profesorii se întâlnesc și lucrează împreună",
+        "verification": "fragment-verificat-aproximativ-pe-textul-recunoscut-prin-ocr"
+      }
+    },
+    {
+      "id": "HA-A-017",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "John Hattie, Învățarea vizibilă (capitolul 9)",
+      "annex": "",
+      "title": "John Hattie, Învățarea vizibilă (capitolul 9)",
+      "chapter": "Capitolul 9. Profesorul — Partea B. Formarea profesională a profesorilor",
+      "section": "Programele inițiale",
+      "article": 17,
+      "paragraph": "",
+      "prompt": "O universitate susține că un an suplimentar de pregătire inițială va îmbunătăți semnificativ rezultatele elevilor. Ce arată metaanalizele citate de Hattie despre educația profesorilor?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Mărimea efectului educației profesorilor asupra rezultatelor elevilor este neglijabilă, aproximativ 0,10.",
+          "isCorrect": true
+        },
+        {
+          "id": "B",
+          "text": "Efectul este foarte mare, peste 1,0.",
+          "isCorrect": false,
+          "why": "Textul spune neglijabilă, aproximativ 0,10."
+        },
+        {
+          "id": "C",
+          "text": "Efectul este mare pentru toate programele.",
+          "isCorrect": false,
+          "why": "Textul spune neglijabilă."
+        },
+        {
+          "id": "D",
+          "text": "Nu s-a făcut nicio metaanaliză pe acest subiect.",
+          "isCorrect": false,
+          "why": "Textul citează metaanalize."
+        }
+      ],
+      "correctOptionId": "A",
+      "explanation": "Regula: Efectul educației profesorilor asupra rezultatelor elevilor: aproximativ 0,10.\n\nNu se concluzionează că formarea trebuie abandonată, ci că trebuie bazată pe dovezile impactului.\n\nTemei: Capitolul 9, secțiunea „Programele inițiale de pregătire a profesorilor”. Textul relevant: „mărimea efectului educației profesorilor privind rezultatele elevilor este neglijabilă (aproximativ 0,10)”",
+      "legalSource": {
+        "document": "John Hattie, Învățarea vizibilă. Versiunea extinsă (Polirom, 2024), capitolul 9. Profesorul",
+        "consolidatedAt": "2026-10-17",
+        "url": "",
+        "reference": "Capitolul 9, secțiunea „Programele inițiale de pregătire a profesorilor”",
+        "excerpt": "mărimea efectului educației profesorilor privind rezultatele elevilor este neglijabilă (aproximativ 0,10)",
+        "verification": "fragment-verificat-aproximativ-pe-textul-recunoscut-prin-ocr"
+      }
+    },
+    {
+      "id": "HA-A-018",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "John Hattie, Învățarea vizibilă (capitolul 9)",
+      "annex": "",
+      "title": "John Hattie, Învățarea vizibilă (capitolul 9)",
+      "chapter": "Capitolul 9. Profesorul — Partea B. Formarea profesională a profesorilor",
+      "section": "Dezvoltarea profesională",
+      "article": 18,
+      "paragraph": "",
+      "prompt": "O școală evaluează un curs de formare după chestionare de satisfacție. Ce critică formulează Hattie?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Chestionarele de satisfacție sunt cel mai bun indicator al impactului asupra elevilor.",
+          "isCorrect": false,
+          "why": "Hattie spune că evaluarea ar trebui să privească efectele asupra practicii și asupra elevilor."
+        },
+        {
+          "id": "B",
+          "text": "Formarea nu trebuie evaluată deloc.",
+          "isCorrect": false,
+          "why": "Textul cere evaluarea după efecte reale."
+        },
+        {
+          "id": "C",
+          "text": "Efectele asupra elevilor sunt prea greu de măsurat pentru a fi luate în calcul.",
+          "isCorrect": false,
+          "why": "Textul cere să fie luate în calcul."
+        },
+        {
+          "id": "D",
+          "text": "Formarea profesională este prea des evaluată după efectele asupra profesorului (satisfacție, plăcere, învățare percepută) și mult mai puțin după schimbarea practicii și efectele asupra elevilor.",
+          "isCorrect": true
+        }
+      ],
+      "correctOptionId": "D",
+      "explanation": "Regula: Formarea se evaluează după schimbarea practicii și efectele asupra elevilor, nu doar după satisfacție.\n\nEvaluarea după satisfacție este exact practica criticată.\n\nTemei: Capitolul 9, secțiunea „Dezvoltarea profesională”. Textul relevant: „formarea profesională este evaluată în funcție de efectele asupra profesorului (satisfacție, plăcere și învățare percepută din cursuri)”",
+      "legalSource": {
+        "document": "John Hattie, Învățarea vizibilă. Versiunea extinsă (Polirom, 2024), capitolul 9. Profesorul",
+        "consolidatedAt": "2026-10-17",
+        "url": "",
+        "reference": "Capitolul 9, secțiunea „Dezvoltarea profesională”",
+        "excerpt": "formarea profesională este evaluată în funcție de efectele asupra profesorului (satisfacție, plăcere și învățare percepută din cursuri)",
+        "verification": "fragment-verificat-aproximativ-pe-textul-recunoscut-prin-ocr"
+      }
+    },
+    {
+      "id": "HA-A-019",
+      "kind": "aplicare",
+      "difficulty": "expert",
+      "module": "John Hattie, Învățarea vizibilă (capitolul 9)",
+      "annex": "",
+      "title": "John Hattie, Învățarea vizibilă (capitolul 9)",
+      "chapter": "Capitolul 9. Profesorul — Partea B. Formarea profesională a profesorilor",
+      "section": "Dezvoltarea profesională",
+      "article": 19,
+      "paragraph": "",
+      "prompt": "Care dintre următorii factori NU au legătură cu impactul formării profesionale, potrivit capitolului?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Implicarea activă a conducerii școlii.",
+          "isCorrect": false,
+          "why": "Aceasta este o componentă-cheie asociată impactului."
+        },
+        {
+          "id": "B",
+          "text": "Oportunitatea de a face parte dintr-o comunitate profesională de practică.",
+          "isCorrect": false,
+          "why": "Aceasta este o componentă-cheie."
+        },
+        {
+          "id": "C",
+          "text": "Finanțarea, învoirile și dacă implicarea a fost voluntară sau obligatorie.",
+          "isCorrect": true
+        },
+        {
+          "id": "D",
+          "text": "Asocierea clară între obiectivele de învățare și activități.",
+          "isCorrect": false,
+          "why": "Aceasta este o componentă-cheie."
+        }
+      ],
+      "correctOptionId": "C",
+      "explanation": "Regula: Finanțarea, învoirile și caracterul voluntar sau obligatoriu nu au legătură cu impactul.\n\nCelelalte variante sunt componente-cheie.\n\nTemei: Capitolul 9, secțiunea „Dezvoltarea profesională”. Textul relevant: „Printre factorii care nu aveau legătură cu impactul formării profesionale se numărau finanțarea, învoirile și dacă implicarea era voluntară sau obligatorie.”",
+      "legalSource": {
+        "document": "John Hattie, Învățarea vizibilă. Versiunea extinsă (Polirom, 2024), capitolul 9. Profesorul",
+        "consolidatedAt": "2026-10-17",
+        "url": "",
+        "reference": "Capitolul 9, secțiunea „Dezvoltarea profesională”",
+        "excerpt": "Printre factorii care nu aveau legătură cu impactul formării profesionale se numărau finanțarea, învoirile și dacă implicarea era voluntară sau obligatorie.",
+        "verification": "fragment-verificat-aproximativ-pe-textul-recunoscut-prin-ocr"
+      }
+    },
+    {
+      "id": "HA-A-020",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "John Hattie, Învățarea vizibilă (capitolul 9)",
+      "annex": "",
+      "title": "John Hattie, Învățarea vizibilă (capitolul 9)",
+      "chapter": "Capitolul 9. Profesorul — Partea B. Formarea profesională a profesorilor",
+      "section": "Coachingul",
+      "article": 20,
+      "paragraph": "",
+      "prompt": "Directorul unei școli decide să facă el însuși coaching pentru profesori, pe lângă evaluarea lor. Ce consecință semnalează Hattie?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Relația de încredere se întărește, pentru că directorul cunoaște bine profesorii.",
+          "isCorrect": false,
+          "why": "Textul spune că se diminuează."
+        },
+        {
+          "id": "B",
+          "text": "Când liderii școlii adaugă coachingul rolului lor, se diminuează relația de încredere importantă pentru un coaching de succes.",
+          "isCorrect": true
+        },
+        {
+          "id": "C",
+          "text": "Nu se întâmplă nimic, deoarece rolurile sunt compatibile.",
+          "isCorrect": false,
+          "why": "Textul semnalează diminuarea încrederii."
+        },
+        {
+          "id": "D",
+          "text": "Eficiența coachingului crește automat cu autoritatea coachului.",
+          "isCorrect": false,
+          "why": "Textul nu susține aceasta."
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Regula: Coachingul adăugat rolului de lider diminuează încrederea.\n\nSituația descrisă este exemplul din text.\n\nTemei: Capitolul 9, secțiunea „Coachingul”. Textul relevant: „Când liderii școlii adaugă coachingul rolului lor, se diminuează relația de încredere atât de importantă pentru un proces de coaching de succes.”",
+      "legalSource": {
+        "document": "John Hattie, Învățarea vizibilă. Versiunea extinsă (Polirom, 2024), capitolul 9. Profesorul",
+        "consolidatedAt": "2026-10-17",
+        "url": "",
+        "reference": "Capitolul 9, secțiunea „Coachingul”",
+        "excerpt": "Când liderii școlii adaugă coachingul rolului lor, se diminuează relația de încredere atât de importantă pentru un proces de coaching de succes.",
+        "verification": "fragment-verificat-aproximativ-pe-textul-recunoscut-prin-ocr"
+      }
+    },
+    {
+      "id": "HA-A-021",
+      "kind": "aplicare",
+      "difficulty": "expert",
+      "module": "John Hattie, Învățarea vizibilă (capitolul 9)",
+      "annex": "",
+      "title": "John Hattie, Învățarea vizibilă (capitolul 9)",
+      "chapter": "Capitolul 9. Profesorul — Partea B. Formarea profesională a profesorilor",
+      "section": "Coachingul",
+      "article": 21,
+      "paragraph": "",
+      "prompt": "Într-o analiză citată de Hattie, care formă de formare a adulților a avut cea mai mare mărime a efectului?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Coachingul pe tema practicii pedagogice, cu 0,91.",
+          "isCorrect": true
+        },
+        {
+          "id": "B",
+          "text": "Relaxarea și învățarea prin jocuri de rol.",
+          "isCorrect": false,
+          "why": "Aceasta a avut cea mai mică valoare, 0,05."
+        },
+        {
+          "id": "C",
+          "text": "Modelul dirijat sau sesiunile de rezolvare a problemelor.",
+          "isCorrect": false,
+          "why": "Aceasta a avut 0,49, mai mică decât coachingul."
+        },
+        {
+          "id": "D",
+          "text": "Instruirea la momentul oportun, adaptată preocupărilor imediate.",
+          "isCorrect": false,
+          "why": "Aceasta a avut 0,52, mai mică decât coachingul."
+        }
+      ],
+      "correctOptionId": "A",
+      "explanation": "Regula: Cea mai mare mărime: coaching pe practică pedagogică (0,91).\n\nValorile celorlalte forme sunt mai mici.\n\nTemei: Capitolul 9, secțiunea „Coachingul”. Textul relevant: „Cea mai mare valoare a mărimii efectului a fost pentru coachingul pe tema practicii pedagogice (0,91)”",
+      "legalSource": {
+        "document": "John Hattie, Învățarea vizibilă. Versiunea extinsă (Polirom, 2024), capitolul 9. Profesorul",
+        "consolidatedAt": "2026-10-17",
+        "url": "",
+        "reference": "Capitolul 9, secțiunea „Coachingul”",
+        "excerpt": "Cea mai mare valoare a mărimii efectului a fost pentru coachingul pe tema practicii pedagogice (0,91)",
+        "verification": "fragment-verificat-aproximativ-pe-textul-recunoscut-prin-ocr"
+      }
+    },
+    {
+      "id": "HA-A-022",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "John Hattie, Învățarea vizibilă (capitolul 9)",
+      "annex": "",
+      "title": "John Hattie, Învățarea vizibilă (capitolul 9)",
+      "chapter": "Capitolul 9. Profesorul — Partea B. Formarea profesională a profesorilor",
+      "section": "Micropredarea",
+      "article": 22,
+      "paragraph": "",
+      "prompt": "O școală filmează lecții pentru analiză. Cum influențează momentul reacției efectele, potrivit capitolului?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Efectele sunt mai mari când reacția vine după câteva luni.",
+          "isCorrect": false,
+          "why": "Textul spune imediate, nu întârziate."
+        },
+        {
+          "id": "B",
+          "text": "Momentul reacției nu influențează efectele.",
+          "isCorrect": false,
+          "why": "Textul spune că efectele erau mai mari cu reacții imediate."
+        },
+        {
+          "id": "C",
+          "text": "Efectele depind exclusiv de lungimea filmării.",
+          "isCorrect": false,
+          "why": "Textul spune că efectele nu depindeau de lungimea videoclipurilor."
+        },
+        {
+          "id": "D",
+          "text": "Efectele sunt mai mari cu reacții mai degrabă imediate decât întârziate.",
+          "isCorrect": true
+        }
+      ],
+      "correctOptionId": "D",
+      "explanation": "Regula: Reacțiile imediate produc efecte mai mari decât cele întârziate.\n\nAceasta este concluzia din text.\n\nTemei: Capitolul 9, secțiunea „Micropredarea / analiza video a lecțiilor”. Textul relevant: „efectele erau mai mari, cu reacții mai degrabă imediate decât întârziate”",
+      "legalSource": {
+        "document": "John Hattie, Învățarea vizibilă. Versiunea extinsă (Polirom, 2024), capitolul 9. Profesorul",
+        "consolidatedAt": "2026-10-17",
+        "url": "",
+        "reference": "Capitolul 9, secțiunea „Micropredarea / analiza video a lecțiilor”",
+        "excerpt": "efectele erau mai mari, cu reacții mai degrabă imediate decât întârziate",
+        "verification": "fragment-verificat-aproximativ-pe-textul-recunoscut-prin-ocr"
+      }
+    },
+    {
+      "id": "HA-A-023",
+      "kind": "aplicare",
+      "difficulty": "expert",
+      "module": "John Hattie, Învățarea vizibilă (capitolul 9)",
+      "annex": "",
+      "title": "John Hattie, Învățarea vizibilă (capitolul 9)",
+      "chapter": "Capitolul 9. Profesorul — Partea B. Formarea profesională a profesorilor",
+      "section": "Cunoașterea materiei",
+      "article": 23,
+      "paragraph": "",
+      "prompt": "De ce, potrivit lui Hattie, cunoașterea profundă a materiei de către profesor contează uneori puțin pentru rezultatele elevilor?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Pentru că profesorii nu au nevoie să-și cunoască materia.",
+          "isCorrect": false,
+          "why": "Textul nu spune că nu trebuie cunoscută; spune că impactul depinde de cerințele clasei."
+        },
+        {
+          "id": "B",
+          "text": "Pentru că elevii învață exclusiv din manuale, indiferent de profesor.",
+          "isCorrect": false,
+          "why": "Textul nu susține aceasta."
+        },
+        {
+          "id": "C",
+          "text": "Pentru că, dacă lecțiile sunt dominate de cunoaștere de suprafață, nu prea contează înțelegerea conceptuală mai profundă a profesorului; ea contează când clasa cere cunoaștere conceptuală mai profundă.",
+          "isCorrect": true
+        },
+        {
+          "id": "D",
+          "text": "Pentru că cunoașterea materiei crește automat rezultatele la toate nivelurile.",
+          "isCorrect": false,
+          "why": "Textul spune că efectul este mic când predarea e dominată de suprafață."
+        }
+      ],
+      "correctOptionId": "C",
+      "explanation": "Regula: Cunoașterea profundă a materiei contează când predarea cere învățare de profunzime.\n\nTextul explică efectul mic prin predominanța învățării de suprafață.\n\nTemei: Capitolul 9, secțiunea „Cunoașterea materiei de către profesori”. Textul relevant: „Doar dacă există cerere suficientă de la o clasă pentru o cunoaștere conceptuală mai profundă ar putea conta cunoștințele mai profunde ale profesorilor despre materie”",
+      "legalSource": {
+        "document": "John Hattie, Învățarea vizibilă. Versiunea extinsă (Polirom, 2024), capitolul 9. Profesorul",
+        "consolidatedAt": "2026-10-17",
+        "url": "",
+        "reference": "Capitolul 9, secțiunea „Cunoașterea materiei de către profesori”",
+        "excerpt": "Doar dacă există cerere suficientă de la o clasă pentru o cunoaștere conceptuală mai profundă ar putea conta cunoștințele mai profunde ale profesorilor despre materie",
+        "verification": "fragment-verificat-aproximativ-pe-textul-recunoscut-prin-ocr"
+      }
+    },
+    {
+      "id": "HA-A-024",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "John Hattie, Învățarea vizibilă (capitolul 9)",
+      "annex": "",
+      "title": "John Hattie, Învățarea vizibilă (capitolul 9)",
+      "chapter": "Capitolul 9. Profesorul — Partea B. Formarea profesională a profesorilor",
+      "section": "Concluziile capitolului",
+      "article": 24,
+      "paragraph": "",
+      "prompt": "Cum definește Hattie profesorul excelent?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Prin metodele didactice pe care le folosește.",
+          "isCorrect": false,
+          "why": "Textul spune că nu este definit prin metode."
+        },
+        {
+          "id": "B",
+          "text": "Prin impactul asupra tuturor elevilor, nu prin metodele folosite, personalitate, programul inițial de formare sau neapărat cunoașterea materiei.",
+          "isCorrect": true
+        },
+        {
+          "id": "C",
+          "text": "Prin personalitatea sa carismatică.",
+          "isCorrect": false,
+          "why": "Textul spune că nu este definit prin personalitate."
+        },
+        {
+          "id": "D",
+          "text": "Prin programul inițial de formare absolvit.",
+          "isCorrect": false,
+          "why": "Textul spune că nu este definit prin programul inițial."
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Regula: Profesorul excelent este definit prin impactul asupra tuturor elevilor.\n\nCelelalte criterii sunt excluse explicit.\n\nTemei: Capitolul 9, secțiunea „Concluzii”. Textul relevant: „un profesor excelent este definit prin impactul asupra tuturor elevilor”",
+      "legalSource": {
+        "document": "John Hattie, Învățarea vizibilă. Versiunea extinsă (Polirom, 2024), capitolul 9. Profesorul",
+        "consolidatedAt": "2026-10-17",
+        "url": "",
+        "reference": "Capitolul 9, secțiunea „Concluzii”",
+        "excerpt": "un profesor excelent este definit prin impactul asupra tuturor elevilor",
+        "verification": "fragment-verificat-aproximativ-pe-textul-recunoscut-prin-ocr"
+      }
+    },
+    {
+      "id": "HA-A-025",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "John Hattie, Învățarea vizibilă (capitolul 9)",
+      "annex": "",
+      "title": "John Hattie, Învățarea vizibilă (capitolul 9)",
+      "chapter": "Capitolul 9. Profesorul — Partea B. Formarea profesională a profesorilor",
+      "section": "Concluziile capitolului",
+      "article": 25,
+      "paragraph": "",
+      "prompt": "Care este, potrivit lui Hattie, ideea care rezumă ce contează cel mai mult la profesori?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Contează mai puțin ce fac profesorii și mai mult cum gândesc despre ceea ce fac.",
+          "isCorrect": true
+        },
+        {
+          "id": "B",
+          "text": "Contează mai mult ce metode folosesc, indiferent de convingeri.",
+          "isCorrect": false,
+          "why": "Hattie spune contrariul."
+        },
+        {
+          "id": "C",
+          "text": "Contează mai mult conținutul predat decât modul de gândire.",
+          "isCorrect": false,
+          "why": "Hattie spune că convingerile contează mai mult decât conținutul."
+        },
+        {
+          "id": "D",
+          "text": "Contează numai vechimea și experiența.",
+          "isCorrect": false,
+          "why": "Textul nu susține aceasta; experiența crește eficiența puțin și neliniar."
+        }
+      ],
+      "correctOptionId": "A",
+      "explanation": "Regula: Convingerile profesorului contează mai mult decât metodele sau conținutul.\n\nAceasta este concluzia-cheie a capitolului.\n\nTemei: Capitolul 9, secțiunea „Concluzii”. Textul relevant: „Contează mai puțin ce fac profesorii și mai mult cum gândesc profesorii despre ceea ce fac.”",
+      "legalSource": {
+        "document": "John Hattie, Învățarea vizibilă. Versiunea extinsă (Polirom, 2024), capitolul 9. Profesorul",
+        "consolidatedAt": "2026-10-17",
+        "url": "",
+        "reference": "Capitolul 9, secțiunea „Concluzii”",
+        "excerpt": "Contează mai puțin ce fac profesorii și mai mult cum gândesc profesorii despre ceea ce fac.",
+        "verification": "fragment-verificat-aproximativ-pe-textul-recunoscut-prin-ocr"
+      }
+    }
+  ]
+}

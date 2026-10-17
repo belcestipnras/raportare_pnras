@@ -1,0 +1,1213 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-17",
+  "source": {
+    "name": "Ordinul ministrului educației și cercetării nr. 3.934/2026 — Profilul profesional al managerului școlar",
+    "consolidatedAt": "2026-10-17",
+    "url": "",
+    "method": "itemi situaționali redactați manual, cu fragmente verificate automat pe textul oficial al ordinului"
+  },
+  "count": 25,
+  "questions": [
+    {
+      "id": "PM-A-001",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Profilul profesional al managerului școlar",
+      "annex": "",
+      "title": "Profilul profesional al managerului școlar",
+      "chapter": "Capitolul I. Context",
+      "section": "Natura profilului",
+      "article": 1,
+      "paragraph": "",
+      "prompt": "Consiliul de administrație propune ca Profilul profesional al managerului școlar să fie atașat, fără modificări, ca fișă a postului directorului. Care este poziția corectă?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Profilul nu este o fișă de post: descrie așteptările față de manager în termeni de competențe și reia atribuțiile directorului din lege.",
+          "isCorrect": true
+        },
+        {
+          "id": "B",
+          "text": "Profilul înlocuiește fișa postului, deoarece conține toate atribuțiile directorului.",
+          "isCorrect": false,
+          "why": "Textul afirmă contrariul: profilul nu se constituie într-o fișă de post."
+        },
+        {
+          "id": "C",
+          "text": "Profilul poate fi folosit ca fișă a postului numai la unitățile cu peste 400 de elevi.",
+          "isCorrect": false,
+          "why": "Nicio dispoziție din profil nu leagă statutul lui de numărul de elevi; el nu este fișă de post nicăieri."
+        },
+        {
+          "id": "D",
+          "text": "Profilul este doar o listă de valori, fără legătură cu atribuțiile din lege.",
+          "isCorrect": false,
+          "why": "Profilul reia atribuțiile directorului așa cum sunt stabilite în lege; legătura există."
+        }
+      ],
+      "correctOptionId": "A",
+      "explanation": "Regula: Profilul descrie competențe așteptate; nu este fișă de post.\n\nPrin urmare, consiliul poate folosi profilul ca reper pentru competențe, dar fișa postului rămâne un document distinct.\n\nTemei: Capitolul I, alineatul privind natura profilului. Textul relevant: „Profilul propus nu se constituie într-o fișă de post, ci descrie așteptările exprimate față de managerul școlar în termeni de competențe”",
+      "legalSource": {
+        "document": "Ordinul ministrului educației și cercetării nr. 3.934/2026 — Profilul profesional al managerului școlar",
+        "consolidatedAt": "2026-10-17",
+        "url": "",
+        "reference": "Capitolul I, alineatul privind natura profilului",
+        "excerpt": "Profilul propus nu se constituie într-o fișă de post, ci descrie așteptările exprimate față de managerul școlar în termeni de competențe",
+        "verification": "fragment-verificat-automat-pe-textul-oficial-al-ordinului"
+      }
+    },
+    {
+      "id": "PM-A-002",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Profilul profesional al managerului școlar",
+      "annex": "",
+      "title": "Profilul profesional al managerului școlar",
+      "chapter": "Capitolul I. Context",
+      "section": "Terminologie",
+      "article": 2,
+      "paragraph": "",
+      "prompt": "Un inspector folosește în raport termenul „manager școlar”, iar un părinte întreabă dacă este vorba despre altă funcție decât cea de director. Ce răspuns este corect?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Managerul școlar este o funcție superioară directorului, cu atribuții proprii.",
+          "isCorrect": false,
+          "why": "Profilul nu creează o funcție nouă; asimilează sintagmele."
+        },
+        {
+          "id": "B",
+          "text": "Managerul școlar este numai directorul adjunct.",
+          "isCorrect": false,
+          "why": "Sintagma este asimilată cu directorul de unitate, nu cu adjunctul."
+        },
+        {
+          "id": "C",
+          "text": "Managerul școlar este un consultant extern care sprijină directorul.",
+          "isCorrect": false,
+          "why": "Profilul nu vorbește despre consultanți externi; sintagmele sunt asimilate."
+        },
+        {
+          "id": "D",
+          "text": "Este aceeași funcție: raportat la Legea 198/2023, sintagmele manager școlar și director de unitate de învățământ preuniversitar sunt asimilate.",
+          "isCorrect": true
+        }
+      ],
+      "correctOptionId": "D",
+      "explanation": "Regula: Manager școlar și director sunt sintagme asimilate.\n\nRăspunsul corect este deci că este aceeași funcție.\n\nTemei: Capitolul I, alineatul privind asimilarea sintagmelor. Textul relevant: „sintagmele manager școlar și director de unitate de învățământ preuniversitar sunt asimilate”",
+      "legalSource": {
+        "document": "Ordinul ministrului educației și cercetării nr. 3.934/2026 — Profilul profesional al managerului școlar",
+        "consolidatedAt": "2026-10-17",
+        "url": "",
+        "reference": "Capitolul I, alineatul privind asimilarea sintagmelor",
+        "excerpt": "sintagmele manager școlar și director de unitate de învățământ preuniversitar sunt asimilate",
+        "verification": "fragment-verificat-automat-pe-textul-oficial-al-ordinului"
+      }
+    },
+    {
+      "id": "PM-A-003",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Profilul profesional al managerului școlar",
+      "annex": "",
+      "title": "Profilul profesional al managerului școlar",
+      "chapter": "Capitolul I. Context",
+      "section": "Rolul directorului",
+      "article": 3,
+      "paragraph": "",
+      "prompt": "La o dezbatere, un participant spune că directorul influențează numai administrația școlii și nu are legătură cu calitatea predării. Ce arată profilul?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Directorul are impact direct asupra calității predării și numai indirect asupra culturii organizaționale.",
+          "isCorrect": false,
+          "why": "Este invers: direct asupra culturii, indirect asupra predării."
+        },
+        {
+          "id": "B",
+          "text": "Directorul nu are niciun impact asupra rezultatelor elevilor, fiind responsabil doar de funcționare.",
+          "isCorrect": false,
+          "why": "Profilul îi atribuie impact indirect, dar esențial, asupra rezultatelor elevilor."
+        },
+        {
+          "id": "C",
+          "text": "Directorul are impact direct asupra culturii organizaționale și impact indirect, dar esențial, asupra calității predării, echității și rezultatelor elevilor.",
+          "isCorrect": true
+        },
+        {
+          "id": "D",
+          "text": "Directorul are impact direct asupra tuturor aspectelor, inclusiv a notelor elevilor.",
+          "isCorrect": false,
+          "why": "Profilul distinge impactul direct (cultura organizațională) de cel indirect (predare, echitate, rezultate)."
+        }
+      ],
+      "correctOptionId": "C",
+      "explanation": "Regula: Direct: cultura organizațională. Indirect, dar esențial: predarea, echitatea, rezultatele.\n\nAfirmația participantului este incorectă: legătura există, dar este indirectă.\n\nTemei: Capitolul I, definiția rolului directorului. Textul relevant: „Impactul său este direct asupra culturii organizaționale și indirect, dar esențial, asupra calității predării, echității educaționale și rezultatelor elevilor.”",
+      "legalSource": {
+        "document": "Ordinul ministrului educației și cercetării nr. 3.934/2026 — Profilul profesional al managerului școlar",
+        "consolidatedAt": "2026-10-17",
+        "url": "",
+        "reference": "Capitolul I, definiția rolului directorului",
+        "excerpt": "Impactul său este direct asupra culturii organizaționale și indirect, dar esențial, asupra calității predării, echității educaționale și rezultatelor elevilor.",
+        "verification": "fragment-verificat-automat-pe-textul-oficial-al-ordinului"
+      }
+    },
+    {
+      "id": "PM-A-004",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Profilul profesional al managerului școlar",
+      "annex": "",
+      "title": "Profilul profesional al managerului școlar",
+      "chapter": "Capitolul II. Arhitectura profilului",
+      "section": "Cele patru niveluri",
+      "article": 4,
+      "paragraph": "",
+      "prompt": "O comisie vrea să evalueze directorul pe baza unor comportamente observabile și măsurabile. La ce nivel al arhitecturii profilului se află aceste comportamente?",
+      "options": [
+        {
+          "id": "A",
+          "text": "La nivelul axiologic, prin valorile fundamentale.",
+          "isCorrect": false,
+          "why": "Nivelul axiologic conține valorile, nu descriptori de comportament."
+        },
+        {
+          "id": "B",
+          "text": "La nivelul funcțional, prin descriptorii comportamentali.",
+          "isCorrect": true
+        },
+        {
+          "id": "C",
+          "text": "La nivelul transversal, prin competențele transversale.",
+          "isCorrect": false,
+          "why": "Nivelul transversal conține precondiții cognitive, relaționale și profesionale."
+        },
+        {
+          "id": "D",
+          "text": "La nivelul profesional, prin cele cinci domenii de competență.",
+          "isCorrect": false,
+          "why": "Nivelul profesional conține competențele generale și specifice; descriptorii sunt la nivelul funcțional."
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Regula: Cele patru niveluri: axiologic, transversal, profesional, funcțional.\n\nComportamentele observabile și măsurabile aparțin nivelului funcțional.\n\nTemei: Capitolul II, secțiunea D. Textul relevant: „Acest nivel definește dimensiunea operațională a profilului profesional al managerului școlar, prin care competențele specifice sunt transpuse în descriptori comportamentali expliciți, observabili și măsurabili.”",
+      "legalSource": {
+        "document": "Ordinul ministrului educației și cercetării nr. 3.934/2026 — Profilul profesional al managerului școlar",
+        "consolidatedAt": "2026-10-17",
+        "url": "",
+        "reference": "Capitolul II, secțiunea D",
+        "excerpt": "Acest nivel definește dimensiunea operațională a profilului profesional al managerului școlar, prin care competențele specifice sunt transpuse în descriptori comportamentali expliciți, observabili și măsurabili.",
+        "verification": "fragment-verificat-automat-pe-textul-oficial-al-ordinului"
+      }
+    },
+    {
+      "id": "PM-A-005",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Profilul profesional al managerului școlar",
+      "annex": "",
+      "title": "Profilul profesional al managerului școlar",
+      "chapter": "Capitolul II. Arhitectura profilului",
+      "section": "Valorile fundamentale",
+      "article": 5,
+      "paragraph": "",
+      "prompt": "Un director alocă mai multe resurse unui grup de elevi vulnerabili decât celorlalți, pentru a le asigura acces egal la oportunități. Ce valoare fundamentală din profil ilustrează această decizie?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Echitate, incluziune și justiție socială.",
+          "isCorrect": true
+        },
+        {
+          "id": "B",
+          "text": "Etică și integritate profesională.",
+          "isCorrect": false,
+          "why": "Aceasta privește transparența deciziilor, evitarea conflictelor de interese și asumarea responsabilității publice."
+        },
+        {
+          "id": "C",
+          "text": "Inițiativă și antreprenoriat.",
+          "isCorrect": false,
+          "why": "Aceasta privește colaborarea, solidaritatea organizațională, cultura democratică și participarea la decizie."
+        },
+        {
+          "id": "D",
+          "text": "Parteneriat cu familia și comunitatea.",
+          "isCorrect": false,
+          "why": "Aceasta privește încrederea reciprocă, dialogul deschis și responsabilitatea colectivă."
+        }
+      ],
+      "correctOptionId": "A",
+      "explanation": "Regula: Alocarea diferențiată a resurselor pentru grupuri vulnerabile aparține valorii echității, incluziunii și justiției sociale.\n\nDecizia descrisă este exact o alocare diferențiată pentru un grup vulnerabil.\n\nTemei: Capitolul II, secțiunea A, a doua valoare. Textul relevant: „echitate, incluziune și justiție socială — acces egal la oportunități, prevenirea discriminării, alocare diferențiată a resurselor pentru grupuri vulnerabile”",
+      "legalSource": {
+        "document": "Ordinul ministrului educației și cercetării nr. 3.934/2026 — Profilul profesional al managerului școlar",
+        "consolidatedAt": "2026-10-17",
+        "url": "",
+        "reference": "Capitolul II, secțiunea A, a doua valoare",
+        "excerpt": "echitate, incluziune și justiție socială — acces egal la oportunități, prevenirea discriminării, alocare diferențiată a resurselor pentru grupuri vulnerabile",
+        "verification": "fragment-verificat-automat-pe-textul-oficial-al-ordinului"
+      }
+    },
+    {
+      "id": "PM-A-006",
+      "kind": "aplicare",
+      "difficulty": "expert",
+      "module": "Profilul profesional al managerului școlar",
+      "annex": "",
+      "title": "Profilul profesional al managerului școlar",
+      "chapter": "Capitolul II. Arhitectura profilului",
+      "section": "Valorile fundamentale",
+      "article": 6,
+      "paragraph": "",
+      "prompt": "Directorul își declară o rudă apropiată concurent la o achiziție și se retrage din procedura de decizie, apoi publică motivarea. Ce valoare din profil este vizată în primul rând?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Leadership pedagogic și cultură a învățării.",
+          "isCorrect": false,
+          "why": "Aceasta privește cultura reflexivă și colaborativă, coerența curriculum–evaluare–rezultate și deciziile bazate pe date."
+        },
+        {
+          "id": "B",
+          "text": "Interesul superior al elevului.",
+          "isCorrect": false,
+          "why": "Aceasta privește progresul, protecția și bunăstarea elevului; situația descrisă nu vizează un elev."
+        },
+        {
+          "id": "C",
+          "text": "Parteneriat cu familia și comunitatea.",
+          "isCorrect": false,
+          "why": "Aceasta privește încrederea reciprocă și dialogul cu familia și comunitatea."
+        },
+        {
+          "id": "D",
+          "text": "Etică și integritate profesională: transparență decizională, evitarea conflictelor de interese, asumarea responsabilității publice.",
+          "isCorrect": true
+        }
+      ],
+      "correctOptionId": "D",
+      "explanation": "Regula: Valoarea integrității include evitarea conflictelor de interese.\n\nRetragerea directorului este un exemplu de evitare a conflictului de interese, cu transparență.\n\nTemei: Capitolul II, secțiunea A, a patra valoare. Textul relevant: „etică și integritate profesională — transparență decizională, evitarea conflictelor de interese, asumarea responsabilității publice”",
+      "legalSource": {
+        "document": "Ordinul ministrului educației și cercetării nr. 3.934/2026 — Profilul profesional al managerului școlar",
+        "consolidatedAt": "2026-10-17",
+        "url": "",
+        "reference": "Capitolul II, secțiunea A, a patra valoare",
+        "excerpt": "etică și integritate profesională — transparență decizională, evitarea conflictelor de interese, asumarea responsabilității publice",
+        "verification": "fragment-verificat-automat-pe-textul-oficial-al-ordinului"
+      }
+    },
+    {
+      "id": "PM-A-007",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Profilul profesional al managerului școlar",
+      "annex": "",
+      "title": "Profilul profesional al managerului școlar",
+      "chapter": "Capitolul II. Arhitectura profilului",
+      "section": "Competențele transversale",
+      "article": 7,
+      "paragraph": "",
+      "prompt": "Directorul compară indicatorii de promovare din ultimii trei ani și analizează execuția bugetară înainte de a propune o decizie. Ce competență transversală utilizează?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Inteligență emoțională, autoreglare și maturitate relațională.",
+          "isCorrect": false,
+          "why": "Aceasta privește gestionarea conflictelor, a presiunii și a responsabilității publice."
+        },
+        {
+          "id": "B",
+          "text": "Competențe lingvistice și de comunicare profesională.",
+          "isCorrect": false,
+          "why": "Aceasta privește redactarea, argumentarea și reprezentarea instituțională, în limba română și într-o limbă de circulație internațională."
+        },
+        {
+          "id": "C",
+          "text": "Competențe de analiză cantitativă și utilizare a datelor.",
+          "isCorrect": true
+        },
+        {
+          "id": "D",
+          "text": "Capacitate de adaptare și învățare continuă.",
+          "isCorrect": false,
+          "why": "Aceasta privește contextele de schimbare, incertitudine și complexitate sistemică."
+        }
+      ],
+      "correctOptionId": "C",
+      "explanation": "Regula: Analiza indicatorilor și a bugetului aparține competenței de analiză cantitativă.\n\nComparația indicatorilor și analiza bugetară sunt exemplele din definiție.\n\nTemei: Capitolul II, secțiunea B, a treia competență transversală. Textul relevant: „competențe de analiză cantitativă și utilizare a datelor — interpretarea indicatorilor educaționali, analiza bugetară, utilizarea informațiilor statistice în fundamentarea deciziilor”",
+      "legalSource": {
+        "document": "Ordinul ministrului educației și cercetării nr. 3.934/2026 — Profilul profesional al managerului școlar",
+        "consolidatedAt": "2026-10-17",
+        "url": "",
+        "reference": "Capitolul II, secțiunea B, a treia competență transversală",
+        "excerpt": "competențe de analiză cantitativă și utilizare a datelor — interpretarea indicatorilor educaționali, analiza bugetară, utilizarea informațiilor statistice în fundamentarea deciziilor",
+        "verification": "fragment-verificat-automat-pe-textul-oficial-al-ordinului"
+      }
+    },
+    {
+      "id": "PM-A-008",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Profilul profesional al managerului școlar",
+      "annex": "",
+      "title": "Profilul profesional al managerului școlar",
+      "chapter": "Capitolul II. Arhitectura profilului",
+      "section": "Domeniile de competență",
+      "article": 8,
+      "paragraph": "",
+      "prompt": "Un director vrea să afle în ce competență specifică intră asigurarea siguranței școlare și a stării de bine a elevilor și a personalului. Unde o găsește?",
+      "options": [
+        {
+          "id": "A",
+          "text": "La competența specifică 2.2, Reziliență și managementul riscului.",
+          "isCorrect": false,
+          "why": "Aceasta privește riscurile organizaționale și planurile de continuitate, nu starea de bine a elevilor."
+        },
+        {
+          "id": "B",
+          "text": "La competența specifică 1.3, Leadership incluziv, stare de bine a elevilor și a personalului școlii, securitate și siguranță școlară, din domeniul 1.",
+          "isCorrect": true
+        },
+        {
+          "id": "C",
+          "text": "La competența specifică 3.3, Managementul incluziunii și al diversității.",
+          "isCorrect": false,
+          "why": "Aceasta privește educația incluzivă și echitatea, nu siguranța școlară."
+        },
+        {
+          "id": "D",
+          "text": "La competența specifică 5.1, Relaționare, comunicare și gestionarea conflictelor.",
+          "isCorrect": false,
+          "why": "Aceasta privește comunicarea și medierea conflictelor."
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Regula: Siguranța școlară și starea de bine: competența specifică 1.3.\n\nTitlul competenței 1.3 le include explicit.\n\nTemei: Capitolul II, secțiunea C, domeniul 1. Textul relevant: „1.3. Leadership incluziv, stare de bine a elevilor și a personalului școlii, securitate și siguranță școlară”",
+      "legalSource": {
+        "document": "Ordinul ministrului educației și cercetării nr. 3.934/2026 — Profilul profesional al managerului școlar",
+        "consolidatedAt": "2026-10-17",
+        "url": "",
+        "reference": "Capitolul II, secțiunea C, domeniul 1",
+        "excerpt": "1.3. Leadership incluziv, stare de bine a elevilor și a personalului școlii, securitate și siguranță școlară",
+        "verification": "fragment-verificat-automat-pe-textul-oficial-al-ordinului"
+      }
+    },
+    {
+      "id": "PM-A-009",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Profilul profesional al managerului școlar",
+      "annex": "",
+      "title": "Profilul profesional al managerului școlar",
+      "chapter": "Capitolul III. Competențele generale și specifice",
+      "section": "Competența 1.1",
+      "article": 9,
+      "paragraph": "",
+      "prompt": "Profesorii se opun unei schimbări în organizarea orarului. Ce comportament descris de profil ar trebui să adopte directorul?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Să gestioneze rezistența prin dialog deschis, claritate și argumente centrate pe beneficiile elevilor.",
+          "isCorrect": true
+        },
+        {
+          "id": "B",
+          "text": "Să impună schimbarea prin decizie, fără consultare, pentru a evita întârzieri.",
+          "isCorrect": false,
+          "why": "Profilul cere dialog deschis și argumente, nu impunere."
+        },
+        {
+          "id": "C",
+          "text": "Să amâne schimbarea până când nu mai există nicio opoziție.",
+          "isCorrect": false,
+          "why": "Profilul cere gestionarea rezistenței, nu amânarea ei."
+        },
+        {
+          "id": "D",
+          "text": "Să delege complet gestionarea rezistenței inspectoratului școlar.",
+          "isCorrect": false,
+          "why": "Descriptorul vizează comportamentul directorului însuși."
+        }
+      ],
+      "correctOptionId": "A",
+      "explanation": "Regula: Rezistența la schimbare se gestionează prin dialog deschis, claritate și argumente centrate pe elevi.\n\nAceasta este formularea descriptorului de la competența 1.1.\n\nTemei: Capitolul III, competența specifică 1.1, descriptori comportamentali. Textul relevant: „gestionează rezistența la schimbare prin dialog deschis, claritate și argumente centrate pe beneficiile elevilor”",
+      "legalSource": {
+        "document": "Ordinul ministrului educației și cercetării nr. 3.934/2026 — Profilul profesional al managerului școlar",
+        "consolidatedAt": "2026-10-17",
+        "url": "",
+        "reference": "Capitolul III, competența specifică 1.1, descriptori comportamentali",
+        "excerpt": "gestionează rezistența la schimbare prin dialog deschis, claritate și argumente centrate pe beneficiile elevilor",
+        "verification": "fragment-verificat-automat-pe-textul-oficial-al-ordinului"
+      }
+    },
+    {
+      "id": "PM-A-010",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Profilul profesional al managerului școlar",
+      "annex": "",
+      "title": "Profilul profesional al managerului școlar",
+      "chapter": "Capitolul III. Competențele generale și specifice",
+      "section": "Competența 1.3",
+      "article": 10,
+      "paragraph": "",
+      "prompt": "După un incident de intimidare între elevi, directorul verifică dacă mecanismele școlii funcționează și intervine imediat. Ce descriptor din profil ilustrează acest comportament?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Aplică codul de etică și gestionează procedurile disciplinare.",
+          "isCorrect": false,
+          "why": "Acesta aparține competenței 1.4 și vizează procedurile disciplinare, nu mecanismele antihărțuire."
+        },
+        {
+          "id": "B",
+          "text": "Pregătește rapoarte de informare pe verticală și orizontală.",
+          "isCorrect": false,
+          "why": "Acesta aparține competenței 2.4 și privește raportarea."
+        },
+        {
+          "id": "C",
+          "text": "Elaborează planuri individuale de dezvoltare profesională.",
+          "isCorrect": false,
+          "why": "Acesta aparține competenței 4.4 și privește cadrele didactice."
+        },
+        {
+          "id": "D",
+          "text": "Asigură funcționarea mecanismelor antihărțuire și antibullying și intervine prompt în situații de criză.",
+          "isCorrect": true
+        }
+      ],
+      "correctOptionId": "D",
+      "explanation": "Regula: Competența 1.3 cuprinde mecanismele antihărțuire și intervenția promptă.\n\nSituația descrisă corespunde exact acestui descriptor.\n\nTemei: Capitolul III, competența specifică 1.3, descriptori comportamentali. Textul relevant: „asigură funcționarea mecanismelor antihărțuire și antibullying și intervine prompt în situații de criză”",
+      "legalSource": {
+        "document": "Ordinul ministrului educației și cercetării nr. 3.934/2026 — Profilul profesional al managerului școlar",
+        "consolidatedAt": "2026-10-17",
+        "url": "",
+        "reference": "Capitolul III, competența specifică 1.3, descriptori comportamentali",
+        "excerpt": "asigură funcționarea mecanismelor antihărțuire și antibullying și intervine prompt în situații de criză",
+        "verification": "fragment-verificat-automat-pe-textul-oficial-al-ordinului"
+      }
+    },
+    {
+      "id": "PM-A-011",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Profilul profesional al managerului școlar",
+      "annex": "",
+      "title": "Profilul profesional al managerului școlar",
+      "chapter": "Capitolul III. Competențele generale și specifice",
+      "section": "Competența 1.4",
+      "article": 11,
+      "paragraph": "",
+      "prompt": "Un părinte contestă o decizie a directorului privind alocarea unei săli. Ce comportament din profil se așteaptă de la director în răspunsul său?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Să invoce numai autoritatea funcției, fără argumente.",
+          "isCorrect": false,
+          "why": "Profilul cere decizii argumentate și transparente."
+        },
+        {
+          "id": "B",
+          "text": "Să transfere răspunsul unui consilier juridic extern.",
+          "isCorrect": false,
+          "why": "Profilul vizează comportamentul directorului."
+        },
+        {
+          "id": "C",
+          "text": "Să-și argumenteze decizia pe baza interesului superior al copilului și să o comunice transparent.",
+          "isCorrect": true
+        },
+        {
+          "id": "D",
+          "text": "Să amâne răspunsul până la următoarea inspecție.",
+          "isCorrect": false,
+          "why": "Profilul cere comunicare transparentă a deciziilor."
+        }
+      ],
+      "correctOptionId": "C",
+      "explanation": "Regula: Deciziile se argumentează pe interesul superior al copilului și se comunică transparent.\n\nRăspunsul argumentat și transparent este comportamentul cerut.\n\nTemei: Capitolul III, competența specifică 1.4, descriptori comportamentali. Textul relevant: „argumentează deciziile pe baza interesului superior al copilului și le comunică în mod transparent”",
+      "legalSource": {
+        "document": "Ordinul ministrului educației și cercetării nr. 3.934/2026 — Profilul profesional al managerului școlar",
+        "consolidatedAt": "2026-10-17",
+        "url": "",
+        "reference": "Capitolul III, competența specifică 1.4, descriptori comportamentali",
+        "excerpt": "argumentează deciziile pe baza interesului superior al copilului și le comunică în mod transparent",
+        "verification": "fragment-verificat-automat-pe-textul-oficial-al-ordinului"
+      }
+    },
+    {
+      "id": "PM-A-012",
+      "kind": "aplicare",
+      "difficulty": "expert",
+      "module": "Profilul profesional al managerului școlar",
+      "annex": "",
+      "title": "Profilul profesional al managerului școlar",
+      "chapter": "Capitolul III. Competențele generale și specifice",
+      "section": "Competența 2.1",
+      "article": 12,
+      "paragraph": "",
+      "prompt": "Pentru o achiziție, directorul constată că firma câștigătoare aparține unui membru al familiei sale. Ce comportament descris de profil se așteaptă?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Să aprobe achiziția, deoarece procedura a fost respectată formal.",
+          "isCorrect": false,
+          "why": "Profilul cere evitarea promptă a conflictelor de interese, nu doar respectarea formală."
+        },
+        {
+          "id": "B",
+          "text": "Să evite prompt și transparent conflictul de interese și să asigure respectarea procedurilor de achiziții publice.",
+          "isCorrect": true
+        },
+        {
+          "id": "C",
+          "text": "Să ascundă legătura pentru a evita suspiciuni.",
+          "isCorrect": false,
+          "why": "Profilul cere transparență."
+        },
+        {
+          "id": "D",
+          "text": "Să ceară consiliului să voteze fără a menționa legătura.",
+          "isCorrect": false,
+          "why": "Evitarea conflictului de interese trebuie să fie promptă și transparentă."
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Regula: Conflictele de interese se evită prompt și transparent.\n\nSituația cere exact acest comportament.\n\nTemei: Capitolul III, competența specifică 2.1, descriptori comportamentali. Textul relevant: „evită prompt și transparent conflictele de interese”",
+      "legalSource": {
+        "document": "Ordinul ministrului educației și cercetării nr. 3.934/2026 — Profilul profesional al managerului școlar",
+        "consolidatedAt": "2026-10-17",
+        "url": "",
+        "reference": "Capitolul III, competența specifică 2.1, descriptori comportamentali",
+        "excerpt": "evită prompt și transparent conflictele de interese",
+        "verification": "fragment-verificat-automat-pe-textul-oficial-al-ordinului"
+      }
+    },
+    {
+      "id": "PM-A-013",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Profilul profesional al managerului școlar",
+      "annex": "",
+      "title": "Profilul profesional al managerului școlar",
+      "chapter": "Capitolul III. Competențele generale și specifice",
+      "section": "Competența 2.2",
+      "article": 13,
+      "paragraph": "",
+      "prompt": "O școală este expusă periodic la inundații. Ce descriptor al profilului cere directorului să se pregătească pentru acest tip de situație?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Elaborează planuri de continuitate și intervenție pentru situații de criză, actualizate periodic.",
+          "isCorrect": true
+        },
+        {
+          "id": "B",
+          "text": "Creează și întreține un climat în care elevii se simt protejați.",
+          "isCorrect": false,
+          "why": "Acesta aparține competenței 1.3 și privește climatul școlar."
+        },
+        {
+          "id": "C",
+          "text": "Organizează consultări periodice cu profesori, părinți și elevi.",
+          "isCorrect": false,
+          "why": "Acesta aparține competenței 5.1 și privește comunicarea."
+        },
+        {
+          "id": "D",
+          "text": "Utilizează instrumente standardizate de evaluare internă.",
+          "isCorrect": false,
+          "why": "Acesta aparține competenței 3.1 și privește evaluarea internă."
+        }
+      ],
+      "correctOptionId": "A",
+      "explanation": "Regula: Planurile de continuitate și intervenție se actualizează periodic.\n\nRiscul periodic de inundații cere un astfel de plan.\n\nTemei: Capitolul III, competența specifică 2.2, descriptori comportamentali. Textul relevant: „elaborează planuri de continuitate și intervenție pentru situații de criză, actualizate periodic”",
+      "legalSource": {
+        "document": "Ordinul ministrului educației și cercetării nr. 3.934/2026 — Profilul profesional al managerului școlar",
+        "consolidatedAt": "2026-10-17",
+        "url": "",
+        "reference": "Capitolul III, competența specifică 2.2, descriptori comportamentali",
+        "excerpt": "elaborează planuri de continuitate și intervenție pentru situații de criză, actualizate periodic",
+        "verification": "fragment-verificat-automat-pe-textul-oficial-al-ordinului"
+      }
+    },
+    {
+      "id": "PM-A-014",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Profilul profesional al managerului școlar",
+      "annex": "",
+      "title": "Profilul profesional al managerului școlar",
+      "chapter": "Capitolul III. Competențele generale și specifice",
+      "section": "Competența 2.3",
+      "article": 14,
+      "paragraph": "",
+      "prompt": "Școala introduce o platformă digitală care stochează date personale ale elevilor. Ce aspect din profil trebuie urmărit explicit de director?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Să interzică orice utilizare a platformelor digitale.",
+          "isCorrect": false,
+          "why": "Descriptorul cere utilizarea eficientă a platformelor, nu interzicerea lor."
+        },
+        {
+          "id": "B",
+          "text": "Să lase securitatea datelor în seama fiecărui profesor.",
+          "isCorrect": false,
+          "why": "Directorul asigură securitatea datelor, potrivit profilului."
+        },
+        {
+          "id": "C",
+          "text": "Să verifice doar rapoartele financiare ale platformei.",
+          "isCorrect": false,
+          "why": "Descriptorul privește securitatea datelor, nu doar costurile."
+        },
+        {
+          "id": "D",
+          "text": "Să asigure securitatea datelor și conformitatea cu normele privind protecția datelor.",
+          "isCorrect": true
+        }
+      ],
+      "correctOptionId": "D",
+      "explanation": "Regula: Securitatea datelor și conformitatea sunt responsabilitatea directorului.\n\nStocarea datelor elevilor impune acest aspect.\n\nTemei: Capitolul III, competența specifică 2.3, descriptori comportamentali. Textul relevant: „asigură securitatea datelor și conformitatea cu normele GDPR”",
+      "legalSource": {
+        "document": "Ordinul ministrului educației și cercetării nr. 3.934/2026 — Profilul profesional al managerului școlar",
+        "consolidatedAt": "2026-10-17",
+        "url": "",
+        "reference": "Capitolul III, competența specifică 2.3, descriptori comportamentali",
+        "excerpt": "asigură securitatea datelor și conformitatea cu normele GDPR",
+        "verification": "fragment-verificat-automat-pe-textul-oficial-al-ordinului"
+      }
+    },
+    {
+      "id": "PM-A-015",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Profilul profesional al managerului școlar",
+      "annex": "",
+      "title": "Profilul profesional al managerului școlar",
+      "chapter": "Capitolul III. Competențele generale și specifice",
+      "section": "Competența 3.1",
+      "article": 15,
+      "paragraph": "",
+      "prompt": "Inspectorul întreabă ce standarde trebuie să implementeze directorul și să monitorizeze la nivelul unității, în domeniul calității. Care este răspunsul corect?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Standardele Agenției Naționale a Funcționarilor Publici.",
+          "isCorrect": false,
+          "why": "Profilul menționează agenția pentru calitatea în învățământul preuniversitar."
+        },
+        {
+          "id": "B",
+          "text": "Standardele Centrului Național pentru Curriculum și Evaluare.",
+          "isCorrect": false,
+          "why": "Descriptorul menționează agenția pentru calitate, nu acest centru."
+        },
+        {
+          "id": "C",
+          "text": "Standardele Agenției Române de Asigurare a Calității în Învățământul Preuniversitar.",
+          "isCorrect": true
+        },
+        {
+          "id": "D",
+          "text": "Standardele stabilite de fiecare consiliu local.",
+          "isCorrect": false,
+          "why": "Descriptorul menționează standardele agenției pentru calitate."
+        }
+      ],
+      "correctOptionId": "C",
+      "explanation": "Regula: Standardele de calitate sunt cele ale agenției pentru calitate în învățământul preuniversitar.\n\nAceasta este formularea competenței 3.1.\n\nTemei: Capitolul III, competența specifică 3.1, descriptori comportamentali. Textul relevant: „implementează standardele Agenției Române de Asigurare a Calității în Învățământul Preuniversitar (ARACIP) și monitorizează respectarea lor la nivelul unității”",
+      "legalSource": {
+        "document": "Ordinul ministrului educației și cercetării nr. 3.934/2026 — Profilul profesional al managerului școlar",
+        "consolidatedAt": "2026-10-17",
+        "url": "",
+        "reference": "Capitolul III, competența specifică 3.1, descriptori comportamentali",
+        "excerpt": "implementează standardele Agenției Române de Asigurare a Calității în Învățământul Preuniversitar (ARACIP) și monitorizează respectarea lor la nivelul unității",
+        "verification": "fragment-verificat-automat-pe-textul-oficial-al-ordinului"
+      }
+    },
+    {
+      "id": "PM-A-016",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Profilul profesional al managerului școlar",
+      "annex": "",
+      "title": "Profilul profesional al managerului școlar",
+      "chapter": "Capitolul III. Competențele generale și specifice",
+      "section": "Competența 3.2",
+      "article": 16,
+      "paragraph": "",
+      "prompt": "Directorul publică lunar pe site rezultatele școlii, resursele folosite și deciziile importante. Ce competență specifică ilustrează această practică?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Competența 2.4, Prezentarea și comunicarea informațiilor.",
+          "isCorrect": false,
+          "why": "Aceasta privește rapoarte și statistici pentru informare, nu comunicarea publică regulată."
+        },
+        {
+          "id": "B",
+          "text": "Competența 3.2, Responsabilitate publică și relaționare instituțională.",
+          "isCorrect": true
+        },
+        {
+          "id": "C",
+          "text": "Competența 1.2, Dezvoltare și transformare organizațională.",
+          "isCorrect": false,
+          "why": "Aceasta privește implicarea actorilor și inovarea instituțională."
+        },
+        {
+          "id": "D",
+          "text": "Competența 5.4, Atragerea de resurse extrabugetare.",
+          "isCorrect": false,
+          "why": "Aceasta privește atragerea de resurse extrabugetare și parteneriatele."
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Regula: Comunicarea publică regulată a rezultatelor, resurselor și deciziilor este competența 3.2.\n\nPractica descrisă corespunde descriptorului.\n\nTemei: Capitolul III, competența specifică 3.2, descriptori comportamentali. Textul relevant: „comunică public, cu regularitate, informații privind rezultatele, resursele și deciziile instituționale”",
+      "legalSource": {
+        "document": "Ordinul ministrului educației și cercetării nr. 3.934/2026 — Profilul profesional al managerului școlar",
+        "consolidatedAt": "2026-10-17",
+        "url": "",
+        "reference": "Capitolul III, competența specifică 3.2, descriptori comportamentali",
+        "excerpt": "comunică public, cu regularitate, informații privind rezultatele, resursele și deciziile instituționale",
+        "verification": "fragment-verificat-automat-pe-textul-oficial-al-ordinului"
+      }
+    },
+    {
+      "id": "PM-A-017",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Profilul profesional al managerului școlar",
+      "annex": "",
+      "title": "Profilul profesional al managerului școlar",
+      "chapter": "Capitolul III. Competențele generale și specifice",
+      "section": "Competența 3.3",
+      "article": 17,
+      "paragraph": "",
+      "prompt": "Un elev vulnerabil are nevoie de sprijin de la instituții din afara școlii. Cu cine prevede profilul că directorul colaborează?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Cu centrele județene de resurse și asistență educațională, direcțiile generale de asistență socială și protecția copilului și alte instituții de suport.",
+          "isCorrect": true
+        },
+        {
+          "id": "B",
+          "text": "Numai cu primăria și cu inspectoratul școlar.",
+          "isCorrect": false,
+          "why": "Profilul numește explicit centrele de resurse și direcțiile de asistență socială."
+        },
+        {
+          "id": "C",
+          "text": "Numai cu asociația de părinți.",
+          "isCorrect": false,
+          "why": "Descriptorul vizează instituții de suport pentru elevii vulnerabili."
+        },
+        {
+          "id": "D",
+          "text": "Cu niciuna: sprijinul este exclusiv responsabilitatea profesorilor.",
+          "isCorrect": false,
+          "why": "Descriptorul cere colaborarea directorului cu aceste instituții."
+        }
+      ],
+      "correctOptionId": "A",
+      "explanation": "Regula: Pentru elevii vulnerabili, directorul colaborează cu centrele de resurse și cu asistența socială.\n\nDescriptorul le enumeră explicit.\n\nTemei: Capitolul III, competența specifică 3.3, descriptori comportamentali. Textul relevant: „colaborează cu centrele județene de resurse și asistență educațională/Centrul Municipiului București de Resurse și Asistență Educațională, direcțiile generale de asistență socială și protecția copilului și alte instituții de suport pentru elevii vulnerabili”",
+      "legalSource": {
+        "document": "Ordinul ministrului educației și cercetării nr. 3.934/2026 — Profilul profesional al managerului școlar",
+        "consolidatedAt": "2026-10-17",
+        "url": "",
+        "reference": "Capitolul III, competența specifică 3.3, descriptori comportamentali",
+        "excerpt": "colaborează cu centrele județene de resurse și asistență educațională/Centrul Municipiului București de Resurse și Asistență Educațională, direcțiile generale de asistență socială și protecția copilului și alte instituții de suport pentru elevii vulnerabili",
+        "verification": "fragment-verificat-automat-pe-textul-oficial-al-ordinului"
+      }
+    },
+    {
+      "id": "PM-A-018",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Profilul profesional al managerului școlar",
+      "annex": "",
+      "title": "Profilul profesional al managerului școlar",
+      "chapter": "Capitolul III. Competențele generale și specifice",
+      "section": "Competența 3.4",
+      "article": 18,
+      "paragraph": "",
+      "prompt": "Directorul vrea să fundamenteze o decizie privind disciplinele opționale pe baza opiniei elevilor și a datelor școlii. Ce practici cere profilul la competența 3.4?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Numai raportarea anuală către inspectorat.",
+          "isCorrect": false,
+          "why": "Descriptorul vizează analize de nevoi, studii de satisfacție și cercetare-acțiune."
+        },
+        {
+          "id": "B",
+          "text": "Numai observarea lecțiilor la clasă.",
+          "isCorrect": false,
+          "why": "Observarea lecțiilor aparține competenței 4.2."
+        },
+        {
+          "id": "C",
+          "text": "Numai comparația cu școlile din alte județe.",
+          "isCorrect": false,
+          "why": "Profilul nu o menționează în acest descriptor."
+        },
+        {
+          "id": "D",
+          "text": "Analize de nevoi, studii de satisfacție a beneficiarilor și cercetare-acțiune la nivel instituțional.",
+          "isCorrect": true
+        }
+      ],
+      "correctOptionId": "D",
+      "explanation": "Regula: Competența 3.4: analize de nevoi, studii de satisfacție, cercetare-acțiune.\n\nAceste practici fundamentează decizia curriculară.\n\nTemei: Capitolul III, competența specifică 3.4, descriptori comportamentali. Textul relevant: „derulează analize de nevoi, studii de satisfacție a beneficiarilor și cercetare-acțiune la nivel instituțional”",
+      "legalSource": {
+        "document": "Ordinul ministrului educației și cercetării nr. 3.934/2026 — Profilul profesional al managerului școlar",
+        "consolidatedAt": "2026-10-17",
+        "url": "",
+        "reference": "Capitolul III, competența specifică 3.4, descriptori comportamentali",
+        "excerpt": "derulează analize de nevoi, studii de satisfacție a beneficiarilor și cercetare-acțiune la nivel instituțional",
+        "verification": "fragment-verificat-automat-pe-textul-oficial-al-ordinului"
+      }
+    },
+    {
+      "id": "PM-A-019",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Profilul profesional al managerului școlar",
+      "annex": "",
+      "title": "Profilul profesional al managerului școlar",
+      "chapter": "Capitolul III. Competențele generale și specifice",
+      "section": "Competența 4.1",
+      "article": 19,
+      "paragraph": "",
+      "prompt": "O profesoară debutantă are dificultăți de adaptare. Ce comportament al directorului prevede profilul la competența 4.1?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Așteaptă ca debutanta să se adapteze singură, pentru a-și dezvolta autonomia.",
+          "isCorrect": false,
+          "why": "Profilul cere sprijin activ."
+        },
+        {
+          "id": "B",
+          "text": "Îi cere să demisioneze dacă nu obține rezultate într-un semestru.",
+          "isCorrect": false,
+          "why": "Profilul nu prevede așa ceva; cere sprijin și inserție profesională."
+        },
+        {
+          "id": "C",
+          "text": "Sprijină cadrele didactice debutante și facilitează inserția lor profesională, prin mentorat și coaching.",
+          "isCorrect": true
+        },
+        {
+          "id": "D",
+          "text": "Transferă responsabilitatea exclusiv inspectorului școlar.",
+          "isCorrect": false,
+          "why": "Descriptorul vizează comportamentul directorului."
+        }
+      ],
+      "correctOptionId": "C",
+      "explanation": "Regula: Directorul sprijină debutanții prin mentorat și coaching.\n\nSituația descrisă cere acest comportament.\n\nTemei: Capitolul III, competența specifică 4.1, descriptori comportamentali. Textul relevant: „sprijină cadrele didactice debutante și facilitează inserția lor profesională (mentorat, coaching)”",
+      "legalSource": {
+        "document": "Ordinul ministrului educației și cercetării nr. 3.934/2026 — Profilul profesional al managerului școlar",
+        "consolidatedAt": "2026-10-17",
+        "url": "",
+        "reference": "Capitolul III, competența specifică 4.1, descriptori comportamentali",
+        "excerpt": "sprijină cadrele didactice debutante și facilitează inserția lor profesională (mentorat, coaching)",
+        "verification": "fragment-verificat-automat-pe-textul-oficial-al-ordinului"
+      }
+    },
+    {
+      "id": "PM-A-020",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Profilul profesional al managerului școlar",
+      "annex": "",
+      "title": "Profilul profesional al managerului școlar",
+      "chapter": "Capitolul III. Competențele generale și specifice",
+      "section": "Competența 4.2",
+      "article": 20,
+      "paragraph": "",
+      "prompt": "Cum recomandă profilul că poate monitoriza directorul calitatea procesului didactic?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Numai prin chestionare aplicate părinților.",
+          "isCorrect": false,
+          "why": "Descriptorul menționează observări, analiză documentară și discuții profesionale."
+        },
+        {
+          "id": "B",
+          "text": "Prin observări de lecții, analiză documentară și discuții profesionale.",
+          "isCorrect": true
+        },
+        {
+          "id": "C",
+          "text": "Numai prin verificarea notelor din catalog.",
+          "isCorrect": false,
+          "why": "Descriptorul nu se limitează la note."
+        },
+        {
+          "id": "D",
+          "text": "Numai prin rapoartele inspectorului școlar.",
+          "isCorrect": false,
+          "why": "Descriptorul vizează mijloace proprii directorului."
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Regula: Calitatea procesului didactic: observări de lecții, analiză documentară, discuții profesionale.\n\nAcestea sunt cele trei mijloace.\n\nTemei: Capitolul III, competența specifică 4.2, descriptori comportamentali. Textul relevant: „monitorizează calitatea procesului didactic prin observări de lecții, analiză documentară și discuții profesionale”",
+      "legalSource": {
+        "document": "Ordinul ministrului educației și cercetării nr. 3.934/2026 — Profilul profesional al managerului școlar",
+        "consolidatedAt": "2026-10-17",
+        "url": "",
+        "reference": "Capitolul III, competența specifică 4.2, descriptori comportamentali",
+        "excerpt": "monitorizează calitatea procesului didactic prin observări de lecții, analiză documentară și discuții profesionale",
+        "verification": "fragment-verificat-automat-pe-textul-oficial-al-ordinului"
+      }
+    },
+    {
+      "id": "PM-A-021",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Profilul profesional al managerului școlar",
+      "annex": "",
+      "title": "Profilul profesional al managerului școlar",
+      "chapter": "Capitolul III. Competențele generale și specifice",
+      "section": "Competența 4.4",
+      "article": 21,
+      "paragraph": "",
+      "prompt": "Directorul introduce o evaluare a performanței profesorilor. Ce cere profilul în privința criteriilor?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Să definească criterii clare de evaluare a performanței cadrelor didactice și să le comunice transparent.",
+          "isCorrect": true
+        },
+        {
+          "id": "B",
+          "text": "Criteriile pot rămâne necomunicate, pentru a evita presiunea.",
+          "isCorrect": false,
+          "why": "Profilul cere comunicare transparentă."
+        },
+        {
+          "id": "C",
+          "text": "Criteriile se stabilesc numai de inspectorat.",
+          "isCorrect": false,
+          "why": "Descriptorul îl cere directorului."
+        },
+        {
+          "id": "D",
+          "text": "Criteriile se aplică numai profesorilor debutanți.",
+          "isCorrect": false,
+          "why": "Descriptorul se referă la cadrele didactice în general."
+        }
+      ],
+      "correctOptionId": "A",
+      "explanation": "Regula: Criterii clare de evaluare, comunicate transparent.\n\nAceasta este cerința de la competența 4.4.\n\nTemei: Capitolul III, competența specifică 4.4, descriptori comportamentali. Textul relevant: „definește criterii clare de evaluare a performanței cadrelor didactice și le comunică transparent”",
+      "legalSource": {
+        "document": "Ordinul ministrului educației și cercetării nr. 3.934/2026 — Profilul profesional al managerului școlar",
+        "consolidatedAt": "2026-10-17",
+        "url": "",
+        "reference": "Capitolul III, competența specifică 4.4, descriptori comportamentali",
+        "excerpt": "definește criterii clare de evaluare a performanței cadrelor didactice și le comunică transparent",
+        "verification": "fragment-verificat-automat-pe-textul-oficial-al-ordinului"
+      }
+    },
+    {
+      "id": "PM-A-022",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Profilul profesional al managerului școlar",
+      "annex": "",
+      "title": "Profilul profesional al managerului școlar",
+      "chapter": "Capitolul III. Competențele generale și specifice",
+      "section": "Competența 5.1",
+      "article": 22,
+      "paragraph": "",
+      "prompt": "Doi profesori intră într-un conflict public. Ce comportament descris la competența 5.1 trebuie să urmeze directorul?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Să susțină profesorul cu vechime mai mare.",
+          "isCorrect": false,
+          "why": "Profilul cere imparțialitate."
+        },
+        {
+          "id": "B",
+          "text": "Să ignore conflictul până se stinge.",
+          "isCorrect": false,
+          "why": "Profilul cere mediere."
+        },
+        {
+          "id": "C",
+          "text": "Să pretindă o sancțiune imediată ambilor profesori.",
+          "isCorrect": false,
+          "why": "Descriptorul vizează medierea cu imparțialitate, nu sancționarea automată."
+        },
+        {
+          "id": "D",
+          "text": "Să medieze conflictul cu calm, diplomație și imparțialitate.",
+          "isCorrect": true
+        }
+      ],
+      "correctOptionId": "D",
+      "explanation": "Regula: Conflictele se mediază cu calm, diplomație și imparțialitate.\n\nSituația cere mediere imparțială.\n\nTemei: Capitolul III, competența specifică 5.1, descriptori comportamentali. Textul relevant: „mediază conflictele cu calm, diplomație și imparțialitate”",
+      "legalSource": {
+        "document": "Ordinul ministrului educației și cercetării nr. 3.934/2026 — Profilul profesional al managerului școlar",
+        "consolidatedAt": "2026-10-17",
+        "url": "",
+        "reference": "Capitolul III, competența specifică 5.1, descriptori comportamentali",
+        "excerpt": "mediază conflictele cu calm, diplomație și imparțialitate",
+        "verification": "fragment-verificat-automat-pe-textul-oficial-al-ordinului"
+      }
+    },
+    {
+      "id": "PM-A-023",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Profilul profesional al managerului școlar",
+      "annex": "",
+      "title": "Profilul profesional al managerului școlar",
+      "chapter": "Capitolul III. Competențele generale și specifice",
+      "section": "Competența 5.2",
+      "article": 23,
+      "paragraph": "",
+      "prompt": "Școala dorește să-și întărească dimensiunea europeană. Ce oportunități menționează profilul la competența 5.2?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Numai concursuri școlare naționale.",
+          "isCorrect": false,
+          "why": "Profilul menționează programul Erasmus+ și proiecte europene."
+        },
+        {
+          "id": "B",
+          "text": "Numai programe de formare a inspectorilor.",
+          "isCorrect": false,
+          "why": "Profilul vizează proiecte care implică școala."
+        },
+        {
+          "id": "C",
+          "text": "Programul Erasmus+ și proiecte de tip eTwinning și Școală Europeană.",
+          "isCorrect": true
+        },
+        {
+          "id": "D",
+          "text": "Numai schimburi între clase din aceeași școală.",
+          "isCorrect": false,
+          "why": "Profilul vizează proiecte europene și internaționale."
+        }
+      ],
+      "correctOptionId": "C",
+      "explanation": "Regula: Dimensiunea europeană: Erasmus+, eTwinning, Școală Europeană.\n\nAcestea sunt exemplele din profil.\n\nTemei: Capitolul III, competența specifică 5.2, descriptori comportamentali. Textul relevant: „valorifică oportunitățile programului Erasmus+ pentru a întări dimensiunea europeană a școlii”",
+      "legalSource": {
+        "document": "Ordinul ministrului educației și cercetării nr. 3.934/2026 — Profilul profesional al managerului școlar",
+        "consolidatedAt": "2026-10-17",
+        "url": "",
+        "reference": "Capitolul III, competența specifică 5.2, descriptori comportamentali",
+        "excerpt": "valorifică oportunitățile programului Erasmus+ pentru a întări dimensiunea europeană a școlii",
+        "verification": "fragment-verificat-automat-pe-textul-oficial-al-ordinului"
+      }
+    },
+    {
+      "id": "PM-A-024",
+      "kind": "aplicare",
+      "difficulty": "expert",
+      "module": "Profilul profesional al managerului școlar",
+      "annex": "",
+      "title": "Profilul profesional al managerului școlar",
+      "chapter": "Capitolul III. Competențele generale și specifice",
+      "section": "Competența 5.4",
+      "article": 24,
+      "paragraph": "",
+      "prompt": "Un proiect extern finanțat se apropie de final. Ce prevede profilul că trebuie să asigure directorul?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Încheierea tuturor activităților odată cu finanțarea.",
+          "isCorrect": false,
+          "why": "Profilul cere continuitate, nu încheiere automată."
+        },
+        {
+          "id": "B",
+          "text": "Continuitatea după finalizarea finanțării.",
+          "isCorrect": true
+        },
+        {
+          "id": "C",
+          "text": "Transferul proiectului unei firme private.",
+          "isCorrect": false,
+          "why": "Profilul nu prevede această soluție."
+        },
+        {
+          "id": "D",
+          "text": "Raportarea doar către finanțator, fără informarea comunității.",
+          "isCorrect": false,
+          "why": "Profilul cere legătură cu comunitatea și continuitate."
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Regula: Proiectele externe se coordonează și li se asigură continuitatea după finanțare.\n\nAceasta este cerința din descriptor.\n\nTemei: Capitolul III, competența specifică 5.4, descriptori comportamentali. Textul relevant: „coordonează implementarea proiectelor externe și asigură continuitatea după finalizarea finanțării”",
+      "legalSource": {
+        "document": "Ordinul ministrului educației și cercetării nr. 3.934/2026 — Profilul profesional al managerului școlar",
+        "consolidatedAt": "2026-10-17",
+        "url": "",
+        "reference": "Capitolul III, competența specifică 5.4, descriptori comportamentali",
+        "excerpt": "coordonează implementarea proiectelor externe și asigură continuitatea după finalizarea finanțării",
+        "verification": "fragment-verificat-automat-pe-textul-oficial-al-ordinului"
+      }
+    },
+    {
+      "id": "PM-A-025",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Profilul profesional al managerului școlar",
+      "annex": "",
+      "title": "Profilul profesional al managerului școlar",
+      "chapter": "Capitolul V. Complementaritatea cu profilul cadrului didactic",
+      "section": "Complementaritatea profilurilor",
+      "article": 25,
+      "paragraph": "",
+      "prompt": "Un formator corelează profilul cadrului didactic cu profilul managerului. Cu ce competență a managerului se corelează domeniul „Mediu de învățare și stare de bine”?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Cu Competența 1, la competența specifică 1.3, Leadership incluziv, stare de bine și siguranță școlară.",
+          "isCorrect": true
+        },
+        {
+          "id": "B",
+          "text": "Cu Competența 2, Management operațional administrativ-financiar.",
+          "isCorrect": false,
+          "why": "Tabelul nu asociază acest domeniu cu Competența 2."
+        },
+        {
+          "id": "C",
+          "text": "Cu Competența 3, Managementul calității și evaluare internă.",
+          "isCorrect": false,
+          "why": "Tabelul nu o face."
+        },
+        {
+          "id": "D",
+          "text": "Cu Competența 4, Managementul curriculumului.",
+          "isCorrect": false,
+          "why": "Aceasta se asociază domeniilor „Curriculum și proces didactic” și „Cunoașterea elevilor”."
+        }
+      ],
+      "correctOptionId": "A",
+      "explanation": "Regula: Mediu de învățare și stare de bine corespunde competenței 1.3 a managerului.\n\nAceasta este corelația din tabel.\n\nTemei: Capitolul V, tabelul de complementaritate. Textul relevant: „Competența 1 — Leadership educațional, guvernanță instituțională și orientare strategică (1.3. Leadership incluziv, stare de bine a elevilor și a personalului școlii, securitate și siguranță școlară)”",
+      "legalSource": {
+        "document": "Ordinul ministrului educației și cercetării nr. 3.934/2026 — Profilul profesional al managerului școlar",
+        "consolidatedAt": "2026-10-17",
+        "url": "",
+        "reference": "Capitolul V, tabelul de complementaritate",
+        "excerpt": "Competența 1 — Leadership educațional, guvernanță instituțională și orientare strategică (1.3. Leadership incluziv, stare de bine a elevilor și a personalului școlii, securitate și siguranță școlară)",
+        "verification": "fragment-verificat-automat-pe-textul-oficial-al-ordinului"
+      }
+    }
+  ]
+}

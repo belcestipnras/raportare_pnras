@@ -7,7 +7,7 @@
     "url": "",
     "method": "itemi situaționali redactați manual, cu fragmente verificate pe textul scanat al capitolelor"
   },
-  "count": 64,
+  "count": 50,
   "questions": [
     {
       "id": "BU-A-001",
@@ -394,54 +394,6 @@
       }
     },
     {
-      "id": "BU-A-009",
-      "kind": "aplicare",
-      "difficulty": "avansat",
-      "module": "Tony Bush, Leadership și management educațional",
-      "annex": "",
-      "title": "Tony Bush, Leadership și management educațional",
-      "chapter": "Capitolul 1. Importanța leadershipului și a managementului educațional",
-      "section": "Diferența dintre leadership și management educațional",
-      "article": 1,
-      "paragraph": "",
-      "prompt": "În același semestru, directorul are două sarcini: introduce un program nou de mentorat pentru a schimba modul de lucru al profesorilor și asigură zilnic funcționarea orarului, a suplinirilor și a documentelor curente. Cum le încadrează distincția lui Cuban?",
-      "options": [
-        {
-          "id": "A",
-          "text": "Programul nou ține de management, iar funcționarea orarului ține de leadership",
-          "isCorrect": false,
-          "why": "Încadrarea este inversată față de distincția lui Cuban."
-        },
-        {
-          "id": "B",
-          "text": "Programul nou de mentorat ține de leadership (schimbare), iar funcționarea curentă a școlii ține de management (menținere).",
-          "isCorrect": true
-        },
-        {
-          "id": "C",
-          "text": "Ambele sunt leadership, deoarece managementul reclamă adesea deprinderi de leadership",
-          "isCorrect": false,
-          "why": "Cuban notează că managementul reclamă adesea deprinderi de leadership, dar funcția sa globală rămâne menținerea, nu schimbarea."
-        },
-        {
-          "id": "D",
-          "text": "Prima este management, iar a doua administrație, termen mai nou și mai potrivit",
-          "isCorrect": false,
-          "why": "„Administrația” este termenul mai vechi, din care s-a trecut spre management și apoi spre leadership; el nu separă schimbarea de menținere."
-        }
-      ],
-      "correctOptionId": "B",
-      "explanation": "Regula: Cuban asociază leadershipul cu schimbarea și managementul cu menținerea eficienței activităților curente ale organizației, apreciindu-le pe amândouă.\n\nPrima sarcină inițiază o schimbare, a doua menține activitățile curente, exact cum distinge Cuban.\n\nTemei: Capitolul 1, secțiunea „Diferența dintre leadership și management educațional”. Textul relevant: „Cuban (1988) oferă una dintre cele mai clare distincții, asociind leadershipul cu schimbarea și managementul cu „menținerea”.”",
-      "legalSource": {
-        "document": "Tony Bush, Leadership și management educațional. Teorii și practici actuale (Polirom)",
-        "consolidatedAt": "2026-10-16",
-        "url": "",
-        "reference": "Capitolul 1, secțiunea „Diferența dintre leadership și management educațional”",
-        "excerpt": "Cuban (1988) oferă una dintre cele mai clare distincții, asociind leadershipul cu schimbarea și managementul cu „menținerea”.",
-        "verification": "fragment-verificat-pe-textul-scanat-si-recunoscut-prin-ocr"
-      }
-    },
-    {
       "id": "BU-A-010",
       "kind": "aplicare",
       "difficulty": "expert",
@@ -486,54 +438,6 @@
         "url": "",
         "reference": "Capitolul 1, secțiunea „Diferența dintre leadership și management educațional”",
         "excerpt": "Organizațiile hipergestionate și subconduse vor pierde în cele din urmă sentimentul că funcționează într-un anumit spirit sau pentru un anumit scop. Organizațiile slab gestionate, însă cu lideri puternici și carismatici s-ar putea menține temporar pe linia de plutire, ca mai apoi să se prăbușească.",
-        "verification": "fragment-verificat-pe-textul-scanat-si-recunoscut-prin-ocr"
-      }
-    },
-    {
-      "id": "BU-A-011",
-      "kind": "aplicare",
-      "difficulty": "avansat",
-      "module": "Tony Bush, Leadership și management educațional",
-      "annex": "",
-      "title": "Tony Bush, Leadership și management educațional",
-      "chapter": "Capitolul 1. Importanța leadershipului și a managementului educațional",
-      "section": "Perspectiva cronologică asupra leadershipului și managementului educațional",
-      "article": 1,
-      "paragraph": "",
-      "prompt": "La o ședință, adjunctul prezintă teoriile lui Taylor despre managementul științific, ale lui Fayol despre principiile generale de management și ale lui Weber despre birocrație. Un profesor întreabă unde s-au dezvoltat aceste teorii. Ce răspuns susține Bush?",
-      "options": [
-        {
-          "id": "A",
-          "text": "S-au dezvoltat în școlile britanice, spre finalul anilor 1960, odată cu disciplina de studiu",
-          "isCorrect": false,
-          "why": "În Marea Britanie, managementul educațional s-a impus ca disciplină de studiu spre finalul anilor 1960, dar teoriile lui Taylor, Fayol și Weber sunt anterioare și nu s-au născut în educație."
-        },
-        {
-          "id": "B",
-          "text": "S-au dezvoltat în afara educației și au fost implementate ulterior în școli, cu rezultate contrastante.",
-          "isCorrect": true
-        },
-        {
-          "id": "C",
-          "text": "S-au dezvoltat în cadrul Colegiului Național pentru Leadership Școlar, după anul 2000",
-          "isCorrect": false,
-          "why": "Colegiul Național a fost înființat în noiembrie 2000, cu mult după aceste teorii."
-        },
-        {
-          "id": "D",
-          "text": "S-au dezvoltat în programele de masterat în administrație educațională din Canada",
-          "isCorrect": false,
-          "why": "Masteratul în administrație educațională este menționat ca cerință pentru numirea directorilor, nu ca sursă a acestor teorii."
-        }
-      ],
-      "correctOptionId": "B",
-      "explanation": "Regula: Aceste teorii s-au dezvoltat în afara sistemului de educație și au fost implementate ulterior în școli și colegii, cu rezultate contrastante.\n\nTaylor, Fayol și Weber au creat teorii pentru alte domenii, aplicate apoi în școli.\n\nTemei: Capitolul 1, secțiunea „Perspectiva cronologică asupra leadershipului și managementului educațional”. Textul relevant: „Toate aceste teorii s-au dezvoltat în afara sistemului de educație, fiind ulterior implementate la nivelul școlilor și colegiilor, cu rezultate contrastante.”",
-      "legalSource": {
-        "document": "Tony Bush, Leadership și management educațional. Teorii și practici actuale (Polirom)",
-        "consolidatedAt": "2026-10-16",
-        "url": "",
-        "reference": "Capitolul 1, secțiunea „Perspectiva cronologică asupra leadershipului și managementului educațional”",
-        "excerpt": "Toate aceste teorii s-au dezvoltat în afara sistemului de educație, fiind ulterior implementate la nivelul școlilor și colegiilor, cu rezultate contrastante.",
         "verification": "fragment-verificat-pe-textul-scanat-si-recunoscut-prin-ocr"
       }
     },
@@ -774,54 +678,6 @@
         "url": "",
         "reference": "Capitolul 1, secțiunea „Leadershipul instruirii”",
         "excerpt": "Monitorizarea presupune vizitarea claselor, asistarea la ore și furnizarea de feedback profesorilor. Dialogul creează oportunități pentru profesori de a realiza un schimb de idei pe tema învățării și a predării alături de colegi și lideri din sistem.",
-        "verification": "fragment-verificat-pe-textul-scanat-si-recunoscut-prin-ocr"
-      }
-    },
-    {
-      "id": "BU-A-017",
-      "kind": "aplicare",
-      "difficulty": "avansat",
-      "module": "Tony Bush, Leadership și management educațional",
-      "annex": "",
-      "title": "Tony Bush, Leadership și management educațional",
-      "chapter": "Capitolul 2. Modele de leadership și management educațional",
-      "section": "Separarea teoriei de practică",
-      "article": 2,
-      "paragraph": "",
-      "prompt": "La o ședință, un director afirmă că nu are nevoie de teorii, pentru că ia toate deciziile „din bun-simț”, pe baza experienței. Cum interpretează Bush, în esență, astfel de decizii aparent pragmatice?",
-      "options": [
-        {
-          "id": "A",
-          "text": "Sunt bazate pe teorii implicite, adică pe presupuneri nerostite despre organizație, pe care decidentul nu le recunoaște ca teorii.",
-          "isCorrect": true
-        },
-        {
-          "id": "B",
-          "text": "Sunt decizii lipsite de orice teorie, deoarece se bazează exclusiv pe fapte concrete",
-          "isCorrect": false,
-          "why": "Textul spune că faptele necesită interpretare, iar interpretarea pornește din cadre teoretice, chiar nerecunoscute."
-        },
-        {
-          "id": "C",
-          "text": "Sunt decizii care exprimă o teorie fundamentată, obținută prin observare sistematică",
-          "isCorrect": false,
-          "why": "Teoria fundamentată rezultă din cercetare empirică sistematică, nu din experiența personală nereflectată."
-        },
-        {
-          "id": "D",
-          "text": "Sunt decizii normative, care prescriu cum ar trebui conduse în general școlile",
-          "isCorrect": false,
-          "why": "Caracterul normativ privește viziuni despre cum ar trebui conduse școlile, nu faptul că deciziile se bazează pe presupuneri nerostite."
-        }
-      ],
-      "correctOptionId": "A",
-      "explanation": "Regula: Deciziile aparent pragmatice se sprijină de obicei pe teorii implicite: viziunea și preconcepțiile persoanei, conturate de experiență, devin puncte de referință care influențează procesul decizional.\n\nBunul-simț nu înlocuiește teoria, ci o ascunde: procesul de teoretizare are loc fără a fi recunoscut.\n\nTemei: Capitolul 2, secțiunea „Separarea teoriei de practică”. Textul relevant: „Totuși, aceste decizii aparent pragmatice sunt de obicei bazate pe teorii implicite”",
-      "legalSource": {
-        "document": "Tony Bush, Leadership și management educațional. Teorii și practici actuale (Polirom)",
-        "consolidatedAt": "2026-10-16",
-        "url": "",
-        "reference": "Capitolul 2, secțiunea „Separarea teoriei de practică”",
-        "excerpt": "Totuși, aceste decizii aparent pragmatice sunt de obicei bazate pe teorii implicite",
         "verification": "fragment-verificat-pe-textul-scanat-si-recunoscut-prin-ocr"
       }
     },
@@ -1354,54 +1210,6 @@
       }
     },
     {
-      "id": "BU-A-029",
-      "kind": "aplicare",
-      "difficulty": "avansat",
-      "module": "Tony Bush, Leadership și management educațional",
-      "annex": "",
-      "title": "Tony Bush, Leadership și management educațional",
-      "chapter": "Capitolul 2. Modele de leadership și management educațional",
-      "section": "Analiza modelelor",
-      "article": 2,
-      "paragraph": "",
-      "prompt": "Doi analiști ai unei școli autonome diferă astfel: unul consideră că directorul este singurul sau principalul contact cu autoritățile și cu părinții, celălalt vede o paletă largă de contacte ale personalului. Care dintre cele patru criterii folosite de Bush pentru a deosebi modelele explică diferența?",
-      "options": [
-        {
-          "id": "A",
-          "text": "Relația dintre instituție și mediul său exterior: cine ține legătura și dacă legăturile sunt de cooperare, politice sau ambigue.",
-          "isCorrect": true
-        },
-        {
-          "id": "B",
-          "text": "Nivelul de concordanță asupra scopurilor sau obiectivelor instituției",
-          "isCorrect": false,
-          "why": "Acest criteriu privește acordul sau conflictul asupra scopurilor, nu cine ține legătura cu exteriorul."
-        },
-        {
-          "id": "C",
-          "text": "Sensul și validitatea structurilor în cadrul instituțiilor educaționale",
-          "isCorrect": false,
-          "why": "Acest criteriu privește dacă structura este un fapt obiectiv, o creație subiectivă sau obiect de negociere."
-        },
-        {
-          "id": "D",
-          "text": "Cele mai adecvate strategii de leadership pentru instituțiile educaționale",
-          "isCorrect": false,
-          "why": "Acest criteriu privește rolul directorului în stabilirea obiectivelor și în decizii, nu relațiile cu mediul extern."
-        }
-      ],
-      "correctOptionId": "A",
-      "explanation": "Regula: Unul dintre cele patru criterii este relația dintre instituție și mediul său exterior, importantă în special odată cu trecerea la școli cu management autonom.\n\nNatura relațiilor externe este un element-cheie în diferențierea modelelor.\n\nTemei: Capitolul 2, secțiunea „Analiza modelelor”. Textul relevant: „Anumiți autori consideră că directorul sau liderul este singurul sau principalul contact cu lumea din exterior, în timp ce alții sugerează o paletă mai largă de contacte.”",
-      "legalSource": {
-        "document": "Tony Bush, Leadership și management educațional. Teorii și practici actuale (Polirom)",
-        "consolidatedAt": "2026-10-16",
-        "url": "",
-        "reference": "Capitolul 2, secțiunea „Analiza modelelor”",
-        "excerpt": "Anumiți autori consideră că directorul sau liderul este singurul sau principalul contact cu lumea din exterior, în timp ce alții sugerează o paletă mai largă de contacte.",
-        "verification": "fragment-verificat-pe-textul-scanat-si-recunoscut-prin-ocr"
-      }
-    },
-    {
       "id": "BU-A-030",
       "kind": "aplicare",
       "difficulty": "expert",
@@ -1690,54 +1498,6 @@
       }
     },
     {
-      "id": "BU-A-036",
-      "kind": "aplicare",
-      "difficulty": "avansat",
-      "module": "Tony Bush, Leadership și management educațional",
-      "annex": "",
-      "title": "Tony Bush, Leadership și management educațional",
-      "chapter": "Capitolul 3. Modelele formale",
-      "section": "Modelele structurale",
-      "article": 3,
-      "paragraph": "",
-      "prompt": "Un director deleagă bugetele către catedrele școlii, iar șefii de catedră decid acum cum se folosesc fondurile. Un profesor spune că „organigrama piramidală exclude orice participare”. Ce susține textul despre structurile aparent ierarhice?",
-      "options": [
-        {
-          "id": "A",
-          "text": "Își pierd orice rol, deoarece delegarea le face inutile",
-          "isCorrect": false,
-          "why": "Textul nu spune că ierarhia dispare; spune că poate sprijini delegarea, iar ierarhia rămâne importantă."
-        },
-        {
-          "id": "B",
-          "text": "Sunt de fapt structuri colegiale, doar cu alt nume",
-          "isCorrect": false,
-          "why": "Textul nu le identifică cu modelul colegial; spune doar că ierarhia nu împiedică participarea."
-        },
-        {
-          "id": "C",
-          "text": "Pot fi folosite pentru a facilita delegarea și participarea la luarea deciziilor",
-          "isCorrect": true
-        },
-        {
-          "id": "D",
-          "text": "Împiedică orice formă de delegare, fiind bazate pe autoritatea legală",
-          "isCorrect": false,
-          "why": "Afirmația contrazice textul, care arată că delegarea bugetelor este posibilă într-o structură ierarhică."
-        }
-      ],
-      "correctOptionId": "C",
-      "explanation": "Regula: Structurile nu sunt inevitabil ierarhice; chiar cele aparent ierarhice pot facilita delegarea și participarea la decizii.\n\nTextul dă ca exemplu tocmai situația în care bugetele sunt delegate departamentelor, deci ierarhia nu închide participarea.\n\nTemei: Capitolul 3, secțiunea «Modelele structurale». Textul relevant: „Structurile nu sunt inevitabil ierarhice. Cele aparent ierarhice ar putea fi folosite pentru a facilita delegarea și participarea în cadrul procesului de luare a deciziilor.”",
-      "legalSource": {
-        "document": "Tony Bush, Leadership și management educațional. Teorii și practici actuale (Polirom)",
-        "consolidatedAt": "2026-10-16",
-        "url": "",
-        "reference": "Capitolul 3, secțiunea «Modelele structurale»",
-        "excerpt": "Structurile nu sunt inevitabil ierarhice. Cele aparent ierarhice ar putea fi folosite pentru a facilita delegarea și participarea în cadrul procesului de luare a deciziilor.",
-        "verification": "fragment-verificat-pe-textul-scanat-si-recunoscut-prin-ocr"
-      }
-    },
-    {
       "id": "BU-A-037",
       "kind": "aplicare",
       "difficulty": "expert",
@@ -1782,102 +1542,6 @@
         "url": "",
         "reference": "Capitolul 3, secțiunea «Reziliența structurii»",
         "excerpt": "Totuși, structurile rămân o influență puternică asupra naturii și direcției dezvoltării din cadrul instituțiilor. Indivizii sunt numiți în anumite poziții, ceea ce tinde să influențeze, dacă nu chiar să determine natura relațiilor lor profesionale.",
-        "verification": "fragment-verificat-pe-textul-scanat-si-recunoscut-prin-ocr"
-      }
-    },
-    {
-      "id": "BU-A-038",
-      "kind": "aplicare",
-      "difficulty": "expert",
-      "module": "Tony Bush, Leadership și management educațional",
-      "annex": "",
-      "title": "Tony Bush, Leadership și management educațional",
-      "chapter": "Capitolul 3. Modelele formale",
-      "section": "Reziliența structurii",
-      "article": 3,
-      "paragraph": "",
-      "prompt": "La un seminar, adjunctul afirmă că structura școlii ar explica în egală măsură calitatea managementului și pe cea a leadershipului directorului. Ce nuanțează Gaziel (2003) în text?",
-      "options": [
-        {
-          "id": "A",
-          "text": "Structura prezice în același grad managementul și leadershipul directorilor",
-          "isCorrect": false,
-          "why": "Textul spune explicit că influența asupra leadershipului este mai mică."
-        },
-        {
-          "id": "B",
-          "text": "Structura influențează doar leadershipul, nu și managementul directorilor",
-          "isCorrect": false,
-          "why": "Este invers: managementul este cel pentru care structura este un predictor important."
-        },
-        {
-          "id": "C",
-          "text": "Structura nu are niciun impact asupra rezultatelor elevilor sau ale directorilor",
-          "isCorrect": false,
-          "why": "Porter vorbește despre impactul scăzut asupra elevilor; Gaziel nu neagă influența asupra managementului directorilor."
-        },
-        {
-          "id": "D",
-          "text": "Structura este un predictor important al eficacității managementului, dar influențează mai puțin rolul de leadership",
-          "isCorrect": true
-        }
-      ],
-      "correctOptionId": "D",
-      "explanation": "Regula: Structura prezice eficacitatea managementului directorilor mai bine decât eficacitatea rolului lor de leadership.\n\nDistincția dintre management și leadership apare și aici: structura se leagă mai strâns de management decât de leadership.\n\nTemei: Capitolul 3, secțiunea «Reziliența structurii». Textul relevant: „Gaziel (2003) arată că structura este un prezicător important al eficacității managementului directorilor, însă are o influență mai mică asupra rolului lor de leadership.”",
-      "legalSource": {
-        "document": "Tony Bush, Leadership și management educațional. Teorii și practici actuale (Polirom)",
-        "consolidatedAt": "2026-10-16",
-        "url": "",
-        "reference": "Capitolul 3, secțiunea «Reziliența structurii»",
-        "excerpt": "Gaziel (2003) arată că structura este un prezicător important al eficacității managementului directorilor, însă are o influență mai mică asupra rolului lor de leadership.",
-        "verification": "fragment-verificat-pe-textul-scanat-si-recunoscut-prin-ocr"
-      }
-    },
-    {
-      "id": "BU-A-039",
-      "kind": "aplicare",
-      "difficulty": "avansat",
-      "module": "Tony Bush, Leadership și management educațional",
-      "annex": "",
-      "title": "Tony Bush, Leadership și management educațional",
-      "chapter": "Capitolul 3. Modelele formale",
-      "section": "Modelele sistemice",
-      "article": 3,
-      "paragraph": "",
-      "prompt": "În ședința consiliului de administrație se tot spune „școala vrea”, „școala simte”, „școala hotărăște”, iar problemele concrete ale oamenilor sunt trecute pe planul doi. Ce pericol al modelelor sistemice ilustrează această exprimare?",
-      "options": [
-        {
-          "id": "A",
-          "text": "Riscul de a atribui caracteristici umane școlii, în defavoarea oamenilor din interiorul ei",
-          "isCorrect": true
-        },
-        {
-          "id": "B",
-          "text": "Riscul de a subestima granița dintre școală și mediul extern",
-          "isCorrect": false,
-          "why": "Granița este un element central al modelelor sistemice, dar pericolul din scenariu nu ține de ea."
-        },
-        {
-          "id": "C",
-          "text": "Riscul de a transforma birocrația în rațiunea de a fi a școlii",
-          "isCorrect": false,
-          "why": "Aceasta este o teamă legată de modelul birocratic, nu de personificarea organizației."
-        },
-        {
-          "id": "D",
-          "text": "Riscul de a neglija structura formală în favoarea contactelor informale",
-          "isCorrect": false,
-          "why": "Nu este pericolul descris; scenariul vorbește despre tratarea școlii ca o ființă cu trăsături umane."
-        }
-      ],
-      "correctOptionId": "A",
-      "explanation": "Regula: Concentrarea excesivă pe organizație în defavoarea oamenilor duce la atribuirea de caracteristici umane școlii.\n\nTextul avertizează tocmai asupra acestei tendințe, cea mai tranșant criticată de Greenfield.\n\nTemei: Capitolul 3, secțiunea «Modelele sistemice». Textul relevant: „Totuși, există pericole în concentrarea excesivă asupra organizației în defavoarea oamenilor din interiorul ei, deoarece apare riscul de a atribui caracteristici umane școlii sau colegiului.”",
-      "legalSource": {
-        "document": "Tony Bush, Leadership și management educațional. Teorii și practici actuale (Polirom)",
-        "consolidatedAt": "2026-10-16",
-        "url": "",
-        "reference": "Capitolul 3, secțiunea «Modelele sistemice»",
-        "excerpt": "Totuși, există pericole în concentrarea excesivă asupra organizației în defavoarea oamenilor din interiorul ei, deoarece apare riscul de a atribui caracteristici umane școlii sau colegiului.",
         "verification": "fragment-verificat-pe-textul-scanat-si-recunoscut-prin-ocr"
       }
     },
@@ -2074,102 +1738,6 @@
       }
     },
     {
-      "id": "BU-A-044",
-      "kind": "aplicare",
-      "difficulty": "expert",
-      "module": "Tony Bush, Leadership și management educațional",
-      "annex": "",
-      "title": "Tony Bush, Leadership și management educațional",
-      "chapter": "Capitolul 3. Modelele formale",
-      "section": "Aplicarea modelului birocratic în educație",
-      "article": 3,
-      "paragraph": "",
-      "prompt": "Într-o școală, completarea formularelor și respectarea procedurilor au ajuns să conteze mai mult decât învățarea elevilor, iar procedura pare un scop în sine. Ce temere formulată de Bush se confirmă?",
-      "options": [
-        {
-          "id": "A",
-          "text": "Că profesorii pierd orice diviziune a muncii, devenind generaliști",
-          "isCorrect": false,
-          "why": "Textul nu menționează o astfel de temere; temerea formulată privește dominația procedurilor asupra scopurilor educaționale."
-        },
-        {
-          "id": "B",
-          "text": "Că directorul pierde autoritatea legală asupra colectivului",
-          "isCorrect": false,
-          "why": "Textul nu menționează o astfel de temere; scenariul privește procedurile, nu autoritatea directorului."
-        },
-        {
-          "id": "C",
-          "text": "Că birocrația devine rațiunea de a fi a organizației, în loc să fie subordonată scopurilor educaționale",
-          "isCorrect": true
-        },
-        {
-          "id": "D",
-          "text": "Că școala devine un sistem prea deschis față de părinți și comunitate",
-          "isCorrect": false,
-          "why": "Deschiderea față de mediu ține de modelele sistemice, nu de exagerarea procedurilor."
-        }
-      ],
-      "correctOptionId": "C",
-      "explanation": "Regula: Se teme că birocrația poate deveni rațiunea de a fi a organizației, în loc să fie subordonată scopurilor educaționale.\n\nTextul atenuează recunoașterea aplicabilității birocrației prin temerea că procedurile devin o influență prea dominantă.\n\nTemei: Capitolul 3, secțiunea «Aplicarea modelului birocratic în educație». Textul relevant: „Există teama că birocrația poate deveni rațiunea de a fi a organizației, în loc ca aceasta să fie subordonată scopurilor educaționale.”",
-      "legalSource": {
-        "document": "Tony Bush, Leadership și management educațional. Teorii și practici actuale (Polirom)",
-        "consolidatedAt": "2026-10-16",
-        "url": "",
-        "reference": "Capitolul 3, secțiunea «Aplicarea modelului birocratic în educație»",
-        "excerpt": "Există teama că birocrația poate deveni rațiunea de a fi a organizației, în loc ca aceasta să fie subordonată scopurilor educaționale.",
-        "verification": "fragment-verificat-pe-textul-scanat-si-recunoscut-prin-ocr"
-      }
-    },
-    {
-      "id": "BU-A-045",
-      "kind": "aplicare",
-      "difficulty": "avansat",
-      "module": "Tony Bush, Leadership și management educațional",
-      "annex": "",
-      "title": "Tony Bush, Leadership și management educațional",
-      "chapter": "Capitolul 3. Modelele formale",
-      "section": "Modelele raționale",
-      "article": 3,
-      "paragraph": "",
-      "prompt": "După ce a pus în aplicare soluția aleasă, adjunctul constată prin evaluare că problema fusese definită greșit și o reia cu o altă definiție. Ce caracteristică a procesului rațional ilustrează acest lucru?",
-      "options": [
-        {
-          "id": "A",
-          "text": "Caracterul normativ, prin care teoria arată cum ar trebui să se comporte indivizii",
-          "isCorrect": false,
-          "why": "Normativitatea privește natura teoriei, nu repetarea ciclului decizional."
-        },
-        {
-          "id": "B",
-          "text": "Caracterul pozițional, prin care decizia aparține celui cu funcția cea mai înaltă",
-          "isCorrect": false,
-          "why": "Autoritatea pozițională ține de modelele ierarhice și birocratice, nu de ciclul deciziei."
-        },
-        {
-          "id": "C",
-          "text": "Caracterul spontan, prin care deciziile se iau pe moment",
-          "isCorrect": false,
-          "why": "Hoyle și Wallace arată că decizia spontană este o limită a rațiunii, nu o trăsătură a procesului rațional."
-        },
-        {
-          "id": "D",
-          "text": "Caracterul repetitiv, în care evaluarea poate duce la redefinirea problemei",
-          "isCorrect": true
-        }
-      ],
-      "correctOptionId": "D",
-      "explanation": "Regula: Procesul rațional este repetitiv: evaluarea poate duce la redefinirea problemei sau la căutarea unei soluții alternative.\n\nFigura 3.1 prezintă procesul ca ciclu, în care evaluarea eficacității readuce la percepția problemei.\n\nTemei: Capitolul 3, secțiunea «Modelele raționale». Textul relevant: „Procesul este repetitiv, în sensul că evaluarea poate conduce la o redefinire a problemei sau la căutarea unei soluții alternative (vezi figura 3.1).”",
-      "legalSource": {
-        "document": "Tony Bush, Leadership și management educațional. Teorii și practici actuale (Polirom)",
-        "consolidatedAt": "2026-10-16",
-        "url": "",
-        "reference": "Capitolul 3, secțiunea «Modelele raționale»",
-        "excerpt": "Procesul este repetitiv, în sensul că evaluarea poate conduce la o redefinire a problemei sau la căutarea unei soluții alternative (vezi figura 3.1).",
-        "verification": "fragment-verificat-pe-textul-scanat-si-recunoscut-prin-ocr"
-      }
-    },
-    {
       "id": "BU-A-046",
       "kind": "aplicare",
       "difficulty": "expert",
@@ -2214,54 +1782,6 @@
         "url": "",
         "reference": "Capitolul 3, secțiunea «Modelele raționale»",
         "excerpt": "Presupunerea că alegerea soluției poate fi detașată și imparțială este eronată. În practică, indivizii și grupurile, probabil, promovează soluțiile preferate de ei înșiși, care, apoi, pot reflecta obiectivele individuale în defavoarea obiectivelor organizaționale.",
-        "verification": "fragment-verificat-pe-textul-scanat-si-recunoscut-prin-ocr"
-      }
-    },
-    {
-      "id": "BU-A-047",
-      "kind": "aplicare",
-      "difficulty": "expert",
-      "module": "Tony Bush, Leadership și management educațional",
-      "annex": "",
-      "title": "Tony Bush, Leadership și management educațional",
-      "chapter": "Capitolul 3. Modelele formale",
-      "section": "Modelele raționale",
-      "article": 3,
-      "paragraph": "",
-      "prompt": "La elaborarea bugetului, directorul nu pornește de la cheltuielile anului trecut, ci reia analiza tuturor domeniilor de cheltuire, nu doar modifică puțin vechile sume. Care dintre cele cinci principii de alocare a resurselor este aplicat?",
-      "options": [
-        {
-          "id": "A",
-          "text": "Planificarea pe termen lung, care depășește ciclul bugetar tipic",
-          "isCorrect": false,
-          "why": "Acest principiu cere luarea în calcul a implicațiilor pe termen lung, nu reluarea analizei fiecărei cheltuieli."
-        },
-        {
-          "id": "B",
-          "text": "Bugetarea în bază zero",
-          "isCorrect": true
-        },
-        {
-          "id": "C",
-          "text": "Evaluarea alternativelor prin analiza costului de oportunitate",
-          "isCorrect": false,
-          "why": "Principiul privește compararea modelelor de consum, nu punctul de pornire al bugetului."
-        },
-        {
-          "id": "D",
-          "text": "Scopurile și prioritățile, care susțin alocarea resurselor",
-          "isCorrect": false,
-          "why": "Acesta cere scopuri bine articulate; scenariul nu vorbește despre stabilirea priorităților."
-        }
-      ],
-      "correctOptionId": "B",
-      "explanation": "Regula: Bugetarea în bază zero înseamnă o perspectivă nouă asupra tuturor ariilor de cheltuire, nu doar modificarea incrementală a modelelor anterioare.\n\nDirectorul abordează o nouă perspectivă în toate ariile de cheltuire, nu doar ajustări incrementale.\n\nTemei: Capitolul 3, secțiunea «Modelele raționale», principiul 4. Textul relevant: „Bugetarea în bază zero. Aceasta implică abordarea unei noi perspective în toate ariile de cheltuire, nu numai modificarea incrementală a modelelor de cheltuire anterioare.”",
-      "legalSource": {
-        "document": "Tony Bush, Leadership și management educațional. Teorii și practici actuale (Polirom)",
-        "consolidatedAt": "2026-10-16",
-        "url": "",
-        "reference": "Capitolul 3, secțiunea «Modelele raționale», principiul 4",
-        "excerpt": "Bugetarea în bază zero. Aceasta implică abordarea unei noi perspective în toate ariile de cheltuire, nu numai modificarea incrementală a modelelor de cheltuire anterioare.",
         "verification": "fragment-verificat-pe-textul-scanat-si-recunoscut-prin-ocr"
       }
     },
@@ -2454,54 +1974,6 @@
         "url": "",
         "reference": "Capitolul 3, secțiunea „Modelele formale: obiective, structură, mediu și leadership – Obiective”",
         "excerpt": "Imaginea școlilor și colegiilor ca organizații ce urmăresc în mod activ obiective oficiale, expuse în declarații oficiale, ar putea fi subminată de recunoașterea faptului că, de multe ori, acestea au obiective multiple.",
-        "verification": "fragment-verificat-pe-textul-scanat-si-recunoscut-prin-ocr"
-      }
-    },
-    {
-      "id": "BU-A-052",
-      "kind": "aplicare",
-      "difficulty": "expert",
-      "module": "Tony Bush, Leadership și management educațional",
-      "annex": "",
-      "title": "Tony Bush, Leadership și management educațional",
-      "chapter": "Capitolul 3. Modelele formale",
-      "section": "Modelele formale: obiective, structură, mediu și leadership – Obiective",
-      "article": 3,
-      "paragraph": "",
-      "prompt": "Ministerul stabilește obiectivele pentru toate școlile, iar un director declară: „Nu transmitem pur și simplu aceste obiective. Le alegem și le interpretăm ținând cont de interesele elevilor, de competențele lor, de mediul social și de capacitățile școlii.” Ce susține, în esență, această poziție, după Fishman?",
-      "options": [
-        {
-          "id": "A",
-          "text": "Obiectivele externe trebuie respectate fără modificări, deoarece sistemul centralizat nu lasă loc de interpretare",
-          "isCorrect": false,
-          "why": "Fishman afirmă că și în sistemele centralizate rămâne loc de interpretare locală."
-        },
-        {
-          "id": "B",
-          "text": "Fishman leagă alegerea obiectivelor de interesele copiilor, de competențele lor, de mediul social și de capacitățile școlii.",
-          "isCorrect": true
-        },
-        {
-          "id": "C",
-          "text": "Concentrarea resurselor pe un singur nivel de școlarizare este soluția cea mai echitabilă pentru toți elevii",
-          "isCorrect": false,
-          "why": "Lewin arată dimpotrivă că astfel alte niveluri pot fi neglijate și că apar clase mai mari."
-        },
-        {
-          "id": "D",
-          "text": "Obiectivele sunt valide numai dacă sunt stabilite exclusiv de echipa de conducere a școlii",
-          "isCorrect": false,
-          "why": "Fishman pune accent pe interesele elevilor și pe contextul școlii, nu pe stabilirea de către conducere."
-        }
-      ],
-      "correctOptionId": "B",
-      "explanation": "Regula: Chiar și în sistemele centralizate rămâne loc de interpretare locală, iar alegerea obiectivelor nu este o simplă transmitere a obiectivelor externe.\n\nDirectorul reia aproape cuvânt cu cuvânt criteriile locale indicate de Fishman.\n\nTemei: Capitolul 3, secțiunea „Modelele formale: obiective, structură, mediu și leadership – Obiective”. Textul relevant: „Alegerea obiectivelor ar trebui să ia în calcul interesele copiilor, competențele lor, particularitățile mediului social și capacitățile școlii în sine.”",
-      "legalSource": {
-        "document": "Tony Bush, Leadership și management educațional. Teorii și practici actuale (Polirom)",
-        "consolidatedAt": "2026-10-16",
-        "url": "",
-        "reference": "Capitolul 3, secțiunea „Modelele formale: obiective, structură, mediu și leadership – Obiective”",
-        "excerpt": "Alegerea obiectivelor ar trebui să ia în calcul interesele copiilor, competențele lor, particularitățile mediului social și capacitățile școlii în sine.",
         "verification": "fragment-verificat-pe-textul-scanat-si-recunoscut-prin-ocr"
       }
     },
@@ -2794,54 +2266,6 @@
       }
     },
     {
-      "id": "BU-A-059",
-      "kind": "aplicare",
-      "difficulty": "avansat",
-      "module": "Tony Bush, Leadership și management educațional",
-      "annex": "",
-      "title": "Tony Bush, Leadership și management educațional",
-      "chapter": "Capitolul 3. Modelele formale",
-      "section": "Managerialism",
-      "article": 3,
-      "paragraph": "",
-      "prompt": "Într-o școală, procedurile și indicatorii măsurabili au devenit atât de importanți încât planificarea rigidă și obiectivele individuale sunt principalele instrumente de control, iar procedurile nu mai servesc învățarea, ci au devenit un scop în sine. Ce fenomen descriu Hoyle și Wallace?",
-      "options": [
-        {
-          "id": "A",
-          "text": "Leadershipul managerial echilibrat, care sprijină învățarea și predarea prin structuri și procese eficiente",
-          "isCorrect": false,
-          "why": "Leadershipul și managementul eficient creează structuri care sprijină profesorii; nu devin scop în sine."
-        },
-        {
-          "id": "B",
-          "text": "Managerialismul pune procesele de management înaintea valorilor și scopurilor educaționale.",
-          "isCorrect": true
-        },
-        {
-          "id": "C",
-          "text": "Sistemul închis, în care școala limitează legăturile cu mediul extern la strictul necesar",
-          "isCorrect": false,
-          "why": "Privește relația cu mediul extern, nu supremația procedurilor asupra scopurilor educației."
-        },
-        {
-          "id": "D",
-          "text": "Orchestrarea, în care liderii seniori coordonează un număr mare de sarcini în procesul schimbării",
-          "isCorrect": false,
-          "why": "Este o formă de coordonare în echipa de conducere, nu un exces al managementului."
-        }
-      ],
-      "correctOptionId": "B",
-      "explanation": "Regula: Managerialismul este leadershipul și managementul în exces: transcende rolul de suport al leadershipului și, în forma extremă, devine un scop în sine.\n\nProcedurile care au devenit scop în sine ilustrează exact definiția managerialismului.\n\nTemei: Capitolul 3, secțiunea „Managerialism”. Textul relevant: „Managerialismul, pe de altă parte, este leadershipul și managementul în exces. El transcende rolul de suport al leadershipului și, în manifestarea sa extremă, devine un scop în sine.”",
-      "legalSource": {
-        "document": "Tony Bush, Leadership și management educațional. Teorii și practici actuale (Polirom)",
-        "consolidatedAt": "2026-10-16",
-        "url": "",
-        "reference": "Capitolul 3, secțiunea „Managerialism”",
-        "excerpt": "Managerialismul, pe de altă parte, este leadershipul și managementul în exces. El transcende rolul de suport al leadershipului și, în manifestarea sa extremă, devine un scop în sine.",
-        "verification": "fragment-verificat-pe-textul-scanat-si-recunoscut-prin-ocr"
-      }
-    },
-    {
       "id": "BU-A-060",
       "kind": "aplicare",
       "difficulty": "expert",
@@ -2982,102 +2406,6 @@
         "url": "",
         "reference": "Capitolul 3, secțiunea „Limitările modelelor formale”",
         "excerpt": "Abordarea alternativă a organizațiilor propusă de Greenfield este discutată în capitolul 6, însă esența argumentelor lui constă în afirmația că organizațiile sunt creația oamenilor din cadrul lor. El afirmă că modelele formale subestimează variabilele individuale și astfel produc imagini distorsionate ale școlilor și colegiilor.",
-        "verification": "fragment-verificat-pe-textul-scanat-si-recunoscut-prin-ocr"
-      }
-    },
-    {
-      "id": "BU-A-063",
-      "kind": "aplicare",
-      "difficulty": "expert",
-      "module": "Tony Bush, Leadership și management educațional",
-      "annex": "",
-      "title": "Tony Bush, Leadership și management educațional",
-      "chapter": "Capitolul 3. Modelele formale",
-      "section": "Limitările modelelor formale",
-      "article": 3,
-      "paragraph": "",
-      "prompt": "Directorul, absolvent de științe umaniste, trebuie să supervizeze predarea la tehnologie. Profesorii de specialitate invocă expertiza lor și refuză să accepte indicațiile lui în domeniul pedagogic. Ce tensiune a modelelor formale reiese de aici?",
-      "options": [
-        {
-          "id": "A",
-          "text": "Etosul managementului de sus în jos, în care puterea stă în directorul cu autoritate legală",
-          "isCorrect": false,
-          "why": "Descrie ierarhia formală, nu conflictul dintre expertiză și funcție."
-        },
-        {
-          "id": "B",
-          "text": "Organizațiile cu personal profesionist numeros manifestă tensiune între cerințele profesionalismului și cele ale ierarhiei.",
-          "isCorrect": true
-        },
-        {
-          "id": "C",
-          "text": "Leadershipul managerial, în care autoritatea decurge din poziția formală",
-          "isCorrect": false,
-          "why": "Este un tip de leadership asociat modelelor formale; conflictul apare tocmai pentru că pozițiile nu coincid cu expertiza."
-        },
-        {
-          "id": "D",
-          "text": "Asumarea rolului, în care persoana acceptă poziția așa cum este definită",
-          "isCorrect": false,
-          "why": "Privește atitudinea față de rol, nu conflictul de autoritate între expertiză și funcție."
-        }
-      ],
-      "correctOptionId": "B",
-      "explanation": "Regula: În organizațiile profesioniste, autoritatea expertizei poate intra în conflict cu autoritatea dată de funcție, deși modelele formale presupun că liderul numit are competența de a da instrucțiuni.\n\nDirectorul are autoritatea funcției, dar profesorii au autoritatea expertizei în domeniul lor.\n\nTemei: Capitolul 3, secțiunea „Limitările modelelor formale”. Textul relevant: „În organizațiile profesioniste există o autoritate a expertizei ce poate intra în conflict cu autoritatea dată de funcție.”",
-      "legalSource": {
-        "document": "Tony Bush, Leadership și management educațional. Teorii și practici actuale (Polirom)",
-        "consolidatedAt": "2026-10-16",
-        "url": "",
-        "reference": "Capitolul 3, secțiunea „Limitările modelelor formale”",
-        "excerpt": "În organizațiile profesioniste există o autoritate a expertizei ce poate intra în conflict cu autoritatea dată de funcție.",
-        "verification": "fragment-verificat-pe-textul-scanat-si-recunoscut-prin-ocr"
-      }
-    },
-    {
-      "id": "BU-A-064",
-      "kind": "aplicare",
-      "difficulty": "avansat",
-      "module": "Tony Bush, Leadership și management educațional",
-      "annex": "",
-      "title": "Tony Bush, Leadership și management educațional",
-      "chapter": "Capitolul 3. Modelele formale",
-      "section": "Limitările modelelor formale",
-      "article": 3,
-      "paragraph": "",
-      "prompt": "Într-o perioadă de reforme rapide și multiple, consiliul de administrație insistă să aplice pas cu pas analiza minuțioasă a problemei, identificarea alternativelor, alegerea variantei preferate, implementarea și evaluarea. Ce slăbiciune a modelelor formale reiese?",
-      "options": [
-        {
-          "id": "A",
-          "text": "Școlile sunt caracterizate ca organizații orientate spre obiective, deși obiectivele sunt greu de stabilit și de măsurat",
-          "isCorrect": false,
-          "why": "Aceasta este o slăbiciune legată de obiective, nu de stabilitate."
-        },
-        {
-          "id": "B",
-          "text": "Organizația este tratată ca entitate, iar contribuția indivizilor este ignorată sau subestimată",
-          "isCorrect": false,
-          "why": "Aceasta privește locul indivizilor, nu ritmul schimbării."
-        },
-        {
-          "id": "C",
-          "text": "Teoriile birocratice și structurale sunt cele mai potrivite în condiții de stabilitate, iar în perioade de turbulență procesul rațional pas cu pas poate fi nerealist.",
-          "isCorrect": true
-        },
-        {
-          "id": "D",
-          "text": "Puterea este plasată în vârful piramidei, iar acceptarea deciziilor este considerată neproblematică",
-          "isCorrect": false,
-          "why": "Aceasta privește ierarhia și puterea, nu stabilitatea organizației."
-        }
-      ],
-      "correctOptionId": "C",
-      "explanation": "Regula: Modelele formale pornesc de la presupunerea implicită că organizațiile sunt relativ stabile, iar validitatea lor este limitată în perioadele de schimbări rapide.\n\nConsiliul aplică o procedură rațională în plină schimbare rapidă, deși ea presupune stabilitate.\n\nTemei: Capitolul 3, secțiunea „Limitările modelelor formale”. Textul relevant: „Validitatea modelelor formale poate fi limitată în timpul etapelor de schimbări rapide și multiple, cum ar fi cele care afectează multe școli în secolul XXI.”",
-      "legalSource": {
-        "document": "Tony Bush, Leadership și management educațional. Teorii și practici actuale (Polirom)",
-        "consolidatedAt": "2026-10-16",
-        "url": "",
-        "reference": "Capitolul 3, secțiunea „Limitările modelelor formale”",
-        "excerpt": "Validitatea modelelor formale poate fi limitată în timpul etapelor de schimbări rapide și multiple, cum ar fi cele care afectează multe școli în secolul XXI.",
         "verification": "fragment-verificat-pe-textul-scanat-si-recunoscut-prin-ocr"
       }
     }

@@ -4,77 +4,71 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#12253f">
-  <meta name="description" content="Simulare generală pentru proba scrisă a concursului de directori și directori adjuncți.">
+  <meta name="description" content="Simulare generală pentru proba scrisă a concursului de directori și directori adjuncți: 20 de itemi, 60 de minute.">
   <title>Simulare probă scrisă · Concurs</title>
   <link rel="icon" href="data:,">
   <link rel="stylesheet" href="../styles.css">
+  <link rel="stylesheet" href="sim.css">
 </head>
 <body>
   <header class="site-header">
     <a class="brand" href="../" aria-label="Înapoi la pagina Concurs">
       <span class="brand-mark" aria-hidden="true">S</span>
-      <span>
-        <strong>Simulare probă scrisă</strong>
-        <small>20 de itemi din bibliografia oficială</small>
-      </span>
+      <span><strong>Simulare probă scrisă</strong><small>20 de itemi din bibliografia oficială</small></span>
     </a>
-    <a class="portal-link" href="../../index.html">Portalul PNRAS</a>
+    <a class="portal-link" href="../">Modulele de studiu</a>
   </header>
 
   <main>
-    <section class="hero">
-      <span class="eyebrow">Simulare generală</span>
+    <div id="status" class="sim-status" role="status">Se încarcă băncile de itemi…</div>
+
+    <section id="start" class="sim-panel" hidden>
+      <span class="eyebrow">Simulare generală · 60 de minute</span>
       <h1>Toată bibliografia, într-un singur test</h1>
-      <p>
-        Această probă va combina întrebări de management și legislație școlară.
-        Nu include raționament verbal, numeric sau logic.
-      </p>
+      <p>Fiecare test respectă proporția fixă. Itemii se aleg aleatoriu din cele șase bănci, cât mai echilibrat pe capitole, iar cei văzuți în simularea precedentă sunt evitați cât se poate.</p>
+      <div id="dist" class="distribution" aria-label="Distribuția întrebărilor"></div>
+      <div class="sim-actions">
+        <button id="go" type="button" class="sim-btn primary">Începe simularea</button>
+      </div>
+      <div id="history" class="sim-history" hidden></div>
     </section>
 
-    <section class="module-section" aria-labelledby="structure-title">
-      <div class="section-heading">
-        <div>
-          <span class="eyebrow">Structură fixă</span>
-          <h2 id="structure-title">Distribuția celor 20 de itemi</h2>
-        </div>
-        <span class="module-count">20 de întrebări</span>
+    <section id="test" class="sim-test" hidden>
+      <div class="sim-bar">
+        <div class="sim-timer" id="timer" aria-live="off">60:00</div>
+        <div class="sim-count" id="count"></div>
+        <button id="finish" type="button" class="sim-btn danger">Predă lucrarea</button>
       </div>
-
-      <article class="module-card">
-        <div class="module-icon" aria-hidden="true">20</div>
-        <div class="module-copy">
-          <h3>Simulare completă</h3>
-          <div class="distribution" aria-label="Distribuția întrebărilor">
-            <span><strong>5</strong> Legea nr. 198/2023</span>
-            <span><strong>5</strong> ROFUIP</span>
-            <span><strong>4</strong> Tony Bush</span>
-            <span><strong>2</strong> John Hattie</span>
-            <span><strong>2</strong> Profilul profesional al managerului școlar</span>
-            <span><strong>2</strong> Cadrul de referință al curriculumului național</span>
-          </div>
-          <p style="margin-top: 1.25rem">
-            Întrebările vor verifica înțelegerea și aplicarea prevederilor. Numărul
-            articolului și textul juridic relevant vor apărea în baremul explicat,
-            după finalizarea testului.
-          </p>
-          <p>
-            Simularea va deveni activă după verificarea băncilor pentru toate cele
-            șase surse. Astfel, fiecare test va respecta distribuția de mai sus și
-            nu va completa locurile lipsă cu întrebări dintr-o singură materie.
-          </p>
+      <nav id="nav" class="sim-nav" aria-label="Navigare între întrebări"></nav>
+      <article class="sim-q">
+        <div class="sim-meta" id="meta"></div>
+        <h2 id="prompt"></h2>
+        <div id="opts" class="sim-opts" role="radiogroup"></div>
+        <div class="sim-actions">
+          <button id="prev" type="button" class="sim-btn">← Înapoi</button>
+          <button id="next" type="button" class="sim-btn primary">Înainte →</button>
         </div>
-        <a class="module-button" href="../">
-          Înapoi la modulele de studiu
-          <span aria-hidden="true">←</span>
-        </a>
       </article>
+    </section>
+
+    <section id="result" class="sim-panel" hidden>
+      <span class="eyebrow">Rezultat</span>
+      <h1 id="score"></h1>
+      <p id="msg"></p>
+      <div id="bysrc" class="sim-bysrc"></div>
+      <div class="sim-actions">
+        <button id="again" type="button" class="sim-btn primary">Simulare nouă</button>
+        <a class="sim-btn" href="../">Modulele de studiu</a>
+      </div>
+      <h2 class="sim-h2">Barem explicat</h2>
+      <div id="review"></div>
     </section>
   </main>
 
   <footer>
-    <p>Progresul și rezultatele simulărilor vor fi păstrate local în acest browser.</p>
+    <p>Progresul și rezultatele simulărilor sunt păstrate local în acest browser.</p>
     <a href="../">Înapoi la Concurs</a>
   </footer>
+  <script src="sim.js"></script>
 </body>
 </html>
-

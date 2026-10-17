@@ -1,0 +1,1213 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-17",
+  "source": {
+    "name": "Ordinul ministrului educației și cercetării nr. 4.137/2026 — Cadrul de referință al curriculumului național din România, capitolul 10",
+    "consolidatedAt": "2026-10-17",
+    "url": "",
+    "method": "itemi situaționali redactați manual, cu fragmente verificate automat pe textul oficial al capitolului 10"
+  },
+  "count": 25,
+  "questions": [
+    {
+      "id": "CR-A-001",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Cadrul de referință al curriculumului național din România",
+      "annex": "",
+      "title": "Cadrul de referință al curriculumului național din România",
+      "chapter": "Capitolul 10. Managementul curriculumului la nivelul școlii",
+      "section": "Școala, cadru de aplicare",
+      "article": 1,
+      "paragraph": "",
+      "prompt": "Un director susține că managementul curriculumului înseamnă doar să urmărească dacă profesorii predau toate temele din programă. Ce arată cadrul de referință?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Managementul curriculumului vizează gestionarea resurselor existente și accesarea resurselor suplimentare pentru realizarea finalităților procesului educativ, prin aplicare contextualizată.",
+          "isCorrect": true
+        },
+        {
+          "id": "B",
+          "text": "Înseamnă numai verificarea parcurgerii integrale a programelor școlare.",
+          "isCorrect": false,
+          "why": "Capitolul îl definește ca proces de gestionare a resurselor și de aplicare contextualizată, nu doar ca verificare a parcurgerii."
+        },
+        {
+          "id": "C",
+          "text": "Înseamnă numai elaborarea ofertei de discipline opționale.",
+          "isCorrect": false,
+          "why": "Capitolul precizează că managementul curriculumului nu se reduce la oferta de opționale."
+        },
+        {
+          "id": "D",
+          "text": "Înseamnă numai aplicarea uniformă a documentelor curriculare, fără adaptare la specificul local.",
+          "isCorrect": false,
+          "why": "Definiția cere aplicare contextualizată, adaptată realității școlii și specificului local."
+        }
+      ],
+      "correctOptionId": "A",
+      "explanation": "Regula: Gestionarea resurselor existente și accesarea celor suplimentare, pentru finalitățile educației, prin aplicare contextualizată.\n\nAfirmația directorului reduce procesul la o singură verificare.\n\nTemei: Capitolul 10, secțiunea „Școala – cadru de aplicare contextualizată a Curriculumului Național”. Textul relevant: „Managementul curriculumului la nivelul școlii vizează, în esență, un proces de gestionare a resurselor existente și de accesare a resurselor suplimentare, pentru realizarea finalităților procesului educativ”",
+      "legalSource": {
+        "document": "Ordinul ministrului educației și cercetării nr. 4.137/2026 — Cadrul de referință al curriculumului național din România, capitolul 10",
+        "consolidatedAt": "2026-10-17",
+        "url": "",
+        "reference": "Capitolul 10, secțiunea „Școala – cadru de aplicare contextualizată a Curriculumului Național”",
+        "excerpt": "Managementul curriculumului la nivelul școlii vizează, în esență, un proces de gestionare a resurselor existente și de accesare a resurselor suplimentare, pentru realizarea finalităților procesului educativ",
+        "verification": "fragment-verificat-automat-pe-textul-oficial-al-capitolului"
+      }
+    },
+    {
+      "id": "CR-A-002",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Cadrul de referință al curriculumului național din România",
+      "annex": "",
+      "title": "Cadrul de referință al curriculumului național din România",
+      "chapter": "Capitolul 10. Managementul curriculumului la nivelul școlii",
+      "section": "Școala, cadru de aplicare",
+      "article": 2,
+      "paragraph": "",
+      "prompt": "Care este, potrivit capitolului, punctul de plecare în folosirea resurselor școlii (umane, materiale, financiare, de timp) într-un curriculum centrat pe competențe?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Bugetul disponibil la începutul anului calendaristic.",
+          "isCorrect": false,
+          "why": "Capitolul pornește de la nevoile elevilor, nu de la buget."
+        },
+        {
+          "id": "B",
+          "text": "Numărul de ore alocat fiecărei discipline în planul-cadru.",
+          "isCorrect": false,
+          "why": "Planul-cadru este un document de aplicat; punctul de plecare sunt nevoile reale de învățare."
+        },
+        {
+          "id": "C",
+          "text": "Preferințele profesorilor cu cea mai mare vechime.",
+          "isCorrect": false,
+          "why": "Capitolul nu menționează aceasta; vorbește despre nevoile reale ale elevilor."
+        },
+        {
+          "id": "D",
+          "text": "Identificarea nevoilor reale de învățare ale elevilor și cunoașterea specificului comunității.",
+          "isCorrect": true
+        }
+      ],
+      "correctOptionId": "D",
+      "explanation": "Regula: Resursele se folosesc plecând de la nevoile reale de învățare ale elevilor și de la specificul comunității.\n\nAceasta este provocarea formulată în capitol.\n\nTemei: Capitolul 10, secțiunea „Școala – cadru de aplicare contextualizată a Curriculumului Național”. Textul relevant: „O provocare în implementarea Curriculum Național centrat pe formarea de competențe este utilizarea resurselor școlii (umane, materiale, financiare, de timp), plecând de la identificarea nevoilor reale de învățare pe care le au elevii”",
+      "legalSource": {
+        "document": "Ordinul ministrului educației și cercetării nr. 4.137/2026 — Cadrul de referință al curriculumului național din România, capitolul 10",
+        "consolidatedAt": "2026-10-17",
+        "url": "",
+        "reference": "Capitolul 10, secțiunea „Școala – cadru de aplicare contextualizată a Curriculumului Național”",
+        "excerpt": "O provocare în implementarea Curriculum Național centrat pe formarea de competențe este utilizarea resurselor școlii (umane, materiale, financiare, de timp), plecând de la identificarea nevoilor reale de învățare pe care le au elevii",
+        "verification": "fragment-verificat-automat-pe-textul-oficial-al-capitolului"
+      }
+    },
+    {
+      "id": "CR-A-003",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Cadrul de referință al curriculumului național din România",
+      "annex": "",
+      "title": "Cadrul de referință al curriculumului național din România",
+      "chapter": "Capitolul 10. Managementul curriculumului la nivelul școlii",
+      "section": "Rolul actorilor școlii",
+      "article": 3,
+      "paragraph": "",
+      "prompt": "Ce rol îl are elevul, potrivit capitolului, în valorificarea propriului traseu de învățare?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Urmează un traseu identic cu al colegilor, stabilit complet de școală.",
+          "isCorrect": false,
+          "why": "Capitolul spune că elevul își particularizează traseul prin opționale."
+        },
+        {
+          "id": "B",
+          "text": "Alege toate disciplinele, inclusiv pe cele din trunchiul comun.",
+          "isCorrect": false,
+          "why": "Capitolul vorbește despre disciplinele opționale pe care le poate alege."
+        },
+        {
+          "id": "C",
+          "text": "Își particularizează traseul prin disciplinele opționale pe care le poate alege și se implică activ în învățare.",
+          "isCorrect": true
+        },
+        {
+          "id": "D",
+          "text": "Participă numai la evaluare, nu și la alegerea disciplinelor.",
+          "isCorrect": false,
+          "why": "Capitolul îi dă rol activ în învățare și în alegerea opționalelor."
+        }
+      ],
+      "correctOptionId": "C",
+      "explanation": "Regula: Elevul își valorifică și își particularizează traseul prin disciplinele opționale și se implică activ.\n\nAceasta este descrierea din capitol.\n\nTemei: Capitolul 10, secțiunea „Școala – cadru de aplicare contextualizată a Curriculumului Național”. Textul relevant: „elevii să își valorifice propriul traseu de învățare, să particularizeze acest traseu, prin disciplinele opționale pe care le pot alege”",
+      "legalSource": {
+        "document": "Ordinul ministrului educației și cercetării nr. 4.137/2026 — Cadrul de referință al curriculumului național din România, capitolul 10",
+        "consolidatedAt": "2026-10-17",
+        "url": "",
+        "reference": "Capitolul 10, secțiunea „Școala – cadru de aplicare contextualizată a Curriculumului Național”",
+        "excerpt": "elevii să își valorifice propriul traseu de învățare, să particularizeze acest traseu, prin disciplinele opționale pe care le pot alege",
+        "verification": "fragment-verificat-automat-pe-textul-oficial-al-capitolului"
+      }
+    },
+    {
+      "id": "CR-A-004",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Cadrul de referință al curriculumului național din România",
+      "annex": "",
+      "title": "Cadrul de referință al curriculumului național din România",
+      "chapter": "Capitolul 10. Managementul curriculumului la nivelul școlii",
+      "section": "Rolul actorilor școlii",
+      "article": 4,
+      "paragraph": "",
+      "prompt": "Cum descrie capitolul rolul profesorilor în aplicarea curriculumului centrat pe competențe?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Ca simpli transmițători de conținut.",
+          "isCorrect": false,
+          "why": "Capitolul îi descrie ca agenți ai învățării, nu ca transmițători."
+        },
+        {
+          "id": "B",
+          "text": "Ca agenți care induc învățarea, o promovează și îi evaluează calitatea.",
+          "isCorrect": true
+        },
+        {
+          "id": "C",
+          "text": "Ca executanți ai deciziilor inspectorului școlar.",
+          "isCorrect": false,
+          "why": "Capitolul nu îi descrie astfel."
+        },
+        {
+          "id": "D",
+          "text": "Ca observatori ai învățării, fără responsabilitate asupra calității ei.",
+          "isCorrect": false,
+          "why": "Capitolul spune că îi evaluează calitatea."
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Regula: Profesorii induc învățarea, o promovează și îi evaluează calitatea.\n\nDescrierea corectă folosește aceste trei verbe.\n\nTemei: Capitolul 10, secțiunea „Școala – cadru de aplicare contextualizată a Curriculumului Național”. Textul relevant: „profesorii să acționeze ca agenți care induc învățarea, o promovează și îi evaluează calitatea”",
+      "legalSource": {
+        "document": "Ordinul ministrului educației și cercetării nr. 4.137/2026 — Cadrul de referință al curriculumului național din România, capitolul 10",
+        "consolidatedAt": "2026-10-17",
+        "url": "",
+        "reference": "Capitolul 10, secțiunea „Școala – cadru de aplicare contextualizată a Curriculumului Național”",
+        "excerpt": "profesorii să acționeze ca agenți care induc învățarea, o promovează și îi evaluează calitatea",
+        "verification": "fragment-verificat-automat-pe-textul-oficial-al-capitolului"
+      }
+    },
+    {
+      "id": "CR-A-005",
+      "kind": "aplicare",
+      "difficulty": "expert",
+      "module": "Cadrul de referință al curriculumului național din România",
+      "annex": "",
+      "title": "Cadrul de referință al curriculumului național din România",
+      "chapter": "Capitolul 10. Managementul curriculumului la nivelul școlii",
+      "section": "Caracterul complex al curriculumului",
+      "article": 5,
+      "paragraph": "",
+      "prompt": "Capitolul afirmă că managementul eficient presupune înțelegerea caracterului complex al curriculumului. Care dintre afirmații descrie corect una dintre cele două fețe ale sale?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Este un program educațional proiectat, implementat în contexte diverse și evaluat.",
+          "isCorrect": true
+        },
+        {
+          "id": "B",
+          "text": "Este doar un set de documente aprobate o singură dată și apoi neschimbate.",
+          "isCorrect": false,
+          "why": "Capitolul spune că documentele curriculare sunt implementate continuu și că există și o latură de program educațional."
+        },
+        {
+          "id": "C",
+          "text": "Este doar planul-cadru și programa fiecărei discipline.",
+          "isCorrect": false,
+          "why": "Capitolul adaugă dimensiunea de program educațional proiectat, implementat și evaluat."
+        },
+        {
+          "id": "D",
+          "text": "Este un proces care depinde exclusiv de factorii interni ai școlii.",
+          "isCorrect": false,
+          "why": "Capitolul menționează ansamblul factorilor externi școlii, relevanți pentru educație."
+        }
+      ],
+      "correctOptionId": "A",
+      "explanation": "Regula: Curriculumul este deopotrivă documente implementate continuu și program educațional proiectat, implementat și evaluat.\n\nVarianta corectă redă a doua latură.\n\nTemei: Capitolul 10, secțiunea privind caracterul complex al curriculumului. Textul relevant: „program educațional proiectat, implementat în contexte diverse și evaluat”",
+      "legalSource": {
+        "document": "Ordinul ministrului educației și cercetării nr. 4.137/2026 — Cadrul de referință al curriculumului național din România, capitolul 10",
+        "consolidatedAt": "2026-10-17",
+        "url": "",
+        "reference": "Capitolul 10, secțiunea privind caracterul complex al curriculumului",
+        "excerpt": "program educațional proiectat, implementat în contexte diverse și evaluat",
+        "verification": "fragment-verificat-automat-pe-textul-oficial-al-capitolului"
+      }
+    },
+    {
+      "id": "CR-A-006",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Cadrul de referință al curriculumului național din România",
+      "annex": "",
+      "title": "Cadrul de referință al curriculumului național din România",
+      "chapter": "Capitolul 10. Managementul curriculumului la nivelul școlii",
+      "section": "Profesorul, actor principal",
+      "article": 6,
+      "paragraph": "",
+      "prompt": "Un profesor întreabă dacă are voie să adapteze planificarea la ritmurile de învățare ale elevilor. Ce răspuns susține capitolul?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Nu: planificarea calendaristică este identică pentru toți profesorii.",
+          "isCorrect": false,
+          "why": "Capitolul spune că profesorul este autonom să se orienteze după ritmurile elevilor."
+        },
+        {
+          "id": "B",
+          "text": "Da, dar numai cu aprobarea inspectorului școlar pentru fiecare modificare.",
+          "isCorrect": false,
+          "why": "Capitolul nu condiționează autonomia de o aprobare a inspectorului."
+        },
+        {
+          "id": "C",
+          "text": "Da, fără nicio responsabilitate pentru progresul elevilor.",
+          "isCorrect": false,
+          "why": "Capitolul asociază libertatea cu responsabilitatea."
+        },
+        {
+          "id": "D",
+          "text": "Da: are libertatea și responsabilitatea de a aplica curriculumul astfel încât să optimizeze învățarea fiecărui elev.",
+          "isCorrect": true
+        }
+      ],
+      "correctOptionId": "D",
+      "explanation": "Regula: Profesorul are libertatea și responsabilitatea de a aplica curriculumul pentru progresul individual.\n\nRăspunsul corect îmbină libertatea cu responsabilitatea.\n\nTemei: Capitolul 10, secțiunea „Profesorul – (f)actor principal în managementul curriculumului la nivelul școlii”. Textul relevant: „profesorul are libertatea și responsabilitatea de a aplica la clasă CN, astfel încât să optimizeze învățarea pentru fiecare elev și să asigure progresul individual în dezvoltarea competențelor”",
+      "legalSource": {
+        "document": "Ordinul ministrului educației și cercetării nr. 4.137/2026 — Cadrul de referință al curriculumului național din România, capitolul 10",
+        "consolidatedAt": "2026-10-17",
+        "url": "",
+        "reference": "Capitolul 10, secțiunea „Profesorul – (f)actor principal în managementul curriculumului la nivelul școlii”",
+        "excerpt": "profesorul are libertatea și responsabilitatea de a aplica la clasă CN, astfel încât să optimizeze învățarea pentru fiecare elev și să asigure progresul individual în dezvoltarea competențelor",
+        "verification": "fragment-verificat-automat-pe-textul-oficial-al-capitolului"
+      }
+    },
+    {
+      "id": "CR-A-007",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Cadrul de referință al curriculumului național din România",
+      "annex": "",
+      "title": "Cadrul de referință al curriculumului național din România",
+      "chapter": "Capitolul 10. Managementul curriculumului la nivelul școlii",
+      "section": "Profesorul, actor principal",
+      "article": 7,
+      "paragraph": "",
+      "prompt": "Doi profesori de științe vor să proiecteze împreună o serie de lecții. Ce sprijin oferă capitolul pentru această practică?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Capitolul interzice proiectarea în echipă, fiecare profesor lucrând separat.",
+          "isCorrect": false,
+          "why": "Capitolul spune contrariul."
+        },
+        {
+          "id": "B",
+          "text": "Capitolul o permite numai la nivelul comisiei de curriculum.",
+          "isCorrect": false,
+          "why": "Capitolul vorbește despre profesori, în colaborare sau în echipă."
+        },
+        {
+          "id": "C",
+          "text": "Abordarea integrată a curriculumului oferă posibilitatea proiectării didactice și a predării în colaborare sau în echipă.",
+          "isCorrect": true
+        },
+        {
+          "id": "D",
+          "text": "Capitolul o recomandă numai pentru clasele primare.",
+          "isCorrect": false,
+          "why": "Capitolul nu limitează abordarea integrată la un nivel."
+        }
+      ],
+      "correctOptionId": "C",
+      "explanation": "Regula: Abordarea integrată oferă posibilitatea proiectării și predării în colaborare sau în echipă.\n\nSituația descrisă este exact un exemplu de colaborare.\n\nTemei: Capitolul 10, secțiunea „Profesorul – (f)actor principal în managementul curriculumului la nivelul școlii”. Textul relevant: „O atenție specială este solicitată de abordarea integrată a curriculumului, care oferă posibilitatea proiectării didactice și predării în colaborare și/sau în echipă.”",
+      "legalSource": {
+        "document": "Ordinul ministrului educației și cercetării nr. 4.137/2026 — Cadrul de referință al curriculumului național din România, capitolul 10",
+        "consolidatedAt": "2026-10-17",
+        "url": "",
+        "reference": "Capitolul 10, secțiunea „Profesorul – (f)actor principal în managementul curriculumului la nivelul școlii”",
+        "excerpt": "O atenție specială este solicitată de abordarea integrată a curriculumului, care oferă posibilitatea proiectării didactice și predării în colaborare și/sau în echipă.",
+        "verification": "fragment-verificat-automat-pe-textul-oficial-al-capitolului"
+      }
+    },
+    {
+      "id": "CR-A-008",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Cadrul de referință al curriculumului național din România",
+      "annex": "",
+      "title": "Cadrul de referință al curriculumului național din România",
+      "chapter": "Capitolul 10. Managementul curriculumului la nivelul școlii",
+      "section": "Demersul de planificare",
+      "article": 8,
+      "paragraph": "",
+      "prompt": "Care este succesiunea corectă, în schema „De la cadrul de referință la învățarea în clasă”, a primilor trei pași ai profesorului?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Planificarea calendaristică, lectura programei, lectura cadrului de referință.",
+          "isCorrect": false,
+          "why": "Ordinea este inversată față de schemă."
+        },
+        {
+          "id": "B",
+          "text": "Lectura cadrului de referință, lectura personalizată a programei școlare, planificarea calendaristică.",
+          "isCorrect": true
+        },
+        {
+          "id": "C",
+          "text": "Proiectarea unităților de învățare, planificarea calendaristică, lectura programei.",
+          "isCorrect": false,
+          "why": "Proiectarea unităților este pasul al patrulea."
+        },
+        {
+          "id": "D",
+          "text": "Lectura programei, proiectarea activităților, planificarea calendaristică.",
+          "isCorrect": false,
+          "why": "Proiectarea activităților de învățare este ultimul pas."
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Regula: Schema: 1 lectura cadrului, 2 lectura personalizată a programei, 3 planificarea calendaristică, 4 proiectarea unităților, 5 proiectarea activităților.\n\nPrimii trei pași sunt cei din răspunsul corect.\n\nTemei: Capitolul 10, schema demersurilor orientative de planificare. Textul relevant: „Lectura CRCNR 2 Lectura personalizată a programei școlare 3 Planificarea calendaristică”",
+      "legalSource": {
+        "document": "Ordinul ministrului educației și cercetării nr. 4.137/2026 — Cadrul de referință al curriculumului național din România, capitolul 10",
+        "consolidatedAt": "2026-10-17",
+        "url": "",
+        "reference": "Capitolul 10, schema demersurilor orientative de planificare",
+        "excerpt": "Lectura CRCNR 2 Lectura personalizată a programei școlare 3 Planificarea calendaristică",
+        "verification": "fragment-verificat-automat-pe-textul-oficial-al-capitolului"
+      }
+    },
+    {
+      "id": "CR-A-009",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Cadrul de referință al curriculumului național din România",
+      "annex": "",
+      "title": "Cadrul de referință al curriculumului național din România",
+      "chapter": "Capitolul 10. Managementul curriculumului la nivelul școlii",
+      "section": "Întrebările profesorului",
+      "article": 9,
+      "paragraph": "",
+      "prompt": "Un profesor se întreabă „De ce voi face?”. Ce reflecție asociază capitolul acestei întrebări?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Reflecția asupra relațiilor de derivare dintre competențele specifice, generale, competențele-cheie și atributele prioritare.",
+          "isCorrect": true
+        },
+        {
+          "id": "B",
+          "text": "Selectarea conținuturilor învățării.",
+          "isCorrect": false,
+          "why": "Aceasta este caseta întrebării „Ce voi valorifica?”."
+        },
+        {
+          "id": "C",
+          "text": "Analiza resurselor curriculare de suport și a celor de timp.",
+          "isCorrect": false,
+          "why": "Aceasta este caseta întrebării „Cu ce voi face?”."
+        },
+        {
+          "id": "D",
+          "text": "Conceperea modalităților și instrumentelor de evaluare.",
+          "isCorrect": false,
+          "why": "Aceasta este caseta întrebării „Cât și cât de bine am realizat?”."
+        }
+      ],
+      "correctOptionId": "A",
+      "explanation": "Regula: De ce voi face? — relațiile de derivare dintre competențe și atributele prioritare.\n\nFiecare întrebare are caseta ei.\n\nTemei: Capitolul 10, schema întrebărilor profesorului. Textul relevant: „De ce voi face? Reflecția asupra relațiilor de derivare dintre competențele specifice, generale, competențele-cheie și atributele prioritare”",
+      "legalSource": {
+        "document": "Ordinul ministrului educației și cercetării nr. 4.137/2026 — Cadrul de referință al curriculumului național din România, capitolul 10",
+        "consolidatedAt": "2026-10-17",
+        "url": "",
+        "reference": "Capitolul 10, schema întrebărilor profesorului",
+        "excerpt": "De ce voi face? Reflecția asupra relațiilor de derivare dintre competențele specifice, generale, competențele-cheie și atributele prioritare",
+        "verification": "fragment-verificat-automat-pe-textul-oficial-al-capitolului"
+      }
+    },
+    {
+      "id": "CR-A-010",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Cadrul de referință al curriculumului național din România",
+      "annex": "",
+      "title": "Cadrul de referință al curriculumului național din România",
+      "chapter": "Capitolul 10. Managementul curriculumului la nivelul școlii",
+      "section": "Întrebările profesorului",
+      "article": 10,
+      "paragraph": "",
+      "prompt": "La întrebarea „Ce voi valorifica?”, ce operație descrie capitolul?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Stabilirea succesiunii și proiectarea activităților de învățare.",
+          "isCorrect": false,
+          "why": "Aceasta este caseta întrebării „Cum voi face?”."
+        },
+        {
+          "id": "B",
+          "text": "Analiza resurselor de timp.",
+          "isCorrect": false,
+          "why": "Aceasta aparține întrebării „Cu ce voi face?”."
+        },
+        {
+          "id": "C",
+          "text": "Reflecția asupra competențelor-cheie.",
+          "isCorrect": false,
+          "why": "Aceasta aparține întrebării „De ce voi face?”."
+        },
+        {
+          "id": "D",
+          "text": "Selectarea conținuturilor învățării, prin raportare la competențele vizate și la standardele de evaluare.",
+          "isCorrect": true
+        }
+      ],
+      "correctOptionId": "D",
+      "explanation": "Regula: Ce voi valorifica? — selectarea conținuturilor învățării.\n\nConținuturile se aleg în raport cu competențele și standardele.\n\nTemei: Capitolul 10, schema întrebărilor profesorului. Textul relevant: „Ce voi valorifica? Selectarea conținuturilor învățării, prin raportare la competențele vizate și la standardele de evaluare”",
+      "legalSource": {
+        "document": "Ordinul ministrului educației și cercetării nr. 4.137/2026 — Cadrul de referință al curriculumului național din România, capitolul 10",
+        "consolidatedAt": "2026-10-17",
+        "url": "",
+        "reference": "Capitolul 10, schema întrebărilor profesorului",
+        "excerpt": "Ce voi valorifica? Selectarea conținuturilor învățării, prin raportare la competențele vizate și la standardele de evaluare",
+        "verification": "fragment-verificat-automat-pe-textul-oficial-al-capitolului"
+      }
+    },
+    {
+      "id": "CR-A-011",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Cadrul de referință al curriculumului național din România",
+      "annex": "",
+      "title": "Cadrul de referință al curriculumului național din România",
+      "chapter": "Capitolul 10. Managementul curriculumului la nivelul școlii",
+      "section": "Întrebările profesorului",
+      "article": 11,
+      "paragraph": "",
+      "prompt": "Un profesor analizează manualele auxiliare disponibile și numărul de ore rămase. La care întrebare din schemă se încadrează această analiză?",
+      "options": [
+        {
+          "id": "A",
+          "text": "„De ce voi face?”",
+          "isCorrect": false,
+          "why": "Aceasta privește relațiile de derivare dintre competențe."
+        },
+        {
+          "id": "B",
+          "text": "„Cum voi face?”",
+          "isCorrect": false,
+          "why": "Aceasta privește succesiunea și proiectarea activităților."
+        },
+        {
+          "id": "C",
+          "text": "„Cu ce voi face?”: analiza resurselor curriculare de suport și a celor de timp.",
+          "isCorrect": true
+        },
+        {
+          "id": "D",
+          "text": "„Cât și cât de bine am realizat?”",
+          "isCorrect": false,
+          "why": "Aceasta privește modalitățile și instrumentele de evaluare."
+        }
+      ],
+      "correctOptionId": "C",
+      "explanation": "Regula: Cu ce voi face? — resurse curriculare de suport și de timp.\n\nAnaliza descrisă este exact aceasta.\n\nTemei: Capitolul 10, schema întrebărilor profesorului. Textul relevant: „Cu ce voi face? Analiza resurselor curriculare de suport, a celor de timp”",
+      "legalSource": {
+        "document": "Ordinul ministrului educației și cercetării nr. 4.137/2026 — Cadrul de referință al curriculumului național din România, capitolul 10",
+        "consolidatedAt": "2026-10-17",
+        "url": "",
+        "reference": "Capitolul 10, schema întrebărilor profesorului",
+        "excerpt": "Cu ce voi face? Analiza resurselor curriculare de suport, a celor de timp",
+        "verification": "fragment-verificat-automat-pe-textul-oficial-al-capitolului"
+      }
+    },
+    {
+      "id": "CR-A-012",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Cadrul de referință al curriculumului național din România",
+      "annex": "",
+      "title": "Cadrul de referință al curriculumului național din România",
+      "chapter": "Capitolul 10. Managementul curriculumului la nivelul școlii",
+      "section": "Întrebările profesorului",
+      "article": 12,
+      "paragraph": "",
+      "prompt": "Care întrebare din schemă se asociază cu conceperea instrumentelor de evaluare și cu raportarea la standardele de evaluare?",
+      "options": [
+        {
+          "id": "A",
+          "text": "„De ce voi face?”",
+          "isCorrect": false,
+          "why": "Aceasta privește relațiile dintre competențe."
+        },
+        {
+          "id": "B",
+          "text": "„Cât și cât de bine am realizat?”",
+          "isCorrect": true
+        },
+        {
+          "id": "C",
+          "text": "„Ce voi valorifica?”",
+          "isCorrect": false,
+          "why": "Aceasta privește selectarea conținuturilor."
+        },
+        {
+          "id": "D",
+          "text": "„Cum voi face?”",
+          "isCorrect": false,
+          "why": "Aceasta privește succesiunea activităților."
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Regula: Cât și cât de bine am realizat? — evaluare și standarde de evaluare.\n\nEvaluarea apare la ultima întrebare.\n\nTemei: Capitolul 10, schema întrebărilor profesorului. Textul relevant: „Cât și cât de bine am realizat? Conceperea modalităților și instrumentelor de evaluare. Raportarea la standardele de evaluare”",
+      "legalSource": {
+        "document": "Ordinul ministrului educației și cercetării nr. 4.137/2026 — Cadrul de referință al curriculumului național din România, capitolul 10",
+        "consolidatedAt": "2026-10-17",
+        "url": "",
+        "reference": "Capitolul 10, schema întrebărilor profesorului",
+        "excerpt": "Cât și cât de bine am realizat? Conceperea modalităților și instrumentelor de evaluare. Raportarea la standardele de evaluare",
+        "verification": "fragment-verificat-automat-pe-textul-oficial-al-capitolului"
+      }
+    },
+    {
+      "id": "CR-A-013",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Cadrul de referință al curriculumului național din România",
+      "annex": "",
+      "title": "Cadrul de referință al curriculumului național din România",
+      "chapter": "Capitolul 10. Managementul curriculumului la nivelul școlii",
+      "section": "Documentele profesorului",
+      "article": 13,
+      "paragraph": "",
+      "prompt": "La care documente școlare se raportează profesorul după reflecția ghidată de întrebări?",
+      "options": [
+        {
+          "id": "A",
+          "text": "La planificarea calendaristică și la proiectul unității de învățare, detaliat, după caz, cu elemente de proiectare a activităților de învățare.",
+          "isCorrect": true
+        },
+        {
+          "id": "B",
+          "text": "Numai la planul managerial al școlii.",
+          "isCorrect": false,
+          "why": "Capitolul numește două documente ale profesorului, nu planul managerial."
+        },
+        {
+          "id": "C",
+          "text": "Numai la regulamentul intern.",
+          "isCorrect": false,
+          "why": "Regulamentul intern nu este printre documentele enumerate."
+        },
+        {
+          "id": "D",
+          "text": "La planul de școlarizare și la raportul anual de activitate.",
+          "isCorrect": false,
+          "why": "Acestea nu sunt documentele numite în capitol."
+        }
+      ],
+      "correctOptionId": "A",
+      "explanation": "Regula: Documentele profesorului: planificarea calendaristică și proiectul unității de învățare.\n\nCele două sunt enumerate explicit.\n\nTemei: Capitolul 10, secțiunea privind planificarea și proiectarea didactică. Textul relevant: „1. planificarea calendaristică, 2. proiectul unității de învățare, detaliat, după caz, cu elemente de proiectare a activităților de învățare.”",
+      "legalSource": {
+        "document": "Ordinul ministrului educației și cercetării nr. 4.137/2026 — Cadrul de referință al curriculumului național din România, capitolul 10",
+        "consolidatedAt": "2026-10-17",
+        "url": "",
+        "reference": "Capitolul 10, secțiunea privind planificarea și proiectarea didactică",
+        "excerpt": "1. planificarea calendaristică, 2. proiectul unității de învățare, detaliat, după caz, cu elemente de proiectare a activităților de învățare.",
+        "verification": "fragment-verificat-automat-pe-textul-oficial-al-capitolului"
+      }
+    },
+    {
+      "id": "CR-A-014",
+      "kind": "aplicare",
+      "difficulty": "expert",
+      "module": "Cadrul de referință al curriculumului național din România",
+      "annex": "",
+      "title": "Cadrul de referință al curriculumului național din România",
+      "chapter": "Capitolul 10. Managementul curriculumului la nivelul școlii",
+      "section": "Planificarea calendaristică",
+      "article": 14,
+      "paragraph": "",
+      "prompt": "Care dintre întrebările următoare aparține procesului de elaborare a planificării calendaristice, nu proiectului unității de învățare?",
+      "options": [
+        {
+          "id": "A",
+          "text": "„Cum structurez în activități conținuturile detaliate ale învățării?”",
+          "isCorrect": false,
+          "why": "Aparține proiectului unității de învățare."
+        },
+        {
+          "id": "B",
+          "text": "„Ce standarde naționale de evaluare asociez unității de învățare?”",
+          "isCorrect": false,
+          "why": "Aparține proiectului unității de învățare."
+        },
+        {
+          "id": "C",
+          "text": "„Cum voi valorifica experiența dobândită în unitățile de învățare ulterioare?”",
+          "isCorrect": false,
+          "why": "Aparține proiectului unității de învățare."
+        },
+        {
+          "id": "D",
+          "text": "„Care este bugetul de timp asociat fiecărei unități de învățare?”",
+          "isCorrect": true
+        }
+      ],
+      "correctOptionId": "D",
+      "explanation": "Regula: Planificarea calendaristică: succesiunea, relațiile dintre unități, bugetul de timp, orele disponibile, adaptările înregistrate.\n\nDoar bugetul de timp este în lista planificării.\n\nTemei: Capitolul 10, lista întrebărilor pentru planificarea calendaristică. Textul relevant: „Care este bugetul de timp asociat fiecărei unități de învățare?”",
+      "legalSource": {
+        "document": "Ordinul ministrului educației și cercetării nr. 4.137/2026 — Cadrul de referință al curriculumului național din România, capitolul 10",
+        "consolidatedAt": "2026-10-17",
+        "url": "",
+        "reference": "Capitolul 10, lista întrebărilor pentru planificarea calendaristică",
+        "excerpt": "Care este bugetul de timp asociat fiecărei unități de învățare?",
+        "verification": "fragment-verificat-automat-pe-textul-oficial-al-capitolului"
+      }
+    },
+    {
+      "id": "CR-A-015",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Cadrul de referință al curriculumului național din România",
+      "annex": "",
+      "title": "Cadrul de referință al curriculumului național din România",
+      "chapter": "Capitolul 10. Managementul curriculumului la nivelul școlii",
+      "section": "Proiectul activității de învățare",
+      "article": 15,
+      "paragraph": "",
+      "prompt": "Care dintre întrebările următoare este pusă la proiectarea unei activități de învățare?",
+      "options": [
+        {
+          "id": "A",
+          "text": "„Câte ore am la dispoziție, în ansamblul planificării?”",
+          "isCorrect": false,
+          "why": "Aparține planificării calendaristice."
+        },
+        {
+          "id": "B",
+          "text": "„În ce succesiune vor fi abordate unitățile de învățare?”",
+          "isCorrect": false,
+          "why": "Aparține planificării calendaristice."
+        },
+        {
+          "id": "C",
+          "text": "„Ce prerechizite ale învățării au elevii și cum vor fi valorificate acestea pentru realizarea standardelor de învățare vizate?”",
+          "isCorrect": true
+        },
+        {
+          "id": "D",
+          "text": "„Care sunt relațiile dintre unitățile de învățare?”",
+          "isCorrect": false,
+          "why": "Aparține planificării calendaristice."
+        }
+      ],
+      "correctOptionId": "C",
+      "explanation": "Regula: Proiectul activității de învățare cuprinde întrebări despre standarde, prerechizite, conținuturi, activități și evaluare.\n\nPrerechizitele sunt specifice activității de învățare.\n\nTemei: Capitolul 10, lista întrebărilor pentru proiectul activității de învățare. Textul relevant: „Ce prerechizite ale învățării au elevii și cum vor fi valorificate acestea pentru realizarea standardelor de învățare vizate?”",
+      "legalSource": {
+        "document": "Ordinul ministrului educației și cercetării nr. 4.137/2026 — Cadrul de referință al curriculumului național din România, capitolul 10",
+        "consolidatedAt": "2026-10-17",
+        "url": "",
+        "reference": "Capitolul 10, lista întrebărilor pentru proiectul activității de învățare",
+        "excerpt": "Ce prerechizite ale învățării au elevii și cum vor fi valorificate acestea pentru realizarea standardelor de învățare vizate?",
+        "verification": "fragment-verificat-automat-pe-textul-oficial-al-capitolului"
+      }
+    },
+    {
+      "id": "CR-A-016",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Cadrul de referință al curriculumului național din România",
+      "annex": "",
+      "title": "Cadrul de referință al curriculumului național din România",
+      "chapter": "Capitolul 10. Managementul curriculumului la nivelul școlii",
+      "section": "Conducerea școlii",
+      "article": 16,
+      "paragraph": "",
+      "prompt": "Echipa managerială pregătește planul de aplicare a curriculumului centrat pe competențe. Ce două sarcini enumeră capitolul la început?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Numirea comisiilor de curriculum și evaluarea elevilor la examene.",
+          "isCorrect": false,
+          "why": "Nu sunt primele sarcini enumerate."
+        },
+        {
+          "id": "B",
+          "text": "Elaborarea ofertei educaționale a școlii și includerea problematicii curriculumului în documentele manageriale.",
+          "isCorrect": true
+        },
+        {
+          "id": "C",
+          "text": "Aprobarea manualelor și stabilirea notelor finale.",
+          "isCorrect": false,
+          "why": "Nu sunt sarcini enumerate de capitol pentru conducere."
+        },
+        {
+          "id": "D",
+          "text": "Elaborarea bugetului și angajarea personalului.",
+          "isCorrect": false,
+          "why": "Capitolul nu le enumeră printre primele sarcini privind curriculumul."
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Regula: Conducerea elaborează oferta educațională și include curriculumul în documentele manageriale.\n\nAcestea deschid lista.\n\nTemei: Capitolul 10, secțiunea „Conducerea școlii – echipă de orientare strategică și de soluționare operațională”. Textul relevant: „- elaborarea ofertei educaționale a școlii; - includerea problematicii curriculumului în documentele manageriale ale școlii”",
+      "legalSource": {
+        "document": "Ordinul ministrului educației și cercetării nr. 4.137/2026 — Cadrul de referință al curriculumului național din România, capitolul 10",
+        "consolidatedAt": "2026-10-17",
+        "url": "",
+        "reference": "Capitolul 10, secțiunea „Conducerea școlii – echipă de orientare strategică și de soluționare operațională”",
+        "excerpt": "- elaborarea ofertei educaționale a școlii; - includerea problematicii curriculumului în documentele manageriale ale școlii",
+        "verification": "fragment-verificat-automat-pe-textul-oficial-al-capitolului"
+      }
+    },
+    {
+      "id": "CR-A-017",
+      "kind": "aplicare",
+      "difficulty": "expert",
+      "module": "Cadrul de referință al curriculumului național din România",
+      "annex": "",
+      "title": "Cadrul de referință al curriculumului național din România",
+      "chapter": "Capitolul 10. Managementul curriculumului la nivelul școlii",
+      "section": "Schema orară",
+      "article": 17,
+      "paragraph": "",
+      "prompt": "Cum definește capitolul schema orară realizată de conducerea școlii?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Particularizează planul-cadru pentru o anumită clasă, incluzând orele din trunchiul comun și orele pentru curriculumul de specialitate flexibil și pentru curriculumul la decizia elevului, ca rezultat al opțiunilor elevilor.",
+          "isCorrect": true
+        },
+        {
+          "id": "B",
+          "text": "Este identică pentru toate clasele din școală, indiferent de opțiuni.",
+          "isCorrect": false,
+          "why": "Capitolul spune că particularizează planul-cadru pentru o anumită clasă."
+        },
+        {
+          "id": "C",
+          "text": "Cuprinde doar orele din trunchiul comun.",
+          "isCorrect": false,
+          "why": "Capitolul include și orele pentru cele două tipuri de curriculum opțional."
+        },
+        {
+          "id": "D",
+          "text": "Se stabilește numai de inspectorul școlar.",
+          "isCorrect": false,
+          "why": "Capitolul o atribuie conducerii școlii."
+        }
+      ],
+      "correctOptionId": "A",
+      "explanation": "Regula: Schema orară particularizează planul-cadru pentru o clasă, ținând cont de opțiunile elevilor.\n\nDefiniția include trunchiul comun și orele opționale.\n\nTemei: Capitolul 10, secțiunea „Conducerea școlii – echipă de orientare strategică și de soluționare operațională”. Textul relevant: „schema orară particularizează planul-cadru de învățământ pentru o anumită clasă, incluzând orele alocate pentru disciplinele din trunchiul comun și orele pentru CS flexibil și CDEOȘ, ca rezultat al opțiunilor elevilor”",
+      "legalSource": {
+        "document": "Ordinul ministrului educației și cercetării nr. 4.137/2026 — Cadrul de referință al curriculumului național din România, capitolul 10",
+        "consolidatedAt": "2026-10-17",
+        "url": "",
+        "reference": "Capitolul 10, secțiunea „Conducerea școlii – echipă de orientare strategică și de soluționare operațională”",
+        "excerpt": "schema orară particularizează planul-cadru de învățământ pentru o anumită clasă, incluzând orele alocate pentru disciplinele din trunchiul comun și orele pentru CS flexibil și CDEOȘ, ca rezultat al opțiunilor elevilor",
+        "verification": "fragment-verificat-automat-pe-textul-oficial-al-capitolului"
+      }
+    },
+    {
+      "id": "CR-A-018",
+      "kind": "aplicare",
+      "difficulty": "expert",
+      "module": "Cadrul de referință al curriculumului național din România",
+      "annex": "",
+      "title": "Cadrul de referință al curriculumului național din România",
+      "chapter": "Capitolul 10. Managementul curriculumului la nivelul școlii",
+      "section": "Oferta educațională",
+      "article": 18,
+      "paragraph": "",
+      "prompt": "Un director crede că, dacă a stabilit oferta de discipline opționale, și-a încheiat managementul curriculumului. Ce precizează capitolul?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Se reduce la oferta de opționale, deoarece restul este decis la nivel național.",
+          "isCorrect": false,
+          "why": "Capitolul spune explicit contrariul."
+        },
+        {
+          "id": "B",
+          "text": "Se reduce la elaborarea schemelor orare.",
+          "isCorrect": false,
+          "why": "Schema orară este una dintre sarcini, nu totalitatea."
+        },
+        {
+          "id": "C",
+          "text": "Se reduce la formarea profesorilor, restul fiind secundar.",
+          "isCorrect": false,
+          "why": "Formarea este una dintre sarcini, nu totalitatea."
+        },
+        {
+          "id": "D",
+          "text": "Managementul curriculumului la nivelul școlii nu se reduce la managementul curriculumului la decizia elevului și al curriculumului de specialitate flexibil.",
+          "isCorrect": true
+        }
+      ],
+      "correctOptionId": "D",
+      "explanation": "Regula: Managementul curriculumului nu se reduce la oferta opțională.\n\nAfirmația directorului este deci incompletă.\n\nTemei: Capitolul 10, secțiunea „Conducerea școlii – echipă de orientare strategică și de soluționare operațională”. Textul relevant: „managementul curriculumului la nivelul școlii nu se reduce la managementul CDEOȘ și/sau CS flexibil”",
+      "legalSource": {
+        "document": "Ordinul ministrului educației și cercetării nr. 4.137/2026 — Cadrul de referință al curriculumului național din România, capitolul 10",
+        "consolidatedAt": "2026-10-17",
+        "url": "",
+        "reference": "Capitolul 10, secțiunea „Conducerea școlii – echipă de orientare strategică și de soluționare operațională”",
+        "excerpt": "managementul curriculumului la nivelul școlii nu se reduce la managementul CDEOȘ și/sau CS flexibil",
+        "verification": "fragment-verificat-automat-pe-textul-oficial-al-capitolului"
+      }
+    },
+    {
+      "id": "CR-A-019",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Cadrul de referință al curriculumului național din România",
+      "annex": "",
+      "title": "Cadrul de referință al curriculumului național din România",
+      "chapter": "Capitolul 10. Managementul curriculumului la nivelul școlii",
+      "section": "Monitorizarea",
+      "article": 19,
+      "paragraph": "",
+      "prompt": "Cu ce rol este prevăzut în capitol ca directorul să dezvolte strategii de monitorizare a implementării curriculumului?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Cu rol de sancționare a profesorilor care nu respectă programa.",
+          "isCorrect": false,
+          "why": "Capitolul vorbește despre sprijin și motivare."
+        },
+        {
+          "id": "B",
+          "text": "Cu rol exclusiv de raportare către inspectorat.",
+          "isCorrect": false,
+          "why": "Capitolul vorbește despre sprijin și motivare."
+        },
+        {
+          "id": "C",
+          "text": "Cu rol de sprijin și motivare.",
+          "isCorrect": true
+        },
+        {
+          "id": "D",
+          "text": "Cu rol de clasificare a profesorilor în ordinea performanței.",
+          "isCorrect": false,
+          "why": "Capitolul nu prevede o astfel de clasificare."
+        }
+      ],
+      "correctOptionId": "C",
+      "explanation": "Regula: Monitorizarea are rol de sprijin și motivare.\n\nAceasta este precizarea din capitol.\n\nTemei: Capitolul 10, lista sarcinilor conducerii școlii. Textul relevant: „dezvoltarea unor strategii de monitorizare a implementării curriculumului la nivelul clasei și al școlii, în general, cu rol de sprijin și motivare”",
+      "legalSource": {
+        "document": "Ordinul ministrului educației și cercetării nr. 4.137/2026 — Cadrul de referință al curriculumului național din România, capitolul 10",
+        "consolidatedAt": "2026-10-17",
+        "url": "",
+        "reference": "Capitolul 10, lista sarcinilor conducerii școlii",
+        "excerpt": "dezvoltarea unor strategii de monitorizare a implementării curriculumului la nivelul clasei și al școlii, în general, cu rol de sprijin și motivare",
+        "verification": "fragment-verificat-automat-pe-textul-oficial-al-capitolului"
+      }
+    },
+    {
+      "id": "CR-A-020",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Cadrul de referință al curriculumului național din România",
+      "annex": "",
+      "title": "Cadrul de referință al curriculumului național din România",
+      "chapter": "Capitolul 10. Managementul curriculumului la nivelul școlii",
+      "section": "Abilitarea profesorilor",
+      "article": 20,
+      "paragraph": "",
+      "prompt": "Cum privește capitolul profesorii atunci când directorul îi abilitează pentru aplicarea noilor programe școlare?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Ca simpli executanți ai programelor stabilite la nivel național.",
+          "isCorrect": false,
+          "why": "Capitolul îi recunoaște ca practicieni cu rol în schimbare."
+        },
+        {
+          "id": "B",
+          "text": "Ca practicieni în educație, cu rol în producerea schimbării.",
+          "isCorrect": true
+        },
+        {
+          "id": "C",
+          "text": "Ca beneficiari ai formării, fără influență asupra practicii.",
+          "isCorrect": false,
+          "why": "Capitolul le recunoaște rolul în producerea schimbării."
+        },
+        {
+          "id": "D",
+          "text": "Ca observatori ai activității inspectorului școlar.",
+          "isCorrect": false,
+          "why": "Capitolul nu îi descrie astfel."
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Regula: Profesorii sunt practicieni în educație, cu rol în producerea schimbării.\n\nAceasta este formularea capitolului.\n\nTemei: Capitolul 10, lista sarcinilor conducerii școlii. Textul relevant: „abilitarea profesorilor pentru aplicarea la clasă a unor noi programe școlare pornind de la recunoașterea rolului acestora, ca practicieni în educație, în producerea schimbării”",
+      "legalSource": {
+        "document": "Ordinul ministrului educației și cercetării nr. 4.137/2026 — Cadrul de referință al curriculumului național din România, capitolul 10",
+        "consolidatedAt": "2026-10-17",
+        "url": "",
+        "reference": "Capitolul 10, lista sarcinilor conducerii școlii",
+        "excerpt": "abilitarea profesorilor pentru aplicarea la clasă a unor noi programe școlare pornind de la recunoașterea rolului acestora, ca practicieni în educație, în producerea schimbării",
+        "verification": "fragment-verificat-automat-pe-textul-oficial-al-capitolului"
+      }
+    },
+    {
+      "id": "CR-A-021",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Cadrul de referință al curriculumului național din România",
+      "annex": "",
+      "title": "Cadrul de referință al curriculumului național din România",
+      "chapter": "Capitolul 10. Managementul curriculumului la nivelul școlii",
+      "section": "Comisiile din școală",
+      "article": 21,
+      "paragraph": "",
+      "prompt": "Cum identifică, potrivit capitolului, comisiile cu atribuții în domeniul curriculumului nevoile de formare ale profesorilor?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Prin analize de nevoi periodice și sistematice.",
+          "isCorrect": true
+        },
+        {
+          "id": "B",
+          "text": "Prin observarea ocazională a lecțiilor.",
+          "isCorrect": false,
+          "why": "Capitolul vorbește despre analize periodice și sistematice."
+        },
+        {
+          "id": "C",
+          "text": "Prin cererile individuale ale profesorilor, o dată pe an.",
+          "isCorrect": false,
+          "why": "Capitolul vorbește despre analize periodice și sistematice."
+        },
+        {
+          "id": "D",
+          "text": "Prin deciziile consiliului local.",
+          "isCorrect": false,
+          "why": "Consiliul local nu este menționat în acest context."
+        }
+      ],
+      "correctOptionId": "A",
+      "explanation": "Regula: Nevoile de formare se identifică prin analize periodice și sistematice.\n\nAceasta este formularea capitolului.\n\nTemei: Capitolul 10, lista contribuțiilor comisiilor. Textul relevant: „identificarea nevoilor de formare ale profesorilor în domeniul curriculumului, prin analize de nevoi periodice și sistematice”",
+      "legalSource": {
+        "document": "Ordinul ministrului educației și cercetării nr. 4.137/2026 — Cadrul de referință al curriculumului național din România, capitolul 10",
+        "consolidatedAt": "2026-10-17",
+        "url": "",
+        "reference": "Capitolul 10, lista contribuțiilor comisiilor",
+        "excerpt": "identificarea nevoilor de formare ale profesorilor în domeniul curriculumului, prin analize de nevoi periodice și sistematice",
+        "verification": "fragment-verificat-automat-pe-textul-oficial-al-capitolului"
+      }
+    },
+    {
+      "id": "CR-A-022",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Cadrul de referință al curriculumului național din România",
+      "annex": "",
+      "title": "Cadrul de referință al curriculumului național din România",
+      "chapter": "Capitolul 10. Managementul curriculumului la nivelul școlii",
+      "section": "Comisiile din școală",
+      "article": 22,
+      "paragraph": "",
+      "prompt": "Ce funcție a comisiilor de curriculum și de formare este descrisă prin expresia „consiliere curriculară”?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Evaluarea disciplinară a profesorilor care nu respectă programa.",
+          "isCorrect": false,
+          "why": "Capitolul vorbește despre consiliere, nu despre cercetare disciplinară."
+        },
+        {
+          "id": "B",
+          "text": "Aprobarea orarului școlii.",
+          "isCorrect": false,
+          "why": "Aprobarea orarului nu este în această contribuție."
+        },
+        {
+          "id": "C",
+          "text": "Selecția candidaților la funcții de conducere.",
+          "isCorrect": false,
+          "why": "Nu este în această contribuție."
+        },
+        {
+          "id": "D",
+          "text": "Consilierea profesorilor în aplicarea și evaluarea curriculumului, cu aspecte critice, bune practici și inovare.",
+          "isCorrect": true
+        }
+      ],
+      "correctOptionId": "D",
+      "explanation": "Regula: Consilierea curriculară acoperă aspecte critice, bune practici și inovare.\n\nAceasta este formularea contribuției.\n\nTemei: Capitolul 10, lista contribuțiilor comisiilor. Textul relevant: „consilierea curriculară a profesorilor, în aplicarea și evaluarea curriculumului în școală”",
+      "legalSource": {
+        "document": "Ordinul ministrului educației și cercetării nr. 4.137/2026 — Cadrul de referință al curriculumului național din România, capitolul 10",
+        "consolidatedAt": "2026-10-17",
+        "url": "",
+        "reference": "Capitolul 10, lista contribuțiilor comisiilor",
+        "excerpt": "consilierea curriculară a profesorilor, în aplicarea și evaluarea curriculumului în școală",
+        "verification": "fragment-verificat-automat-pe-textul-oficial-al-capitolului"
+      }
+    },
+    {
+      "id": "CR-A-023",
+      "kind": "aplicare",
+      "difficulty": "avansat",
+      "module": "Cadrul de referință al curriculumului național din România",
+      "annex": "",
+      "title": "Cadrul de referință al curriculumului național din România",
+      "chapter": "Capitolul 10. Managementul curriculumului la nivelul școlii",
+      "section": "Inspectorul școlar",
+      "article": 23,
+      "paragraph": "",
+      "prompt": "Care dintre rolurile următoare îi revine inspectorului școlar în transpunerea curriculumului național la nivelul școlii?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Elaborarea schemei orare a școlii.",
+          "isCorrect": false,
+          "why": "Schema orară este sarcina conducerii școlii."
+        },
+        {
+          "id": "B",
+          "text": "Alegerea disciplinelor opționale în locul elevilor.",
+          "isCorrect": false,
+          "why": "Alegerea aparține elevilor, nu inspectorului."
+        },
+        {
+          "id": "C",
+          "text": "Asigurarea coerenței dintre curriculumul oficial și cel aplicat în școală.",
+          "isCorrect": true
+        },
+        {
+          "id": "D",
+          "text": "Aprobarea individuală a fiecărei planificări calendaristice.",
+          "isCorrect": false,
+          "why": "Capitolul nu prevede aprobarea fiecărei planificări."
+        }
+      ],
+      "correctOptionId": "C",
+      "explanation": "Regula: Inspectorul consiliază, asigură coerența și monitorizează prin dialog profesional.\n\nCoerența dintre curriculumul oficial și cel aplicat este rolul menționat.\n\nTemei: Capitolul 10, secțiunea „Inspectorul școlar – consilier pentru managementul curriculumului la nivelul școlii”. Textul relevant: „asigurarea coerenței dintre curriculumul oficial și cel aplicat în școală”",
+      "legalSource": {
+        "document": "Ordinul ministrului educației și cercetării nr. 4.137/2026 — Cadrul de referință al curriculumului național din România, capitolul 10",
+        "consolidatedAt": "2026-10-17",
+        "url": "",
+        "reference": "Capitolul 10, secțiunea „Inspectorul școlar – consilier pentru managementul curriculumului la nivelul școlii”",
+        "excerpt": "asigurarea coerenței dintre curriculumul oficial și cel aplicat în școală",
+        "verification": "fragment-verificat-automat-pe-textul-oficial-al-capitolului"
+      }
+    },
+    {
+      "id": "CR-A-024",
+      "kind": "aplicare",
+      "difficulty": "expert",
+      "module": "Cadrul de referință al curriculumului național din România",
+      "annex": "",
+      "title": "Cadrul de referință al curriculumului național din România",
+      "chapter": "Capitolul 10. Managementul curriculumului la nivelul școlii",
+      "section": "Cultura școlii",
+      "article": 24,
+      "paragraph": "",
+      "prompt": "Ce afirmă capitolul despre locul managementului curriculumului în managementul educațional?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Este o parte secundară, subordonată managementului financiar.",
+          "isCorrect": false,
+          "why": "Capitolul îl numește partea cea mai semnificativă."
+        },
+        {
+          "id": "B",
+          "text": "Este partea cea mai semnificativă a managementului educațional, influențată atât de prevederile oficiale, cât și de valorile și tradițiile organizației școlare.",
+          "isCorrect": true
+        },
+        {
+          "id": "C",
+          "text": "Este influențat numai de prevederile oficiale de politică educațională.",
+          "isCorrect": false,
+          "why": "Capitolul adaugă valorile, normele, credințele și tradițiile."
+        },
+        {
+          "id": "D",
+          "text": "Este independent de cultura școlii.",
+          "isCorrect": false,
+          "why": "Capitolul spune că cultura școlii îl poate influența major."
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Regula: Managementul curriculumului este partea cea mai semnificativă a managementului educațional.\n\nConcluzia include și influența culturii școlii.\n\nTemei: Capitolul 10, paragraful de încheiere. Textul relevant: „Managementul curriculumului la nivelul școlii este partea cea mai semnificativă a managementului educațional”",
+      "legalSource": {
+        "document": "Ordinul ministrului educației și cercetării nr. 4.137/2026 — Cadrul de referință al curriculumului național din România, capitolul 10",
+        "consolidatedAt": "2026-10-17",
+        "url": "",
+        "reference": "Capitolul 10, paragraful de încheiere",
+        "excerpt": "Managementul curriculumului la nivelul școlii este partea cea mai semnificativă a managementului educațional",
+        "verification": "fragment-verificat-automat-pe-textul-oficial-al-capitolului"
+      }
+    },
+    {
+      "id": "CR-A-025",
+      "kind": "aplicare",
+      "difficulty": "expert",
+      "module": "Cadrul de referință al curriculumului național din România",
+      "annex": "",
+      "title": "Cadrul de referință al curriculumului național din România",
+      "chapter": "Capitolul 10. Managementul curriculumului la nivelul școlii",
+      "section": "Cultura școlii",
+      "article": 25,
+      "paragraph": "",
+      "prompt": "O școală constată că unii elevi nu pot accesa efectiv învățarea. Ce soluție oferă capitolul, ca exemplu de legătură între cultura școlii și echitate?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Echitatea și accesul efectiv al tuturor elevilor la învățare pot fi asigurate prin adaptarea resurselor curriculare.",
+          "isCorrect": true
+        },
+        {
+          "id": "B",
+          "text": "Reducerea numărului de discipline opționale oferite elevilor.",
+          "isCorrect": false,
+          "why": "Capitolul indică adaptarea resurselor curriculare, nu reducerea ofertei."
+        },
+        {
+          "id": "C",
+          "text": "Aplicarea identică a resurselor tuturor elevilor, pentru uniformitate.",
+          "isCorrect": false,
+          "why": "Capitolul indică adaptarea resurselor, nu uniformitatea."
+        },
+        {
+          "id": "D",
+          "text": "Transferul responsabilității către părinți.",
+          "isCorrect": false,
+          "why": "Capitolul nu o menționează; indică adaptarea resurselor curriculare."
+        }
+      ],
+      "correctOptionId": "A",
+      "explanation": "Regula: Echitatea și accesul se asigură prin adaptarea resurselor curriculare.\n\nExemplul din capitol se aplică direct situației.\n\nTemei: Capitolul 10, paragraful de încheiere. Textul relevant: „echitatea și accesul efectiv al tuturor elevilor la învățare pot fi asigurate prin adaptarea resurselor curriculare”",
+      "legalSource": {
+        "document": "Ordinul ministrului educației și cercetării nr. 4.137/2026 — Cadrul de referință al curriculumului național din România, capitolul 10",
+        "consolidatedAt": "2026-10-17",
+        "url": "",
+        "reference": "Capitolul 10, paragraful de încheiere",
+        "excerpt": "echitatea și accesul efectiv al tuturor elevilor la învățare pot fi asigurate prin adaptarea resurselor curriculare",
+        "verification": "fragment-verificat-automat-pe-textul-oficial-al-capitolului"
+      }
+    }
+  ]
+}
